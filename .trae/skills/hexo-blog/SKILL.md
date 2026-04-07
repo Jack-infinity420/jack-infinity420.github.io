@@ -2,7 +2,8 @@
 name: "hexo-blog"
 description: "Hexo + Butterfly 主题博客开发助手。Invoke when user works with Hexo blog, edits _config files, creates posts, or runs hexo commands."
 ---
-
+### 博客域名 lvjf.space
+-目前我已有cloudflare账号
 # Hexo Blog Skill
 
 ## 项目核心信息

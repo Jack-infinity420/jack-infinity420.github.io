@@ -50,29 +50,29 @@ social:
    fas fa-envelope: mailto:bchljf048649@163.com || Email || '#4a7dbe'
 
 # --------------------------------------
-# Image Settings
+# Image Settings - Optimized with JSDMirror (China CDN)
 # --------------------------------------
 #浏览器标签页上的小图标
-favicon: /images/navlogo.png
+favicon: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/navlogo.png
 
 avatar:    #网络图标、网站侧边栏/关于页面的头像
-  img: /images/icon.jpg
+  img: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/icon.jpg
   effect: false
 
 # Disable all banner images
 disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
-default_top_img: /images/default_top_image_forest.jpg
+default_top_img: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/default_top_image_forest.jpg
 #当文章或页面没有单独设置顶部图片时，显示这个默认图片
 # The banner image of index page
-index_img: /images/universe.jpg
+index_img: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/universe.jpg
 
 # The banner image of archive page
-archive_img: /images/rainbow.jpg
+archive_img: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/rainbow.jpg
 
 # Note: tag page, not tags page
-tag_img: /images/hometown.jpg
+tag_img: https://jsd.cdn.zzko.cn/gh/Jack-infinity420/jack-infinity420.github.io@main/source/images/hometown.jpg
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:
