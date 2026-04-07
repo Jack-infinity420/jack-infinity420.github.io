@@ -170,10 +170,10 @@ subtitle:
   source: false
   # If you close the typewriter effect, the subtitle will only show the first line of sub
   sub:
+    - 在广袤的空间和无限的时间中，能与你共享同一颗行星和同一段时光是我的荣幸
     - 给时光以生命，给岁月以文明
     - 地球惟是摇篮，宇宙未有终焉
-    - 你我皆为星辰之子，每一个细胞都书写着整个宇宙的历史
-    - 在广袤的空间和无限的时间中，能与你共享同一颗行星和同一段时光是我的荣幸
+    - 你我皆为星辰之子，每一个细胞X都书写着整个宇宙的历史
     - 失败是一种选择。如果事情没有失败，那说明你的创新还不够
     - 创业就像嚼着玻璃凝视深渊。如果你需要激励，那就不该创业
     - 与其站在巨人的肩膀上，不如回到物理学的第一性原理
@@ -510,7 +510,8 @@ search:
       # Number of search results per page
       hitsPerPage: 8
     CDN:
-
+      internal_provider: local
+      third_party_provider: local
   # Docsearch
   # https://docsearch.algolia.com/
   docsearch:
