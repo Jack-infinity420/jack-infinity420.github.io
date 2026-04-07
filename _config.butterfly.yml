@@ -1076,7 +1076,7 @@ inject:
   bottom:
     # - <script src="xxxx"></script>
 
-# CDN Settings - Optimized for Vercel + jsDelivr
+# CDN Settings - Optimized for China CDN
 # Don't modify the following settings unless you know how they work
 CDN:
   # The CDN provider for internal and third-party scripts
@@ -1084,13 +1084,13 @@ CDN:
   # Note: Dev version can only use 'local' for internal scripts
   # Note: When setting third-party scripts to 'local', you need to install hexo-butterfly-extjs
   internal_provider: local
-  third_party_provider: jsdelivr
+  third_party_provider: custom
 
   # Add version number to url, true or false
   version: true
 
-  # Custom format for jsDelivr optimization
-  # jsDelivr has excellent China CDN coverage
+  # Custom format for China CDN optimization
+  # Using JSDMirror - a fast China CDN mirror
   custom_format: https://cdn.jsdelivr.net/npm/${cdnjs_name}@${version}/${min_cdnjs_file}
 
   option:

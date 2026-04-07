@@ -1,6 +1,7 @@
 # Head injection for performance optimization
 # This file will be injected into <head> section
 
+# China CDN optimization
 - <link rel="preconnect" href="https://fonts.googleapis.com">
 - <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 - <link rel="preconnect" href="https://cdn.jsdelivr.net">
