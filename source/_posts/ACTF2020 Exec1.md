@@ -23,7 +23,7 @@ author: Jack
 
 本题考察点是命令注入
 
-![题目页面](/ACTF2020 Exec1/first_step.png)
+![题目页面](ACTF2020 Exec1/first_step.png)
 
 打开页面，发现是个PING，有一个输入框。
 ping是操作系统命令，是需要服务器执行的指令
