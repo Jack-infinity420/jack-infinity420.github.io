@@ -4,11 +4,11 @@
 
 # Site
 title: INFINITY'S BLOG
-subtitle: ''
-description: ''
-keywords:
+subtitle: '技术 · 文学 · 哲思'
+description: 'Infinity 的个人博客，记录技术探索、CTF 安全研究、健身训练与人文思考'
+keywords: 'CTF, 网络安全, 渗透测试, 健身, 文学, 哲学, 技术博客'
 author: Infinity
-language: en
+language: zh-CN
 timezone: ''
 
 # URL
@@ -18,7 +18,7 @@ permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
-  trailing_html: true # Set to false to remove trailing '.html' from permalinks
+  trailing_html: false # Set to false to remove trailing '.html' from permalinks
 
 # Directory
 source_dir: source

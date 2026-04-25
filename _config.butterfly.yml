@@ -23,6 +23,10 @@ menu:
   标签: /tags/ || fas fa-tags
   分类: /categories/ || fas fa-folder
   友链: /links/ || fas fa-link
+  # 技术理工分区
+  格物致知: /categories/tech/ || fas fa-microscope
+  # 文史哲分区
+  文以载道: /categories/humanities/ || fas fa-book
 # --------------------------------------
 # Code Blocks Settings
 # --------------------------------------
@@ -86,6 +90,8 @@ category_img:
 # Format:
 #  - category name: xxxxx
 category_per_img:
+  - tech: /images/tech_banner.jpg
+  - humanities: /images/humanities_banner.jpg
 
 # The background image of footer
 footer_img: true
@@ -111,9 +117,9 @@ error_img:
 
 # A simple 404 page
 error_404:
-  enable: false
-  subtitle: 'Page Not Found'
-  background: /img/error-page.png
+  enable: true
+  subtitle: '页面未找到'
+  background: /images/404_bg.jpg
 
 post_meta:
   # Home Page
@@ -256,15 +262,15 @@ post_pagination: 1
 
 # Displays outdated notice for a post
 noticeOutdate:
-  enable: false
+  enable: true
   # Style: simple / flat
   style: flat
   # When will it be shown
   limit_day: 365
   # Position: top / bottom
   position: top
-  message_prev: It has been
-  message_next: days since the last update, the content of the article may be outdated.
+  message_prev: 本文已发布
+  message_next: 天，内容可能已过时，请谨慎参考。
 
 # --------------------------------------
 # Footer Settings
@@ -298,15 +304,15 @@ aside:
     category: true
   card_author:
     enable: true
-    description:
+    description: '格物致知，文以载道'
     button:
       enable: true
       icon: fab fa-github
       text: Follow Me
-      link: https://github.com/xxxxxx
+      link: https://github.com/Jack-infinity420
   card_announcement:
     enable: true
-    content: This is my Blog
+    content: '格物致知，文以载道 —— 技术与人文的交汇之地'
   card_recent_post:
     enable: true
     # If set 0 will show all
@@ -642,13 +648,25 @@ twikoo:
 # Giscus
 # https://giscus.app/
 giscus:
-  repo:
-  repo_id:
-  category_id:
-  light_theme: light
-  dark_theme: dark
-  js:
-  option:
+  enable: true
+  repo: Jack-infinity420/blog-comments
+  repo_id: # 需要从 giscus.app 获取
+  category: Announcements
+  category_id: # 需要从 giscus.app 获取
+  # Available values: pathname | url | title | og:title
+  mapping: pathname
+  # Available values: 0 | 1
+  reactions_enabled: 1
+  # Available values: 0 | 1
+  emit_metadata: 0
+  # Available values: light | light_high_contrast | light_protanopia | light_tritanopia | dark | dark_high_contrast | dark_protanopia | dark_tritanopia | dark_dimmed | transparent_dark | preferred_color_scheme
+  theme: preferred_color_scheme
+  # Place the comment box above the comments
+  input_position: bottom
+  # Choose the language giscus will be displayed in
+  lang: zh-CN
+  # Loading
+  loading: lazy
 
 # Remark42
 # https://remark42.com/docs/configuration/frontend/
@@ -768,23 +786,23 @@ site_verification:
 # Theme color for customize
 # Notice: color value must in double quotes like "#000" or may cause error!
 
-# theme_color:
-#   enable: true
-#   main: "#49B1F5"
-#   paginator: "#00c4b6"
-#   button_hover: "#FF7242"
-#   text_selection: "#00c4b6"
-#   link_color: "#99a9bf"
-#   meta_color: "#858585"
-#   hr_color: "#A4D8FA"
-#   code_foreground: "#F47466"
-#   code_background: "rgba(27, 31, 35, .05)"
-#   toc_color: "#00c4b6"
-#   blockquote_padding_color: "#49b1f5"
-#   blockquote_background_color: "#49b1f5"
-#   scrollbar_color: "#49b1f5"
-#   meta_theme_color_light: "ffffff"
-#   meta_theme_color_dark: "#0d0d0d"
+theme_color:
+  enable: true
+  main: "#2c3e50"
+  paginator: "#34495e"
+  button_hover: "#e74c3c"
+  text_selection: "#3498db"
+  link_color: "#2980b9"
+  meta_color: "#7f8c8d"
+  hr_color: "#bdc3c7"
+  code_foreground: "#e74c3c"
+  code_background: "rgba(27, 31, 35, .05)"
+  toc_color: "#2980b9"
+  blockquote_padding_color: "#3498db"
+  blockquote_background_color: "#ecf0f1"
+  scrollbar_color: "#2c3e50"
+  meta_theme_color_light: "#ffffff"
+  meta_theme_color_dark: "#0d0d0d"
 
 # The user interface setting of category and tag page
 # Choose: index - same as Homepage UI / default - same as archives UI
@@ -880,15 +898,15 @@ canvas_fluttering_ribbon:
 # canvas_nest
 # https://github.com/hustcc/canvas-nest.js
 canvas_nest:
-  enable: true
+  enable: false
   # Color of lines, default: '0,0,0'; RGB values: (R,G,B).(note: use ',' to separate.)
-  color: '0,0,255'
+  color: '44,62,80'
   # The opacity of line (0~1)
-  opacity: 0.7
+  opacity: 0.6
   # The z-index property of the background
   zIndex: -1
   # The number of lines
-  count: 99
+  count: 88
   mobile: false
 
 # Mouse click effects: fireworks
@@ -1018,12 +1036,12 @@ snackbar:
 
 # Instant.page
 # https://instant.page/
-instantpage: false
+instantpage: true
 
 # Lazyload
 # https://github.com/verlok/vanilla-lazyload
 lazyload:
-  enable: false
+  enable: true
   # Use browser's native lazyload instead of vanilla-lazyload
   native: false
   # Specify the field to use lazyload (site or post)
@@ -1058,7 +1076,7 @@ Open_Graph_meta:
 # Structured Data
 # https://developers.google.com/search/docs/guides/intro-structured-data
 structured_data:
-  enable: false
+  enable: true
   # Alternate name for the site, used in structured data
   # Format: ['name1', 'name2']
   alternate_name:
