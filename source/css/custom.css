@@ -1,4 +1,6 @@
 /* Fix hexo-image-opt picture element breaking nav logo & avatar */
+/* The plugin wraps <img> in <picture>, making theme's img.site-icon selectors
+   miss. Restore original rendered behavior with explicit constraints. */
 #nav #blog-info picture.site-icon,
 #nav #blog-info picture.site-icon img {
   display: inline-block;
