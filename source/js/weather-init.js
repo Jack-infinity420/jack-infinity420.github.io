@@ -32,7 +32,7 @@
       : Promise.resolve(null);
 
     var poemPromise = window.BlogPoem
-      ? window.BlogPoem.getPoem(geo.city)
+      ? window.BlogPoem.getPoem(geo.city, geo.province)
       : Promise.resolve(null);
 
     var results = await Promise.allSettled([weatherPromise, poemPromise]);
@@ -40,6 +40,7 @@
     var poem = results[1].status === 'fulfilled' ? results[1].value : null;
 
     var weatherType = weather ? weather.type : 'clear';
+    var weatherSub = weatherType === 'rain' ? 'drizzle' : weatherType === 'snow' ? 'light' : 'clear';
 
     // 4. 渲染卡片
     if (window.WeatherCard) {
@@ -54,12 +55,12 @@
 
     // 5. 初始化粒子特效
     if (window.WeatherFX) {
-      window.WeatherFX.init(weatherType).catch(function () {});
+      window.WeatherFX.init(weatherType, weatherSub).catch(function () {});
     }
 
     // 6. 初始化控制面板
     if (window.WeatherPanel) {
-      window.WeatherPanel.init(weatherType);
+      window.WeatherPanel.init();
     }
   }
 

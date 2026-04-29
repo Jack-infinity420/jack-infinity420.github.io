@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气特效方案对比</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; }
+  .header {
+    text-align: center; padding: 30px 20px 10px;
+    position: sticky; top: 0; z-index: 100; background: #1a1a2e;
+  }
+  .header h1 { font-size: 22px; margin-bottom: 12px; }
+  .header .desc { color: #8892b0; font-size: 13px; margin-bottom: 20px; }
+  .controls {
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .controls button {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    color: #ccd6f6; padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    font-size: 13px; transition: all .25s;
+  }
+  .controls button:hover { background: rgba(255,255,255,0.15); }
+  .controls button.active { background: rgba(100,180,255,0.25); border-color: rgba(100,180,255,0.5); color: #fff; }
+  .engine-label { color: #64b4ff; font-size: 11px; margin-left: 2px; }
+
+  .split-view { display: flex; height: calc(100vh - 200px); }
+  .pane { flex: 1; position: relative; overflow: hidden; }
+  .pane:first-child { border-right: 1px solid rgba(255,255,255,0.1); }
+  .pane-label {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 20; background: rgba(0,0,0,0.6); padding: 6px 16px;
+    border-radius: 20px; font-size: 13px; letter-spacing: 1px;
+  }
+  .pane-label .verdict { color: #ffd700; font-size: 11px; margin-left: 6px; }
+
+  .demo-card {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    z-index: 20; background: rgba(25,30,45,0.9);
+    backdrop-filter: blur(15px); border-radius: 16px; padding: 30px 36px;
+    text-align: center; min-width: 320px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .demo-card .title { font-size: 13px; color: #8892b0; margin-bottom: 10px; }
+  .demo-card .poem { font-size: 20px; margin: 12px 0; color: #e6f1ff; }
+  .demo-card .greeting { font-size: 16px; color: #ccd6f6; margin: 10px 0; }
+  .demo-card .weather-info { font-size: 28px; margin: 14px 0; }
+
+  .status-bar {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 20; color: #8892b0; font-size: 12px;
+    background: rgba(0,0,0,0.5); padding: 4px 14px; border-radius: 12px;
+  }
+  .loading-overlay {
+    position: absolute; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.5); font-size: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>天气特效方案对比</h1>
+  <p class="desc">左边：tsParticles（调优后）&nbsp;|&nbsp; 右边：JParticles（CDN 现成库）&nbsp;|&nbsp; 底部按钮切换天气类型</p>
+  <div class="controls">
+    <button data-weather="rain" class="active">🌧 雨</button>
+    <button data-weather="snow">❄ 雪</button>
+    <button data-weather="clear">☀ 晴</button>
+    <button data-weather="thunder">⛈ 雷</button>
+  </div>
+</div>
+
+<div class="split-view">
+  <!-- 左边：tsParticles 调优版 -->
+  <div class="pane" id="pane-left">
+    <div class="pane-label">方案A：tsParticles（调优参数）<span class="verdict"></span></div>
+    <div id="tsparticles-container"></div>
+    <div class="loading-overlay" id="loading-ts">加载 tsParticles...</div>
+    <div class="status-bar">粒子: 调高 opacity/size/speed · z-index: 10 · 需加载 CDN (~150KB)</div>
+  </div>
+
+  <!-- 右边：JParticles CDN -->
+  <div class="pane" id="pane-right">
+    <div class="pane-label">方案B：JParticles（现成库）<span class="verdict"></span></div>
+    <canvas id="jparticles-canvas"></canvas>
+    <div class="loading-overlay" id="loading-jp">加载 JParticles...</div>
+    <div class="status-bar">粒子: 现成 Snow/Particle · z-index: 10 · CDN (~15KB base)</div>
+  </div>
+</div>
+
+<!-- tsParticles CDN -->
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js">
+</script>
+
+<!-- JParticles CDN -->
+<script src="https://unpkg.com/jparticles@3.5.0/browser/jparticles.base.js">
+</script>
+
+<script>
+// ==================== 共享参数 ====================
+var currentWeather = 'rain';
+var tsInstance = null;
+var jpInstance = null;
+var tsReady = false;
+var jpReady = false;
+
+function getParticleCount() {
+  var base = 100;
+  if (window.innerWidth < 900) base = 50;
+  return base;
+}
+
+// ==================== tsParticles 调优配置 ====================
+function getTsConfig(type) {
+  var count = getParticleCount();
+  var configs = {
+    rain: {
+      particles: {
+        number: { value: Math.floor(count * 4), density: { enable: true } },
+        color: { value: ['#5aa0ff','#7eb8ff','#a0c4ff'] },
+        shape: { type: 'line' },
+        opacity: { value: { min: 0.4, max: 0.85 } },
+        size: { value: { min: 2, max: 4 } },
+        move: { enable: true, speed: 22, direction: 200, straight: true, random: false },
+        life: { duration: { value: { min: 0.6, max: 2 } } }
+      },
+      detectRetina: true
+    },
+    snow: {
+      particles: {
+        number: { value: Math.floor(count * 2) },
+        color: { value: ['#ffffff','#f0f8ff','#e6e6fa','#fffafa'] },
+        shape: { type: 'circle' },
+        opacity: { value: { min: 0.3, max: 0.9 } },
+        size: { value: { min: 2, max: 7 } },
+        move: { enable: true, speed: 1.2, direction: 'bottom', random: true, straight: false, wobble: true },
+        wobble: { enable: true, distance: 5, speed: 10 }
+      },
+      detectRetina: true
+    },
+    clear: {
+      particles: {
+        number: { value: count },
+        color: { value: ['#ffd700','#ffb347','#ffe066'] },
+        shape: { type: 'circle' },
+        opacity: { value: { min: 0.15, max: 0.5 }, animation: { enable: true, speed: 0.4, sync: false } },
+        size: { value: { min: 2, max: 6 } },
+        move: { enable: true, speed: 0.3, direction: 'top', random: true, straight: false }
+      },
+      detectRetina: true
+    },
+    thunder: {
+      particles: {
+        number: { value: Math.floor(count * 5) },
+        color: { value: ['#a0c4ff','#778899','#4a6fa5','#f0f0ff'] },
+        shape: { type: 'line' },
+        opacity: { value: { min: 0.4, max: 0.9 }, animation: { enable: true, speed: 3, sync: false } },
+        size: { value: { min: 2, max: 5 } },
+        move: { enable: true, speed: 28, direction: 200, straight: true },
+        life: { duration: { value: { min: 0.4, max: 1.5 } } }
+      },
+      detectRetina: true
+    }
+  };
+  return configs[type] || configs.clear;
+}
+
+async function initTsParticles(type) {
+  if (tsInstance) { tsInstance.destroy(); tsInstance = null; }
+  document.getElementById('loading-ts').style.display = 'flex';
+  try {
+    if (!window.tsParticles) throw new Error('tsParticles CDN 未加载');
+    tsInstance = await window.tsParticles.load({
+      id: 'tsparticles-container',
+      options: getTsConfig(type)
+    });
+    tsReady = true;
+    document.getElementById('loading-ts').style.display = 'none';
+  } catch(e) {
+    document.getElementById('loading-ts').textContent = 'tsParticles 加载失败: ' + e.message;
+  }
+}
+
+function destroyTsParticles() {
+  if (tsInstance) { tsInstance.destroy(); tsInstance = null; }
+  var el = document.getElementById('tsparticles-container');
+  el.innerHTML = '';
+}
+
+// ==================== JParticles ====================
+function initJParticles(type) {
+  destroyJParticles();
+  document.getElementById('loading-jp').style.display = 'flex';
+
+  var canvas = document.getElementById('jparticles-canvas');
+  var rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+
+  try {
+    var opts = getJPOptions(type);
+    if (type === 'snow') {
+      jpInstance = new JParticles.Snow('#jparticles-canvas', opts);
+    } else {
+      jpInstance = new JParticles.Particle('#jparticles-canvas', opts);
+    }
+    jpReady = true;
+    document.getElementById('loading-jp').style.display = 'none';
+  } catch(e) {
+    document.getElementById('loading-jp').textContent = 'JParticles 加载失败: ' + e.message;
+  }
+}
+
+function getJPOptions(type) {
+  var opts = {
+    rain: {
+      num: getParticleCount() * 4,
+      color: ['#5aa0ff','#7eb8ff','#a0c4ff'],
+      maxR: 3,
+      minR: 1,
+      maxSpeed: 1.5,
+      minSpeed: 0.8,
+      shape: 'line',
+      proximity: 30,
+      lineHeight: 20,
+      oscillation: { enable: false },
+      lineShape: 'line',
+      range: 0.8,
+      direction: 'bottom',
+      eventElem: null
+    },
+    snow: {
+      num: getParticleCount() * 2,
+      maxR: 6,
+      minR: 2,
+      maxSpeed: 0.6,
+      minSpeed: 0.2,
+      shape: 'circle',
+      className: 'jp-snow',
+      opacity: 0.8
+    },
+    clear: {
+      num: getParticleCount(),
+      color: ['#ffd700','#ffb347','#ffe066'],
+      maxR: 5,
+      minR: 1.5,
+      maxSpeed: 0.4,
+      minSpeed: 0.1,
+      shape: 'circle',
+      proximity: 80,
+      lineShape: 'round',
+      range: 0.8,
+      opacity: 0.5
+    },
+    thunder: {
+      num: getParticleCount() * 5,
+      color: ['#a0c4ff','#778899','#4a6fa5'],
+      maxR: 4,
+      minR: 1.5,
+      maxSpeed: 2,
+      minSpeed: 1,
+      shape: 'line',
+      lineHeight: 25,
+      proximity: 20,
+      range: 0.9,
+      direction: 'bottom'
+    }
+  };
+  return opts[type] || opts.clear;
+}
+
+function destroyJParticles() {
+  if (jpInstance) { jpInstance.destroy(); jpInstance = null; }
+}
+
+// ==================== 统一切换 ====================
+function switchWeather(type) {
+  currentWeather = type;
+  destroyTsParticles();
+  destroyJParticles();
+  initTsParticles(type);
+  initJParticles(type);
+}
+
+// ==================== 按钮绑定 ====================
+document.querySelectorAll('.controls button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.controls button').forEach(function(b){ b.classList.remove('active'); });
+    this.classList.add('active');
+    switchWeather(this.getAttribute('data-weather'));
+  });
+});
+
+// ==================== Canvas 尺寸适配 ====================
+function resizeJPCanvas() {
+  var canvas = document.getElementById('jparticles-canvas');
+  var parent = canvas.parentElement;
+  var rect = parent.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+}
+
+window.addEventListener('resize', function() {
+  resizeJPCanvas();
+  if (jpInstance) { destroyJParticles(); initJParticles(currentWeather); }
+});
+
+// ==================== 启动 ====================
+window.addEventListener('DOMContentLoaded', function() {
+  resizeJPCanvas();
+  switchWeather('rain');
+});
+</script>
+
+</body>
+</html>

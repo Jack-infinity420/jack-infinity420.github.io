@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气特效 - 美学生版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#0d1117;color:#e0e0e0;overflow:hidden;height:100vh}
+.ctrl{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:12px}
+.ctrl button{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#999;padding:10px 26px;border-radius:30px;cursor:pointer;font-size:15px;transition:.3s;backdrop-filter:blur(8px)}
+.ctrl button:hover,.ctrl button.on{background:rgba(120,180,240,.1);border-color:rgba(120,180,240,.25);color:#d0e4ff}
+.card{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;text-align:center;pointer-events:none}
+.card .t{font-size:11px;color:#666;letter-spacing:3px;margin-bottom:14px;text-transform:uppercase}
+.card .p{font-size:22px;margin:10px 0;color:#c8d8f0;font-weight:300;letter-spacing:1px}
+.card .g{font-size:15px;color:#8899b0;margin:8px 0;font-weight:300}
+.card .w{font-size:28px;margin:16px 0;font-weight:300}
+
+.speed{position:fixed;top:28px;right:28px;z-index:99;background:rgba(10,16,24,.85);backdrop-filter:blur(14px);border-radius:18px;padding:20px 26px;border:1px solid rgba(255,255,255,.05);min-width:210px}
+.speed .h{font-size:11px;color:#556;margin-bottom:18px;letter-spacing:2px}
+.speed label{display:flex;align-items:center;gap:14px;margin-bottom:16px;font-size:13px;color:#88a0b8}
+.speed input[type=range]{-webkit-appearance:none;flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06);outline:none}
+.speed input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#78b4f0;cursor:pointer;box-shadow:0 0 10px rgba(120,180,240,.3);transition:.2s}
+.speed .val{color:#78b4f0;font-size:12px;min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.speed .note{margin-top:14px;font-size:10px;color:#444;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="t">AESTHETIC WEATHER</div>
+  <div class="p" id="poem">好雨知时节，当春乃发生</div>
+  <div class="g" id="greet">下午好，来自北京的访客</div>
+  <div class="w" id="wicon">🌧️ 微雨 · 17°C</div>
+</div>
+
+<div class="speed" id="speedPanel">
+  <div class="h">速度</div>
+  <label>雨 <input type="range" id="rainSpeed" min="30" max="180" value="100" step="5"><span class="val" id="rainVal">100%</span></label>
+  <label>雪 <input type="range" id="snowSpeed" min="30" max="180" value="100" step="5"><span class="val" id="snowVal">100%</span></label>
+  <div class="note">微雨疏落 · 不求多但求意</div>
+</div>
+
+<div class="ctrl">
+  <button data-w="rain" class="on">🌧 微雨</button>
+  <button data-w="snow">❄ 疏雪</button>
+  <button data-w="clear">☀ 晴光</button>
+  <button data-w="cloudy">☁ 闲云</button>
+</div>
+<canvas id="c"></canvas>
+
+<script>
+// ============================== 美学天气引擎 ==============================
+var C=document.getElementById('c'),X=C.getContext('2d');
+var W,H,t=0,cur='rain',ps=[],sp=[];
+var rMul=1.0, sMul=1.0;
+
+function sz(){var d=devicePixelRatio||1;W=innerWidth;H=innerHeight;C.width=W*d;C.height=H*d;C.style.width=W+'px';C.style.height=H+'px';X.setTransform(d,0,0,d,0,0)}
+sz();addEventListener('resize',sz);
+
+// ---- 雨滴（稀疏·优雅·长尾）----
+function RD(){this.rst(1)}
+RD.prototype.rst=function(f){
+  this.x=Math.random()*W;this.y=f?Math.random()*H:-40-Math.random()*60;
+  this.l=Math.random();
+  this.baseSpd=6+this.l*16;  // 慢速，6~22
+  this.len=14+this.l*32;     // 长尾，14~46
+  this.opa=0.2+this.l*0.45;  // 半透明，0.2~0.65
+  this.wd=.15+this.l*1.2;    // 细线
+  this.ang=.05+Math.random()*.07; // 微斜
+  this.bright=Math.random()<.08;
+}
+RD.prototype.up=function(){
+  this.spd=this.baseSpd*rMul;
+  this.y+=this.spd;this.x+=this.spd*this.ang*.25;
+  if(this.y>H+50){if(this.l>.55&&Math.random()<.15&&sp.length<30)sp.push(new SP(this.x,H-Math.random()*4));this.rst(0)}
+}
+RD.prototype.dr=function(){
+  var tx=this.x-this.len*this.ang*.4,ty=this.y-this.len;
+  var c=this.bright?'190,215,240':'100,155,215';
+  var g=X.createLinearGradient(tx,ty,this.x,this.y);
+  g.addColorStop(0,'rgba('+c+',0)');
+  g.addColorStop(.4,'rgba('+c+','+this.opa*.18+')');
+  g.addColorStop(1,'rgba('+c+','+this.opa+')');
+  X.beginPath();X.strokeStyle=g;X.lineWidth=this.wd;X.lineCap='round';
+  X.moveTo(tx,ty);X.lineTo(this.x,this.y);X.stroke();
+}
+// ---- 微溅 ----
+function SP(x,y){this.x=x;this.y=y;this.vx=(Math.random()-.5)*1.2;this.vy=-Math.random()*3-1;this.lf=1;this.dec=.03+Math.random()*.04;this.sz=Math.random()*1.2+.2}
+SP.prototype.up=function(){this.x+=this.vx;this.y+=this.vy;this.vy+=.08;this.lf-=this.dec}
+SP.prototype.dr=function(){if(this.lf<=0)return;X.globalAlpha=this.lf*.35;X.fillStyle='#7ab0e8';X.beginPath();X.arc(this.x,this.y,this.sz,0,Math.PI*2);X.fill();X.globalAlpha=1}
+
+// ---- 雪花（疏朗·大朵·轻飘）----
+function SN(){this.rst(1)}
+SN.prototype.rst=function(f){
+  this.x=Math.random()*W;this.y=f?Math.random()*H:-30;
+  this.l=Math.random();this.sz=2.5+this.l*6;  // 大朵
+  this.baseSpdy=.1+this.l*.8;  // 轻缓
+  this.swA=.5+Math.random()*2;this.swF=.0005+Math.random()*.0015;this.swP=Math.random()*Math.PI*2;
+  this.opa=.25+this.l*.65;this.rot=Math.random()*Math.PI*2;this.rsp=(Math.random()-.5)*.015;this.sty=Math.floor(Math.random()*3)}
+SN.prototype.up=function(){this.spdy=this.baseSpdy*sMul;this.y+=this.spdy;this.x+=Math.sin(t*this.swF+this.swP)*this.swA*.25;this.rot+=this.rsp;if(this.y>H+20)this.rst(0)}
+SN.prototype.dr=function(){
+  X.save();X.translate(this.x,this.y);X.rotate(this.rot);X.globalAlpha=this.opa;
+  var r=this.sz;
+  if(this.sty===0){var g=X.createRadialGradient(0,0,0,0,0,r);g.addColorStop(0,'rgba(255,255,255,.85)');g.addColorStop(.4,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');X.fillStyle=g;X.beginPath();X.arc(0,0,r,0,Math.PI*2);X.fill()}
+  else if(this.sty===1){X.strokeStyle='rgba(255,255,255,.7)';X.lineWidth=.6;for(var i=0;i<6;i++){var a=(Math.PI/3)*i;X.beginPath();X.moveTo(0,0);X.lineTo(Math.cos(a)*r,Math.sin(a)*r);X.stroke()}X.fillStyle='rgba(255,255,255,.45)';X.beginPath();X.arc(0,0,r*.1,0,Math.PI*2);X.fill()}
+  else{X.strokeStyle='rgba(255,255,255,.6)';X.lineWidth=.9;var s=r*.9;X.beginPath();X.moveTo(-s,0);X.lineTo(s,0);X.moveTo(0,-s);X.lineTo(0,s);X.stroke();X.fillStyle='rgba(255,255,255,.65)';X.beginPath();X.arc(0,0,r*.22,0,Math.PI*2);X.fill()}
+  X.restore()
+}
+
+// ---- 阳光（光斑·温暖）----
+function SU(){this.rst(1)}
+SU.prototype.rst=function(f){this.x=Math.random()*W;this.y=f?Math.random()*H:H+50;
+  this.sz=3+Math.random()*6;this.spdy=-(.05+Math.random()*.18);this.spdx=(Math.random()-.5)*.15;
+  this.ph=Math.random()*Math.PI*2;this.phs=.004+Math.random()*.008;this.al=.08+Math.random()*.18}
+SU.prototype.up=function(){this.x+=this.spdx;this.y+=this.spdy;this.ph+=this.phs;if(this.y<-50){this.rst(0);this.y=H+50}}
+SU.prototype.dr=function(){var a=this.al*(.5+.5*Math.sin(this.ph));var g=X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*4);g.addColorStop(0,'rgba(255,210,90,'+a+')');g.addColorStop(.35,'rgba(255,170,30,'+a*.35+')');g.addColorStop(1,'rgba(255,170,30,0)');X.fillStyle=g;X.beginPath();X.arc(this.x,this.y,this.sz*4,0,Math.PI*2);X.fill()}
+
+// ---- 云（寥落·闲散）----
+function CL(){this.rst(1)}
+CL.prototype.rst=function(f){this.x=f?Math.random()*W:-180;this.y=Math.random()*H*.35;this.sz=40+Math.random()*70;this.spd=.06+Math.random()*.14;this.al=.03+Math.random()*.12}
+CL.prototype.up=function(){this.x+=this.spd;if(this.x>W+this.sz)this.rst(0)}
+CL.prototype.dr=function(){var g=X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz);g.addColorStop(0,'rgba(255,255,255,'+this.al+')');g.addColorStop(1,'rgba(255,255,255,0)');X.fillStyle=g;X.beginPath();X.arc(this.x,this.y,this.sz,0,Math.PI*2);X.fill();g=X.createRadialGradient(this.x+this.sz*.35,this.y-this.sz*.1,0,this.x+this.sz*.35,this.y-this.sz*.1,this.sz*.5);g.addColorStop(0,'rgba(255,255,255,'+this.al*.6+')');g.addColorStop(1,'rgba(255,255,255,0)');X.fillStyle=g;X.beginPath();X.arc(this.x+this.sz*.35,this.y-this.sz*.1,this.sz*.5,0,Math.PI*2);X.fill()}
+
+// ---- 粒子管理 ----
+var CFG={
+  rain:{n:160,cls:RD,bg:[[0,'rgba(6,12,26,.08)'],[1,'rgba(10,18,38,.14)']]},
+  snow:{n:60,cls:SN,bg:[[0,'rgba(14,22,40,.03)'],[1,'rgba(18,28,46,.05)']]},
+  clear:{n:35,cls:SU,bg:null},
+  cloudy:{n:14,cls:CL,bg:null}
+};
+var poems={rain:'好雨知时节，当春乃发生',snow:'忽如一夜春风来，千树万树梨花开',clear:'晴空一鹤排云上，便引诗情到碧霄',cloudy:'行到水穷处，坐看云起时'}
+var icons={rain:'🌧️ 微雨',snow:'❄ 疏雪',clear:'☀ 晴光',cloudy:'☁ 闲云'}
+
+function mk(type){
+  cur=type;ps=[];sp=[];
+  var c=CFG[type];var n=c.n;
+  if(innerWidth<900)n=Math.floor(n*.5);
+  for(var i=0;i<n;i++)ps.push(new c.cls());
+  document.getElementById('poem').textContent=poems[type];
+  document.getElementById('wicon').textContent=icons[type]+' · 17°C';
+  document.querySelectorAll('.ctrl button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-w')===type)});
+  document.getElementById('speedPanel').style.display=(type==='rain'||type==='snow')?'block':'none';
+}
+
+// ---- 动画 ----
+(function anim(){
+  t++;X.clearRect(0,0,W,H);
+  var c=CFG[cur];if(c.bg){var bg=X.createLinearGradient(0,0,0,H);bg.addColorStop(...c.bg[0]);bg.addColorStop(...c.bg[1]);X.fillStyle=bg;X.fillRect(0,0,W,H)}
+  for(var i=0;i<ps.length;i++){ps[i].up();ps[i].dr()}
+  if(cur==='rain'){for(var i=sp.length-1;i>=0;i--){sp[i].up();sp[i].dr();if(sp[i].lf<=0)sp.splice(i,1)}}
+  requestAnimationFrame(anim)
+})();
+
+// ---- 按钮 ----
+document.querySelectorAll('.ctrl button').forEach(function(b){
+  b.addEventListener('click',function(){mk(this.getAttribute('data-w'))})
+});
+// ---- 速度滑块 ----
+document.getElementById('rainSpeed').addEventListener('input',function(){rMul=parseInt(this.value)/100;document.getElementById('rainVal').textContent=this.value+'%'});
+document.getElementById('snowSpeed').addEventListener('input',function(){sMul=parseInt(this.value)/100;document.getElementById('snowVal').textContent=this.value+'%'});
+mk('rain');
+</script>
+</body>
+</html>

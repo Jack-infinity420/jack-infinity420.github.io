@@ -1,0 +1,391 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777384702418,
+  "projectRoot": "F:\\blog",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "@playwright/test",
+        "version": "1.59.1",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run start",
+    "scripts": {
+      "build": "hexo generate",
+      "start": "hexo server",
+      "clean": "hexo clean",
+      "deploy": "hexo deploy",
+      "server": "hexo server",
+      "vercel-build": "hexo clean && hexo generate"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "public",
+      "scripts"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [
+    {
+      "timestamp": 1777388312607,
+      "source": "manual",
+      "category": "architecture",
+      "content": "天气特效 v5 demo 已确认通过。待实现到源码：\n- weather-particles.js → 替换为 v5 Canvas 引擎（玻璃水滴+雨丝+雪花+晴光+微凝结纹理+惯性重力响应）\n- weather-panel.js → 加入重力面板（行星吸附滑块+失重/地球/逆地快捷按钮）\n- weather.css → 加入重力面板样式\n- weather-init.js → 对接新 WeatherFX API\nDemo 文件: F:\\blog\\weather-demo-v5.html\n修复项: 逆向重力惯性过渡、零重力漂浮效果、放大镜字符重叠"
+    }
+  ],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1777384702296,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 10,
+      "lastAccessed": 1777384702297,
+      "keyFiles": [
+        "404.html",
+        "atom.xml",
+        "baidu_urls.txt",
+        "index.html",
+        "search.xml"
+      ]
+    },
+    "scaffolds": {
+      "path": "scaffolds",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1777384702336,
+      "keyFiles": [
+        "draft.md",
+        "page.md",
+        "post.md"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1777384702337,
+      "keyFiles": [
+        "fix-image-paths.js",
+        "weather-config-generator.js"
+      ]
+    },
+    "source": {
+      "path": "source",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777384702338,
+      "keyFiles": []
+    },
+    "themes": {
+      "path": "themes",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777384702339,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "source\\js\\weather-panel.js",
+      "accessCount": 13,
+      "lastAccessed": 1777432701915,
+      "type": "file"
+    },
+    {
+      "path": "source\\js\\weather-particles.js",
+      "accessCount": 13,
+      "lastAccessed": 1777432722740,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 12,
+      "lastAccessed": 1777431451640,
+      "type": "directory"
+    },
+    {
+      "path": "source\\js\\weather-init.js",
+      "accessCount": 12,
+      "lastAccessed": 1777432604746,
+      "type": "file"
+    },
+    {
+      "path": "weather-demo-v5.html",
+      "accessCount": 11,
+      "lastAccessed": 1777427534412,
+      "type": "file"
+    },
+    {
+      "path": "weather-demo-v6.html",
+      "accessCount": 8,
+      "lastAccessed": 1777431294365,
+      "type": "file"
+    },
+    {
+      "path": "source\\css\\weather.css",
+      "accessCount": 7,
+      "lastAccessed": 1777432575450,
+      "type": "file"
+    },
+    {
+      "path": "_config.butterfly.yml",
+      "accessCount": 3,
+      "lastAccessed": 1777385145253,
+      "type": "file"
+    },
+    {
+      "path": "_config.yml",
+      "accessCount": 2,
+      "lastAccessed": 1777385138779,
+      "type": "file"
+    },
+    {
+      "path": "weather-demo-v4.html",
+      "accessCount": 2,
+      "lastAccessed": 1777386729268,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\MEMORY.md",
+      "accessCount": 2,
+      "lastAccessed": 1777388347029,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\weather-v5-ready.md",
+      "accessCount": 2,
+      "lastAccessed": 1777427452387,
+      "type": "file"
+    },
+    {
+      "path": "server-tmp.js",
+      "accessCount": 2,
+      "lastAccessed": 1777427746032,
+      "type": "file"
+    },
+    {
+      "path": "source\\js\\geo.js",
+      "accessCount": 2,
+      "lastAccessed": 1777431295070,
+      "type": "file"
+    },
+    {
+      "path": "source\\js\\poetry.js",
+      "accessCount": 2,
+      "lastAccessed": 1777431295186,
+      "type": "file"
+    },
+    {
+      "path": "source\\js\\weather-card.js",
+      "accessCount": 2,
+      "lastAccessed": 1777431463674,
+      "type": "file"
+    },
+    {
+      "path": "source",
+      "accessCount": 2,
+      "lastAccessed": 1777432651669,
+      "type": "directory"
+    },
+    {
+      "path": "weather-demo-v3.html",
+      "accessCount": 1,
+      "lastAccessed": 1777385119976,
+      "type": "file"
+    },
+    {
+      "path": "weather-compare.html",
+      "accessCount": 1,
+      "lastAccessed": 1777385120788,
+      "type": "file"
+    },
+    {
+      "path": "weather-tuner.html",
+      "accessCount": 1,
+      "lastAccessed": 1777385120917,
+      "type": "file"
+    },
+    {
+      "path": "gravity-ux-demo.html",
+      "accessCount": 1,
+      "lastAccessed": 1777385121064,
+      "type": "file"
+    },
+    {
+      "path": "weather-demo-standalone.html",
+      "accessCount": 1,
+      "lastAccessed": 1777385121129,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1777385132367,
+      "type": "file"
+    },
+    {
+      "path": "source\\js\\weather.js",
+      "accessCount": 1,
+      "lastAccessed": 1777385138051,
+      "type": "file"
+    },
+    {
+      "path": "CNAME",
+      "accessCount": 1,
+      "lastAccessed": 1777385149167,
+      "type": "file"
+    },
+    {
+      "path": "source\\categories\\index.md",
+      "accessCount": 1,
+      "lastAccessed": 1777385162022,
+      "type": "file"
+    },
+    {
+      "path": "source\\_data\\welcome.yml",
+      "accessCount": 1,
+      "lastAccessed": 1777385162082,
+      "type": "file"
+    },
+    {
+      "path": "source\\tags\\index.md",
+      "accessCount": 1,
+      "lastAccessed": 1777385162257,
+      "type": "file"
+    },
+    {
+      "path": "scaffolds\\post.md",
+      "accessCount": 1,
+      "lastAccessed": 1777385162275,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\AppData\\Local\\Temp\\claude\\F--blog\\0845aaa4-7fb8-4086-8609-d8b0a2d1b70a\\tasks\\bsc76jsc8.output",
+      "accessCount": 1,
+      "lastAccessed": 1777385757019,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\AppData\\Local\\Temp\\claude\\F--blog\\0845aaa4-7fb8-4086-8609-d8b0a2d1b70a\\tasks\\b4yrlco0p.output",
+      "accessCount": 1,
+      "lastAccessed": 1777385786083,
+      "type": "file"
+    },
+    {
+      "path": ".playwright-mcp\\page-2026-04-28T14-18-24-999Z.yml",
+      "accessCount": 1,
+      "lastAccessed": 1777385941502,
+      "type": "file"
+    },
+    {
+      "path": ".playwright-mcp\\console-2026-04-28T14-18-24-891Z.log",
+      "accessCount": 1,
+      "lastAccessed": 1777385941543,
+      "type": "file"
+    },
+    {
+      "path": "v4-screenshot.png",
+      "accessCount": 1,
+      "lastAccessed": 1777386005459,
+      "type": "file"
+    },
+    {
+      "path": "v4-screenshot.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777386032374,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\image-cache\\0845aaa4-7fb8-4086-8609-d8b0a2d1b70a\\1.png",
+      "accessCount": 1,
+      "lastAccessed": 1777386269416,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\startup-multi-agent.md",
+      "accessCount": 1,
+      "lastAccessed": 1777388314531,
+      "type": "file"
+    },
+    {
+      "path": "v5-demo-screenshot.png",
+      "accessCount": 1,
+      "lastAccessed": 1777427772184,
+      "type": "file"
+    },
+    {
+      "path": "v5-snow-mode.png",
+      "accessCount": 1,
+      "lastAccessed": 1777427839604,
+      "type": "file"
+    },
+    {
+      "path": "v5-clear-mode.png",
+      "accessCount": 1,
+      "lastAccessed": 1777427839750,
+      "type": "file"
+    },
+    {
+      "path": "v5-earth-gravity.png",
+      "accessCount": 1,
+      "lastAccessed": 1777427839943,
+      "type": "file"
+    },
+    {
+      "path": "v5-zero-gravity.png",
+      "accessCount": 1,
+      "lastAccessed": 1777427840011,
+      "type": "file"
+    },
+    {
+      "path": "source\\js",
+      "accessCount": 1,
+      "lastAccessed": 1777432709141,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\teams\\weather-v6-migration\\config.json",
+      "accessCount": 1,
+      "lastAccessed": 1777433073516,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

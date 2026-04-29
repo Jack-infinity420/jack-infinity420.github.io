@@ -33,7 +33,54 @@
     }
   }
 
+  // 通过 pconline JSONP 获取中文城市名（对国内IP准确）
+  function fetchLocationChinese() {
+    return new Promise(function (resolve, reject) {
+      var callbackName = 'blogGeoCb_' + Date.now();
+      var script = document.createElement('script');
+      script.src = 'https://whois.pconline.com.cn/ipJson.jsp?callback=' + callbackName;
+      script.charset = 'gbk';
+      script.async = true;
+
+      var timer = setTimeout(function () {
+        cleanup();
+        reject(new Error('pconline timeout'));
+      }, 5000);
+
+      window[callbackName] = function (data) {
+        clearTimeout(timer);
+        cleanup();
+        resolve({
+          province: data.pro || '',
+          city: data.city || '',
+          country: '中国'
+        });
+      };
+
+      function cleanup() {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      script.onerror = function () {
+        clearTimeout(timer);
+        cleanup();
+        reject(new Error('pconline failed'));
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
   async function fetchLocation() {
+    // 1. 先尝试中文定位（对国内IP准确）
+    try {
+      return await fetchLocationChinese();
+    } catch (e) {
+      console.warn('[BlogGeo] 中文定位失败，fallback 到英文:', e.message);
+    }
+
+    // 2. fallback 到 ipapi.co（返回英文）
     const resp = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
     if (!resp.ok) throw new Error('ipapi returned ' + resp.status);
     const json = await resp.json();

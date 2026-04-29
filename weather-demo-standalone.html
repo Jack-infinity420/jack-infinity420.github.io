@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气特效演示 - 纯Canvas</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; }
+  .topbar {
+    text-align: center; padding: 20px 20px 8px;
+    position: sticky; top: 0; z-index: 100; background: #1a1a2e;
+  }
+  .topbar h1 { font-size: 20px; margin-bottom: 6px; }
+  .topbar .sub { color: #8892b0; font-size: 12px; }
+  .controls {
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 12px 0;
+  }
+  .controls button {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #ccd6f6; padding: 10px 20px; border-radius: 24px; cursor: pointer;
+    font-size: 14px; transition: all .2s; backdrop-filter: blur(8px);
+  }
+  .controls button:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
+  .controls button.active { background: rgba(100,180,255,0.3); border-color: rgba(100,180,255,0.5); color: #fff; box-shadow: 0 0 18px rgba(100,180,255,0.15); }
+
+  main { display: flex; height: calc(100vh - 160px); }
+  .pane { flex:1; position:relative; overflow:hidden; }
+  .pane:first-child { border-right: 1px solid rgba(255,255,255,0.08); }
+  .pane-label {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 20; background: rgba(0,0,0,0.55); padding: 6px 18px;
+    border-radius: 20px; font-size: 13px; pointer-events:none;
+  }
+
+  .card {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    z-index: 20; background: rgba(25,30,50,0.92);
+    backdrop-filter: blur(14px); border-radius: 18px; padding: 30px 40px;
+    text-align: center; min-width: 300px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .card .fixed-poem { font-size: 13px; color: #a0a8c0; margin-bottom: 8px; letter-spacing: 2px; }
+  .card .greeting { font-size: 16px; color: #ccd6f6; margin: 8px 0; }
+  .card .poem { font-size: 19px; margin: 10px 0; color: #e6f1ff; }
+  .card .weather { font-size: 30px; margin: 12px 0; }
+
+  .params {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 20; color: #8892b0; font-size: 11px;
+    background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 12px;
+    white-space: nowrap; pointer-events:none;
+  }
+
+  .footer { text-align: center; padding: 10px; color: #556; font-size: 11px; }
+  .footer a { color: #8892b0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>天气特效 Canvas 演示</h1>
+  <p class="sub">零外部依赖 · 所有特效自包含 · 底部按钮切换天气</p>
+  <div class="controls">
+    <button data-w="rain" class="active">🌧 雨</button>
+    <button data-w="thunder">⛈ 雷暴</button>
+    <button data-w="snow">❄ 雪</button>
+    <button data-w="clear">☀ 晴</button>
+    <button data-w="cloudy">⛅ 多云</button>
+    <button data-w="fog">🌫 雾</button>
+    <button data-w="overcast">☁️ 阴</button>
+  </div>
+</div>
+
+<main>
+  <!-- Left: Canvas Weather FX -->
+  <div class="pane" id="pane-canvas">
+    <div class="pane-label">Canvas 原生（轻量·零依赖）</div>
+    <div class="card">
+      <div class="fixed-poem">长风破浪会有时，直挂云帆济沧海</div>
+      <div class="greeting">下午好，欢迎来自北京市的同志</div>
+      <div class="poem">「海内存知己，天涯若比邻」</div>
+      <div class="weather" id="weather-icon-left">🌧 雨天 · 17°C</div>
+    </div>
+    <div class="params" id="params-left">粒子 ~400 · opacity 0.5-0.9 · 带尾迹 · 溅射效果</div>
+  </div>
+
+  <!-- Right: Same effects, but shows the effects look -->
+  <div class="pane" id="pane-info">
+    <div class="pane-label">📊 特效参数说明</div>
+    <div style="padding: 60px 40px; color: #ccd6f6; line-height: 2.2; font-size: 14px;">
+      <div style="font-size: 18px; margin-bottom: 20px; color: #fff;" id="info-title">🌧 雨天配置</div>
+      <div id="info-desc">
+        <div>· 粒子数：~350（桌面端）</div>
+        <div>· 透明度：0.3 ~ 0.9（分层）</div>
+        <div>· 尺寸：0.5 ~ 2.5px（分层）</div>
+        <div>· 速度：12 ~ 30 像素/帧</div>
+        <div>· 倾斜角度：约 10°</div>
+        <div>· 尾迹效果：渐变淡出</div>
+        <div>· 溅射：底部水花随机触发</div>
+        <div>· 背景：深蓝渐变遮罩</div>
+        <div style="margin-top: 16px; color: #8892b0; font-size: 12px;">
+          零外部依赖 · 单文件 ~7KB ·<br>
+          所有天气类型共用同一引擎
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="footer">打开浏览器控制台（F12）可查看性能帧率</div>
+
+<script>
+// ============================================================
+//  天气特效引擎 — 零依赖，自包含
+// ============================================================
+(function(){
+  'use strict';
+
+  var canvas, ctx, animId, globalTime = 0;
+  var current = 'rain';
+  var particles = [], splashes = [];
+  var lightning = { active: false, opacity: 0, timer: 0, bolts: [] };
+
+  // ---------- 雨滴 ----------
+  function RainDrop(storm) {
+    this.storm = storm || false;
+    this.reset(true);
+  }
+  RainDrop.prototype.reset = function(init) {
+    var W = canvas ? canvas.width : 1920;
+    var H = canvas ? canvas.height : 1080;
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : -60 - Math.random() * 120;
+    this.layer = Math.random(); // 0=远 1=近
+    this.speed = (10 + this.layer * 20) * (this.storm ? 1.4 : 1);
+    this.length = 12 + this.layer * 26;
+    this.opacity = 0.25 + this.layer * 0.65;
+    this.width = 0.4 + this.layer * 1.6;
+    this.angle = 0.12 + Math.random() * 0.1;
+  };
+  RainDrop.prototype.update = function() {
+    var H = canvas ? canvas.height : 1080;
+    this.y += this.speed;
+    this.x += this.speed * this.angle * 0.35;
+    if (this.y > H + 60) {
+      if (this.layer > 0.55 && Math.random() < 0.25) {
+        splashes.push(new Splash(this.x, canvas.height - Math.random() * 8));
+      }
+      if (splashes.length > 60) splashes.shift();
+      this.reset(false);
+    }
+  };
+  RainDrop.prototype.draw = function() {
+    var tailX = this.x - this.length * this.angle * 0.45;
+    var tailY = this.y - this.length;
+    var c = this.storm ? '170, 210, 255' : '150, 190, 255';
+    var grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
+    grad.addColorStop(0, 'rgba('+c+', 0)');
+    grad.addColorStop(0.45, 'rgba('+c+','+(this.opacity*0.25)+')');
+    grad.addColorStop(1, 'rgba('+c+','+this.opacity+')');
+    ctx.beginPath(); ctx.strokeStyle = grad;
+    ctx.lineWidth = this.width; ctx.lineCap = 'round';
+    ctx.moveTo(tailX, tailY); ctx.lineTo(this.x, this.y); ctx.stroke();
+  };
+
+  // ---------- 溅射 ----------
+  function Splash(x, y) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random() - 0.5) * 2.5;
+    this.vy = -Math.random() * 5 - 1;
+    this.life = 1;
+    this.decay = 0.03 + Math.random() * 0.05;
+    this.size = Math.random() * 2 + 0.4;
+  }
+  Splash.prototype.update = function() {
+    this.x += this.vx; this.y += this.vy;
+    this.vy += 0.12; this.life -= this.decay;
+  };
+  Splash.prototype.draw = function() {
+    if (this.life <= 0) return;
+    ctx.globalAlpha = this.life * 0.55;
+    ctx.fillStyle = '#a0c4ff';
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+  };
+
+  // ---------- 雪花 ----------
+  function SnowFlake() { this.reset(true); }
+  SnowFlake.prototype.reset = function(init) {
+    var W = canvas ? canvas.width : 1920;
+    var H = canvas ? canvas.height : 1080;
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : -30;
+    this.layer = Math.random();
+    this.size = 1.5 + this.layer * 5;
+    this.speedY = 0.2 + this.layer * 1.2;
+    this.swayA = 0.8 + Math.random() * 2.5;
+    this.swayF = 0.0008 + Math.random() * 0.002;
+    this.swayP = Math.random() * Math.PI * 2;
+    this.opacity = 0.35 + this.layer * 0.65;
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotSpd = (Math.random() - 0.5) * 0.025;
+    this.style = Math.floor(Math.random() * 3);
+  };
+  SnowFlake.prototype.update = function() {
+    var H = canvas ? canvas.height : 1080;
+    this.y += this.speedY;
+    this.x += Math.sin(globalTime * this.swayF + this.swayP) * this.swayA * 0.25;
+    this.rot += this.rotSpd;
+    if (this.y > H + 30) this.reset(false);
+  };
+  SnowFlake.prototype.draw = function() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.globalAlpha = this.opacity;
+    var r = this.size;
+    if (this.style === 0) {
+      var g = ctx.createRadialGradient(0,0,0,0,0,r);
+      g.addColorStop(0,'rgba(255,255,255,0.95)');
+      g.addColorStop(0.5,'rgba(255,255,255,0.7)');
+      g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    } else if (this.style === 1) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 0.8;
+      for (var i=0; i<6; i++) {
+        var a = (Math.PI/3)*i;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r); ctx.stroke();
+        var a2 = a + Math.PI/8;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a)*r*0.45, Math.sin(a)*r*0.45);
+        ctx.lineTo(Math.cos(a)*r*0.45+Math.cos(a2)*r*0.25, Math.sin(a)*r*0.45+Math.sin(a2)*r*0.25);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.beginPath(); ctx.arc(0,0,r*0.12,0,Math.PI*2); ctx.fill();
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1.2;
+      var s = r*1.1;
+      ctx.beginPath(); ctx.moveTo(-s,0); ctx.lineTo(s,0);
+      ctx.moveTo(0,-s); ctx.lineTo(0,s); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath(); ctx.arc(0,0,r*0.25,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  };
+
+  // ---------- 阳光粒子 ----------
+  function SunParticle() { this.reset(true); }
+  SunParticle.prototype.reset = function(init) {
+    var W = canvas ? canvas.width : 1920;
+    var H = canvas ? canvas.height : 1080;
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : H + 60;
+    this.size = 2.5 + Math.random() * 5;
+    this.spdY = -(0.08 + Math.random() * 0.25);
+    this.spdX = (Math.random() - 0.5) * 0.25;
+    this.phase = Math.random() * Math.PI * 2;
+    this.phaseSpd = 0.006 + Math.random() * 0.012;
+    this.alpha = 0.12 + Math.random() * 0.22;
+  };
+  SunParticle.prototype.update = function() {
+    var H = canvas ? canvas.height : 1080;
+    this.x += this.spdX; this.y += this.spdY;
+    this.phase += this.phaseSpd;
+    if (this.y < -60) { this.reset(false); this.y = H + 60; }
+  };
+  SunParticle.prototype.draw = function() {
+    var a = this.alpha * (0.5 + 0.5 * Math.sin(this.phase));
+    var g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size*4);
+    g.addColorStop(0, 'rgba(255,220,110,'+a+')');
+    g.addColorStop(0.4, 'rgba(255,190,50,'+a*0.45+')');
+    g.addColorStop(1, 'rgba(255,190,50,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size*4, 0, Math.PI*2); ctx.fill();
+  };
+
+  // ---------- 云朵 ----------
+  function Cloud() { this.reset(true); }
+  Cloud.prototype.reset = function(init) {
+    var W = canvas ? canvas.width : 1920;
+    this.x = init ? Math.random() * W : -180;
+    this.y = Math.random() * (canvas ? canvas.height*0.45 : 450);
+    this.size = 35 + Math.random() * 70;
+    this.spd = 0.1 + Math.random() * 0.22;
+    this.alpha = 0.06 + Math.random() * 0.18;
+  };
+  Cloud.prototype.update = function() {
+    var W = canvas ? canvas.width : 1920;
+    this.x += this.spd;
+    if (this.x > W + this.size) this.reset(false);
+  };
+  Cloud.prototype.draw = function() {
+    var g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+    g.addColorStop(0, 'rgba(255,255,255,'+this.alpha+')');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    g = ctx.createRadialGradient(this.x+this.size*0.45, this.y-this.size*0.15, 0, this.x+this.size*0.45, this.y-this.size*0.15, this.size*0.6);
+    g.addColorStop(0, 'rgba(255,255,255,'+this.alpha*0.7+')');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(this.x+this.size*0.45, this.y-this.size*0.15, this.size*0.6, 0, Math.PI*2); ctx.fill();
+  };
+
+  // ---------- 雾气 ----------
+  function Fog(dark) {
+    this.dark = dark || false;
+    this.reset(true);
+  }
+  Fog.prototype.reset = function(init) {
+    var W = canvas ? canvas.width : 1920;
+    var H = canvas ? canvas.height : 1080;
+    this.x = init ? Math.random() * W : -250;
+    this.y = Math.random() * H;
+    this.size = 55 + Math.random() * 110;
+    this.spd = 0.06 + Math.random() * 0.12;
+    this.alpha = 0.03 + Math.random() * 0.07;
+  };
+  Fog.prototype.update = function() {
+    var W = canvas ? canvas.width : 1920;
+    this.x += this.spd;
+    this.y += Math.sin(globalTime*0.00025 + this.x*0.004) * 0.06;
+    if (this.x > W + this.size) this.reset(false);
+  };
+  Fog.prototype.draw = function() {
+    var c = this.dark ? '130, 140, 160' : '195, 195, 195';
+    var g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+    g.addColorStop(0, 'rgba('+c+','+this.alpha+')');
+    g.addColorStop(1, 'rgba('+c+',0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+  };
+
+  // ---------- 闪电 ----------
+  function genBolt() {
+    var W = canvas ? canvas.width : 1920;
+    var H = canvas ? canvas.height : 1080;
+    var bolt = [], x = Math.random() * W, y = 0;
+    bolt.push({x:x,y:y});
+    while (y < H*0.55) {
+      x += (Math.random()-0.5)*70;
+      y += Math.random()*35+12;
+      bolt.push({x:x,y:y});
+    }
+    return bolt;
+  }
+  function updateLightning() {
+    if (current !== 'thunder') { lightning.active = false; return; }
+    lightning.timer--;
+    if (lightning.timer <= 0 && Math.random() < 0.003) {
+      lightning.active = true;
+      lightning.opacity = 1;
+      lightning.timer = 25 + Math.random() * 55;
+      lightning.bolts = [genBolt()];
+      if (Math.random() < 0.35) lightning.bolts.push(genBolt());
+    }
+    if (lightning.active) {
+      lightning.opacity -= 0.06;
+      if (lightning.opacity <= 0) { lightning.active = false; lightning.bolts = []; }
+    }
+  }
+  function drawLightning() {
+    if (!lightning.active || lightning.opacity <= 0) return;
+    ctx.fillStyle = 'rgba(255,255,255,'+lightning.opacity*0.12+')';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+    lightning.bolts.forEach(function(b) {
+      ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,240,'+lightning.opacity+')'; ctx.lineWidth = 2.2;
+      ctx.moveTo(b[0].x, b[0].y);
+      for (var i=1; i<b.length; i++) ctx.lineTo(b[i].x, b[i].y);
+      ctx.stroke();
+      ctx.beginPath(); ctx.strokeStyle = 'rgba(180,200,255,'+lightning.opacity*0.35+')'; ctx.lineWidth = 9;
+      ctx.moveTo(b[0].x, b[0].y);
+      for (var i=1; i<b.length; i++) ctx.lineTo(b[i].x, b[i].y);
+      ctx.stroke();
+    });
+  }
+
+  // ---------- 背景 ----------
+  function drawBg() {
+    var H = canvas ? canvas.height : 1080;
+    var bg = null;
+    switch(current) {
+      case 'rain':
+        bg = ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,'rgba(10,20,40,0.1)'); bg.addColorStop(1,'rgba(15,28,55,0.2)'); break;
+      case 'thunder':
+        bg = ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,'rgba(3,8,20,0.18)'); bg.addColorStop(1,'rgba(8,12,30,0.35)'); break;
+      case 'snow':
+        bg = ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,'rgba(20,30,50,0.04)'); bg.addColorStop(1,'rgba(25,35,55,0.1)'); break;
+      case 'fog':
+        bg = ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,'rgba(170,170,170,0.08)'); bg.addColorStop(1,'rgba(150,150,150,0.14)'); break;
+      case 'overcast':
+        bg = ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,'rgba(55,60,70,0.08)'); bg.addColorStop(1,'rgba(45,50,60,0.16)'); break;
+    }
+    if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  }
+
+  // ---------- 粒子管理 ----------
+  var counts = { rain: 380, thunder: 550, snow: 170, clear: 45, cloudy: 16, fog: 28, overcast: 22 };
+  function createParticles(type) {
+    particles = []; splashes = []; lightning = { active:false, opacity:0, timer:0, bolts:[] };
+    var n = counts[type] || 45;
+    if (window.innerWidth < 900) n = Math.floor(n*0.48);
+    for (var i=0; i<n; i++) {
+      switch(type) {
+        case 'rain': particles.push(new RainDrop(false)); break;
+        case 'thunder': particles.push(new RainDrop(true)); break;
+        case 'snow': particles.push(new SnowFlake()); break;
+        case 'clear': particles.push(new SunParticle()); break;
+        case 'cloudy': particles.push(new Cloud()); break;
+        case 'fog': particles.push(new Fog(false)); break;
+        case 'overcast': particles.push(new Fog(true)); break;
+      }
+    }
+  }
+
+  // ---------- Canvas ----------
+  function setup() {
+    var c = document.getElementById('fx-canvas');
+    if (!c) {
+      var wrap = document.createElement('div');
+      wrap.id = 'fx-container';
+      wrap.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;';
+      document.getElementById('pane-canvas').prepend(wrap);
+      c = document.createElement('canvas');
+      c.id = 'fx-canvas';
+      c.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
+      wrap.appendChild(c);
+    }
+    canvas = c;
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+  }
+
+  function resize() {
+    if (!canvas) return;
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.parentElement.clientWidth;
+    var h = canvas.parentElement.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  // ---------- 动画循环 ----------
+  function loop() {
+    if (!canvas || !ctx) { animId = requestAnimationFrame(loop); return; }
+    globalTime++;
+    ctx.clearRect(0, 0, canvas.width/(window.devicePixelRatio||1), canvas.height/(window.devicePixelRatio||1));
+    drawBg();
+    for (var i=0; i<particles.length; i++) { particles[i].update(); particles[i].draw(); }
+    if (current === 'rain' || current === 'thunder') {
+      for (var i=splashes.length-1; i>=0; i--) { splashes[i].update(); splashes[i].draw(); if (splashes[i].life<=0) splashes.splice(i,1); }
+    }
+    updateLightning(); drawLightning();
+    animId = requestAnimationFrame(loop);
+  }
+
+  // ---------- 公开API ----------
+  window.FX = {
+    switch: function(type) {
+      current = type;
+      createParticles(type);
+      // update info panel
+      var info = {
+        rain:    { title:'🌧 雨天配置', desc:'粒子 ~380 · opacity 0.25~0.9 · size 0.4~2px\n尾迹渐变 · 底部溅射 · 倾斜 ~10°' },
+        thunder: { title:'⛈ 雷暴配置', desc:'粒子 ~550 · opacity 0.25~0.9 · speed ×1.4\n随机闪电 + 闪光屏 · 2~3 道闪电' },
+        snow:    { title:'❄ 雪天配置', desc:'粒子 ~170 · opacity 0.35~1.0 · size 1.5~6.5px\n3种雪花形态 · 摇摆飘落 · 旋转' },
+        clear:   { title:'☀ 晴天配置', desc:'粒子 ~45 · 发光圆点 · 脉冲闪烁\n缓慢上浮 · 金色渐变光晕' },
+        cloudy:  { title:'⛅ 多云配置', desc:'粒子 ~16 · 半透明白色大圆\n双团云 · 水平漂移 · opacity 0.06~0.24' },
+        fog:     { title:'🌫 雾配置', desc:'粒子 ~28 · 超大圆形 · 缓慢漂移\n正弦垂直微动 · opacity 0.03~0.1' },
+        overcast:{ title:'☁️ 阴天配置', desc:'粒子 ~22 · 深灰蓝色调 · 较浓opacity\n模拟阴天低沉氛围' }
+      }[type];
+      document.getElementById('info-title').textContent = info.title;
+      document.getElementById('info-desc').innerHTML = info.desc.replace(/\n/g,'<br>').replace(/·/g,'· ');
+      document.getElementById('params-left').textContent = '粒子 ~' + (counts[type]||45) + ' · z-index:10 · pointer-events:none · 零外部依赖';
+    }
+  };
+})();
+
+// ============ 启动 ============
+document.addEventListener('DOMContentLoaded', function() {
+  // Init canvas
+  var s = document.createElement('script');
+  s.textContent = '(' + function(){
+    var c = document.getElementById('fx-canvas');
+    if (!c) {
+      var wrap = document.createElement('div');
+      wrap.id = 'fx-container';
+      wrap.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;';
+      document.getElementById('pane-canvas').prepend(wrap);
+      c = document.createElement('canvas');
+      c.id = 'fx-canvas';
+      c.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
+      wrap.appendChild(c);
+    }
+  }.toString() + '()');
+  document.head.appendChild(s);
+
+  setTimeout(function() {
+    // setup
+    var canvas = document.getElementById('fx-canvas');
+    var ctx2d = canvas.getContext('2d');
+    // Resize
+    function rs() {
+      var dpr = window.devicePixelRatio||1;
+      var w = canvas.parentElement.clientWidth;
+      var h = canvas.parentElement.clientHeight;
+      canvas.width = w*dpr;
+      canvas.height = h*dpr;
+      canvas.style.width = w+'px';
+      canvas.style.height = h+'px';
+      ctx2d.setTransform(dpr,0,0,dpr,0,0);
+    }
+    rs();
+    window.addEventListener('resize', rs);
+
+    // Manually bridge to the FX module
+    // (The main FX code is already in scope)
+
+    // Default: rain
+    window.FX.switch('rain');
+  }, 100);
+
+  // Button bindings
+  document.querySelectorAll('.controls button').forEach(function(b) {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('.controls button').forEach(function(x){ x.classList.remove('active'); });
+      this.classList.add('active');
+      var w = this.getAttribute('data-w');
+      var icons = { rain:'🌧 雨天', thunder:'⛈ 雷暴', snow:'❄ 雪天', clear:'☀ 晴天', cloudy:'⛅ 多云', fog:'🌫 雾霾', overcast:'☁️ 阴天' };
+      document.getElementById('weather-icon-left').textContent = icons[w] + ' · 17°C';
+      window.FX.switch(w);
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v6 全博客天气系统</title>
+<style>
+/* ============================================================
+   Theme
+   ============================================================ */
+:root {
+  --bg: #0a0e17; --surface: #111827; --surface2: #1a2236;
+  --text: #c8d2e0; --text2: #8899aa; --text3: #556677;
+  --border: rgba(255,255,255,.05); --border2: rgba(255,255,255,.08);
+  --card-bg: rgba(255,255,255,.015); --card-border: rgba(255,255,255,.04);
+  --accent: #6e96c4; --accent2: #4a7aaa;
+  --shadow: 0 4px 24px rgba(0,0,0,.25);
+  --btn-bg: rgba(255,255,255,.03); --btn-border: rgba(255,255,255,.05); --btn-text: #6a7a8a;
+  --rain-r:150;--rain-g:190;--rain-b:225;--drop-r:195;--drop-g:218;--drop-b:240;
+  --snow-opacity:0.7;--sun-opacity:0.12;--glass-alpha:0.04;
+}
+[data-theme="light"] {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --text: #2c3e50; --text2: #5a6a7a; --text3: #8899aa;
+  --border: rgba(0,0,0,.06); --border2: rgba(0,0,0,.1);
+  --card-bg: #ffffff; --card-border: rgba(0,0,0,.08);
+  --accent: #3b7dc4; --accent2: #2c5f99;
+  --shadow: 0 4px 20px rgba(0,0,0,.08);
+  --btn-bg: rgba(0,0,0,.03); --btn-border: rgba(0,0,0,.08); --btn-text: #5a6a7a;
+  --rain-r:40;--rain-g:80;--rain-b:150;--drop-r:80;--drop-g:130;--drop-b:190;
+  --snow-opacity:0.9;--sun-opacity:0.22;--glass-alpha:0.08;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .5s,color .5s}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;justify-content:space-between;transition:background .5s,border-color .5s}
+.nav .logo{font-size:18px;font-weight:600;color:var(--text);letter-spacing:1px}
+.nav .nav-links{display:flex;gap:24px;list-style:none}
+.nav .nav-links a{color:var(--text2);text-decoration:none;font-size:13px;letter-spacing:1px;transition:color .3s}
+.nav .nav-links a:hover{color:var(--accent)}
+
+/* Banner — no weather */
+.banner{position:relative;margin-top:56px;height:380px;background:linear-gradient(135deg,#0a0a12 0%,#0d1a2d 30%,#0c1828 60%,#060d18 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
+.banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(60,100,180,.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 40%,rgba(80,60,140,.05) 0%,transparent 50%);pointer-events:none}
+.banner .stars{position:absolute;inset:0;pointer-events:none}
+.banner .stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s infinite alternate}
+@keyframes twinkle{0%{opacity:.2}100%{opacity:.8}}
+.banner .blog-title{position:relative;z-index:2;font-size:42px;font-weight:700;color:#e8edf5;letter-spacing:6px;text-shadow:0 0 60px rgba(150,180,220,.15)}
+.banner .blog-sub{position:relative;z-index:2;font-size:14px;color:#6a7a8a;margin-top:8px;letter-spacing:3px}
+
+/* Content */
+.content-wrap{max-width:1200px;margin:0 auto;padding:28px 20px;display:flex;gap:24px;position:relative;z-index:2}
+.main{flex:1;min-width:0}
+.sidebar{width:280px;flex-shrink:0}
+
+.post{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;transition:background .5s,border-color .5s;box-shadow:var(--shadow)}
+.post .post-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:.5px}
+.post .post-date{font-size:11px;color:var(--text3);margin-bottom:8px}
+.post .post-excerpt{font-size:13px;color:var(--text2);line-height:1.7}
+
+.sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;transition:background .5s,border-color .5s;box-shadow:var(--shadow)}
+.sidebar-card .sc-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;letter-spacing:1px}
+.sidebar-card .sc-text{font-size:12px;color:var(--text2);line-height:1.8}
+
+/* ===========================
+   Weather Card — all controls embedded
+   =========================== */
+.weather-card{background:var(--surface);border:1px solid var(--card-border);border-radius:14px;padding:18px 15px 14px;text-align:center;position:relative;overflow:hidden;transition:background .5s,border-color .5s;box-shadow:var(--shadow);margin-bottom:14px}
+.weather-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(120,160,210,.03) 0%,transparent 70%);pointer-events:none;z-index:0}
+.weather-card>*{position:relative;z-index:1}
+
+.wc-fixed{font-family:'Cormorant Garamond','Noto Serif SC',serif;font-size:14px;color:var(--text2);margin-bottom:10px;letter-spacing:2px;font-weight:400}
+.wc-greeting{font-weight:600;font-size:13px;color:var(--text);margin-bottom:4px}
+.wc-poem{font-family:'Cormorant Garamond','Noto Serif SC',serif;font-style:italic;font-size:13px;color:var(--accent);margin-bottom:1px}
+.wc-location{font-size:10px;color:var(--text3);margin-bottom:12px;letter-spacing:1px}
+.wc-weather{font-size:13px;color:var(--text2);margin-bottom:10px}
+
+/* Mode pills */
+.wc-modes{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:10px}
+.wc-mode{padding:4px 10px;background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:14px;font-size:10px;cursor:pointer;color:var(--btn-text);letter-spacing:1px;transition:all .3s;user-select:none}
+.wc-mode:hover{border-color:var(--accent);color:var(--accent)}
+.wc-mode.on{background:rgba(100,160,220,.15);border-color:rgba(100,160,220,.3);color:var(--accent);font-weight:500}
+
+/* Gravity row — compact */
+.wc-gravity{border-top:1px solid var(--border);padding-top:10px;margin-top:2px}
+.wc-grav-header{display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px}
+.wc-grav-planet{font-size:14px;font-weight:500;color:var(--text);letter-spacing:1px}
+.wc-grav-hint{font-size:10px;color:var(--text3)}
+.wc-grav-quick{display:flex;gap:5px;justify-content:center;margin-bottom:6px}
+.wc-grav-qbtn{background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--btn-text);padding:2px 10px;border-radius:10px;cursor:pointer;font-size:9px;letter-spacing:1px;transition:all .3s}
+.wc-grav-qbtn:hover{border-color:var(--accent);color:var(--accent)}
+.wc-grav-qbtn.on{background:rgba(100,160,220,.15);border-color:rgba(100,160,220,.3);color:var(--accent)}
+.wc-grav-slider-wrap{position:relative;height:24px;margin:0 2px}
+.wc-grav-track{position:absolute;top:10px;left:0;width:100%;height:3px;background:var(--border2);border-radius:2px}
+.wc-grav-fill{position:absolute;top:0;height:100%;background:rgba(120,165,210,.22);border-radius:2px}
+.wc-grav-thumb{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(80,140,210,.4);pointer-events:none;z-index:2;border:2px solid rgba(255,255,255,.15)}
+.wc-grav-input{position:absolute;top:-4px;left:0;width:100%;height:28px;-webkit-appearance:none;background:transparent;outline:none;z-index:3;cursor:grab}
+.wc-grav-input::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:transparent;cursor:grab;border:none}
+.wc-grav-bounds{display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:1px}
+
+/* Toggle */
+.wc-toggle{display:flex;justify-content:center;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:10px;margin-top:8px;font-size:10px;color:var(--text2)}
+.wc-switch{position:relative;display:inline-block;width:32px;height:18px}
+.wc-switch input{opacity:0;width:0;height:0}
+.wc-slider{position:absolute;cursor:pointer;inset:0;background:#555;transition:.3s;border-radius:18px}
+.wc-slider::before{content:'';position:absolute;height:14px;width:14px;left:2px;bottom:2px;background:#fff;transition:.3s;border-radius:50%}
+.wc-switch input:checked+.wc-slider{background:#2ecc71}
+.wc-switch input:checked+.wc-slider::before{transform:translateX(14px)}
+
+/* Right side buttons */
+.rightside{position:fixed;right:12px;bottom:80px;z-index:40;display:flex;flex-direction:column;gap:8px}
+.rs-btn{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .3s;box-shadow:var(--shadow)}
+.rs-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* Canvas — below banner, above content, scrolls with page */
+#weather-canvas{position:absolute;top:436px;left:0;width:100%;height:calc(100vh - 436px);z-index:1;pointer-events:none}
+.canvas-anchor{position:relative}
+
+/* Footer */
+.footer{text-align:center;padding:20px;color:var(--text3);font-size:11px;letter-spacing:1px;position:relative;z-index:2;border-top:1px solid var(--border);margin:0 20px}
+
+/* ===========================
+   Mobile bottom bar
+   =========================== */
+.mobile-weather{display:none;margin:0 10px 10px;background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:12px 14px;font-size:11px;color:var(--text2);line-height:1.6;box-shadow:var(--shadow);text-align:center}
+.mw-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.mw-modes{display:flex;gap:4px;justify-content:center;margin:6px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.mw-mode{padding:3px 9px;background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:12px;font-size:10px;cursor:pointer;color:var(--btn-text);white-space:nowrap;transition:all .3s;flex-shrink:0}
+.mw-mode.on{background:rgba(100,160,220,.15);border-color:rgba(100,160,220,.3);color:var(--accent);font-weight:500}
+.mw-grav{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:4px}
+.mw-grav-qbtn{background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--btn-text);padding:1px 8px;border-radius:8px;font-size:9px;cursor:pointer;white-space:nowrap}
+.mw-grav-qbtn.on{background:rgba(100,160,220,.15);border-color:rgba(100,160,220,.3);color:var(--accent)}
+.mw-grav-slider{width:80px;height:3px;-webkit-appearance:none;appearance:none;background:var(--border2);border-radius:2px;outline:none}
+.mw-grav-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:grab;border:none}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .nav .nav-links{display:none}
+  .banner{height:240px}
+  .banner .blog-title{font-size:28px}
+  #weather-canvas{position:fixed;top:296px;height:calc(100vh - 296px)}
+  .mobile-weather{display:block}
+  .rightside{bottom:60px}
+}
+@media(max-width:600px){
+  .content-wrap{padding:16px 10px}
+  .post{padding:16px}
+  .banner{height:200px}
+  .banner .blog-title{font-size:24px;letter-spacing:4px}
+  #weather-canvas{top:256px;height:calc(100vh - 256px)}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="logo">INFINITY'S BLOG</span>
+  <ul class="nav-links">
+    <li><a href="#">首页</a></li><li><a href="#">文章</a></li><li><a href="#">标签</a></li><li><a href="#">分类</a></li><li><a href="#">文以载道</a></li><li><a href="#">格物致知</a></li>
+  </ul>
+</nav>
+
+<div class="banner" id="banner">
+  <div class="stars" id="starsLayer"></div>
+  <h1 class="blog-title">INFINITY'S BLOG</h1>
+  <p class="blog-sub">你我皆为星辰之子，每一个细胞都书写着整个宇宙</p>
+</div>
+
+<div class="canvas-anchor">
+  <canvas id="weather-canvas"></canvas>
+
+  <div class="content-wrap">
+    <main class="main">
+      <article class="post"><div class="post-title">黑障之战——《全频带阻塞干扰》</div><div class="post-date">2026-04-20 | humanities · 读书笔记</div><div class="post-excerpt">每个中国军人都应该读一遍中国版的《全频带阻塞干扰》</div></article>
+      <article class="post"><div class="post-title">无题——26/4/16</div><div class="post-date">2026-04-16 | humanities · 随笔</div><div class="post-excerpt">有幸生活在一个文明进步的时空里——关于自我、理想与成长的深夜随笔</div></article>
+      <article class="post"><div class="post-title">[GXYCTF2019]Ping Ping Ping</div><div class="post-date">2026-04-12 | CTF</div><div class="post-excerpt">命令注入实战 — 绕过空格过滤、管道符利用与内联执行</div></article>
+      <article class="post"><div class="post-title">ACTF2020 新生赛 Exec1</div><div class="post-date">2026-04-11 | tech · CTF</div><div class="post-excerpt">通过一道 ACTF 新生赛题目，深入理解 Linux 命令注入的原理</div></article>
+    </main>
+
+    <aside class="sidebar">
+      <!-- ====== Weather Card — all controls embedded ====== -->
+      <div class="weather-card" id="weatherCard">
+        <div class="wc-fixed">长风破浪会有时，直挂云帆济沧海</div>
+        <div class="wc-greeting" id="wcGreeting"></div>
+        <div class="wc-poem" id="wcPoem"></div>
+        <div class="wc-location" id="wcLocation"></div>
+        <div class="wc-weather" id="wcWeather"></div>
+
+        <div class="wc-modes" id="wcModes">
+          <span class="wc-mode on" data-mode="rain" data-sub="drizzle">🌧 微雨</span>
+          <span class="wc-mode" data-mode="rain" data-sub="storm">⛈ 骤雨</span>
+          <span class="wc-mode" data-mode="snow" data-sub="light">❄ 疏雪</span>
+          <span class="wc-mode" data-mode="snow" data-sub="heavy">🌨 暮雪</span>
+          <span class="wc-mode" data-mode="clear" data-sub="clear">☀ 晴光</span>
+        </div>
+
+        <div class="wc-gravity" id="wcGravity">
+          <div class="wc-grav-header">
+            <span class="wc-grav-planet" id="wcPlanet">♁ 地球</span>
+            <span class="wc-grav-hint" id="wcGravHint">9.81 · 雨落如常</span>
+          </div>
+          <div class="wc-grav-quick">
+            <button class="wc-grav-qbtn" data-g="0">○ 失重</button>
+            <button class="wc-grav-qbtn on" data-g="981">♁ 地球</button>
+            <button class="wc-grav-qbtn" data-g="-981">↑ 逆地</button>
+          </div>
+          <div class="wc-grav-slider-wrap">
+            <div class="wc-grav-track">
+              <div class="wc-grav-fill" id="wcGravFill"></div>
+              <div class="wc-grav-thumb" id="wcThumb"></div>
+            </div>
+            <input class="wc-grav-input" type="range" id="gSlider" min="-2479" max="2479" value="981" step="1">
+          </div>
+          <div class="wc-grav-bounds"><span>−24.79</span><span>0</span><span>+24.79</span></div>
+        </div>
+
+        <div class="wc-toggle">
+          <span>天气特效</span>
+          <label class="wc-switch"><input type="checkbox" id="fxToggle" checked><span class="wc-slider"></span></label>
+        </div>
+      </div>
+
+      <div class="sidebar-card"><div class="sc-title">📢 公告</div><div class="sc-text">格物致知，文以载道 —— 技术与人文的交汇之地</div></div>
+      <div class="sidebar-card"><div class="sc-title">ℹ️ 网站信息</div><div class="sc-text">文章数: 8<br>总字数: 3.1k<br>最后更新: 刚刚</div></div>
+    </aside>
+  </div>
+</div>
+
+<!-- Mobile Weather Bar -->
+<div class="mobile-weather" id="mobileWeather">
+  <div class="mw-row">
+    <span id="mwGreeting"></span>
+    <span id="mwWeather"></span>
+  </div>
+  <div class="mw-modes" id="mwModes">
+    <span class="mw-mode on" data-mode="rain" data-sub="drizzle">🌧 微雨</span>
+    <span class="mw-mode" data-mode="rain" data-sub="storm">⛈ 骤雨</span>
+    <span class="mw-mode" data-mode="snow" data-sub="light">❄ 疏雪</span>
+    <span class="mw-mode" data-mode="snow" data-sub="heavy">🌨 暮雪</span>
+    <span class="mw-mode" data-mode="clear" data-sub="clear">☀ 晴光</span>
+  </div>
+  <div class="mw-grav">
+    <button class="mw-grav-qbtn" data-g="0">○</button>
+    <button class="mw-grav-qbtn on" data-g="981">♁</button>
+    <input class="mw-grav-slider" type="range" id="mwGSlider" min="-2479" max="2479" value="981" step="1">
+    <button class="mw-grav-qbtn" data-g="-981">↑</button>
+  </div>
+</div>
+
+<div class="footer">© 2025–2026 By Infinity · Hexo 8.1.1 · Butterfly 5.5.4</div>
+
+<div class="rightside">
+  <button class="rs-btn" id="btnTheme" title="切换日/暗">🌓</button>
+  <button class="rs-btn" title="回顶">⬆</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var C = document.getElementById('weather-canvas'), X = C.getContext('2d');
+var W, H, dpr, t = 0;
+var rainStreaks=[], glassDrops=[], snowflakes=[], sunParticles=[], microTex=null;
+var gravity = 9.81, scrollY = 0, targetScrollY = 0;
+var curMode='rain', curSub='drizzle', enabled=true;
+
+/* Resize — canvas follows the .canvas-anchor position */
+function resize(){
+  dpr = devicePixelRatio || 1;
+  var anchor = C.parentNode;
+  var rect = anchor.getBoundingClientRect();
+  W = rect.width;
+  H = Math.max(300, window.innerHeight - rect.top);
+  C.width = W * dpr; C.height = H * dpr;
+  C.style.width = W+'px'; C.style.height = H+'px';
+  X.setTransform(dpr,0,0,dpr,0,0);
+  microTex = null;
+}
+resize();
+addEventListener('resize', resize);
+addEventListener('scroll', function(){
+  var anchor = C.parentNode;
+  targetScrollY = window.scrollY;
+  var rect = anchor.getBoundingClientRect();
+  if (rect.top <= 0 && C.style.position !== 'fixed') {
+    C.style.position = 'fixed'; C.style.top = '0px';
+    resize();
+  }
+}, {passive:true});
+
+/* Theme-aware colors */
+function rc(a){
+  var s=getComputedStyle(document.documentElement);
+  return 'rgba('+s.getPropertyValue('--rain-r').trim()+','+s.getPropertyValue('--rain-g').trim()+','+s.getPropertyValue('--rain-b').trim()+','+a+')';
+}
+function dc(a){
+  var s=getComputedStyle(document.documentElement);
+  return 'rgba('+s.getPropertyValue('--drop-r').trim()+','+s.getPropertyValue('--drop-g').trim()+','+s.getPropertyValue('--drop-b').trim()+','+a+')';
+}
+function sa(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--snow-opacity').trim())||0.7; }
+function ua(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sun-opacity').trim())||0.12; }
+function ga(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glass-alpha').trim())||0.04; }
+
+/* Utils */
+function rand(a,b){return a+Math.random()*(b-a);}
+function dist(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+function gDir(){return gravity>=0?1:-1;}
+function genDropShape(){var n=20,v=[],ir=rand(.05,.15);for(var i=0;i<n;i++){var a=(i/n)*Math.PI*2,r=1+(Math.random()-.5)*ir*2;v.push({cos:Math.cos(a)*r,sin:Math.sin(a)*r});}return v;}
+
+/* Scroll wind — subtle angle shift when scrolling */
+function scrollWind(){
+  scrollY += (targetScrollY - scrollY) * 0.06;
+  var maxShift = 0.06;
+  var shift = Math.max(-maxShift, Math.min(maxShift, scrollY * 0.00003));
+  return shift;
+}
+
+/* ==================== GlassDrop ==================== */
+var DI=.025;
+function GlassDrop(x,y,placed){
+  var dir=gDir();
+  if(placed){this.x=x!=null?x:Math.random()*W;this.y=y!=null?y:Math.random()*H;this.r=rand(3,7);this.maxR=this.r;this.growing=false;}
+  else{this.x=x!=null?x:Math.random()*W;this.y=y!=null?y:(dir>0?-(8+Math.random()*20):H+8+Math.random()*20);this.r=rand(.6,1.4);this.maxR=rand(3,7.5);this.growing=true;}
+  this.sliding=!this.growing;this.vy=this.sliding?(.04+this.r*.1)*(gravity/9.81):0;
+  this.shape=genDropShape();this.trail=[];this.trailTimer=0;
+}
+GlassDrop.prototype.update=function(){
+  var absG=Math.abs(gravity),dir=gDir(),wind=scrollWind();
+  if(this.growing){this.r+=rand(.012,.035);if(this.r>=this.maxR){this.r=this.maxR;this.growing=false;this.sliding=true;}}
+  if(this.sliding){
+    var tv=(.04+this.r*.1)*(gravity/9.81);
+    if(absG<.08){tv=0;this.vy+=(tv-this.vy)*DI;this.x+=(Math.random()-.5)*0.7;this.y+=(Math.random()-.5)*0.7;}
+    else{this.vy+=(tv-this.vy)*DI;this.y+=this.vy;}
+    this.x+=this.vy*wind*0.5;
+    this.trailTimer++;if(this.trailTimer%2===0&&this.trail.length<80)this.trail.push({x:this.x,y:this.y,r:this.r,a:.55});
+    for(var i=this.trail.length-1;i>=0;i--){this.trail[i].a-=.005;if(this.trail[i].a<=0)this.trail.splice(i,1);}
+    if(dir>0&&this.y-this.r>H+80)this.reset(dir);else if(dir<0&&this.y+this.r<-80)this.reset(dir);
+  }
+};
+GlassDrop.prototype.reset=function(dir){this.y=dir>0?-10-Math.random()*40:H+10+Math.random()*40;this.x=Math.random()*W;this.r=rand(.6,1.4);this.maxR=rand(2.5,6.5);this.growing=true;this.sliding=false;this.vy=0;this.trail=[];this.trailTimer=0;this.shape=genDropShape();};
+GlassDrop.prototype.paintDrop=function(cx,cy,r,alpha,lit){
+  if(r<.2)return;X.save();X.globalAlpha=alpha;
+  X.beginPath();var s=this.shape;
+  X.moveTo(cx+s[0].cos*r,cy+s[0].sin*r);for(var i=1;i<s.length;i++)X.lineTo(cx+s[i].cos*r,cy+s[i].sin*r);X.closePath();
+  var bg=X.createRadialGradient(cx-r*.12,cy-r*.22,r*.03,cx,cy,r);
+  bg.addColorStop(0,dc(.75));bg.addColorStop(.45,dc(.45));bg.addColorStop(.8,dc(.18));bg.addColorStop(1,dc(.05));
+  X.fillStyle=bg;X.fill();X.strokeStyle=dc(.4);X.lineWidth=.5;X.stroke();
+  if(lit&&r>.6){
+    var hx=cx-r*.24,hy=cy-r*.28,hg=X.createRadialGradient(hx,hy,0,hx,hy,r*.28);
+    hg.addColorStop(0,'rgba(255,255,255,.9)');hg.addColorStop(.08,'rgba(255,255,255,.65)');hg.addColorStop(.35,'rgba(255,255,255,.1)');hg.addColorStop(1,'rgba(255,255,255,0)');
+    X.fillStyle=hg;X.beginPath();X.arc(hx,hy,r*.28,0,Math.PI*2);X.fill();
+    var bx=cx+r*.2,by=cy+r*.36,bg2=X.createRadialGradient(bx,by,0,bx,by,r*.1);
+    bg2.addColorStop(0,'rgba(255,255,255,.45)');bg2.addColorStop(1,'rgba(255,255,255,0)');
+    X.fillStyle=bg2;X.beginPath();X.arc(bx,by,r*.1,0,Math.PI*2);X.fill();
+  }
+  X.restore();
+};
+GlassDrop.prototype.draw=function(){for(var i=0;i<this.trail.length;i++){var tr=this.trail[i],f=i/Math.max(this.trail.length,1),trr=this.r*(.2+.4*f);this.paintDrop(tr.x,tr.y,trr,tr.a*.25,false);}this.paintDrop(this.x,this.y,this.r,.92,true);};
+
+/* ==================== RainStreak ==================== */
+var RI=.04;
+function RainStreak(fresh,storm){this.storm=storm;this.reset(fresh,gDir());}
+RainStreak.prototype.reset=function(fresh,dir){
+  this.x=Math.random()*W;if(dir===undefined)dir=gDir();
+  this.y=fresh?Math.random()*H:(dir>0?-(30+Math.random()*80):H+30+Math.random()*80);
+  this.len=this.storm?18+Math.random()*35:14+Math.random()*30;
+  this.spd=this.storm?8+Math.random()*14:4+Math.random()*10;
+  this.opa=this.storm?.18+Math.random()*.38:.12+Math.random()*.32;
+  this.wd=this.storm?.3+Math.random()*.9:.2+Math.random()*.7;
+  this.ang=.02+Math.random()*.05;this.vy=this.spd*(gravity/9.81);
+};
+RainStreak.prototype.update=function(){
+  var absG=Math.abs(gravity),dir=gDir(),wind=scrollWind();
+  if(absG<.08){this.vy+=(0-this.vy)*RI;this.y+=(Math.random()-.5)*.6;this.x+=(Math.random()-.5)*.35;}
+  else{var tv=this.spd*(gravity/9.81);this.vy+=(tv-this.vy)*RI;this.y+=this.vy;}
+  this.x+=this.vy*(this.ang+wind)*.3;
+  if(dir>0&&this.y>H+40||dir<0&&this.y<-40)this.reset(false,dir);
+};
+RainStreak.prototype.draw=function(){
+  var td=this.vy>=0?1:-1,tx=this.x-this.len*(this.ang+scrollWind())*.3,ty=this.y-this.len*td;
+  var g=X.createLinearGradient(tx,ty,this.x,this.y);
+  g.addColorStop(0,rc(0));g.addColorStop(.35,rc(this.opa*.2));g.addColorStop(1,rc(this.opa));
+  X.beginPath();X.strokeStyle=g;X.lineWidth=this.wd;X.lineCap='round';X.moveTo(tx,ty);X.lineTo(this.x,this.y);X.stroke();
+};
+
+/* ==================== Snowflake ==================== */
+var SI=.06;
+function Snowflake(fresh,heavy){this.heavy=heavy;this.reset(fresh,gDir());}
+Snowflake.prototype.reset=function(fresh,dir){
+  this.x=Math.random()*W;if(dir===undefined)dir=gDir();
+  this.y=fresh?Math.random()*H:(dir>0?-(20+Math.random()*30):H+20+Math.random()*30);
+  this.sz=this.heavy?1.5+Math.random()*4:2+Math.random()*6;
+  this.spdy=this.heavy?.3+Math.random()*1.4:.2+Math.random()*1;
+  this.swayA=.4+Math.random()*1.6;this.swayF=.0003+Math.random()*.001;this.swayP=Math.random()*Math.PI*2;
+  this.opa=(.2+Math.random()*.5)*(this.heavy?1.2:1);
+  this.rot=Math.random()*Math.PI*2;this.rotSpd=(Math.random()-.5)*.01;this.onGlass=Math.random()<.3;
+  this.vy=this.spdy*(gravity/9.81);
+};
+Snowflake.prototype.update=function(){
+  var absG=Math.abs(gravity),dir=gDir();
+  if(absG<.08){this.vy+=(0-this.vy)*SI;this.y+=(Math.random()-.5)*.5;this.x+=(Math.random()-.5)*.5;}
+  else{var tv=this.spdy*(gravity/9.81);this.vy+=(tv-this.vy)*SI;this.y+=this.vy;}
+  this.x+=Math.sin(t*this.swayF+this.swayP)*this.swayA*.25+scrollWind()*.15;
+  this.rot+=this.rotSpd;
+  if(dir>0&&this.y>H+20||dir<0&&this.y<-20)this.reset(false,dir);
+};
+Snowflake.prototype.draw=function(){
+  X.save();X.translate(this.x,this.y);X.rotate(this.rot);
+  X.globalAlpha=Math.min(1,this.opa*sa()*1.4);var r=this.sz;
+  if(this.onGlass){X.fillStyle='rgba(225,240,255,.75)';X.beginPath();X.ellipse(0,0,r,r*.48,0,0,Math.PI*2);X.fill();X.fillStyle='rgba(255,255,255,.9)';X.beginPath();X.arc(0,0,r*.2,0,Math.PI*2);X.fill();}
+  else{var gr=X.createRadialGradient(0,0,0,0,0,r);gr.addColorStop(0,'rgba(255,255,255,.85)');gr.addColorStop(.45,'rgba(255,255,255,.45)');gr.addColorStop(1,'rgba(255,255,255,0)');X.fillStyle=gr;X.beginPath();X.arc(0,0,r,0,Math.PI*2);X.fill();}
+  X.restore();
+};
+
+/* ==================== SunParticle ==================== */
+function SunParticle(fresh){this.reset(fresh,gDir());}
+SunParticle.prototype.reset=function(fresh,dir){
+  this.x=Math.random()*W;if(dir===undefined)dir=gDir();
+  this.y=fresh?Math.random()*H:(dir>0?H+40+Math.random()*30:-(40+Math.random()*30));
+  this.sz=3+Math.random()*7;this.spdy=-(.08+Math.random()*.25);this.spdx=(Math.random()-.5)*.15;
+  this.ph=Math.random()*Math.PI*2;this.phs=.003+Math.random()*.007;this.al=.06+Math.random()*.16;
+};
+SunParticle.prototype.update=function(){
+  var absG=Math.abs(gravity);if(absG<.08){this.y+=this.spdy*.2;this.x+=this.spdx;}
+  else{this.y+=this.spdy*Math.abs(gravity/9.81);this.x+=this.spdx+scrollWind()*.08;}
+  this.ph+=this.phs;if(this.y<-60||this.y>H+60)this.reset(false,gDir());
+};
+SunParticle.prototype.draw=function(){
+  var a=this.al*(.5+.5*Math.sin(this.ph))*ua()*2.5;
+  var gr=X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*5);
+  gr.addColorStop(0,'rgba(255,205,85,'+a+')');gr.addColorStop(.35,'rgba(255,160,40,'+(a*.3)+')');gr.addColorStop(1,'rgba(255,150,20,0)');
+  X.fillStyle=gr;X.beginPath();X.arc(this.x,this.y,this.sz*5,0,Math.PI*2);X.fill();
+};
+
+/* ==================== Micro texture ==================== */
+function renderMicroTex(){
+  if(microTex)return;var off=document.createElement('canvas');off.width=W*dpr;off.height=H*dpr;
+  var ct=off.getContext('2d');ct.setTransform(dpr,0,0,dpr,0,0);
+  for(var i=0;i<600;i++){var x=Math.random()*W,y=Math.random()*H,r=.12+Math.random()*.5,a=.05+Math.random()*.14;ct.fillStyle=dc(a);ct.beginPath();ct.arc(x,y,r,0,Math.PI*2);ct.fill();}
+  microTex=off;
+}
+function drawGlassBase(){
+  X.fillStyle=dc(ga());X.fillRect(0,0,W,H);
+  [[0,0],[W,0],[0,H],[W,H]].forEach(function(c){var gr=X.createRadialGradient(c[0],c[1],0,c[0],c[1],W*.18);gr.addColorStop(0,dc(.03));gr.addColorStop(1,dc(0));X.fillStyle=gr;X.beginPath();X.arc(c[0],c[1],W*.18,0,Math.PI*2);X.fill();});
+  renderMicroTex();X.drawImage(microTex,0,0);
+}
+
+/* ==================== Merge ==================== */
+function mergeDrops(){
+  for(var i=glassDrops.length-1;i>=0;i--){
+    var a=glassDrops[i];if(!a)continue;
+    for(var j=Math.min(i-1,glassDrops.length-1);j>=0;j--){
+      var b=glassDrops[j];if(!b)continue;
+      if(dist(a,b)<(a.r+b.r)*.65){
+        var vA=Math.pow(a.r,3),vB=Math.pow(b.r,3),nR=Math.pow(vA+vB,1/3);
+        a.x=a.x*(vA/(vA+vB))+b.x*(vB/(vA+vB));a.y=a.y*(vA/(vA+vB))+b.y*(vB/(vA+vB));
+        a.maxR=Math.min(nR*1.2,8);a.r=Math.min(nR,a.maxR);
+        a.growing=false;a.sliding=true;a.vy=(.04+a.r*.1)*(gravity/9.81);a.shape=genDropShape();
+        glassDrops.splice(j,1);i=Math.min(i,glassDrops.length-1);
+      }
+    }
+  }
+}
+
+/* ==================== Mode info ==================== */
+var modeInfo={
+  'rain-drizzle':{icon:'🌧',label:'微雨',temp:'14°',poem:'好雨知时节，当春乃发生',poet:'杜甫'},
+  'rain-storm':{icon:'⛈',label:'骤雨',temp:'12°',poem:'黑云翻墨未遮山，白雨跳珠乱入船',poet:'苏轼'},
+  'snow-light':{icon:'❄',label:'疏雪',temp:'−3°',poem:'忽如一夜春风来，千树万树梨花开',poet:'岑参'},
+  'snow-heavy':{icon:'🌨',label:'暮雪',temp:'−6°',poem:'孤舟蓑笠翁，独钓寒江雪',poet:'柳宗元'},
+  'clear-clear':{icon:'☀',label:'晴光',temp:'22°',poem:'晴空一鹤排云上，便引诗情到碧霄',poet:'刘禹锡'}
+};
+function ci(){return modeInfo[curMode+'-'+curSub];}
+
+function gravHint(planet,absG){
+  if(absG<.05)return curMode==='rain'?'雨滴悬停漂浮':curMode==='snow'?'雪花悬停漂浮':'粒子悬停';
+  var h={'木星':[curMode==='rain'?'暴雨如箭':curMode==='snow'?'暴雪如幕':'沉重无比'],'海王星':['迅疾猛烈'],'土星':['沉重有力'],'地球':[curMode==='rain'?'雨落如常':curMode==='snow'?'雪落如常':'如常'],'金星':['相仿'],'火星':[curMode==='rain'?'雨丝轻缓':curMode==='snow'?'雪花轻舞':'轻缓'],'月球':[curMode==='rain'?'雨滴悠然':curMode==='snow'?'雪花盘旋':'漂浮'],'冥王星':['近乎失重']};
+  return (h[planet]||['——'])[0];
+}
+
+/* ==================== Scene ==================== */
+function setScene(mode,sub){
+  curMode=mode;curSub=sub;rainStreaks=[];glassDrops=[];snowflakes=[];sunParticles=[];microTex=null;
+  if(mode==='rain'){var s=sub==='storm',sc=s?160:100,dp=s?60:45,dn=s?35:20;for(var i=0;i<sc;i++)rainStreaks.push(new RainStreak(true,s));for(var i=0;i<dp;i++)glassDrops.push(new GlassDrop(Math.random()*W,Math.random()*H,true));for(var i=0;i<dn;i++)glassDrops.push(new GlassDrop());}
+  else if(mode==='snow'){var h=sub==='heavy',nc=h?120:75;for(var i=0;i<nc;i++)snowflakes.push(new Snowflake(true,h));}
+  else if(mode==='clear'){for(var i=0;i<45;i++)sunParticles.push(new SunParticle(true));}
+  updateCard();updateGravUI(gravity);
+  document.getElementById('wcGravity').style.opacity=mode==='clear'?'.35':'1';
+  document.getElementById('wcGravity').style.pointerEvents=mode==='clear'?'none':'auto';
+  syncModePills();
+}
+
+function updateCard(){
+  var info=ci();
+  document.getElementById('wcGreeting').textContent=greeting();
+  document.getElementById('wcPoem').textContent='「'+info.poem+'」';
+  document.getElementById('wcLocation').textContent='—— '+info.poet;
+  document.getElementById('wcWeather').textContent=info.icon+' '+info.label+' · '+info.temp;
+  document.getElementById('mwGreeting').textContent=greeting();
+  document.getElementById('mwWeather').textContent=info.icon+' '+info.label+' · '+info.temp;
+}
+function greeting(){var h=new Date().getHours(),p=h<6?'凌晨':h<9?'早上':h<12?'上午':h<14?'中午':h<17?'下午':h<19?'傍晚':'晚上';return p+'好，欢迎来自湖南省·长沙市的同志';}
+function syncModePills(){
+  document.querySelectorAll('.wc-mode, .mw-mode').forEach(function(el){el.classList.toggle('on',el.getAttribute('data-mode')===curMode&&el.getAttribute('data-sub')===curSub);});
+}
+
+/* ==================== Anim ==================== */
+(function anim(){
+  t++;X.clearRect(0,0,W,H);
+  if(!enabled){requestAnimationFrame(anim);return;}
+  if(curMode==='rain'){drawGlassBase();for(var i=0;i<rainStreaks.length;i++){rainStreaks[i].update();rainStreaks[i].draw();}for(var i=0;i<glassDrops.length;i++)glassDrops[i].update();mergeDrops();for(var i=0;i<glassDrops.length;i++)glassDrops[i].draw();}
+  else if(curMode==='snow'){drawGlassBase();for(var i=0;i<snowflakes.length;i++){snowflakes[i].update();snowflakes[i].draw();}}
+  else if(curMode==='clear'){for(var i=0;i<sunParticles.length;i++){sunParticles[i].update();sunParticles[i].draw();}}
+  requestAnimationFrame(anim);
+})();
+
+/* ==================== Gravity ==================== */
+var planets=[{name:'木星',sym:'♃',g:24.79},{name:'海王星',sym:'♆',g:11.15},{name:'土星',sym:'♄',g:10.44},{name:'地球',sym:'♁',g:9.81},{name:'金星',sym:'♀',g:8.87},{name:'火星',sym:'♂',g:3.71},{name:'月球',sym:'☽',g:1.62},{name:'冥王星',sym:'⯓',g:0.62}];
+var ST=.25;
+function g2p(g){return((g+24.79)/49.58)*100;}
+function snapG(v){var a=Math.abs(v);if(a<.03)return 0;for(var i=0;i<planets.length;i++){if(Math.abs(a-planets[i].g)<ST)return(v>0?1:-1)*planets[i].g;}return v;}
+function closest(absG){if(absG<.05)return{name:'零重力',sym:'○',g:0};var b=null,bd=1/0;for(var i=0;i<planets.length;i++){var d=Math.abs(absG-planets[i].g);if(d<bd){bd=d;b=planets[i];}}return bd<.55?b:null;}
+
+function updateGravUI(g){
+  var absG=Math.abs(g),pos=g2p(g);
+  // Thumb + Fill
+  var thumb=document.getElementById('wcThumb'),fill=document.getElementById('wcGravFill');
+  thumb.style.left=pos.toFixed(1)+'%';
+  var zp=g2p(0);
+  if(g>=0){fill.style.left=zp.toFixed(1)+'%';fill.style.width=(pos-zp).toFixed(1)+'%';}
+  else{fill.style.left=pos.toFixed(1)+'%';fill.style.width=(zp-pos).toFixed(1)+'%';}
+  // Planet text
+  var cl=closest(absG),hint=cl?gravHint(cl.name,absG):'',pref=g<0&&absG>.05?'−':'';
+  var pEl=document.getElementById('wcPlanet'),hEl=document.getElementById('wcGravHint');
+  if(g<0&&absG>.05&&!cl){pEl.innerHTML='↑ 逆向重力';hEl.textContent='−'+absG.toFixed(2)+' · 上行';pEl.style.color='#d09090';}
+  else if(absG<.05){pEl.innerHTML='○ 零重力';hEl.textContent='0.00 · 漂浮';pEl.style.color='#aab';}
+  else if(!cl){pEl.textContent='自由重力';hEl.textContent=absG.toFixed(2)+' m/s²';pEl.style.color='';}
+  else{pEl.innerHTML=cl.sym+' '+cl.name;pEl.style.color='';hEl.textContent=pref+cl.g.toFixed(2)+' · '+hint;}
+  // Quick buttons
+  document.querySelectorAll('.wc-grav-qbtn, .mw-grav-qbtn').forEach(function(b){b.classList.toggle('on',Math.abs(g-parseInt(b.getAttribute('data-g'))/100)<.03);});
+  // Sync mobile slider
+  document.getElementById('mwGSlider').value=Math.round(g*100);
+}
+function updateGravity(val){var g=val/100,sn=snapG(g);if(sn!==g){document.getElementById('gSlider').value=Math.round(sn*100);document.getElementById('mwGSlider').value=Math.round(sn*100);g=sn;}gravity=g;updateGravUI(g);}
+
+/* ==================== Events ==================== */
+// Desktop slider
+document.getElementById('gSlider').addEventListener('input',function(){updateGravity(parseInt(this.value));});
+document.getElementById('gSlider').addEventListener('change',function(){var g=parseInt(this.value)/100,sn=snapG(g);if(sn!==g){this.value=Math.round(sn*100);updateGravity(Math.round(sn*100));}});
+// Mobile slider
+document.getElementById('mwGSlider').addEventListener('input',function(){document.getElementById('gSlider').value=this.value;updateGravity(parseInt(this.value));});
+// Quick gravity buttons
+document.querySelectorAll('.wc-grav-qbtn, .mw-grav-qbtn').forEach(function(b){b.addEventListener('click',function(){var t=parseInt(this.getAttribute('data-g'));document.getElementById('gSlider').value=t;document.getElementById('mwGSlider').value=t;updateGravity(t);});});
+// Mode pills
+document.querySelectorAll('.wc-mode, .mw-mode').forEach(function(el){el.addEventListener('click',function(){setScene(this.getAttribute('data-mode'),this.getAttribute('data-sub'));updateGravUI(gravity);});});
+// Toggle
+document.getElementById('fxToggle').addEventListener('change',function(){enabled=this.checked;});
+// Theme
+document.getElementById('btnTheme').addEventListener('click',function(){var h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark');microTex=null;});
+
+/* ==================== Stars ==================== */
+(function(){var l=document.getElementById('starsLayer'),h='';for(var i=0;i<60;i++){var x=Math.random()*100,y=Math.random()*100,s=Math.random()*2+.5,d=Math.random()*4+2;h+='<span style="left:'+x+'%;top:'+y+'%;width:'+s+'px;height:'+s+'px;animation-delay:'+(Math.random()*3).toFixed(1)+'s;animation-duration:'+d.toFixed(1)+'s"></span>';}l.innerHTML=h;})();
+
+/* ==================== Init ==================== */
+updateGravUI(gravity);
+updateCard();
+setScene('rain','drizzle');
+})();
+</script>
+</body>
+</html>
