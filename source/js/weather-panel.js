@@ -37,11 +37,27 @@
 
   var SNAP_TH = 0.25;
 
+  /* ==================== Blog Location ==================== */
+  var BLOG_LAT = 28.2280;
+  var BLOG_LON = 112.9388;
+
+  var TIME_GREETS = [
+    { start: 0,  end: 5,  text: '夜色阑珊，远方来客。' },
+    { start: 5,  end: 8,  text: '晨光初透，远方来客。' },
+    { start: 8,  end: 11, text: '午前清和，远方来客。' },
+    { start: 11, end: 13, text: '日正当午，远方来客。' },
+    { start: 13, end: 17, text: '午后安闲，远方来客。' },
+    { start: 17, end: 19, text: '暮色微醺，远方来客。' },
+    { start: 19, end: 22, text: '华灯初上，远方来客。' },
+    { start: 22, end: 24, text: '夜色阑珊，远方来客。' }
+  ];
+
   /* ==================== State ==================== */
 
   var CUR_MODE = 'rain';
   var CUR_SUB = 'drizzle';
   var GRAVITY = 9.81;
+  var VISITOR_IP_DATA = null;
 
   /* ==================== Utilities ==================== */
 
@@ -129,12 +145,105 @@
   function getModeKey() { return CUR_MODE + '-' + CUR_SUB; }
   function getModeInfo() { return MODE_INFO[getModeKey()] || MODE_INFO['clear-clear']; }
 
+  /* ==================== Time Greet ==================== */
+  function getTimeGreet() {
+    var h = new Date().getHours();
+    for (var i = 0; i < TIME_GREETS.length; i++) {
+      if (h >= TIME_GREETS[i].start && h < TIME_GREETS[i].end) {
+        return TIME_GREETS[i];
+      }
+    }
+    return TIME_GREETS[0];
+  }
+
+  /* ==================== Distance ==================== */
+  function haversine(lat1, lon1, lat2, lon2) {
+    var R = 6371;
+    var toRad = Math.PI / 180;
+    var dLat = (lat2 - lat1) * toRad;
+    var dLon = (lon2 - lon1) * toRad;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
+  }
+
+  /* ==================== Visitor IP & Location ==================== */
+  function fetchVisitorIP() {
+    return fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        return {
+          ip: data.ip,
+          city: data.city,
+          region: data.region,
+          country: data.country_name,
+          latitude: data.latitude,
+          longitude: data.longitude
+        };
+      });
+  }
+
+  function updateWelcome(ipData) {
+    var greet = getTimeGreet();
+    var greetEl = document.getElementById('wcWelcomeGreet');
+    var proseEl = document.getElementById('wcWelcomeProse');
+
+    if (greetEl) {
+      greetEl.textContent = greet.text;
+    }
+
+    if (proseEl) {
+      var dist = 0;
+      var hasData = false;
+      var cityName = '';
+
+      if (ipData) {
+        VISITOR_IP_DATA = ipData;
+        dist = haversine(ipData.latitude, ipData.longitude, BLOG_LAT, BLOG_LON);
+        cityName = ipData.city || '';
+        hasData = true;
+      }
+
+      var distDesc;
+      if (!hasData) {
+        distDesc = '千里';
+      } else if (dist < 50) {
+        distDesc = '咫尺';
+      } else if (dist < 500) {
+        distDesc = '百里';
+      } else if (dist < 3000) {
+        distDesc = '千里';
+      } else {
+        distDesc = '万里';
+      }
+
+      var line1 = '纵离' + distDesc + '，共此星光。信可乐也。';
+      var line2 = '';
+      if (hasData && cityName) {
+        line2 = '吾住星城，君栖' + escapeHtml(cityName) + '。虽隔山海，心若比邻。';
+      } else {
+        line2 = '虽隔山海，心若比邻。';
+      }
+
+      proseEl.innerHTML = '<p>' + line1 + '</p><p>' + line2 + '</p>';
+    }
+  }
+
   /* ==================== DOM Creation ==================== */
 
   function createWeatherCard() {
     var card = document.createElement('div');
     card.id = 'weatherCard';
     card.className = 'weather-card';
+
+    // Welcome section
+    var welcome = document.createElement('div');
+    welcome.className = 'wc-welcome';
+    welcome.innerHTML =
+      '<div class="wc-welcome-greet" id="wcWelcomeGreet"></div>' +
+      '<div class="wc-welcome-prose" id="wcWelcomeProse"></div>';
 
     // Fixed poem
     var fixed = document.createElement('div');
@@ -218,6 +327,7 @@
         '</label>';
     }
 
+    card.appendChild(welcome);
     card.appendChild(fixed);
     card.appendChild(greet);
     card.appendChild(poem);
@@ -572,6 +682,14 @@
     updateCard();
     updateGravUI(GRAVITY);
     syncPills();
+
+    // Fetch visitor IP and render welcome
+    updateWelcome(null);
+    fetchVisitorIP().then(function (data) {
+      updateWelcome(data);
+    }).catch(function () {
+      updateWelcome(null);
+    });
   }
 
   /* ==================== Public API ==================== */

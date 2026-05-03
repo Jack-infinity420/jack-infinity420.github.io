@@ -24,3 +24,4 @@
 {"t":0,"agent":"a1ab53f","agent_type":"worker-4","event":"agent_stop","success":true,"duration_ms":22194}
 {"t":0,"agent":"a703b9e","agent_type":"worker-1","event":"agent_stop","success":true,"duration_ms":29710}
 {"t":0,"agent":"a692548","agent_type":"worker-2","event":"agent_stop","success":true,"duration_ms":35937}
+{"t":0,"agent":"a12f308","agent_type":"worker-3","event":"agent_start","parent_mode":"none"}

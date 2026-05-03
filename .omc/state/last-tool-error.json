@@ -1,7 +1,7 @@
 {
-  "tool_name": "mcp__plugin_playwright_playwright__browser_navigate",
-  "tool_input_preview": "{\"url\":\"http://localhost:4000/weather-demo-v6.html\"}",
-  "error": "### Error\nError: browserBackend.callTool: Target page, context or browser has been closed",
-  "timestamp": "2026-04-29T02:13:30.214Z",
+  "tool_name": "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script",
+  "tool_input_preview": "{\"function\":\"(function() {\\n  const vh = window.innerHeight;\\n  const totalH = document.body.scrollHeight;\\n  const scrollPositions = [0, 0.15, 0.30, 0.50, 0.70, 0.88, 0.95].map(p => Math.floor(p * (t...",
+  "error": "fn is not a function",
+  "timestamp": "2026-05-03T15:59:36.925Z",
   "retry_count": 1
 }

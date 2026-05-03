@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气特效 - 窗玻璃美学版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:#0a0f18;color:#ddd;overflow:hidden;height:100vh;cursor:default}
+.card{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;text-align:center;pointer-events:none}
+.card .t{font-size:11px;color:#556;letter-spacing:4px;margin-bottom:16px;text-transform:uppercase}
+.card .p{font-size:24px;margin:10px 0;color:#c8d4e8;font-weight:300;letter-spacing:2px}
+.card .w{font-size:30px;margin:16px 0;font-weight:300;color:#bcc8dc}
+
+.ctrl{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:12px}
+.ctrl button{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:#777;padding:8px 22px;border-radius:24px;cursor:pointer;font-size:14px;transition:.3s;backdrop-filter:blur(6px)}
+.ctrl button:hover,.ctrl button.on{background:rgba(120,180,240,.08);border-color:rgba(120,180,240,.2);color:#bcd4f0}
+
+.gravity{position:fixed;top:28px;right:28px;z-index:99;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);border-radius:16px;padding:18px 22px;border:1px solid rgba(255,255,255,.04);min-width:190px}
+.gravity .h{font-size:11px;color:#556;margin-bottom:14px;letter-spacing:2px}
+.gravity label{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:13px;color:#8899b0}
+.gravity .row{display:flex;align-items:center;gap:10px}
+.gravity input[type=range]{-webkit-appearance:none;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.06);outline:none}
+.gravity input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#78b4f0;cursor:pointer;box-shadow:0 0 8px rgba(120,180,240,.25)}
+.gravity .val{color:#78b4f0;font-size:12px;min-width:40px;text-align:right}
+.gravity .note{margin-top:12px;font-size:10px;color:#444;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="t">窗外</div>
+  <div class="p" id="poem">好雨知时节，当春乃发生</div>
+  <div class="w" id="wicon">🌧️ 微雨 · 17°C</div>
+</div>
+
+<div class="gravity" id="gravityPanel">
+  <div class="h">重力</div>
+  <label>
+    <div class="row"><span>强度</span><span class="val" id="gVal">1.0</span></div>
+    <input type="range" id="gMag" min="0" max="200" value="100" step="2">
+  </label>
+  <label>
+    <div class="row"><span>方向</span><span class="val" id="dVal">↓ 下</span></div>
+    <input type="range" id="gDir" min="-100" max="100" value="100" step="5">
+  </label>
+  <div class="note">重力影响雨滴下落速度<br>和玻璃上水珠的滑动</div>
+</div>
+
+<div class="ctrl">
+  <button data-w="rain" class="on">🌧 微雨</button>
+  <button data-w="snow">❄ 疏雪</button>
+  <button data-w="clear">☀ 晴光</button>
+</div>
+<canvas id="c"></canvas>
+
+<script>
+// ============================================================
+//  窗·玻璃·雨 —— 美学天气引擎 v3
+//  双图层：远景雨丝 + 近景玻璃水珠
+// ============================================================
+var C=document.getElementById('c'),X=C.getContext('2d');
+var W,H,t=0,cur='rain';
+var rain=[],drops=[],splashes=[],snow=[],sun=[];
+var gravity=1.0, gDir=1; // gDir: 1=down, -1=up
+
+function sz(){var d=devicePixelRatio||1;W=innerWidth;H=innerHeight;C.width=W*d;C.height=H*d;C.style.width=W+'px';C.style.height=H+'px';X.setTransform(d,0,0,d,0,0)}
+sz();addEventListener('resize',sz);
+
+// ==================== 远景：雨丝 ====================
+function RD(){this.rst(1)}
+RD.prototype.rst=function(f){
+  this.x=Math.random()*W;this.y=f?Math.random()*H:-(40+Math.random()*60);
+  this.l=Math.random();
+  this.spd=(4+this.l*12)*gravity;
+  this.len=10+this.l*28;
+  this.opa=.12+this.l*.35;
+  this.wd=.1+this.l*.9;
+  this.ang=.04+Math.random()*.05;
+}
+RD.prototype.up=function(){
+  this.spd=(4+this.l*12)*gravity*gDir;
+  this.y+=this.spd;this.x+=this.spd*this.ang*.2;
+  if(gDir>0&&this.y>H+40||gDir<0&&this.y<-40){this.rst(0);if(gDir<0)this.y=H+40}
+  // 随机有些雨丝"打"到玻璃上，变成玻璃水珠
+  if(this.l>.65&&Math.random()<.008&&drops.length<80){
+    drops.push(new GD(this.x,this.y))
+  }
+}
+RD.prototype.dr=function(){
+  var tx=this.x-this.len*this.ang*.35,ty=this.y-this.len;
+  var g=X.createLinearGradient(tx,ty,this.x,this.y);
+  g.addColorStop(0,'rgba(140,180,220,0)');
+  g.addColorStop(.35,'rgba(140,180,220,'+this.opa*.2+')');
+  g.addColorStop(1,'rgba(140,180,220,'+this.opa+')');
+  X.beginPath();X.strokeStyle=g;X.lineWidth=this.wd;X.lineCap='round';
+  X.moveTo(tx,ty);X.lineTo(this.x,this.y);X.stroke();
+}
+
+// ==================== 近景：玻璃水珠 ====================
+function GD(x,y){
+  this.x=x||Math.random()*W;this.y=y||Math.random()*H*.3;
+  this.r=0;            // 当前半径（生长中）
+  this.maxR=1.2+Math.random()*2.2; // 最大半径
+  this.growSpd=.02+Math.random()*.04; // 生长速度
+  this.growing=true;
+  this.al=.3+Math.random()*.5; // 透明度
+  this.slideSpd=(.02+Math.random()*.1)*gravity; // 滑动速度
+  this.alive=true;
+}
+GD.prototype.up=function(){
+  // 生长阶段
+  if(this.growing){
+    this.r+=this.growSpd;
+    if(this.r>=this.maxR){this.growing=false;this.r=this.maxR}
+  }
+  // 缓慢向下滑动
+  this.y+=this.slideSpd*gDir;
+  // 滑出屏幕则重生
+  if(gDir>0&&this.y>H+10||gDir<0&&this.y<-10){
+    this.y=gDir>0?-5:H+5;this.x=Math.random()*W;this.r=0;this.growing=true;
+    this.maxR=1+Math.random()*2;this.al=.25+Math.random()*.45;
+    this.slideSpd=(.02+Math.random()*.08)*gravity;
+  }
+  // 水珠慢慢蒸发（长时间存在后变小）
+  if(!this.growing&&Math.random()<.0003){
+    this.r-=.05;if(this.r<.3){this.y=gDir>0?-5:H+5;this.x=Math.random()*W;this.r=0;this.growing=true}
+  }
+}
+GD.prototype.dr=function(){
+  if(this.r<.15)return;
+  // 水珠主体（微凸透镜效果：亮边 + 暗心）
+  var cx=this.x,cy=this.y,r=this.r;
+  // 柔和暗影
+  var g=X.createRadialGradient(cx-r*.15,cy-r*.15,r*.1,cx,cy,r);
+  g.addColorStop(0,'rgba(210,230,255,'+this.al*.7+')'); // 高光
+  g.addColorStop(.4,'rgba(180,200,230,'+this.al*.35+')');
+  g.addColorStop(1,'rgba(120,150,180,'+this.al*.15+')');
+  X.fillStyle=g;
+  X.beginPath();X.arc(cx,cy,r,0,Math.PI*2);X.fill();
+  // 边缘微光
+  X.strokeStyle='rgba(200,220,240,'+this.al*.25+')';
+  X.lineWidth=.4;
+  X.beginPath();X.arc(cx,cy,r,0,Math.PI*2);X.stroke();
+}
+
+// ==================== 雪花（远景 + 玻璃落雪） ====================
+function SN(){this.rst(1)}
+SN.prototype.rst=function(f){
+  this.x=Math.random()*W;this.y=f?Math.random()*H:-(20+Math.random()*30);
+  this.l=Math.random();this.sz=2+this.l*6;
+  this.spdy=(.08+this.l*.6)*gravity;
+  this.swA=.4+Math.random()*1.8;this.swF=.0004+Math.random()*.0012;this.swP=Math.random()*Math.PI*2;
+  this.opa=.2+this.l*.55;this.rot=Math.random()*Math.PI*2;this.rsp=(Math.random()-.5)*.012;
+  this.glass=Math.random()<.35; // 35%概率是玻璃上的雪花
+}
+SN.prototype.up=function(){
+  this.spdy=(.08+this.l*.6)*gravity*gDir;
+  this.y+=this.spdy;this.x+=Math.sin(t*this.swF+this.swP)*this.swA*.2;this.rot+=this.rsp;
+  if(gDir>0&&this.y>H+20||gDir<0&&this.y<-20){this.rst(0);if(gDir<0)this.y=H+20}
+}
+SN.prototype.dr=function(){
+  X.save();X.translate(this.x,this.y);X.rotate(this.rot);X.globalAlpha=this.opa;
+  var r=this.sz;
+  if(this.glass){
+    // 玻璃上的雪花：更扁平，微微晶莹
+    X.fillStyle='rgba(220,235,255,.7)';
+    X.beginPath();X.ellipse(0,0,r,r*.55,0,0,Math.PI*2);X.fill();
+    X.fillStyle='rgba(255,255,255,.85)';X.beginPath();X.arc(0,0,r*.25,0,Math.PI*2);X.fill();
+  }else{
+    var g=X.createRadialGradient(0,0,0,0,0,r);
+    g.addColorStop(0,'rgba(255,255,255,.8)');g.addColorStop(.4,'rgba(255,255,255,.45)');g.addColorStop(1,'rgba(255,255,255,0)');
+    X.fillStyle=g;X.beginPath();X.arc(0,0,r,0,Math.PI*2);X.fill();
+  }
+  X.restore()
+}
+
+// ==================== 阳光粒子 ====================
+function SU(){this.rst(1)}
+SU.prototype.rst=function(f){this.x=Math.random()*W;this.y=f?Math.random()*H:H+50;
+  this.sz=3+Math.random()*7;this.spdy=-(.04+Math.random()*.15)*gravity;this.spdx=(Math.random()-.5)*.12;
+  this.ph=Math.random()*Math.PI*2;this.phs=.003+Math.random()*.007;this.al=.06+Math.random()*.16}
+SU.prototype.up=function(){this.x+=this.spdx;this.y+=this.spdy*gDir;this.ph+=this.phs;if(this.y<-50||this.y>H+50){this.rst(0);this.y=gDir<0?-50:H+50}}
+SU.prototype.dr=function(){var a=this.al*(.5+.5*Math.sin(this.ph));var g=X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*4);g.addColorStop(0,'rgba(255,205,85,'+a+')');g.addColorStop(.35,'rgba(255,165,25,'+a*.3+')');g.addColorStop(1,'rgba(255,165,25,0)');X.fillStyle=g;X.beginPath();X.arc(this.x,this.y,this.sz*4,0,Math.PI*2);X.fill()}
+
+// ==================== 粒子管理 ====================
+var poems={rain:'好雨知时节，当春乃发生',snow:'忽如一夜春风来，千树万树梨花开',clear:'晴空一鹤排云上，便引诗情到碧霄'}
+var icons={rain:'🌧️ 微雨',snow:'❄ 疏雪',clear:'☀ 晴光'}
+var bgColors={rain:'rgba(5,10,22,.1)',snow:'rgba(12,18,32,.04)',clear:null}
+
+function mk(type){
+  cur=type;rain=[];drops=[];snow=[];sun=[];splashes=[];
+  if(type==='rain'){
+    for(var i=0;i<120;i++)rain.push(new RD());
+    // 预生成一些玻璃水珠
+    for(var i=0;i<25;i++){var d=new GD();d.r=d.maxR;d.growing=false;drops.push(d)}
+  }else if(type==='snow'){
+    for(var i=0;i<70;i++)snow.push(new SN());
+  }else if(type==='clear'){
+    for(var i=0;i<30;i++)sun.push(new SU());
+  }
+  document.getElementById('poem').textContent=poems[type];
+  document.getElementById('wicon').textContent=icons[type]+' · 17°C';
+  document.querySelectorAll('.ctrl button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-w')===type)});
+  document.getElementById('gravityPanel').style.display=(type==='rain'||type==='snow')?'block':'none';
+}
+
+// ==================== 玻璃雾气（微妙） ====================
+function drawGlassMist(){
+  // 极度微妙的玻璃底色，模拟窗玻璃的折射
+  X.fillStyle='rgba(120,150,180,.01)';X.fillRect(0,0,W,H);
+  // 角落微微起雾
+  var corners=[[0,0],[W,0],[0,H],[W,H]];
+  corners.forEach(function(c){
+    var g=X.createRadialGradient(c[0],c[1],0,c[0],c[1],W*.25);
+    g.addColorStop(0,'rgba(180,200,220,.02)');g.addColorStop(1,'rgba(180,200,220,0)');
+    X.fillStyle=g;X.beginPath();X.arc(c[0],c[1],W*.25,0,Math.PI*2);X.fill();
+  })
+}
+
+// ==================== 动画 ====================
+(function anim(){
+  t++;X.clearRect(0,0,W,H);
+
+  // 背景色调
+  if(bgColors[cur]){
+    X.fillStyle=bgColors[cur];X.fillRect(0,0,W,H);
+  }
+
+  if(cur==='rain'){
+    // 远景雨丝
+    for(var i=0;i<rain.length;i++){rain[i].up();rain[i].dr()}
+    // 近景玻璃水珠
+    for(var i=drops.length-1;i>=0;i--){drops[i].up();drops[i].dr()}
+    drawGlassMist();
+  }else if(cur==='snow'){
+    for(var i=0;i<snow.length;i++){snow[i].up();snow[i].dr()}
+    drawGlassMist();
+  }else if(cur==='clear'){
+    for(var i=0;i<sun.length;i++){sun[i].up();sun[i].dr()}
+  }
+
+  requestAnimationFrame(anim)
+})();
+
+// ==================== 按钮 ====================
+document.querySelectorAll('.ctrl button').forEach(function(b){
+  b.addEventListener('click',function(){mk(this.getAttribute('data-w'))})
+});
+
+// ==================== 重力控制 ====================
+document.getElementById('gMag').addEventListener('input',function(){
+  gravity=parseInt(this.value)/100;
+  document.getElementById('gVal').textContent=gravity.toFixed(1);
+});
+document.getElementById('gDir').addEventListener('input',function(){
+  var v=parseInt(this.value);
+  gDir=v>=0?1:-1;
+  document.getElementById('dVal').textContent=v>=0?'↓ 下':'↑ 上';
+});
+
+mk('rain');
+</script>
+</body>
+</html>

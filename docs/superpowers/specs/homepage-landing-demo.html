@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY — 太空降落概念演示 v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'LXGW WenKai', 'Cormorant Garamond', 'Noto Sans SC', serif;
+    color: #e8e8f0;
+    background: #050510;
+    overflow-x: hidden;
+  }
+
+  /* ===== 星空背景（贯穿全页） ===== */
+  #stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .scene {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  /* ========================================
+     场景1：Hexo Banner（保持原样）
+     ======================================== */
+  #scene-banner {
+    background: radial-gradient(ellipse at 50% 30%, #0b0e1f 0%, #03030a 70%);
+    position: relative;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.08"><circle cx="20" cy="30" r="1" fill="white"/><circle cx="70" cy="15" r="1.5" fill="white"/><circle cx="45" cy="60" r="1" fill="white"/><circle cx="85" cy="45" r="0.8" fill="white"/><circle cx="10" cy="70" r="1.2" fill="white"/><circle cx="55" cy="80" r="0.6" fill="white"/><circle cx="30" cy="20" r="0.5" fill="white"/><circle cx="90" cy="70" r="1" fill="white"/></svg>');
+  }
+
+  #nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 36px;
+    height: 60px;
+    z-index: 10;
+    opacity: 1;
+    transition: all 0.5s;
+  }
+  #nav .site-name {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    color: rgba(200, 210, 240, 0.6);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+  }
+
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding-top: 60px;
+  }
+
+  .site-title {
+    font-size: 52px;
+    font-weight: 200;
+    letter-spacing: 16px;
+    color: #d0d8ff;
+    text-shadow: 0 0 80px rgba(100, 150, 255, 0.25),
+                 2px 2px 4px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .typewriter-wrap {
+    height: 30px;
+    margin-bottom: 40px;
+  }
+  .typewriter-line {
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: rgba(180, 200, 255, 0.5);
+    font-weight: 300;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid rgba(180, 200, 255, 0.4);
+    animation: typing 3s steps(30) 0.5s forwards, blink 1s step-end infinite;
+    width: 0;
+    display: inline-block;
+  }
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  #scroll-down {
+    position: absolute;
+    bottom: 30px;
+    cursor: pointer;
+    animation: float 2s ease-in-out infinite;
+  }
+  #scroll-down span {
+    font-size: 20px;
+    color: rgba(180, 200, 255, 0.3);
+    letter-spacing: 2px;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(10px); opacity: 0.7; }
+  }
+
+  /* ========================================
+     场景2：地球 · 知
+     ======================================== */
+  #scene-earth {
+    background: radial-gradient(ellipse at 50% 70%, #0a1520 0%, #050510 70%);
+  }
+
+  .planet-wrap {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin-bottom: 24px;
+  }
+  .planet {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(60, 140, 220, 0.15), inset 0 0 60px rgba(10,40,80,0.5);
+    background: linear-gradient(135deg, #1a5276 0%, #2e86c1 28%, #1a6e3e 50%, #85c1a9 60%, #2e86c1 78%, #1a5276 100%);
+  }
+  .planet::before {
+    content: '';
+    position: absolute;
+    top: -20%; left: -8%;
+    width: 55%; height: 140%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%);
+    transform: rotate(-15deg);
+  }
+  .planet-glow {
+    position: absolute;
+    top: -15px; left: -15px;
+    width: calc(100% + 30px); height: calc(100% + 30px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 40%, rgba(60,160,240,0.12) 0%, transparent 55%);
+    z-index: -1;
+  }
+
+  .section-label {
+    font-size: 44px;
+    font-weight: 200;
+    letter-spacing: 12px;
+    margin-bottom: 6px;
+    text-shadow: 0 0 40px rgba(100, 150, 255, 0.15);
+  }
+  .section-motto {
+    font-family: 'LXGW WenKai', serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: rgba(180, 200, 255, 0.5);
+    margin-bottom: 24px;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    max-width: 360px;
+    margin-bottom: 28px;
+  }
+  .tag {
+    padding: 3px 12px;
+    border: 1px solid rgba(180, 200, 255, 0.1);
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(180, 200, 255, 0.45);
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .tag:hover {
+    border-color: rgba(180, 200, 255, 0.3);
+    color: rgba(180, 200, 255, 0.8);
+  }
+
+  .preview-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 540px;
+  }
+  .preview-card {
+    width: 170px;
+    padding: 14px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    text-align: left;
+    transition: all 0.3s;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+  }
+  .preview-card:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+  }
+  .preview-card .meta {
+    font-size: 9px;
+    color: rgba(180, 200, 255, 0.25);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .preview-card .title {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: rgba(220, 230, 255, 0.65);
+    line-height: 1.5;
+  }
+
+  .scroll-divider {
+    font-size: 10px;
+    color: rgba(180, 200, 255, 0.15);
+    letter-spacing: 2px;
+    margin-top: 28px;
+  }
+
+  /* ========================================
+     场景3：月球 · 行
+     ======================================== */
+  #scene-moon {
+    background: radial-gradient(ellipse at 50% 40%, #12121a 0%, #050510 70%);
+  }
+  .moon-wrap {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 24px;
+  }
+  .moon-body {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #d4d4dc 0%, #9d9da8 35%, #6e6e7a 65%, #4a4a55 100%);
+    box-shadow: 0 0 60px rgba(180,180,220,0.12), inset 0 0 30px rgba(60,60,80,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .moon-body::before {
+    content: '';
+    position: absolute;
+    top: -15%; left: -12%;
+    width: 55%; height: 130%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.05) 0%, transparent 60%);
+    transform: rotate(-20deg);
+  }
+  .crater {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(80,80,100,0.25);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* ========================================
+     场景4：文章流
+     ======================================== */
+  #scene-stream {
+    background: radial-gradient(ellipse at 50% 15%, #0a0a1a 0%, #050510 70%);
+    padding: 60px 20px 80px;
+    min-height: 80vh;
+  }
+  .stream-title {
+    font-size: 18px;
+    letter-spacing: 6px;
+    color: rgba(180, 200, 255, 0.25);
+    margin-bottom: 28px;
+  }
+  .stream {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 480px;
+    width: 100%;
+  }
+  .s-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.035);
+    border-radius: 8px;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .s-row:hover {
+    background: rgba(255,255,255,0.035);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .s-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%; flex-shrink: 0;
+  }
+  .s-dot.earth { background: #2e86c1; }
+  .s-dot.moon  { background: #9d9da8; }
+  .s-title {
+    font-size: 12px;
+    color: rgba(200, 210, 240, 0.55);
+    letter-spacing: 0.5px;
+  }
+  .s-zone {
+    margin-left: auto;
+    font-size: 8px;
+    color: rgba(180, 200, 255, 0.18);
+    letter-spacing: 1px;
+  }
+  .stream-footer {
+    margin-top: 36px;
+    font-size: 11px;
+    color: rgba(180, 200, 255, 0.12);
+    letter-spacing: 3px;
+  }
+
+  /* ===== 侧边导航点 ===== */
+  .nav-rail {
+    position: fixed;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .n-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .n-dot.active {
+    background: rgba(180, 200, 255, 0.45);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.25);
+  }
+  .n-line {
+    width: 1px;
+    height: 20px;
+    background: rgba(255,255,255,0.04);
+  }
+
+  @media (max-width: 600px) {
+    .site-title { font-size: 32px; letter-spacing: 10px; }
+    .section-label { font-size: 30px; letter-spacing: 8px; }
+    .planet-wrap { width: 180px; height: 180px; }
+    .moon-wrap { width: 140px; height: 140px; }
+    .preview-card { width: 140px; }
+    .typewriter-line { font-size: 13px; white-space: normal; border-right: none; width: auto; animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="nav-rail">
+  <div class="n-dot active"></div>
+  <div class="n-line"></div>
+  <div class="n-dot"></div>
+  <div class="n-line"></div>
+  <div class="n-dot"></div>
+  <div class="n-line"></div>
+  <div class="n-dot"></div>
+</div>
+
+<!-- ===== 场景1：Hexo Banner（保持现有风格） ===== -->
+<section id="scene-banner" class="scene">
+  <div id="nav">
+    <span class="site-name">INFINITY</span>
+  </div>
+  <div class="banner-content">
+    <h1 class="site-title">INFINITY BLOG</h1>
+
+    <div class="typewriter-wrap">
+      <span class="typewriter-line">在广袤的空间和无限的时间中，能与你共享同一颗行星和同一段时光是我的荣幸</span>
+    </div>
+
+    <div id="scroll-down">
+      <span>↓ 降落 · 始于知</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 场景2：地球 · 知 ===== -->
+<section id="scene-earth" class="scene">
+  <div class="planet-wrap">
+    <div class="planet-glow"></div>
+    <div class="planet"></div>
+  </div>
+  <div class="section-label">知</div>
+  <div class="section-motto">知是行之始</div>
+  <div class="tag-cloud">
+    <span class="tag">文史哲</span>
+    <span class="tag">读书</span>
+    <span class="tag">随笔</span>
+    <span class="tag">社会观察</span>
+  </div>
+  <div class="preview-row">
+    <div class="preview-card">
+      <div class="meta">读后札记</div>
+      <div class="title">黑障之战——《全频带阻塞干扰》</div>
+    </div>
+    <div class="preview-card">
+      <div class="meta">建站志</div>
+      <div class="title">始于足下——INFINITY 建站记</div>
+    </div>
+  </div>
+  <div class="scroll-divider">从大地出发 · 下一站月球</div>
+</section>
+
+<!-- ===== 场景3：月球 · 行 ===== -->
+<section id="scene-moon" class="scene">
+  <div class="moon-wrap">
+    <div class="moon-body">
+      <div class="crater" style="width:34px;height:30px;top:42px;left:60px;"></div>
+      <div class="crater" style="width:20px;height:17px;top:76px;left:118px;"></div>
+      <div class="crater" style="width:42px;height:38px;top:128px;left:42px;"></div>
+      <div class="crater" style="width:13px;height:12px;top:50px;left:138px;"></div>
+    </div>
+  </div>
+  <div class="section-label">行</div>
+  <div class="section-motto">行是知之成</div>
+  <div class="tag-cloud">
+    <span class="tag">AI</span>
+    <span class="tag">网安</span>
+    <span class="tag">CTF</span>
+    <span class="tag">算法</span>
+  </div>
+  <div class="preview-row">
+    <div class="preview-card">
+      <div class="meta">CTF</div>
+      <div class="title">ACTF2020 Exec1 — 命令注入深入分析</div>
+    </div>
+    <div class="preview-card">
+      <div class="meta">体能</div>
+      <div class="title">从零开始：卧推核心要领</div>
+    </div>
+  </div>
+  <div class="scroll-divider">着陆 · 进入文章流</div>
+</section>
+
+<!-- ===== 场景4：文章落地 ===== -->
+<section id="scene-stream" class="scene">
+  <div class="stream-title">全部文章</div>
+  <div class="stream">
+    <div class="s-row">
+      <div class="s-dot earth"></div>
+      <span class="s-title">始于足下——INFINITY 建站记</span>
+      <span class="s-zone">知</span>
+    </div>
+    <div class="s-row">
+      <div class="s-dot moon"></div>
+      <span class="s-title">ACTF2020 Exec1 命令注入深入分析</span>
+      <span class="s-zone">行</span>
+    </div>
+    <div class="s-row">
+      <div class="s-dot earth"></div>
+      <span class="s-title">黑障之战——《全频带阻塞干扰》</span>
+      <span class="s-zone">知</span>
+    </div>
+    <div class="s-row">
+      <div class="s-dot moon"></div>
+      <span class="s-title">卧推核心要领：收紧肩胛骨、胸迎杠</span>
+      <span class="s-zone">行</span>
+    </div>
+    <div class="s-row">
+      <div class="s-dot earth"></div>
+      <span class="s-title">无题：关于自我、理想与成长</span>
+      <span class="s-zone">知</span>
+    </div>
+    <div class="s-row">
+      <div class="s-dot moon"></div>
+      <span class="s-title">肩部训练指南：从解剖到计划</span>
+      <span class="s-zone">行</span>
+    </div>
+  </div>
+  <div class="stream-footer">始于知 · 成于行</div>
+</section>
+
+<script>
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  const N = 200;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.body.scrollHeight;
+    initStars();
+  }
+  function initStars() {
+    stars = Array.from({length: N}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.3,
+      a: Math.random() * 0.8 + 0.2,
+      s: Math.random() * 0.005 + 0.002
+    }));
+  }
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = Date.now() / 1000;
+    stars.forEach(s => {
+      const f = 0.5 + 0.5 * Math.sin(t * s.s * 10 + s.x);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200, 215, 255, ${s.a * f})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  drawStars();
+
+  const scenes = document.querySelectorAll('.scene');
+  const dots = document.querySelectorAll('.n-dot');
+  function updateNav() {
+    const vh = window.innerHeight;
+    scenes.forEach((s, i) => {
+      const r = s.getBoundingClientRect();
+      const mid = r.top + r.height / 2;
+      if (mid >= 0 && mid < vh * 1.2 && dots[i]) dots[i].classList.add('active');
+      else if (dots[i]) dots[i].classList.remove('active');
+    });
+  }
+  window.addEventListener('scroll', updateNav);
+  updateNav();
+  dots.forEach((d, i) => d.addEventListener('click', () => scenes[i].scrollIntoView({ behavior: 'smooth' })));
+</script>
+</body>
+</html>

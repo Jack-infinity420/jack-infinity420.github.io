@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重力滑块 UX 可视化</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080e18;color:#8899aa;font-family:'PingFang SC','Microsoft YaHei',sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:50px}
+h2{font-weight:400;color:#556677;letter-spacing:4px;font-size:14px}
+
+.container{width:620px;position:relative;background:rgba(10,16,26,.5);border:1px solid rgba(255,255,255,.04);border-radius:20px;padding:36px 32px 28px}
+
+/* 行星名 —— 大且醒目 */
+.planet-display{text-align:center;margin-bottom:6px;min-height:56px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.planet-display .main{font-size:26px;font-weight:500;color:#c0d0e4;letter-spacing:2px}
+.planet-display .main .sym{font-size:30px;margin-right:6px}
+.planet-display .sub{font-size:13px;color:#556677;font-weight:400;margin-top:2px}
+
+/* 数轴容器 */
+.axis-wrap{position:relative;padding:8px 0;margin:0 -4px}
+.axis-track{position:relative;height:4px;background:rgba(255,255,255,.08);border-radius:2px}
+.axis-track .fill{position:absolute;left:0;top:0;height:100%;background:rgba(120,160,210,.15);border-radius:2px;transition:width .1s}
+.axis-track .ticks-layer{position:absolute;top:-7px;left:0;width:100%;height:18px;pointer-events:none}
+.axis-track .tick{position:absolute;width:2px;height:10px;background:rgba(255,255,255,.2);border-radius:1px;transform:translateX(-50%)}
+.axis-track .tick.planet{height:16px;background:rgba(180,200,220,.35);border-radius:1px}
+.axis-track .thumb{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:#7098c8;transform:translate(-50%,-50%);box-shadow:0 0 18px rgba(80,140,200,.45),0 0 4px rgba(120,160,210,.3);pointer-events:none;z-index:3;transition:box-shadow .2s;border:2px solid rgba(255,255,255,.2)}
+
+/* 滑块 input —— 透明覆盖层 */
+input[type=range]{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-appearance:none;background:transparent;outline:none;z-index:5;cursor:grab}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:36px;height:36px;border-radius:50%;background:transparent;cursor:grab;border:none;box-shadow:none}
+input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+input[type=range]::-moz-range-thumb{width:36px;height:36px;border-radius:50%;background:transparent;cursor:grab;border:none}
+
+/* 放大镜 */
+.magnifier{margin-top:24px;background:rgba(14,20,32,.9);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:18px 20px 14px;transition:all .4s;opacity:0;transform:translateY(8px);pointer-events:none}
+.magnifier.on{opacity:1;transform:translateY(0)}
+.magnifier .mag-header{font-size:10px;color:#445566;letter-spacing:3px;margin-bottom:4px;text-align:center}
+.magnifier .mag-zone{position:relative;margin:8px 0;height:40px}
+.magnifier .mag-tick-label{position:absolute;top:0;transform:translateX(-50%);text-align:center}
+.magnifier .mag-tick-label .sym{font-size:18px;color:#8899bb;display:block}
+.magnifier .mag-tick-label .nm{font-size:13px;color:#bcc8d8;font-weight:500;letter-spacing:1px}
+.magnifier .mag-tick-label .gv{font-size:10px;color:#556677;margin-top:1px}
+.magnifier .mag-axis-line{position:absolute;bottom:0;left:0;width:100%;height:2px;background:rgba(255,255,255,.1);border-radius:1px}
+.magnifier .mag-tick-line{position:absolute;bottom:-4px;width:1px;height:10px;background:rgba(255,255,255,.25);border-radius:1px;transform:translateX(-50%)}
+.magnifier .mag-cursor{position:absolute;bottom:-8px;width:2px;height:18px;background:#7098c8;border-radius:1px;transform:translateX(-50%);box-shadow:0 0 8px rgba(80,140,200,.5)}
+
+.note{font-size:11px;color:#3a4a58;letter-spacing:1px;text-align:center;margin-top:14px;font-weight:400}
+</style>
+</head>
+<body>
+
+<div><h2>引 力 调 节</h2></div>
+
+<div class="container">
+  <div class="planet-display" id="planetDisplay">
+    <div class="main"><span class="sym">♁</span>地球</div>
+    <div class="sub">9.81 m/s² · 雨落如常</div>
+  </div>
+
+  <div class="axis-wrap" id="axisWrap">
+    <div class="axis-track" id="axisTrack">
+      <div class="fill" id="axisFill"></div>
+      <div class="ticks-layer" id="ticksLayer"></div>
+      <div class="thumb" id="thumb"></div>
+    </div>
+    <input type="range" id="slider" min="-2479" max="2479" value="981" step="1">
+  </div>
+
+  <div class="magnifier" id="magnifier">
+    <div class="mag-header">局部放大</div>
+    <div class="mag-zone" id="magZone">
+      <div class="mag-axis-line"></div>
+    </div>
+  </div>
+
+  <div class="note">刻度线 = 行星位置&emsp;|&emsp;密集区自动显微放大</div>
+</div>
+
+<script>
+var planets = [
+  { name: '木星', sym: '♃', g: 24.79, hint: '暴雨如箭' },
+  { name: '海王星', sym: '♆', g: 11.15, hint: '雨势迅疾' },
+  { name: '土星', sym: '♄', g: 10.44, hint: '雨落有力' },
+  { name: '地球', sym: '♁', g: 9.81, hint: '雨落如常' },
+  { name: '金星', sym: '♀', g: 8.87, hint: '与地球相仿' },
+  { name: '火星', sym: '♂', g: 3.71, hint: '雨丝轻缓' },
+  { name: '月球', sym: '☽', g: 1.62, hint: '雨滴漂浮' },
+  { name: '冥王星', sym: '⯓', g: 0.62, hint: '近乎失重' },
+];
+
+var denseZones = [
+  { min: 8.0, max: 12.0, planets: ['金星','地球','土星','海王星'] }
+];
+
+var slider = document.getElementById('slider');
+var thumb = document.getElementById('thumb');
+var axisFill = document.getElementById('axisFill');
+var planetDisplay = document.getElementById('planetDisplay');
+var magnifier = document.getElementById('magnifier');
+var magZone = document.getElementById('magZone');
+var ticksLayer = document.getElementById('ticksLayer');
+
+// 吸附阈值
+var SNAP = 0.25;
+
+function g2pos(g) { return ((g + 24.79) / 49.58) * 100; }
+
+function buildTicks() {
+  var html = '';
+  // 零
+  html += '<div class="tick" style="left:'+g2pos(0).toFixed(1)+'%"></div>';
+  planets.forEach(function(p){
+    html += '<div class="tick planet" style="left:'+g2pos(p.g).toFixed(1)+'%"></div>';
+  });
+  ticksLayer.innerHTML = html;
+}
+
+function snap(val) {
+  var abs = Math.abs(val);
+  if (abs < 0.03) return 0;
+  for (var i = 0; i < planets.length; i++) {
+    if (Math.abs(abs - planets[i].g) < SNAP) {
+      return (val > 0 ? 1 : -1) * planets[i].g;
+    }
+  }
+  return val;
+}
+
+function findClosest(absG) {
+  if (absG < 0.05) return {name:'零重力', sym:'○', g:0, hint:'雨滴悬停'};
+  var best = null, bestDist = Infinity;
+  for (var i = 0; i < planets.length; i++) {
+    var d = Math.abs(absG - planets[i].g);
+    if (d < bestDist) { bestDist = d; best = planets[i]; }
+  }
+  if (bestDist > 0.5) return null;
+  return best;
+}
+
+function findDenseZone(val) {
+  for (var i = 0; i < denseZones.length; i++) {
+    if (val >= denseZones[i].min && val <= denseZones[i].max) return denseZones[i];
+  }
+  return null;
+}
+
+function buildMagnifier(zone, currentVal) {
+  var range = zone.max - zone.min;
+  var pad = range * 0.15;
+  var vMin = zone.min - pad;
+  var vMax = zone.max + pad;
+  var vRange = vMax - vMin;
+
+  var html = '';
+  zone.planets.forEach(function(name){
+    var p = planets.find(function(pl){return pl.name === name;});
+    if (!p) return;
+    var pos = ((p.g - vMin) / vRange) * 100;
+    html += '<div class="mag-tick-label" style="left:'+pos.toFixed(1)+'%">';
+    html += '<span class="sym">'+p.sym+'</span>';
+    html += '<span class="nm">'+p.name+'</span>';
+    html += '<span class="gv">'+p.g.toFixed(2)+' m/s²</span>';
+    html += '</div>';
+    html += '<div class="mag-tick-line" style="left:'+pos.toFixed(1)+'%"></div>';
+  });
+  var curPos = ((currentVal - vMin) / vRange) * 100;
+  curPos = Math.max(1, Math.min(99, curPos));
+  html += '<div class="mag-cursor" style="left:'+curPos.toFixed(1)+'%"></div>';
+
+  magZone.innerHTML = html + '<div class="mag-axis-line"></div>';
+}
+
+function update(val) {
+  var g = val / 100;
+  var absG = Math.abs(g);
+
+  // 吸附
+  var snapped = snap(g);
+  if (snapped !== g) {
+    slider.value = Math.round(snapped * 100);
+    g = snapped;
+    absG = Math.abs(g);
+  }
+
+  var closest = findClosest(absG);
+  var zone = findDenseZone(absG);
+
+  // 滑块视觉位置
+  var pos = g2pos(g);
+  thumb.style.left = pos.toFixed(1) + '%';
+  // 填充到中心零
+  var zeroPos = g2pos(0);
+  if (g >= 0) {
+    axisFill.style.left = zeroPos.toFixed(1) + '%';
+    axisFill.style.width = (pos - zeroPos).toFixed(1) + '%';
+  } else {
+    axisFill.style.left = pos.toFixed(1) + '%';
+    axisFill.style.width = (zeroPos - pos).toFixed(1) + '%';
+  }
+
+  // 行星名
+  if (g < 0 && !closest) {
+    planetDisplay.innerHTML = '<div class="main" style="color:#667788">逆向重力</div><div class="sub">−'+absG.toFixed(2)+' m/s²</div>';
+  } else if (!closest) {
+    planetDisplay.innerHTML = '<div class="main" style="color:#7788aa">自由重力</div><div class="sub">'+absG.toFixed(2)+' m/s²</div>';
+  } else {
+    var prefix = g < 0 ? '−' : '';
+    planetDisplay.innerHTML = '<div class="main"><span class="sym">'+closest.sym+'</span>'+closest.name+'</div><div class="sub">'+prefix+closest.g.toFixed(2)+' m/s² · '+closest.hint+'</div>';
+  }
+
+  // 放大镜
+  if (zone) {
+    magnifier.classList.add('on');
+    buildMagnifier(zone, absG);
+  } else {
+    magnifier.classList.remove('on');
+  }
+}
+
+slider.addEventListener('input', function(){
+  update(parseInt(this.value));
+});
+
+// 鼠标松开时吸附
+slider.addEventListener('change', function(){
+  var val = parseInt(slider.value) / 100;
+  var snapped = snap(val);
+  if (snapped !== val) {
+    slider.value = Math.round(snapped * 100);
+    update(Math.round(snapped * 100));
+  }
+});
+
+buildTicks();
+update(981);
+</script>
+</body>
+</html>

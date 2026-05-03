@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY — 宇宙开场 Demo v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gruppo&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #000;
+    font-family: 'Noto Serif SC', 'LXGW WenKai', 'Gruppo', serif;
+    color: #fff;
+    overflow-x: hidden;
+  }
+  #bg-canvas {
+    position: fixed; top:0; left:0;
+    width:100vw; height:100vh;
+    z-index:0;
+  }
+  .section {
+    width:100%; height:130vh;
+    display:grid; place-items:center;
+    position:relative; z-index:1;
+    pointer-events:none;
+    padding:0 24px;
+    text-align:center;
+  }
+  .section h1 {
+    font-family:'Gruppo','Noto Serif SC',serif;
+    font-size:clamp(32px,5.5vw,60px);
+    font-weight:400;
+    letter-spacing:0.2em;
+    text-shadow:0 0 80px rgba(100,150,255,0.2);
+    margin-bottom:16px;
+  }
+  .section h2 {
+    font-family:'Noto Serif SC','LXGW WenKai',serif;
+    font-size:clamp(15px,2.2vw,24px);
+    font-weight:300;
+    letter-spacing:0.15em;
+    color:rgba(200,220,255,0.5);
+    text-shadow:0 0 30px rgba(80,130,220,0.12);
+    margin-bottom:8px;
+  }
+  .section p {
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:rgba(150,180,230,0.3);
+    margin-top:14px;
+  }
+
+  #blog-floor {
+    position:relative; z-index:2;
+    min-height:130vh;
+    background:rgba(3,3,12,0.94);
+    backdrop-filter:blur(16px);
+    padding:80px 20px 60px;
+  }
+  .blog-logo { text-align:center; margin-bottom:50px; }
+  .blog-logo .title {
+    font-family:'Gruppo',serif;
+    font-size:36px; letter-spacing:0.25em;
+    color:rgba(210,225,255,0.65);
+    text-shadow:0 0 50px rgba(80,130,220,0.1);
+  }
+  .blog-logo .sub {
+    font-size:12px; letter-spacing:0.12em;
+    color:rgba(170,200,255,0.28);
+    margin-top:10px;
+  }
+  .post-list {
+    max-width:500px; margin:0 auto;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .post-row {
+    display:flex; align-items:center; gap:10px;
+    padding:11px 16px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:8px;
+    cursor:pointer; transition:all 0.3s;
+    pointer-events:auto;
+  }
+  .post-row:hover {
+    background:rgba(255,255,255,0.045);
+    border-color:rgba(255,255,255,0.1);
+  }
+  .p-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+  .p-dot.zhi { background:#3b82c4; box-shadow:0 0 7px rgba(59,130,196,0.4); }
+  .p-dot.xing { background:#b0b0ba; box-shadow:0 0 7px rgba(176,176,186,0.3); }
+  .p-name { font-size:12px; color:rgba(195,210,240,0.5); letter-spacing:0.5px; }
+  .p-zone { margin-left:auto; font-size:9px; color:rgba(170,200,255,0.15); letter-spacing:1px; }
+
+  #nav-rail {
+    position:fixed; right:14px; top:50%; transform:translateY(-50%);
+    z-index:10; display:flex; flex-direction:column; align-items:center; gap:7px;
+  }
+  .n-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,0.07);
+    transition:all 0.4s; cursor:pointer; pointer-events:auto;
+  }
+  .n-dot.on { background:rgba(170,210,255,0.5); box-shadow:0 0 12px rgba(90,140,255,0.35); }
+  .n-tick { width:1px; height:16px; background:rgba(255,255,255,0.04); }
+
+  #scroll-hint {
+    position:fixed; bottom:34px; left:50%; transform:translateX(-50%);
+    z-index:10; font-size:10px; letter-spacing:0.2em;
+    color:rgba(170,210,255,0.3); pointer-events:none;
+    transition:opacity 0.5s;
+    animation:float 2.2s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform:translateX(-50%) translateY(0); opacity:0.2; }
+    50% { transform:translateX(-50%) translateY(8px); opacity:0.55; }
+  }
+
+  /* Vignette — cinematic frame */
+  #vignette {
+    position:fixed; top:0; left:0;
+    width:100vw; height:100vh;
+    z-index:5; pointer-events:none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  @media (max-width:600px) {
+    .section h1 { font-size:26px; letter-spacing:0.12em; }
+    .section h2 { font-size:14px; letter-spacing:0.1em; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="vignette"></div>
+
+<div id="nav-rail">
+  <div class="n-dot on" data-idx="0"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="1"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="2"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="3"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="4"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="5"></div>
+</div>
+<div id="scroll-hint">向下探索</div>
+
+<section class="section" id="s0">
+  <div>
+    <h1>INFINITY</h1>
+    <h2>你的自我介绍标题</h2>
+    <p>向下滚动 · 开始旅程</p>
+  </div>
+</section>
+<section class="section" id="s1">
+  <div>
+    <h1>知</h1>
+    <h2>你的文案放这里</h2>
+    <p>知是行之始</p>
+  </div>
+</section>
+<section class="section" id="s2">
+  <div>
+    <h1>行</h1>
+    <h2>你的文案放这里</h2>
+    <p>行是知之成</p>
+  </div>
+</section>
+<section class="section" id="s3">
+  <div>
+    <h1>始于知 · 成于行</h1>
+    <h2>你的文案放这里</h2>
+    <p>一个人内心的两个世界</p>
+  </div>
+</section>
+<section class="section" id="s4" style="height:60vh;"></section>
+
+<div id="blog-floor">
+  <div class="blog-logo">
+    <div class="title">INFINITY BLOG</div>
+    <div class="sub">在广袤的空间和无限的时间中，能与你共享同一颗行星和同一段时光是我的荣幸</div>
+    <div class="sub">给时光以生命，给岁月以文明</div>
+  </div>
+  <div class="post-list">
+    <div class="post-row"><div class="p-dot zhi"></div><span class="p-name">始于足下——INFINITY 建站记</span><span class="p-zone">知</span></div>
+    <div class="post-row"><div class="p-dot xing"></div><span class="p-name">ACTF2020 Exec1 — 命令注入深入分析</span><span class="p-zone">行</span></div>
+    <div class="post-row"><div class="p-dot zhi"></div><span class="p-name">黑障之战——《全频带阻塞干扰》</span><span class="p-zone">知</span></div>
+    <div class="post-row"><div class="p-dot xing"></div><span class="p-name">卧推核心要领：收紧肩胛骨、胸迎杠</span><span class="p-zone">行</span></div>
+    <div class="post-row"><div class="p-dot zhi"></div><span class="p-name">无题：关于自我、理想与成长</span><span class="p-zone">知</span></div>
+    <div class="post-row"><div class="p-dot xing"></div><span class="p-name">肩部训练指南：从解剖到计划</span><span class="p-zone">行</span></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ============================================================
+// Textures — local high-quality (from 3d-world reference)
+// ============================================================
+const TEX_EARTH       = './textures/earth-hd.jpg';
+const TEX_EARTH_NIGHT = './textures/8k_earth_nightmap.jpg';
+const TEX_BUMP        = './textures/earth-bump.jpg';
+const TEX_CLOUD       = './textures/clouds-hd.png';
+const TEX_MOON        = './textures/moon.jpg';
+const TEX_MARS        = './textures/8k_mars.jpg';
+const TEX_MILKYWAY    = './textures/8k_stars_milky_way.jpg';
+
+const T = new THREE.TextureLoader();
+
+// ============================================================
+// Procedural textures (CORS-free, zero external deps)
+// ============================================================
+
+// --- Sun glow sprite ---
+function makeSunGlowTex() {
+  const s = 256;
+  const c = document.createElement('canvas');
+  c.width = c.height = s;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  g.addColorStop(0, 'rgba(255,255,245,1)');
+  g.addColorStop(0.015, 'rgba(255,252,240,0.95)');
+  g.addColorStop(0.06, 'rgba(255,235,180,0.6)');
+  g.addColorStop(0.18, 'rgba(255,200,100,0.2)');
+  g.addColorStop(0.4, 'rgba(255,150,50,0.04)');
+  g.addColorStop(0.7, 'rgba(255,100,20,0.005)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, s, s);
+  return new THREE.CanvasTexture(c);
+}
+
+// ============================================================
+// Core setup
+// ============================================================
+const canvas = document.getElementById('bg-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+const scene = new THREE.Scene();
+
+function getIdealFOV() {
+  const w = window.innerWidth;
+  return w < 480 ? 65 : w < 768 ? 58 : 50;
+}
+function getInitialCamZ() {
+  const w = window.innerWidth;
+  return w < 480 ? 3.4 : w < 768 ? 2.9 : 2.4;
+}
+
+const camera = new THREE.PerspectiveCamera(getIdealFOV(), window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(0, 0.1, getInitialCamZ());
+camera.lookAt(0, 0, 0);
+
+// ============================================================
+// Lighting — following 3d-world's proven ratios
+// ============================================================
+// Key light — strong, warm, casts deep shadows (chiaroscuro)
+const sunLight = new THREE.DirectionalLight(0xfff8ee, 6.0);
+sunLight.position.set(6, 3, 9);
+scene.add(sunLight);
+
+// Ambient — kept low for dramatic contrast
+scene.add(new THREE.AmbientLight(0x334455, 0.12));
+
+// Subtle cool fill for shadow detail (not too bright)
+const fillLight = new THREE.DirectionalLight(0x446688, 0.4);
+fillLight.position.set(-3, -1, -3);
+scene.add(fillLight);
+
+// ============================================================
+// Sun — single glowing sprite (no lensflare, no mesh sphere)
+// ============================================================
+const sunGlowTex = makeSunGlowTex();
+const sunSpriteMat = new THREE.SpriteMaterial({
+  map: sunGlowTex,
+  blending: THREE.AdditiveBlending,
+  transparent: true,
+  depthWrite: false,
+});
+const sunSprite = new THREE.Sprite(sunSpriteMat);
+sunSprite.position.set(16, 8, -60);
+sunSprite.scale.set(18, 18, 1);
+scene.add(sunSprite);
+
+// Point light at sun position for subtle fill when camera is near
+const sunFill = new THREE.PointLight(0xffeedd, 15, 200, 1);
+sunFill.position.copy(sunSprite.position);
+scene.add(sunFill);
+
+// ============================================================
+// Starfield — spherical distribution, multi-layer
+// ============================================================
+function createStarLayer(count, radius, size, colorHex) {
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius * (0.6 + Math.random() * 0.4);
+    positions[i*3]     = Math.sin(phi) * Math.cos(theta) * r;
+    positions[i*3 + 1] = Math.sin(phi) * Math.sin(theta) * r * 0.55;
+    positions[i*3 + 2] = Math.cos(phi) * r;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({
+    size, color: new THREE.Color(colorHex),
+    sizeAttenuation: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  return new THREE.Points(geo, mat);
+}
+
+const starLayers = [
+  createStarLayer(600,  12, 0.022, '#ffffff'),
+  createStarLayer(1200, 28, 0.035, '#c8d8ff'),
+  createStarLayer(2000, 55, 0.05,  '#aabbee'),
+  createStarLayer(1000, 40, 0.04,  '#ddeeff'),
+];
+starLayers.forEach(l => scene.add(l));
+
+// Bright star sprites
+function createBrightStars(count, radius) {
+  const group = new THREE.Group();
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius * (0.4 + Math.random() * 0.6);
+    const s = 0.02 + Math.random() * 0.07;
+    const color = new THREE.Color().setHSL(0.55 + Math.random() * 0.2, 0.25, 0.65 + Math.random() * 0.35);
+    const mat = new THREE.SpriteMaterial({
+      map: sunGlowTex,
+      color,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(
+      Math.sin(phi) * Math.cos(theta) * r,
+      Math.sin(phi) * Math.sin(theta) * r * 0.55,
+      Math.cos(phi) * r
+    );
+    sprite.scale.set(s, s, 1);
+    group.add(sprite);
+  }
+  return group;
+}
+const brightStars = createBrightStars(200, 35);
+scene.add(brightStars);
+
+// ============================================================
+// Earth — MeshPhongMaterial for rich texture colors
+// ============================================================
+const earthGeo = new THREE.SphereGeometry(1, 80, 60);
+const earthTex = T.load(TEX_EARTH);
+earthTex.colorSpace = THREE.SRGBColorSpace;
+
+const bumpTex = T.load(TEX_BUMP);
+bumpTex.colorSpace = THREE.SRGBColorSpace;
+
+const earthMat = new THREE.MeshPhongMaterial({
+  map: earthTex,
+  bumpMap: bumpTex,
+  bumpScale: 2.5,
+  shininess: 12,
+  specular: new THREE.Color(0x333344),
+});
+const earth = new THREE.Mesh(earthGeo, earthMat);
+earth.rotation.set(0, 0.35, 0);
+scene.add(earth);
+
+// Cloud layer — real cloud texture from 3d-world
+const cloudTex = T.load(TEX_CLOUD);
+cloudTex.colorSpace = THREE.SRGBColorSpace;
+const cloudGeo = new THREE.SphereGeometry(1.01, 64, 40);
+const cloudMat = new THREE.MeshPhongMaterial({
+  map: cloudTex,
+  shininess: 0,
+  specular: new THREE.Color(0x000000),
+  transparent: true,
+  opacity: 0.35,
+  depthWrite: false,
+});
+const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+scene.add(clouds);
+
+// Sun direction vector — used by night lights & atmosphere
+const sunDir = new THREE.Vector3(5, 3, 8).normalize();
+
+// Night lights — glows on Earth's dark side
+const nightTex = T.load(TEX_EARTH_NIGHT);
+nightTex.colorSpace = THREE.SRGBColorSpace;
+const nightGeo = new THREE.SphereGeometry(1.004, 80, 60);
+const nightUniforms = {
+  uNightMap: { value: nightTex },
+  uSunDir:   { value: sunDir },
+};
+const nightVS = /* glsl */`
+varying vec3 vWorldNormal;
+varying vec2 vUv;
+void main() {
+  vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vWorldNormal = normalize(mat3(modelMatrix) * normal);
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const nightFS = /* glsl */`
+uniform sampler2D uNightMap;
+uniform vec3 uSunDir;
+varying vec3 vWorldNormal;
+varying vec2 vUv;
+void main() {
+  float NdotL = dot(vWorldNormal, uSunDir);
+  // Wide, visible terminator zone
+  float nightFac = smoothstep(0.25, -0.2, NdotL);
+  vec4 nightCol = texture2D(uNightMap, vUv);
+  gl_FragColor = vec4(nightCol.rgb, nightFac * 0.9);
+}`;
+const nightMat = new THREE.ShaderMaterial({
+  uniforms: nightUniforms,
+  vertexShader: nightVS,
+  fragmentShader: nightFS,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const nightLights = new THREE.Mesh(nightGeo, nightMat);
+scene.add(nightLights);
+
+// Milky Way background — huge sphere around the scene
+const mwTex = T.load(TEX_MILKYWAY);
+mwTex.colorSpace = THREE.SRGBColorSpace;
+const mwGeo = new THREE.SphereGeometry(150, 64, 32);
+const mwMat = new THREE.MeshBasicMaterial({
+  map: mwTex,
+  side: THREE.BackSide,
+  depthWrite: false,
+});
+const milkyWay = new THREE.Mesh(mwGeo, mwMat);
+scene.add(milkyWay);
+
+// Fresnel atmosphere — single very thin layer
+const atmoGeo = new THREE.SphereGeometry(1.035, 80, 60);
+const atmoUniforms = {
+  uColor:  { value: new THREE.Color(0x6699dd) },
+  uPower:  { value: 4.5 },
+  uBias:   { value: 0.02 },
+  uScale:  { value: 0.7 },
+  uSunDir: { value: sunDir },
+};
+const atmoVS = /* glsl */`
+varying vec3 vWorldNormal;
+varying vec3 vWorldPos;
+void main() {
+  vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vWorldPos = worldPos.xyz;
+  vWorldNormal = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const atmoFS = /* glsl */`
+uniform vec3 uColor;
+uniform float uPower;
+uniform float uBias;
+uniform float uScale;
+uniform vec3 uSunDir;
+varying vec3 vWorldNormal;
+varying vec3 vWorldPos;
+void main() {
+  vec3 viewDir = normalize(cameraPosition - vWorldPos);
+  float NdotV = abs(dot(viewDir, vWorldNormal));
+  float fresnel = uBias + uScale * pow(1.0 - NdotV, uPower);
+  float sunFac = dot(vWorldNormal, uSunDir) * 0.5 + 0.5;
+  float brightness = clamp(fresnel * (0.5 + 0.5 * sunFac), 0.0, 1.0);
+  gl_FragColor = vec4(uColor, brightness * 0.25);
+}`;
+const atmoMat = new THREE.ShaderMaterial({
+  uniforms: atmoUniforms,
+  vertexShader: atmoVS,
+  fragmentShader: atmoFS,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  side: THREE.BackSide,
+  depthWrite: false,
+});
+const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
+scene.add(atmosphere);
+
+// ============================================================
+// Moon — real photo texture from 3d-world
+// ============================================================
+const moonTex = T.load(TEX_MOON);
+moonTex.colorSpace = THREE.SRGBColorSpace;
+const moonGeo = new THREE.SphereGeometry(0.27, 48, 48);
+const moonMat = new THREE.MeshPhongMaterial({
+  map: moonTex,
+  shininess: 5,
+  specular: new THREE.Color(0x111111),
+});
+const moon = new THREE.Mesh(moonGeo, moonMat);
+moon.position.set(3.5, 0.25, 1.5);
+moon.scale.setScalar(0.001);
+scene.add(moon);
+
+// ============================================================
+// Mars — real 8K NASA texture
+// ============================================================
+const marsTex = T.load(TEX_MARS);
+marsTex.colorSpace = THREE.SRGBColorSpace;
+const marsGeo = new THREE.SphereGeometry(0.53, 48, 48);
+const marsMat = new THREE.MeshPhongMaterial({
+  map: marsTex,
+  shininess: 3,
+  specular: new THREE.Color(0x111111),
+});
+const mars = new THREE.Mesh(marsGeo, marsMat);
+mars.position.set(13, -0.2, 3.5);
+mars.scale.setScalar(0.001);
+scene.add(mars);
+
+// ============================================================
+// Post-processing — simple: Render + subtle Film grain
+// ============================================================
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+// Subtle bloom — cinematic glow on bright areas
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.35, 0.25, 0.05
+);
+bloomPass.threshold = 0.6;
+bloomPass.strength = 0.3;
+bloomPass.radius = 0.4;
+composer.addPass(bloomPass);
+
+const filmPass = new FilmPass(0.15, false);
+composer.addPass(filmPass);
+
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
+
+// ============================================================
+// Scroll → Camera path
+// ============================================================
+const sections = document.querySelectorAll('.section');
+const blogFloor = document.getElementById('blog-floor');
+const allBlocks = [...sections, blogFloor];
+const scrollHint = document.getElementById('scroll-hint');
+
+const totalH = allBlocks.reduce((s, b) => s + b.offsetHeight, 0);
+
+let targetP = 0, currentP = 0;
+let mouseX = 0, mouseY = 0;
+let scrollVel = 0;
+let lastScrollY = 0;
+let lastScrollTime = performance.now();
+
+window.addEventListener('scroll', () => {
+  const now = performance.now();
+  const dt = Math.max(1, now - lastScrollTime);
+  const dy = window.scrollY - lastScrollY;
+  scrollVel += (Math.abs(dy / dt) - scrollVel) * 0.2;
+  lastScrollY = window.scrollY;
+  lastScrollTime = now;
+
+  const vh = window.innerHeight;
+  const maxScroll = totalH - vh;
+  targetP = Math.min(Math.max(window.scrollY / Math.max(maxScroll, 1), 0), 1);
+  scrollHint.style.opacity = targetP > 0.04 ? '0' : '1';
+  updateNav(targetP);
+}, { passive: true });
+
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+const navDots = document.querySelectorAll('.n-dot');
+function updateNav(p) {
+  const n = navDots.length;
+  const active = Math.min(Math.floor(p * n), n - 1);
+  navDots.forEach((d, i) => d.classList.toggle('on', i === active));
+}
+navDots.forEach(d => d.addEventListener('click', () => {
+  const idx = parseInt(d.dataset.idx);
+  window.scrollTo({ top: (idx / navDots.length) * totalH, behavior: 'smooth' });
+}));
+
+// ============================================================
+// Camera — GSAP scrub-inspired: keyframes + single smoothstep + render-lerp
+// ============================================================
+function lerpArr(a, b, t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+function moonScale(p) {
+  return p < 0.14 ? 0.001 : smoothstep(0.14, 0.32, p);
+}
+function marsScale(p) {
+  return p < 0.44 ? 0.001 : smoothstep(0.44, 0.62, p);
+}
+
+// 6 keyframes — like cynthia's minimalist 3, but adapted for our 3-planet journey
+const KEYFRAMES = [
+  { p:0.0,  pos:[0, 0.10, getInitialCamZ()], look:[0, 0, 0] },
+  { p:0.22, pos:[1.8, 0.65, 4.0],           look:[2.0, 0.15, 0.8] },
+  { p:0.40, pos:[2.8, 0.55, 1.2],           look:[3.5, 0.25, 1.5] },
+  { p:0.55, pos:[7.0, 0.60, 4.2],           look:[8.0, -0.05, 2.5] },
+  { p:0.75, pos:[11.8, 0.35, 2.5],          look:[13, -0.2, 3.5] },
+  { p:1.0,  pos:[32, 24, 100],              look:[0, 0.8, 0] },
+];
+
+function getKeyframeState(p) {
+  let i = 0;
+  while (i < KEYFRAMES.length - 1 && p >= KEYFRAMES[i+1].p) i++;
+  const k0 = KEYFRAMES[i], k1 = KEYFRAMES[Math.min(i+1, KEYFRAMES.length-1)];
+  if (k0.p === k1.p) return { targetPos: k0.pos, targetLook: k0.look };
+  const t = (p - k0.p) / (k1.p - k0.p);
+  const st = t * t * (3 - 2*t); // one smoothstep across the entire journey
+  return {
+    targetPos:  lerpArr(k0.pos,  k1.pos,  st),
+    targetLook: lerpArr(k0.look, k1.look, st),
+  };
+}
+
+let camTarget = [0, 0.10, getInitialCamZ()];
+let lookTarget = [0, 0, 0];
+
+function updateCamera(p) {
+  const { targetPos, targetLook } = getKeyframeState(p);
+  camTarget = targetPos;
+  lookTarget = targetLook;
+
+  moon.scale.setScalar(moonScale(p));
+  mars.scale.setScalar(marsScale(p));
+
+  if (p > 0.35) {
+    const t = Math.min(1, (p - 0.35) / 0.45);
+    const st = t * t * (3 - 2 * t);
+    const s = 1 - st * 0.82;
+    [earth, clouds, atmosphere, nightLights].forEach(o => o.scale.setScalar(s));
+  } else {
+    [earth, clouds, atmosphere, nightLights].forEach(o => o.scale.setScalar(1));
+  }
+}
+
+// ============================================================
+// Render loop
+// ============================================================
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Dynamic LERP based on scroll velocity — faster scroll = snappier response
+  const velFactor = Math.min(1, scrollVel * 8);
+  const baseLerp = 0.04;
+  const fastLerp = 0.12;
+  const lerpP = baseLerp + (fastLerp - baseLerp) * velFactor;
+  currentP += (targetP - currentP) * lerpP;
+  updateCamera(currentP);
+
+  // GSAP scrub-style render-loop LERP — camera smoothly catches up to target
+  const baseSpeed = 0.08;
+  const fastSpeed = 0.18;
+  const speed = baseSpeed + (fastSpeed - baseSpeed) * velFactor;
+  camera.position.x += (camTarget[0] - camera.position.x) * speed;
+  camera.position.y += (camTarget[1] - camera.position.y) * speed;
+  camera.position.z += (camTarget[2] - camera.position.z) * speed;
+  // Smooth lookAt via directional LERP
+  const curDir = new THREE.Vector3();
+  camera.getWorldDirection(curDir);
+  const curLook = camera.position.clone().add(curDir);
+  curLook.x += (lookTarget[0] - curLook.x) * speed;
+  curLook.y += (lookTarget[1] - curLook.y) * speed;
+  curLook.z += (lookTarget[2] - curLook.z) * speed;
+  camera.lookAt(curLook);
+
+  // Rotations
+  earth.rotation.y += 0.001;
+  clouds.rotation.y += 0.0007;
+  nightLights.rotation.y += 0.001;
+  moon.rotation.y += 0.0004;
+  mars.rotation.y += 0.0006;
+
+  // Star parallax
+  const mx = mouseX * 0.5;
+  const my = mouseY * 0.35;
+  starLayers[0].position.set(mx * 0.12, my * 0.12, 0);
+  starLayers[1].position.set(mx * 0.06, my * 0.06, 0);
+  starLayers[2].position.set(mx * 0.02, my * 0.02, 0);
+  starLayers[3].position.set(mx * 0.04, my * 0.04, 0);
+  brightStars.position.set(mx * 0.05, my * 0.05, 0);
+
+  composer.render();
+}
+animate();
+
+// ============================================================
+// Responsive
+// ============================================================
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.fov = getIdealFOV();
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+});
+</script>
+</body>
+</html>

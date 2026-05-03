@@ -62,6 +62,12 @@
       "source": "manual",
       "category": "architecture",
       "content": "天气特效 v5 demo 已确认通过。待实现到源码：\n- weather-particles.js → 替换为 v5 Canvas 引擎（玻璃水滴+雨丝+雪花+晴光+微凝结纹理+惯性重力响应）\n- weather-panel.js → 加入重力面板（行星吸附滑块+失重/地球/逆地快捷按钮）\n- weather.css → 加入重力面板样式\n- weather-init.js → 对接新 WeatherFX API\nDemo 文件: F:\\blog\\weather-demo-v5.html\n修复项: 逆向重力惯性过渡、零重力漂浮效果、放大镜字符重叠"
+    },
+    {
+      "timestamp": 1777435128791,
+      "source": "manual",
+      "category": "architecture",
+      "content": "天气特效 v6 系统已于 2026-04-29 完成迁移并部署。4 个源文件: weather-particles.js (Canvas引擎), weather-panel.js (内嵌卡片), weather.css (亮/暗主题), weather-init.js (API对接)。v6 demo: F:\\blog\\weather-demo-v6.html。部署方式: hexo generate → 复制 public/ → force push。不使用 hexo deploy。"
     }
   ],
   "directoryMap": {
@@ -165,9 +171,21 @@
       "type": "file"
     },
     {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\MEMORY.md",
+      "accessCount": 4,
+      "lastAccessed": 1777435079515,
+      "type": "file"
+    },
+    {
       "path": "_config.butterfly.yml",
       "accessCount": 3,
       "lastAccessed": 1777385145253,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\weather-v5-ready.md",
+      "accessCount": 3,
+      "lastAccessed": 1777434952763,
       "type": "file"
     },
     {
@@ -180,18 +198,6 @@
       "path": "weather-demo-v4.html",
       "accessCount": 2,
       "lastAccessed": 1777386729268,
-      "type": "file"
-    },
-    {
-      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\MEMORY.md",
-      "accessCount": 2,
-      "lastAccessed": 1777388347029,
-      "type": "file"
-    },
-    {
-      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\weather-v5-ready.md",
-      "accessCount": 2,
-      "lastAccessed": 1777427452387,
       "type": "file"
     },
     {
@@ -384,6 +390,12 @@
       "path": "C:\\Users\\联想\\.claude\\teams\\weather-v6-migration\\config.json",
       "accessCount": 1,
       "lastAccessed": 1777433073516,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\联想\\.claude\\projects\\F--blog\\memory\\weather-v6-done.md",
+      "accessCount": 1,
+      "lastAccessed": 1777434993302,
       "type": "file"
     }
   ],

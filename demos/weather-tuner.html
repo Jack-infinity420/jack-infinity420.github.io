@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气参数调谐器 · Weather Tuner</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#080e18;overflow:hidden;height:100vh;color:#8899aa}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}
+
+/* 调谐面板 */
+.tuner{position:fixed;top:10px;right:10px;bottom:10px;z-index:99;width:310px;background:rgba(6,12,22,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.06);border-radius:18px;overflow-y:auto;overflow-x:hidden;padding:0;display:flex;flex-direction:column}
+.tuner::-webkit-scrollbar{width:3px}
+.tuner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:2px}
+
+.tuner-header{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;background:rgba(6,12,22,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:2;border-radius:18px 18px 0 0}
+.tuner-header .th{font-size:13px;font-weight:500;color:#aab8c8;letter-spacing:3px}
+.tuner-header .th-sub{font-size:10px;color:#4a5a6a;margin-top:3px;letter-spacing:1px}
+
+.tuner-body{padding:8px 0;flex:1}
+
+/* 分组 */
+.group{margin:0;border-bottom:1px solid rgba(255,255,255,.025)}
+.group-header{padding:12px 20px 8px;font-size:10px;font-weight:500;color:#5a6a7a;letter-spacing:3px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.group-header:hover{color:#7a8a9a}
+.group-header .arrow{font-size:10px;transition:transform .25s;color:#4a5a6a}
+.group.collapsed .group-header .arrow{transform:rotate(-90deg)}
+.group-body{padding:0 16px 12px;transition:max-height .3s,opacity .3s;max-height:800px;opacity:1}
+.group.collapsed .group-body{max-height:0;opacity:0;overflow:hidden;padding-top:0;padding-bottom:0}
+
+/* 单个参数行 */
+.param{padding:5px 4px;display:flex;align-items:center;gap:10px}
+.param .label{font-size:11px;color:#778899;min-width:62px;letter-spacing:1px;font-weight:400;flex-shrink:0}
+.param .val{font-size:10px;color:#5a6a7a;min-width:36px;text-align:right;font-weight:400;font-family:'SF Mono','JetBrains Mono',monospace;flex-shrink:0}
+.param input[type=range]{-webkit-appearance:none;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.06);outline:none}
+.param input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#6e96c4;cursor:pointer;box-shadow:0 0 8px rgba(80,140,210,.3)}
+
+/* 重力面板（精简版） */
+.gravity-mini{padding:12px 20px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.gravity-mini .gm-label{font-size:10px;color:#5a6a7a;letter-spacing:3px;margin-bottom:4px;font-weight:500}
+.gravity-mini .gm-value{font-size:22px;font-weight:500;color:#bcc8d8;letter-spacing:1px}
+.gravity-mini .gm-value .unit{font-size:12px;color:#556677;margin-left:3px;font-weight:400}
+
+/* 按钮 */
+.btn-row{display:flex;gap:8px;padding:10px 20px}
+.btn{flex:1;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);color:#778899;font-size:11px;cursor:pointer;letter-spacing:2px;font-weight:400;transition:all .25s;text-align:center}
+.btn:hover{background:rgba(255,255,255,.04);color:#aab8c8}
+.btn.primary{background:rgba(100,160,220,.12);border-color:rgba(100,160,220,.2);color:#b0c4d8}
+.btn.primary:hover{background:rgba(100,160,220,.2)}
+
+/* 底部模式 */
+.modes{display:flex;gap:6px;padding:8px 20px 16px}
+.modes button{flex:1;padding:7px 0;border-radius:20px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015);color:#667788;font-size:12px;cursor:pointer;letter-spacing:2px;font-weight:400;transition:all .3s}
+.modes button.on{background:rgba(100,160,220,.1);border-color:rgba(100,160,220,.22);color:#c0d0e4}
+
+/* 移动端适配 */
+@media(max-width:768px){
+  .tuner{top:auto;right:0;bottom:0;left:0;width:100%;height:42vh;border-radius:18px 18px 0 0}
+  .tuner-header{border-radius:18px 18px 0 0}
+}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div class="tuner" id="tuner">
+  <div class="tuner-header">
+    <div class="th">参 数 调 谐</div>
+    <div class="th-sub">Weather Tuner · 实时预览</div>
+  </div>
+
+  <div class="gravity-mini">
+    <div class="gm-label">引 力 加 速 度</div>
+    <div class="gm-value" id="gravDisplay">9.81<span class="unit">m/s²</span></div>
+    <div style="margin-top:8px">
+      <input type="range" id="gravSlider" min="-2479" max="2479" value="981" step="1" style="width:100%">
+    </div>
+  </div>
+
+  <div class="modes" id="modeBtns">
+    <button data-w="rain" class="on">微 雨</button>
+    <button data-w="snow">疏 雪</button>
+    <button data-w="clear">晴 光</button>
+  </div>
+
+  <div class="tuner-body" id="tunerBody"></div>
+
+  <div class="btn-row">
+    <button class="btn" id="resetBtn">重 置</button>
+    <button class="btn primary" id="exportBtn">导出参数</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  参数调谐器 —— 每个视觉参数都可以实时调节
+// ============================================================
+
+var C = document.getElementById('c'), X = C.getContext('2d');
+var W, H, dpr, t = 0, cur = 'rain';
+var rainStreaks = [], glassDrops = [], snowflakes = [], sunParticles = [];
+var microTex = null;
+
+// ==================== 默认参数 ====================
+var defaults = {
+  // 水滴外观
+  dropMinR: 0.6,
+  dropMaxR: 6.0,
+  dropBodyAlpha: 0.75,
+  dropEdgeWidth: 0.5,
+  dropEdgeAlpha: 0.40,
+  dropHighlightAlpha: 0.90,
+  dropIrregularity: 0.10,
+  // 水滴行为
+  dropCount: 45,
+  dropGrowSpeed: 0.02,
+  dropSlideFactor: 0.10,
+  dropTrailMax: 80,
+  dropMergeDist: 0.65,
+  // 远景雨丝
+  streakCount: 100,
+  streakMinOpa: 0.12,
+  streakMaxOpa: 0.44,
+  streakMinW: 0.20,
+  streakMaxW: 0.90,
+  streakMinLen: 14,
+  streakMaxLen: 44,
+  // 玻璃质感
+  microCount: 600,
+  microMaxAlpha: 0.14,
+  fogAlpha: 0.02,
+  // 雪花
+  snowCount: 75,
+  snowMinSz: 2,
+  snowMaxSz: 8,
+  snowMinOpa: 0.20,
+  snowMaxOpa: 0.70,
+  snowGlassRatio: 0.30,
+  // 晴光
+  sunCount: 40,
+  sunMinSz: 3,
+  sunMaxSz: 10,
+  sunMinAl: 0.06,
+  sunMaxAl: 0.22,
+};
+
+var P = {};
+// 深拷贝默认值
+function resetParams() {
+  P = JSON.parse(JSON.stringify(defaults));
+}
+resetParams();
+
+var gravity = 9.81;
+
+// ==================== 参数定义（用于构建 UI） ====================
+var paramDefs = [
+  { group:'水滴外观', key:'dropMinR',       label:'最小半径',   min:0.1, max:4,   step:0.1, unit:'px' },
+  { group:'水滴外观', key:'dropMaxR',       label:'最大半径',   min:1,   max:15,  step:0.5, unit:'px' },
+  { group:'水滴外观', key:'dropBodyAlpha',  label:'水体透明度', min:0.1, max:1,   step:0.05 },
+  { group:'水滴外观', key:'dropEdgeWidth',  label:'边缘粗细',   min:0.1, max:3,   step:0.1, unit:'px' },
+  { group:'水滴外观', key:'dropEdgeAlpha',  label:'边缘透明度', min:0.05,max:1,   step:0.05 },
+  { group:'水滴外观', key:'dropHighlightAlpha', label:'高光亮度', min:0.1, max:1, step:0.05 },
+  { group:'水滴外观', key:'dropIrregularity',   label:'不完美度', min:0,   max:0.3, step:0.01 },
+  { group:'水滴行为', key:'dropCount',      label:'水滴数量',   min:5,   max:120, step:5 },
+  { group:'水滴行为', key:'dropGrowSpeed',  label:'生长速度',   min:0.005,max:0.08,step:0.005 },
+  { group:'水滴行为', key:'dropSlideFactor',label:'滑动速度',   min:0.01, max:0.4, step:0.01 },
+  { group:'水滴行为', key:'dropTrailMax',   label:'拖尾长度',   min:10,  max:200, step:10 },
+  { group:'水滴行为', key:'dropMergeDist',  label:'合并距离',   min:0.3, max:1.2, step:0.05 },
+  { group:'远景雨丝', key:'streakCount',    label:'雨丝数量',   min:20,  max:200, step:10 },
+  { group:'远景雨丝', key:'streakMinOpa',   label:'最小透明度', min:0.02,max:0.5, step:0.02 },
+  { group:'远景雨丝', key:'streakMaxOpa',   label:'最大透明度', min:0.1, max:0.8, step:0.02 },
+  { group:'远景雨丝', key:'streakMinW',     label:'最小线宽',   min:0.05,max:2,   step:0.05, unit:'px' },
+  { group:'远景雨丝', key:'streakMaxW',     label:'最大线宽',   min:0.2, max:3,   step:0.1, unit:'px' },
+  { group:'远景雨丝', key:'streakMinLen',   label:'最小长度',   min:5,   max:30,  step:1, unit:'px' },
+  { group:'远景雨丝', key:'streakMaxLen',   label:'最大长度',   min:10,  max:80,  step:2, unit:'px' },
+  { group:'玻璃质感', key:'microCount',     label:'微凝结数量', min:0,   max:1500,step:50 },
+  { group:'玻璃质感', key:'microMaxAlpha',  label:'微凝结可见', min:0,   max:0.4, step:0.01 },
+  { group:'玻璃质感', key:'fogAlpha',       label:'雾气浓度',   min:0,   max:0.08,step:0.005 },
+  { group:'雪花',    key:'snowCount',      label:'雪花数量',   min:10,  max:150, step:10 },
+  { group:'雪花',    key:'snowMinSz',       label:'最小尺寸',   min:0.5, max:6,   step:0.5, unit:'px' },
+  { group:'雪花',    key:'snowMaxSz',       label:'最大尺寸',   min:2,   max:16,  step:1, unit:'px' },
+  { group:'雪花',    key:'snowMinOpa',      label:'最小透明度', min:0.05,max:0.5, step:0.05 },
+  { group:'雪花',    key:'snowMaxOpa',      label:'最大透明度', min:0.2, max:1,   step:0.05 },
+  { group:'雪花',    key:'snowGlassRatio',  label:'玻璃雪花比', min:0,   max:0.8, step:0.05 },
+  { group:'晴光',    key:'sunCount',       label:'光粒数量',   min:5,   max:80,  step:5 },
+  { group:'晴光',    key:'sunMinSz',        label:'最小尺寸',   min:1,   max:8,   step:0.5, unit:'px' },
+  { group:'晴光',    key:'sunMaxSz',        label:'最大尺寸',   min:4,   max:20,  step:1, unit:'px' },
+  { group:'晴光',    key:'sunMinAl',        label:'最小亮度',   min:0.01, max:0.2, step:0.01 },
+  { group:'晴光',    key:'sunMaxAl',        label:'最大亮度',   min:0.05, max:0.4, step:0.01 },
+];
+
+// ==================== 构建 UI ====================
+function buildUI() {
+  var body = document.getElementById('tunerBody');
+  var groups = {};
+  paramDefs.forEach(function(d) {
+    if (!groups[d.group]) groups[d.group] = [];
+    groups[d.group].push(d);
+  });
+
+  var html = '';
+  var groupNames = ['水滴外观','水滴行为','远景雨丝','玻璃质感','雪花','晴光'];
+  groupNames.forEach(function(gname) {
+    if (!groups[gname]) return;
+    html += '<div class="group" id="group-'+gname+'">';
+    html += '<div class="group-header" data-group="'+gname+'"><span>'+gname+'</span><span class="arrow">▼</span></div>';
+    html += '<div class="group-body">';
+    groups[gname].forEach(function(d) {
+      var val = P[d.key];
+      var unit = d.unit || '';
+      html += '<div class="param">';
+      html += '<span class="label">'+d.label+'</span>';
+      html += '<input type="range" data-key="'+d.key+'" min="'+d.min+'" max="'+d.max+'" step="'+d.step+'" value="'+val+'">';
+      html += '<span class="val">'+val+unit+'</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  body.innerHTML = html;
+
+  // 折叠/展开
+  body.querySelectorAll('.group-header').forEach(function(h) {
+    h.addEventListener('click', function() {
+      this.parentElement.classList.toggle('collapsed');
+    });
+  });
+
+  // 滑块事件
+  body.querySelectorAll('input[type=range]').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      var key = this.getAttribute('data-key');
+      var val = parseFloat(this.value);
+      P[key] = val;
+      // 显示值
+      var unit = '';
+      var def = paramDefs.find(function(d){ return d.key === key; });
+      if (def && def.unit) unit = def.unit;
+      this.parentElement.querySelector('.val').textContent = val + unit;
+      // 需要重建粒子的参数
+      if (key === 'dropCount' || key === 'streakCount' || key === 'snowCount' || key === 'sunCount' || key === 'microCount' || key === 'snowGlassRatio') {
+        rebuildParticles();
+      }
+      if (key === 'microCount' || key === 'microMaxAlpha') {
+        microTex = null;
+      }
+    });
+  });
+}
+
+// ==================== Canvas 工具 ====================
+function resize() {
+  dpr = devicePixelRatio || 1;
+  W = innerWidth; H = innerHeight;
+  C.width = W * dpr; C.height = H * dpr;
+  C.style.width = W + 'px'; C.style.height = H + 'px';
+  X.setTransform(dpr, 0, 0, dpr, 0, 0);
+  microTex = null;
+}
+resize();
+addEventListener('resize', resize);
+
+function rand(a,b) { return a + Math.random()*(b-a); }
+function dist(a,b) { var dx=a.x-b.x,dy=a.y-b.y; return Math.sqrt(dx*dx+dy*dy); }
+
+// 不完美圆顶点
+function genDropShape() {
+  var n = 20, verts = [], irr = P.dropIrregularity;
+  for (var i = 0; i < n; i++) {
+    var a = (i/n)*Math.PI*2;
+    var r = 1 + (Math.random()-0.5)*irr*2;
+    verts.push({ cos: Math.cos(a)*r, sin: Math.sin(a)*r });
+  }
+  return verts;
+}
+
+// ==================== 玻璃水滴 ====================
+function GlassDrop(x, y, placed) {
+  if (placed) {
+    this.x = x !== undefined ? x : Math.random()*W;
+    this.y = y !== undefined ? y : Math.random()*H;
+    this.r = rand(P.dropMinR*3, P.dropMaxR);
+    this.maxR = this.r;
+    this.growing = false;
+  } else {
+    this.x = x !== undefined ? x : Math.random()*W;
+    this.y = y !== undefined ? y : -(8 + Math.random()*20);
+    this.r = rand(P.dropMinR, P.dropMinR*2.5);
+    this.maxR = rand(P.dropMinR*3, P.dropMaxR);
+    this.growing = true;
+  }
+  this.sliding = !this.growing;
+  this.slideSpeed = this.sliding ? (0.04 + this.r*P.dropSlideFactor) * Math.abs(gravity/9.81) : 0;
+  this.shape = genDropShape();
+  this.trail = [];
+  this.trailTimer = 0;
+}
+
+GlassDrop.prototype.update = function() {
+  var gNorm = gravity/9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+
+  if (this.growing) {
+    this.r += P.dropGrowSpeed * (0.5 + Math.random());
+    if (this.r >= this.maxR) {
+      this.r = this.maxR;
+      this.growing = false;
+      this.sliding = true;
+      this.slideSpeed = (0.04 + this.maxR*P.dropSlideFactor) * Math.abs(gNorm);
+      if (dir < 0) this.slideSpeed *= -1;
+    }
+  }
+
+  if (this.sliding) {
+    this.trailTimer++;
+    var trailInterval = P.dropTrailMax > 60 ? 1 : 2;
+    if (this.trailTimer % trailInterval === 0 && this.trail.length < P.dropTrailMax) {
+      this.trail.push({ x: this.x, y: this.y, r: this.r, a: 0.55 });
+    }
+    if (Math.abs(gravity) > 0.05) this.y += this.slideSpeed;
+    for (var i = this.trail.length-1; i >= 0; i--) {
+      this.trail[i].a -= 0.005;
+      if (this.trail[i].a <= 0) this.trail.splice(i,1);
+    }
+    if (dir > 0 && this.y-this.r > H+80) this.reset(dir);
+    else if (dir < 0 && this.y+this.r < -80) this.reset(dir);
+  }
+};
+
+GlassDrop.prototype.reset = function(dir) {
+  this.y = dir > 0 ? -10-Math.random()*40 : H+10+Math.random()*40;
+  this.x = Math.random()*W;
+  this.r = rand(P.dropMinR, P.dropMinR*2.5);
+  this.maxR = rand(P.dropMinR*3, P.dropMaxR);
+  this.growing = true; this.sliding = false; this.slideSpeed = 0;
+  this.trail = []; this.trailTimer = 0;
+  this.shape = genDropShape();
+};
+
+GlassDrop.prototype.paintDrop = function(cx, cy, r, alpha, lit) {
+  if (r < 0.2) return;
+  X.save(); X.globalAlpha = alpha;
+
+  X.beginPath();
+  var s = this.shape;
+  X.moveTo(cx+s[0].cos*r, cy+s[0].sin*r);
+  for (var i = 1; i < s.length; i++) X.lineTo(cx+s[i].cos*r, cy+s[i].sin*r);
+  X.closePath();
+
+  var bg = X.createRadialGradient(cx-r*0.12, cy-r*0.22, r*0.03, cx, cy, r);
+  bg.addColorStop(0, 'rgba(195,218,240,'+P.dropBodyAlpha+')');
+  bg.addColorStop(0.45, 'rgba(155,190,220,'+(P.dropBodyAlpha*0.6)+')');
+  bg.addColorStop(0.8, 'rgba(110,150,185,'+(P.dropBodyAlpha*0.24)+')');
+  bg.addColorStop(1, 'rgba(70,110,145,'+(P.dropBodyAlpha*0.07)+')');
+  X.fillStyle = bg; X.fill();
+
+  X.strokeStyle = 'rgba(175,210,235,'+P.dropEdgeAlpha+')';
+  X.lineWidth = P.dropEdgeWidth; X.stroke();
+
+  if (lit && r > 0.6) {
+    var hx = cx - r*0.24, hy = cy - r*0.28;
+    var hg = X.createRadialGradient(hx, hy, 0, hx, hy, r*0.28);
+    hg.addColorStop(0, 'rgba(255,255,255,'+P.dropHighlightAlpha+')');
+    hg.addColorStop(0.08, 'rgba(255,255,255,'+(P.dropHighlightAlpha*0.7)+')');
+    hg.addColorStop(0.35, 'rgba(255,255,255,'+(P.dropHighlightAlpha*0.1)+')');
+    hg.addColorStop(1, 'rgba(255,255,255,0)');
+    X.fillStyle = hg;
+    X.beginPath(); X.arc(hx, hy, r*0.28, 0, Math.PI*2); X.fill();
+
+    var bx = cx+r*0.2, by = cy+r*0.36;
+    var bgrad = X.createRadialGradient(bx, by, 0, bx, by, r*0.1);
+    bgrad.addColorStop(0, 'rgba(255,255,255,'+(P.dropHighlightAlpha*0.5)+')');
+    bgrad.addColorStop(1, 'rgba(255,255,255,0)');
+    X.fillStyle = bgrad;
+    X.beginPath(); X.arc(bx, by, r*0.1, 0, Math.PI*2); X.fill();
+  }
+  X.restore();
+};
+
+GlassDrop.prototype.draw = function() {
+  for (var i = 0; i < this.trail.length; i++) {
+    var tr = this.trail[i];
+    var frac = i/Math.max(this.trail.length,1);
+    this.paintDrop(tr.x, tr.y, this.r*(0.2+0.4*frac), tr.a*0.25, false);
+  }
+  this.paintDrop(this.x, this.y, this.r, 0.92, true);
+};
+
+// ==================== 远景雨丝 ====================
+function RainStreak(f) { this.reset(f); }
+RainStreak.prototype.reset = function(f) {
+  this.x = Math.random()*W;
+  this.y = f ? Math.random()*H : -(30+Math.random()*80);
+  this.len = rand(P.streakMinLen, P.streakMaxLen);
+  this.spd = 4 + this.len*0.25;
+  this.opa = rand(P.streakMinOpa, P.streakMaxOpa);
+  this.wd = rand(P.streakMinW, P.streakMaxW);
+  this.ang = 0.02 + Math.random()*0.05;
+};
+RainStreak.prototype.update = function() {
+  var gN = gravity/9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+  this.y += this.spd * gN * dir;
+  this.x += this.spd * this.ang * gN * dir * 0.3;
+  if (dir>0&&this.y>H+40||dir<0&&this.y<-40) this.reset(dir<0);
+};
+RainStreak.prototype.draw = function() {
+  var tx=this.x-this.len*this.ang*0.3, ty=this.y-this.len;
+  var g=X.createLinearGradient(tx,ty,this.x,this.y);
+  g.addColorStop(0,'rgba(150,190,225,0)');
+  g.addColorStop(0.35,'rgba(150,190,225,'+(this.opa*0.2)+')');
+  g.addColorStop(1,'rgba(150,190,225,'+this.opa+')');
+  X.beginPath(); X.strokeStyle=g; X.lineWidth=this.wd; X.lineCap='round';
+  X.moveTo(tx,ty); X.lineTo(this.x,this.y); X.stroke();
+};
+
+// ==================== 雪花 ====================
+function Snowflake(f) { this.reset(f); }
+Snowflake.prototype.reset = function(f) {
+  this.x=Math.random()*W; this.y=f?Math.random()*H:-(20+Math.random()*30);
+  this.sz=rand(P.snowMinSz,P.snowMaxSz);
+  this.spdy=0.2+Math.random()*1;
+  this.swayA=0.4+Math.random()*1.6;
+  this.swayF=0.0003+Math.random()*0.001; this.swayP=Math.random()*Math.PI*2;
+  this.opa=rand(P.snowMinOpa,P.snowMaxOpa);
+  this.rot=Math.random()*Math.PI*2; this.rotSpd=(Math.random()-.5)*0.01;
+  this.onGlass=Math.random()<P.snowGlassRatio;
+};
+Snowflake.prototype.update = function() {
+  var gN=gravity/9.81, dir=gravity>=0?1:-1;
+  this.y+=this.spdy*gN*dir;
+  this.x+=Math.sin(t*this.swayF+this.swayP)*this.swayA*0.25;
+  this.rot+=this.rotSpd;
+  if(dir>0&&this.y>H+20||dir<0&&this.y<-20) this.reset(dir<0);
+};
+Snowflake.prototype.draw = function() {
+  X.save(); X.translate(this.x,this.y); X.rotate(this.rot); X.globalAlpha=this.opa;
+  var r=this.sz;
+  if(this.onGlass){
+    X.fillStyle='rgba(225,240,255,.7)';
+    X.beginPath(); X.ellipse(0,0,r,r*0.48,0,0,Math.PI*2); X.fill();
+    X.fillStyle='rgba(255,255,255,.85)';
+    X.beginPath(); X.arc(0,0,r*0.2,0,Math.PI*2); X.fill();
+  }else{
+    var g=X.createRadialGradient(0,0,0,0,0,r);
+    g.addColorStop(0,'rgba(255,255,255,.8)'); g.addColorStop(0.45,'rgba(255,255,255,.4)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    X.fillStyle=g; X.beginPath(); X.arc(0,0,r,0,Math.PI*2); X.fill();
+  }
+  X.restore();
+};
+
+// ==================== 晴光 ====================
+function SunParticle(f) { this.reset(f); }
+SunParticle.prototype.reset = function(f) {
+  this.x=Math.random()*W; this.y=f?Math.random()*H:H+40+Math.random()*30;
+  this.sz=rand(P.sunMinSz,P.sunMaxSz);
+  this.spdy=-(0.08+Math.random()*0.25);
+  this.spdx=(Math.random()-.5)*0.15;
+  this.ph=Math.random()*Math.PI*2; this.phs=0.003+Math.random()*0.007;
+  this.al=rand(P.sunMinAl,P.sunMaxAl);
+};
+SunParticle.prototype.update = function() {
+  var gN=gravity/9.81, dir=gravity>=0?1:-1;
+  this.y+=this.spdy*gN*dir; this.x+=this.spdx; this.ph+=this.phs;
+  if(this.y<-60||this.y>H+60) this.reset(dir<0);
+};
+SunParticle.prototype.draw = function() {
+  var a=this.al*(.5+.5*Math.sin(this.ph));
+  var g=X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*5);
+  g.addColorStop(0,'rgba(255,205,85,'+a+')');
+  g.addColorStop(0.35,'rgba(255,160,40,'+(a*.3)+')');
+  g.addColorStop(1,'rgba(255,150,20,0)');
+  X.fillStyle=g; X.beginPath(); X.arc(this.x,this.y,this.sz*5,0,Math.PI*2); X.fill();
+};
+
+// ==================== 微凝结 ====================
+function renderMicroTex() {
+  if (microTex) return;
+  if (P.microCount === 0) { microTex = null; return; }
+  var off = document.createElement('canvas');
+  off.width=W*dpr; off.height=H*dpr;
+  var ctx=off.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  for(var i=0;i<P.microCount;i++){
+    var x=Math.random()*W, y=Math.random()*H;
+    var r=0.12+Math.random()*0.5;
+    var a=0.05+Math.random()*P.microMaxAlpha;
+    ctx.fillStyle='rgba(195,218,240,'+a+')';
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+  microTex=off;
+}
+
+function drawGlassBase() {
+  X.fillStyle='rgba(10,18,28,.04)'; X.fillRect(0,0,W,H);
+  [[0,0],[W,0],[0,H],[W,H]].forEach(function(c){
+    var g=X.createRadialGradient(c[0],c[1],0,c[0],c[1],W*.18);
+    g.addColorStop(0,'rgba(175,200,220,'+P.fogAlpha+')');
+    g.addColorStop(1,'rgba(175,200,220,0)');
+    X.fillStyle=g; X.beginPath(); X.arc(c[0],c[1],W*.18,0,Math.PI*2); X.fill();
+  });
+  renderMicroTex();
+  if (microTex) X.drawImage(microTex,0,0);
+}
+
+function mergeDrops() {
+  for(var i=glassDrops.length-1;i>=0;i--){
+    for(var j=i-1;j>=0;j--){
+      var a=glassDrops[i], b=glassDrops[j];
+      if(dist(a,b)<(a.r+b.r)*P.dropMergeDist){
+        var vA=Math.pow(a.r,3), vB=Math.pow(b.r,3);
+        var newR=Math.pow(vA+vB,1/3);
+        a.x=a.x*(vA/(vA+vB))+b.x*(vB/(vA+vB));
+        a.y=a.y*(vA/(vA+vB))+b.y*(vB/(vA+vB));
+        a.maxR=Math.min(newR*1.2, P.dropMaxR*1.3);
+        a.r=Math.min(newR, a.maxR);
+        a.growing=false; a.sliding=true;
+        a.slideSpeed=(0.04+a.r*P.dropSlideFactor)*Math.abs(gravity/9.81);
+        if(gravity<0) a.slideSpeed*=-1;
+        a.shape=genDropShape();
+        glassDrops.splice(j,1);
+      }
+    }
+  }
+}
+
+// ==================== 重建粒子 ====================
+function rebuildParticles() {
+  rainStreaks=[]; glassDrops=[]; snowflakes=[]; sunParticles=[]; microTex=null;
+  if(cur==='rain'){
+    for(var i=0;i<P.streakCount;i++) rainStreaks.push(new RainStreak(true));
+    for(var i=0;i<P.dropCount;i++) glassDrops.push(new GlassDrop(Math.random()*W,Math.random()*H,true));
+    for(var i=0;i<Math.floor(P.dropCount*0.4);i++) glassDrops.push(new GlassDrop());
+  }else if(cur==='snow'){
+    for(var i=0;i<P.snowCount;i++) snowflakes.push(new Snowflake(true));
+  }else if(cur==='clear'){
+    for(var i=0;i<P.sunCount;i++) sunParticles.push(new SunParticle(true));
+  }
+}
+
+function setMode(mode) {
+  cur=mode;
+  document.querySelectorAll('#modeBtns button').forEach(function(b){
+    b.classList.toggle('on',b.getAttribute('data-w')===mode);
+  });
+  rebuildParticles();
+}
+
+// ==================== 动画 ====================
+(function anim() {
+  t++; X.clearRect(0,0,W,H);
+
+  if(cur==='rain'){
+    drawGlassBase();
+    for(var i=0;i<rainStreaks.length;i++){rainStreaks[i].update();rainStreaks[i].draw();}
+    for(var i=0;i<glassDrops.length;i++) glassDrops[i].update();
+    mergeDrops();
+    for(var i=0;i<glassDrops.length;i++) glassDrops[i].draw();
+  }else if(cur==='snow'){
+    drawGlassBase();
+    for(var i=0;i<snowflakes.length;i++){snowflakes[i].update();snowflakes[i].draw();}
+  }else if(cur==='clear'){
+    for(var i=0;i<sunParticles.length;i++){sunParticles[i].update();sunParticles[i].draw();}
+  }
+
+  requestAnimationFrame(anim);
+})();
+
+// ==================== 重力滑块 ====================
+document.getElementById('gravSlider').addEventListener('input',function(){
+  gravity=parseInt(this.value)/100;
+  document.getElementById('gravDisplay').innerHTML=gravity.toFixed(2)+'<span class="unit">m/s²</span>';
+});
+
+// ==================== 模式按钮 ====================
+document.querySelectorAll('#modeBtns button').forEach(function(b){
+  b.addEventListener('click',function(){ setMode(this.getAttribute('data-w')); });
+});
+
+// ==================== 重置 ====================
+document.getElementById('resetBtn').addEventListener('click',function(){
+  resetParams();
+  buildUI();
+  rebuildParticles();
+  microTex=null;
+  // 重建 UI 后需要重新绑定滑块事件
+  document.getElementById('gravSlider').value=981;
+  gravity=9.81;
+  document.getElementById('gravDisplay').innerHTML='9.81<span class="unit">m/s²</span>';
+});
+
+// ==================== 导出 ====================
+document.getElementById('exportBtn').addEventListener('click',function(){
+  var out = JSON.stringify(P, null, 2);
+  console.log('=== 天气参数导出 ===\n'+out);
+  // 复制到剪贴板
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(out).then(function(){
+      alert('参数已复制到剪贴板！查看控制台也有输出。');
+    });
+  } else {
+    alert('参数已打印到控制台 (F12)');
+  }
+});
+
+// 启动
+buildUI();
+setMode('rain');
+</script>
+</body>
+</html>

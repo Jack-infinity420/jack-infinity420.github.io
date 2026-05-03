@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气特效 v4 — 窗·玻璃·雨</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#080e18;color:#8899aa;overflow:hidden;height:100vh;user-select:none;-webkit-user-select:none}
+
+/* 中央诗词卡片 */
+.card{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;text-align:center;pointer-events:none}
+.card .t{font-size:12px;color:#4a5a6a;letter-spacing:6px;margin-bottom:14px;font-weight:400}
+.card .p{font-size:24px;margin:8px 0;color:#c0cfe0;font-weight:400;letter-spacing:3px;text-shadow:0 0 80px rgba(180,200,220,.1)}
+.card .w{font-size:30px;margin:14px 0;font-weight:400;color:#aebfd0;letter-spacing:1px}
+
+/* 底部模式按钮 */
+.ctrl{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:12px}
+.ctrl button{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:#6a7a8a;padding:8px 22px;border-radius:24px;cursor:pointer;font-size:14px;font-weight:400;transition:all .35s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:2px}
+.ctrl button:hover{background:rgba(110,170,230,.08);border-color:rgba(110,170,230,.18);color:#b0c4d8}
+.ctrl button.on{background:rgba(100,160,220,.12);border-color:rgba(100,160,220,.3);color:#c8d8ec;box-shadow:0 0 24px rgba(100,160,220,.08)}
+
+/* ============ 重力面板 ============ */
+.gravity-panel{position:fixed;top:28px;right:28px;z-index:99;background:rgba(8,14,24,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;padding:22px 26px 20px;border:1px solid rgba(255,255,255,.05);width:300px;transition:opacity .4s}
+.gravity-panel.dim{opacity:.3;pointer-events:none}
+
+.gravity-panel .g-title{font-size:11px;color:#4a5a6a;letter-spacing:4px;margin-bottom:2px;font-weight:400}
+
+/* 行星名显示 */
+.gravity-panel .g-planet{text-align:center;min-height:50px;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:4px 0 2px}
+.gravity-panel .g-planet .gp-main{font-size:28px;font-weight:500;color:#c4d2e4;letter-spacing:2px}
+.gravity-panel .g-planet .gp-main .gp-sym{font-size:32px;margin-right:4px}
+.gravity-panel .g-planet .gp-sub{font-size:13px;color:#5a6a7a;font-weight:400;margin-top:1px;letter-spacing:1px}
+
+/* 数轴 */
+.gravity-panel .g-axis-wrap{position:relative;padding:6px 0;margin:8px -2px 0}
+.gravity-panel .g-axis-track{position:relative;height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:visible}
+.gravity-panel .g-axis-fill{position:absolute;top:0;height:100%;background:rgba(120,165,210,.18);border-radius:2px;transition:left .08s,width .08s}
+.gravity-panel .g-ticks{position:absolute;top:-8px;left:0;width:100%;height:20px;pointer-events:none}
+.gravity-panel .g-tick{position:absolute;width:2px;height:10px;background:rgba(255,255,255,.18);border-radius:1px;transform:translateX(-50%)}
+.gravity-panel .g-tick.planet{height:16px;background:rgba(190,210,230,.35);border-radius:1px}
+
+/* 自定义滑块 thumb */
+.gravity-panel .g-thumb{position:absolute;top:50%;width:24px;height:24px;border-radius:50%;background:#6e96c4;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(80,140,210,.5),0 0 4px rgba(120,160,220,.35);pointer-events:none;z-index:3;border:2px solid rgba(255,255,255,.18);transition:box-shadow .25s}
+
+/* 透明 range input 覆盖 */
+.gravity-panel input[type=range]{position:absolute;top:-8px;left:0;width:100%;height:36px;-webkit-appearance:none;background:transparent;outline:none;z-index:5;cursor:grab}
+.gravity-panel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:38px;height:38px;border-radius:50%;background:transparent;cursor:grab;border:none;box-shadow:none}
+.gravity-panel input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+.gravity-panel input[type=range]::-moz-range-thumb{width:38px;height:38px;border-radius:50%;background:transparent;cursor:grab;border:none}
+
+/* 放大镜 */
+.gravity-panel .g-mag{margin-top:14px;background:rgba(14,20,32,.8);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:14px 16px 10px;transition:all .4s;opacity:0;transform:translateY(6px);pointer-events:none;max-height:0;overflow:hidden}
+.gravity-panel .g-mag.on{opacity:1;transform:translateY(0);max-height:120px}
+.gravity-panel .g-mag .gm-title{font-size:10px;color:#4a5a6a;letter-spacing:3px;margin-bottom:2px;text-align:center;font-weight:400}
+.gravity-panel .g-mag .gm-zone{position:relative;margin:6px 0;height:36px}
+.gravity-panel .g-mag .gm-item{position:absolute;top:0;transform:translateX(-50%);text-align:center}
+.gravity-panel .g-mag .gm-sym{font-size:18px;color:#8899bb;display:block;line-height:1}
+.gravity-panel .g-mag .gm-name{font-size:13px;color:#c0cde0;font-weight:500;letter-spacing:1px}
+.gravity-panel .g-mag .gm-val{font-size:10px;color:#5a6a7a}
+.gravity-panel .g-mag .gm-line{position:absolute;bottom:2px;width:1px;height:8px;background:rgba(255,255,255,.25);border-radius:1px;transform:translateX(-50%)}
+.gravity-panel .g-mag .gm-axis{position:absolute;bottom:0;left:0;width:100%;height:2px;background:rgba(255,255,255,.1);border-radius:1px}
+.gravity-panel .g-mag .gm-cursor{position:absolute;bottom:-4px;width:2px;height:14px;background:#6e96c4;border-radius:1px;transform:translateX(-50%);box-shadow:0 0 8px rgba(80,140,210,.5)}
+
+/* 底部边界标签 */
+.gravity-panel .g-bounds{display:flex;justify-content:space-between;font-size:10px;color:#3a4a58;margin-top:4px;letter-spacing:1px;font-weight:400}
+
+/* 响应式 */
+@media(max-width:768px){
+  .gravity-panel{top:auto;bottom:90px;right:10px;width:calc(100vw - 20px);max-width:320px;padding:16px 18px 14px}
+  .gravity-panel .gp-main{font-size:24px}
+  .gravity-panel .gp-sym{font-size:26px}
+  .card .p{font-size:20px}
+  .card .w{font-size:25px}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="t">窗 外</div>
+  <div class="p" id="poem">好雨知时节，当春乃发生</div>
+  <div class="w" id="wicon">🌧 微雨 · 17°</div>
+</div>
+
+<div class="gravity-panel" id="gravPanel">
+  <div class="g-title">引 力</div>
+  <div class="g-planet" id="planetDisplay">
+    <div class="gp-main"><span class="gp-sym">♁</span>地球</div>
+    <div class="gp-sub">9.81 m/s² · 雨落如常</div>
+  </div>
+  <div class="g-axis-wrap" id="axisWrap">
+    <div class="g-axis-track">
+      <div class="g-axis-fill" id="axisFill"></div>
+      <div class="g-ticks" id="ticksLayer"></div>
+      <div class="g-thumb" id="thumb"></div>
+    </div>
+    <input type="range" id="gSlider" min="-2479" max="2479" value="981" step="1">
+  </div>
+  <div class="g-bounds"><span>−24.79</span><span>0</span><span>+24.79</span></div>
+  <div class="g-mag" id="magnifier">
+    <div class="gm-title">局部放大</div>
+    <div class="gm-zone" id="magZone">
+      <div class="gm-axis"></div>
+    </div>
+  </div>
+</div>
+
+<div class="ctrl">
+  <button data-w="rain" class="on">微 雨</button>
+  <button data-w="snow">疏 雪</button>
+  <button data-w="clear">晴 光</button>
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+// ============================================================
+//  v4 Engine — 窗·玻璃·雨
+//  纯 Canvas 2D · 不完美圆 · 镜面高光 · 滑动拖尾 · 水滴合并
+//  重力: -24.79 ~ +24.79 m/s², 行星吸附 + 显微放大
+// ============================================================
+
+var C = document.getElementById('c'), X = C.getContext('2d');
+var W, H, dpr, t = 0, cur = 'rain';
+var rainStreaks = [], glassDrops = [], snowflakes = [], sunParticles = [];
+var microTex = null;
+
+// 重力 m/s²，默认地球
+var gravity = 9.81;
+
+function resize() {
+  dpr = devicePixelRatio || 1;
+  W = innerWidth; H = innerHeight;
+  C.width = W * dpr; C.height = H * dpr;
+  C.style.width = W + 'px'; C.style.height = H + 'px';
+  X.setTransform(dpr, 0, 0, dpr, 0, 0);
+  microTex = null;
+}
+resize();
+addEventListener('resize', resize);
+
+// ==================== 工具 ====================
+function rand(a,b) { return a + Math.random()*(b-a); }
+function dist(a,b) { var dx=a.x-b.x,dy=a.y-b.y; return Math.sqrt(dx*dx+dy*dy); }
+
+// 不完美圆顶点（预生成，每滴形状固定）
+function genDropShape() {
+  var n = 20, verts = [];
+  var irr = rand(0.05, 0.15);
+  for (var i = 0; i < n; i++) {
+    var a = (i/n)*Math.PI*2;
+    var r = 1 + (Math.random()-0.5)*irr*2;
+    verts.push({ cos: Math.cos(a)*r, sin: Math.sin(a)*r });
+  }
+  return verts;
+}
+
+// ==================== 玻璃水滴 ====================
+function GlassDrop(x, y, placed) {
+  if (placed) {
+    this.x = x !== undefined ? x : Math.random()*W;
+    this.y = y !== undefined ? y : Math.random()*H;
+    this.r = rand(3, 7);
+    this.maxR = this.r;
+    this.growing = false;
+  } else {
+    this.x = x !== undefined ? x : Math.random()*W;
+    this.y = y !== undefined ? y : -(8 + Math.random()*20);
+    this.r = rand(0.6, 1.4);
+    this.maxR = rand(3, 7.5);
+    this.growing = true;
+  }
+  this.sliding = !this.growing;
+  this.slideSpeed = this.sliding ? (0.04 + this.r*0.1) * Math.abs(gravity/9.81) : 0;
+  this.shape = genDropShape();
+  this.trail = [];
+  this.trailTimer = 0;
+}
+
+GlassDrop.prototype.update = function() {
+  var gNorm = gravity / 9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+
+  if (this.growing) {
+    this.r += rand(0.012, 0.035);
+    if (this.r >= this.maxR) {
+      this.r = this.maxR;
+      this.growing = false;
+      this.sliding = true;
+      this.slideSpeed = (0.04 + this.maxR*0.1) * Math.abs(gNorm);
+      if (dir < 0) this.slideSpeed *= -1;
+    }
+  }
+
+  if (this.sliding) {
+    this.trailTimer++;
+    if (this.trailTimer % 2 === 0 && this.trail.length < 80) {
+      this.trail.push({ x: this.x, y: this.y, r: this.r, a: 0.55 });
+    }
+    if (Math.abs(gravity) > 0.05) {
+      this.y += this.slideSpeed;
+    }
+    for (var i = this.trail.length-1; i >= 0; i--) {
+      this.trail[i].a -= 0.005;
+      if (this.trail[i].a <= 0) this.trail.splice(i,1);
+    }
+    if (dir > 0 && this.y - this.r > H + 80) this.reset(dir);
+    else if (dir < 0 && this.y + this.r < -80) this.reset(dir);
+  }
+};
+
+GlassDrop.prototype.reset = function(dir) {
+  this.y = dir > 0 ? -10 - Math.random()*40 : H + 10 + Math.random()*40;
+  this.x = Math.random()*W;
+  this.r = rand(0.6, 1.4);
+  this.maxR = rand(2.5, 6.5);
+  this.growing = true;
+  this.sliding = false;
+  this.slideSpeed = 0;
+  this.trail = [];
+  this.trailTimer = 0;
+  this.shape = genDropShape();
+};
+
+// 画单个水滴形状
+GlassDrop.prototype.paintDrop = function(cx, cy, r, alpha, lit) {
+  if (r < 0.2) return;
+  X.save();
+  X.globalAlpha = alpha;
+
+  // 形状
+  X.beginPath();
+  var s = this.shape;
+  X.moveTo(cx + s[0].cos*r, cy + s[0].sin*r);
+  for (var i = 1; i < s.length; i++) {
+    X.lineTo(cx + s[i].cos*r, cy + s[i].sin*r);
+  }
+  X.closePath();
+
+  // 水体 —— 更不透明，暖灰蓝
+  var bg = X.createRadialGradient(cx - r*0.12, cy - r*0.22, r*0.03, cx, cy, r);
+  bg.addColorStop(0, 'rgba(195,218,240,0.75)');
+  bg.addColorStop(0.45, 'rgba(155,190,220,0.45)');
+  bg.addColorStop(0.8, 'rgba(110,150,185,0.18)');
+  bg.addColorStop(1, 'rgba(70,110,145,0.05)');
+  X.fillStyle = bg;
+  X.fill();
+
+  // 边缘 —— 更亮更粗
+  X.strokeStyle = 'rgba(175,210,235,0.40)';
+  X.lineWidth = 0.5;
+  X.stroke();
+
+  // 镜面高光（仅主水滴）
+  if (lit && r > 0.6) {
+    // 主高光（左上）
+    var hx = cx - r*0.24;
+    var hy = cy - r*0.28;
+    var hg = X.createRadialGradient(hx, hy, 0, hx, hy, r*0.28);
+    hg.addColorStop(0, 'rgba(255,255,255,0.9)');
+    hg.addColorStop(0.08, 'rgba(255,255,255,0.65)');
+    hg.addColorStop(0.35, 'rgba(255,255,255,0.1)');
+    hg.addColorStop(1, 'rgba(255,255,255,0)');
+    X.fillStyle = hg;
+    X.beginPath(); X.arc(hx, hy, r*0.28, 0, Math.PI*2); X.fill();
+
+    // 底部反光
+    var bx = cx + r*0.2;
+    var by = cy + r*0.36;
+    var bgrad = X.createRadialGradient(bx, by, 0, bx, by, r*0.1);
+    bgrad.addColorStop(0, 'rgba(255,255,255,0.45)');
+    bgrad.addColorStop(1, 'rgba(255,255,255,0)');
+    X.fillStyle = bgrad;
+    X.beginPath(); X.arc(bx, by, r*0.1, 0, Math.PI*2); X.fill();
+  }
+
+  X.restore();
+};
+
+GlassDrop.prototype.draw = function() {
+  // 拖尾（湿痕）
+  for (var i = 0; i < this.trail.length; i++) {
+    var tr = this.trail[i];
+    var frac = i / Math.max(this.trail.length, 1);
+    var trailR = this.r * (0.2 + 0.4*frac);
+    this.paintDrop(tr.x, tr.y, trailR, tr.a*0.25, false);
+  }
+  // 主体
+  this.paintDrop(this.x, this.y, this.r, 0.92, true);
+};
+
+// ==================== 远景雨丝 ====================
+function RainStreak(fresh) { this.reset(fresh); }
+RainStreak.prototype.reset = function(fresh) {
+  this.x = Math.random()*W;
+  this.y = fresh ? Math.random()*H : -(30+Math.random()*80);
+  this.len = 14 + Math.random()*30;
+  this.spd = 4 + Math.random()*10;
+  this.opa = 0.12 + Math.random()*0.32;
+  this.wd = 0.2 + Math.random()*0.7;
+  this.ang = 0.02 + Math.random()*0.05;
+};
+RainStreak.prototype.update = function() {
+  var gN = gravity/9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+  this.y += this.spd * gN * dir;
+  this.x += this.spd * this.ang * gN * dir * 0.3;
+  if (dir > 0 && this.y > H+40 || dir < 0 && this.y < -40) this.reset(dir < 0);
+};
+RainStreak.prototype.draw = function() {
+  var tx = this.x - this.len*this.ang*0.3;
+  var ty = this.y - this.len;
+  var g = X.createLinearGradient(tx, ty, this.x, this.y);
+  g.addColorStop(0, 'rgba(150,190,225,0)');
+  g.addColorStop(0.35, 'rgba(150,190,225,'+(this.opa*0.2)+')');
+  g.addColorStop(1, 'rgba(150,190,225,'+this.opa+')');
+  X.beginPath();
+  X.strokeStyle = g; X.lineWidth = this.wd; X.lineCap = 'round';
+  X.moveTo(tx, ty); X.lineTo(this.x, this.y);
+  X.stroke();
+};
+
+// ==================== 雪花 ====================
+function Snowflake(fresh) { this.reset(fresh); }
+Snowflake.prototype.reset = function(fresh) {
+  this.x = Math.random()*W;
+  this.y = fresh ? Math.random()*H : -(20+Math.random()*30);
+  this.sz = 2 + Math.random()*6;
+  this.spdy = 0.2 + Math.random()*1;
+  this.swayA = 0.4 + Math.random()*1.6;
+  this.swayF = 0.0003 + Math.random()*0.001;
+  this.swayP = Math.random()*Math.PI*2;
+  this.opa = 0.2 + Math.random()*0.5;
+  this.rot = Math.random()*Math.PI*2;
+  this.rotSpd = (Math.random()-0.5)*0.01;
+  this.onGlass = Math.random() < 0.3;
+};
+Snowflake.prototype.update = function() {
+  var gN = gravity/9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+  this.y += this.spdy * gN * dir;
+  this.x += Math.sin(t*this.swayF+this.swayP)*this.swayA*0.25;
+  this.rot += this.rotSpd;
+  if (dir > 0 && this.y > H+20 || dir < 0 && this.y < -20) this.reset(dir < 0);
+};
+Snowflake.prototype.draw = function() {
+  X.save(); X.translate(this.x, this.y); X.rotate(this.rot); X.globalAlpha = this.opa;
+  var r = this.sz;
+  if (this.onGlass) {
+    X.fillStyle = 'rgba(225,240,255,.7)';
+    X.beginPath(); X.ellipse(0, 0, r, r*0.48, 0, 0, Math.PI*2); X.fill();
+    X.fillStyle = 'rgba(255,255,255,.85)';
+    X.beginPath(); X.arc(0, 0, r*0.2, 0, Math.PI*2); X.fill();
+  } else {
+    var g = X.createRadialGradient(0,0,0,0,0,r);
+    g.addColorStop(0, 'rgba(255,255,255,.8)');
+    g.addColorStop(0.45, 'rgba(255,255,255,.4)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    X.fillStyle = g; X.beginPath(); X.arc(0,0,r,0,Math.PI*2); X.fill();
+  }
+  X.restore();
+};
+
+// ==================== 晴光 ====================
+function SunParticle(fresh) { this.reset(fresh); }
+SunParticle.prototype.reset = function(fresh) {
+  this.x = Math.random()*W;
+  this.y = fresh ? Math.random()*H : H+40+Math.random()*30;
+  this.sz = 3+Math.random()*7;
+  this.spdy = -(0.08+Math.random()*0.25);
+  this.spdx = (Math.random()-0.5)*0.15;
+  this.ph = Math.random()*Math.PI*2;
+  this.phs = 0.003+Math.random()*0.007;
+  this.al = 0.06+Math.random()*0.16;
+};
+SunParticle.prototype.update = function() {
+  var gN = gravity/9.81;
+  var dir = gravity >= 0 ? 1 : -1;
+  this.y += this.spdy * gN * dir;
+  this.x += this.spdx;
+  this.ph += this.phs;
+  if (this.y < -60 || this.y > H+60) this.reset(dir < 0);
+};
+SunParticle.prototype.draw = function() {
+  var a = this.al*(0.5+0.5*Math.sin(this.ph));
+  var g = X.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*5);
+  g.addColorStop(0, 'rgba(255,205,85,'+a+')');
+  g.addColorStop(0.35, 'rgba(255,160,40,'+(a*0.3)+')');
+  g.addColorStop(1, 'rgba(255,150,20,0)');
+  X.fillStyle = g; X.beginPath(); X.arc(this.x,this.y,this.sz*5,0,Math.PI*2); X.fill();
+};
+
+// ==================== 微凝结纹理 ====================
+function renderMicroTex() {
+  if (microTex) return;
+  var off = document.createElement('canvas');
+  off.width = W*dpr; off.height = H*dpr;
+  var ctx = off.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  for (var i = 0; i < 600; i++) {
+    var x = Math.random()*W, y = Math.random()*H;
+    var r = 0.12 + Math.random()*0.5;
+    var a = 0.05 + Math.random()*0.14;
+    ctx.fillStyle = 'rgba(195,218,240,'+a+')';
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+  microTex = off;
+}
+
+// ==================== 玻璃基底 ====================
+function drawGlassBase() {
+  X.fillStyle = 'rgba(10,18,28,.04)'; X.fillRect(0,0,W,H);
+  // 四角雾气
+  [[0,0],[W,0],[0,H],[W,H]].forEach(function(c){
+    var g = X.createRadialGradient(c[0],c[1],0,c[0],c[1],W*.18);
+    g.addColorStop(0, 'rgba(175,200,220,.02)');
+    g.addColorStop(1, 'rgba(175,200,220,0)');
+    X.fillStyle = g; X.beginPath(); X.arc(c[0],c[1],W*.18,0,Math.PI*2); X.fill();
+  });
+  renderMicroTex();
+  X.drawImage(microTex,0,0);
+}
+
+// ==================== 水滴合并 ====================
+function mergeDrops() {
+  for (var i = glassDrops.length-1; i >= 0; i--) {
+    for (var j = i-1; j >= 0; j--) {
+      var a = glassDrops[i], b = glassDrops[j];
+      if (dist(a,b) < (a.r+b.r)*0.65) {
+        var vA = Math.pow(a.r,3), vB = Math.pow(b.r,3);
+        var newR = Math.pow(vA+vB, 1/3);
+        a.x = a.x*(vA/(vA+vB)) + b.x*(vB/(vA+vB));
+        a.y = a.y*(vA/(vA+vB)) + b.y*(vB/(vA+vB));
+        a.maxR = Math.min(newR*1.2, 8);
+        a.r = Math.min(newR, a.maxR);
+        a.growing = false; a.sliding = true;
+        a.slideSpeed = (0.04 + a.r*0.1) * Math.abs(gravity/9.81);
+        if (gravity < 0) a.slideSpeed *= -1;
+        a.shape = genDropShape();
+        glassDrops.splice(j,1);
+      }
+    }
+  }
+}
+
+// ==================== 模式切换 ====================
+var poems = {
+  rain: '好雨知时节，当春乃发生',
+  snow: '忽如一夜春风来，千树万树梨花开',
+  clear: '晴空一鹤排云上，便引诗情到碧霄'
+};
+var icons = {
+  rain: '🌧 微雨',
+  snow: '❄ 疏雪',
+  clear: '☀ 晴光'
+};
+
+function setMode(mode) {
+  cur = mode;
+  rainStreaks = []; glassDrops = []; snowflakes = []; sunParticles = []; microTex = null;
+
+  if (mode === 'rain') {
+    for (var i = 0; i < 100; i++) rainStreaks.push(new RainStreak(true));
+    // 预放置成熟水滴
+    for (var i = 0; i < 45; i++) {
+      glassDrops.push(new GlassDrop(Math.random()*W, Math.random()*H, true));
+    }
+    // 新生水滴
+    for (var i = 0; i < 20; i++) glassDrops.push(new GlassDrop());
+  } else if (mode === 'snow') {
+    for (var i = 0; i < 75; i++) snowflakes.push(new Snowflake(true));
+  } else if (mode === 'clear') {
+    for (var i = 0; i < 40; i++) sunParticles.push(new SunParticle(true));
+  }
+
+  document.getElementById('poem').textContent = poems[mode];
+  document.getElementById('wicon').textContent = icons[mode] + ' · 17°';
+  document.querySelectorAll('.ctrl button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-w') === mode);
+  });
+  document.getElementById('gravPanel').classList.toggle('dim', mode === 'clear');
+}
+
+// ==================== 动画 ====================
+(function anim() {
+  t++;
+  X.clearRect(0, 0, W, H);
+
+  if (cur === 'rain') {
+    drawGlassBase();
+    for (var i = 0; i < rainStreaks.length; i++) { rainStreaks[i].update(); rainStreaks[i].draw(); }
+    for (var i = 0; i < glassDrops.length; i++) glassDrops[i].update();
+    mergeDrops();
+    for (var i = 0; i < glassDrops.length; i++) glassDrops[i].draw();
+  } else if (cur === 'snow') {
+    drawGlassBase();
+    for (var i = 0; i < snowflakes.length; i++) { snowflakes[i].update(); snowflakes[i].draw(); }
+  } else if (cur === 'clear') {
+    for (var i = 0; i < sunParticles.length; i++) { sunParticles[i].update(); sunParticles[i].draw(); }
+  }
+
+  requestAnimationFrame(anim);
+})();
+
+// ==================== 模式按钮 ====================
+document.querySelectorAll('.ctrl button').forEach(function(b){
+  b.addEventListener('click', function(){ setMode(this.getAttribute('data-w')); });
+});
+
+// ==================== 重力控制 ====================
+var planets = [
+  { name: '木星', sym: '♃', g: 24.79, hint: '暴雨如箭' },
+  { name: '海王星', sym: '♆', g: 11.15, hint: '雨势迅疾' },
+  { name: '土星', sym: '♄', g: 10.44, hint: '雨落有力' },
+  { name: '地球', sym: '♁', g: 9.81, hint: '雨落如常' },
+  { name: '金星', sym: '♀', g: 8.87, hint: '与地球相仿' },
+  { name: '火星', sym: '♂', g: 3.71, hint: '雨丝轻缓' },
+  { name: '月球', sym: '☽', g: 1.62, hint: '雨滴漂浮' },
+  { name: '冥王星', sym: '⯓', g: 0.62, hint: '近乎失重' },
+];
+
+var denseZones = [
+  { min: 8.0, max: 12.0, planets: ['金星','地球','土星','海王星'] }
+];
+
+var SNAP_THRESHOLD = 0.25;
+
+var slider = document.getElementById('gSlider');
+var thumb = document.getElementById('thumb');
+var axisFill = document.getElementById('axisFill');
+var planetDisplay = document.getElementById('planetDisplay');
+var magnifier = document.getElementById('magnifier');
+var magZone = document.getElementById('magZone');
+var ticksLayer = document.getElementById('ticksLayer');
+
+function g2pos(g) { return ((g + 24.79) / 49.58) * 100; }
+
+function buildTicks() {
+  var html = '<div class="g-tick" style="left:'+g2pos(0).toFixed(1)+'%"></div>';
+  planets.forEach(function(p){
+    html += '<div class="g-tick planet" style="left:'+g2pos(p.g).toFixed(1)+'%"></div>';
+  });
+  ticksLayer.innerHTML = html;
+}
+
+function snapG(val) {
+  var abs = Math.abs(val);
+  if (abs < 0.03) return 0;
+  for (var i = 0; i < planets.length; i++) {
+    if (Math.abs(abs - planets[i].g) < SNAP_THRESHOLD) {
+      return (val > 0 ? 1 : -1) * planets[i].g;
+    }
+  }
+  return val;
+}
+
+function findClosest(absG) {
+  if (absG < 0.05) return {name:'零重力', sym:'○', g:0, hint:'雨滴悬停'};
+  var best = null, bestD = Infinity;
+  for (var i = 0; i < planets.length; i++) {
+    var d = Math.abs(absG - planets[i].g);
+    if (d < bestD) { bestD = d; best = planets[i]; }
+  }
+  return bestD < 0.55 ? best : null;
+}
+
+function findDenseZone(val) {
+  for (var i = 0; i < denseZones.length; i++) {
+    if (val >= denseZones[i].min && val <= denseZones[i].max) return denseZones[i];
+  }
+  return null;
+}
+
+function buildMagnifier(zone, curVal) {
+  var range = zone.max - zone.min;
+  var pad = range * 0.15;
+  var vMin = zone.min - pad, vMax = zone.max + pad, vRange = vMax - vMin;
+
+  var html = '';
+  zone.planets.forEach(function(name){
+    var p = planets.find(function(pl){ return pl.name === name; });
+    if (!p) return;
+    var pos = ((p.g - vMin)/vRange)*100;
+    html += '<div class="gm-item" style="left:'+pos.toFixed(1)+'%">';
+    html += '<span class="gm-sym">'+p.sym+'</span>';
+    html += '<span class="gm-name">'+p.name+'</span>';
+    html += '<span class="gm-val">'+p.g.toFixed(2)+' m/s²</span>';
+    html += '</div>';
+    html += '<div class="gm-line" style="left:'+pos.toFixed(1)+'%"></div>';
+  });
+  var cp = ((curVal - vMin)/vRange)*100;
+  cp = Math.max(1, Math.min(99, cp));
+  html += '<div class="gm-cursor" style="left:'+cp.toFixed(1)+'%"></div>';
+  html += '<div class="gm-axis"></div>';
+  magZone.innerHTML = html;
+}
+
+function updateGravity(val) {
+  var g = val / 100;
+  var absG = Math.abs(g);
+
+  // 吸附
+  var snapped = snapG(g);
+  if (snapped !== g) {
+    slider.value = Math.round(snapped * 100);
+    g = snapped;
+    absG = Math.abs(g);
+    gravity = g;
+  } else {
+    gravity = g;
+  }
+
+  // 视觉更新
+  var pos = g2pos(g);
+  thumb.style.left = pos.toFixed(1) + '%';
+  var zeroPos = g2pos(0);
+  if (g >= 0) {
+    axisFill.style.left = zeroPos.toFixed(1) + '%';
+    axisFill.style.width = (pos - zeroPos).toFixed(1) + '%';
+  } else {
+    axisFill.style.left = pos.toFixed(1) + '%';
+    axisFill.style.width = (zeroPos - pos).toFixed(1) + '%';
+  }
+
+  // 行星名
+  var closest = findClosest(absG);
+  var zone = findDenseZone(absG);
+
+  if (g < 0 && !closest) {
+    planetDisplay.innerHTML = '<div class="gp-main" style="color:#6a7a8a">逆向重力</div><div class="gp-sub">−'+absG.toFixed(2)+' m/s²</div>';
+  } else if (!closest) {
+    planetDisplay.innerHTML = '<div class="gp-main" style="color:#7a8a9a">自由重力</div><div class="gp-sub">'+absG.toFixed(2)+' m/s²</div>';
+  } else {
+    var prefix = g < 0 ? '−' : '';
+    planetDisplay.innerHTML = '<div class="gp-main"><span class="gp-sym">'+closest.sym+'</span>'+closest.name+'</div><div class="gp-sub">'+prefix+closest.g.toFixed(2)+' m/s² · '+closest.hint+'</div>';
+  }
+
+  // 放大镜
+  if (zone) {
+    magnifier.classList.add('on');
+    buildMagnifier(zone, absG);
+  } else {
+    magnifier.classList.remove('on');
+  }
+}
+
+slider.addEventListener('input', function() {
+  updateGravity(parseInt(this.value));
+});
+
+slider.addEventListener('change', function() {
+  var g = parseInt(slider.value) / 100;
+  var snapped = snapG(g);
+  if (snapped !== g) {
+    slider.value = Math.round(snapped * 100);
+    updateGravity(Math.round(snapped * 100));
+  }
+});
+
+addEventListener('resize', function() {
+  microTex = null;
+  buildTicks();
+});
+
+// 启动
+buildTicks();
+updateGravity(981);
+setMode('rain');
+</script>
+</body>
+</html>
