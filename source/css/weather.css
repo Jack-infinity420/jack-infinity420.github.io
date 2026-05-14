@@ -1,12 +1,6 @@
-/* ===== Canvas 容器 ===== */
+/* ===== 天气粒子层已停用；保留选择器以免遗留节点占位 ===== */
 #weather-particles-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
+  display: none !important;
 }
 
 /* ============================================================
@@ -504,4 +498,12 @@
 [data-theme='dark'] .mobile-weather .wc-greeting,
 [data-theme='dark'] .mobile-weather .wc-weather {
   color: #c0c8d0;
+}
+
+/* ===== Butterfly 侧栏/移动端欢迎卡片：关闭过渡动画（仅保留信息展示）===== */
+.card-weather,
+.card-weather::before,
+.weather-mobile-bar {
+  transition: none !important;
+  animation: none !important;
 }

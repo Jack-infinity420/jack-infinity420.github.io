@@ -1091,9 +1091,7 @@ inject:
     - <script src="/js/weather.js"></script>
     - <script src="/js/poetry.js"></script>
     - <script src="/js/daynight.js"></script>
-    - <script src="/js/weather-particles.js"></script>
     - <script src="/js/weather-card.js"></script>
-    - <script src="/js/weather-panel.js"></script>
     - <script src="/js/weather-init.js"></script>
 
 # CDN Settings - Optimized for China CDN

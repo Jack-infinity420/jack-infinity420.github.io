@@ -30,8 +30,12 @@
     var fixedPoem = config.fixed_poem || '海内存知己，天涯若比邻';
     var poemFallback = config.poem_fallback || fixedPoem;
     var greeting = config.greeting_template || '{time_period}好，欢迎来自{province}·{city}的同志';
-    var hintDesktop = config.switch_hint_desktop || '💡 点击右下角 ☁️ 切换天气';
-    var hintMobile = config.switch_hint_mobile || '💡 点击 ☁️ 切换天气';
+    var hintDesktop = (config.switch_hint_desktop != null && String(config.switch_hint_desktop).trim() !== '')
+      ? config.switch_hint_desktop
+      : '';
+    var hintMobile = (config.switch_hint_mobile != null && String(config.switch_hint_mobile).trim() !== '')
+      ? config.switch_hint_mobile
+      : '';
 
     var province = data.province || '';
     var city = data.city || '';
@@ -72,7 +76,7 @@
         '<div class="weather-poem-location">—— ' + escapeHtml(locationStr) + '</div>' +
         '<div class="weather-divider"></div>' +
         '<div class="weather-info">' + weatherIcon + ' ' + escapeHtml(weatherLabel) + ' · ' + escapeHtml(temp) + '°C</div>' +
-        '<div class="weather-hint">' + escapeHtml(hintDesktop) + '</div>';
+        (hintDesktop ? '<div class="weather-hint">' + escapeHtml(hintDesktop) + '</div>' : '');
 
       var announcement = aside.querySelector('.card-announcement');
       var author = aside.querySelector('.card-info');
@@ -98,7 +102,7 @@
         '<span class="weather-greeting-m">' + escapeHtml(greetingText) + '</span>' +
         '<span class="weather-api-poem-m">「' + escapeHtml(poemContent) + '」 —— ' + escapeHtml(locationStr) + '</span>' +
         '<span class="weather-info-m">' + weatherIcon + ' ' + escapeHtml(weatherLabel) + ' · ' + escapeHtml(temp) + '°C</span>' +
-        '<span class="weather-hint-m">' + escapeHtml(hintMobile) + '</span>';
+        (hintMobile ? '<span class="weather-hint-m">' + escapeHtml(hintMobile) + '</span>' : '');
 
       contentInner.appendChild(bar);
     }

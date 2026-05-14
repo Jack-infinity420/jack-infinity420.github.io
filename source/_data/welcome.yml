@@ -10,11 +10,9 @@ greeting_template: "{time_period}好，欢迎来自{province}·{city}的同志"
 # 当今日诗词 API 失败时的降级诗句
 poem_fallback: "海内存知己，天涯若比邻"
 
-# 天气切换提示文本
-# 桌面端
-switch_hint_desktop: "💡 点击右下角 ☁️ 切换天气"
-# 手机端
-switch_hint_mobile: "💡 点击 ☁️ 切换天气"
+# 天气切换提示（已关闭粒子/面板后留空；需要时可填纯文案）
+switch_hint_desktop: ""
+switch_hint_mobile: ""
 
 # 天气类型中文映射
 weather_labels:
