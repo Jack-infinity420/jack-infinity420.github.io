@@ -14,6 +14,7 @@ timezone: ''
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
 url: https://lvjf.space
+root: /blog/
 permalink: posts/:abbrlink.html
 permalink_defaults:
 pretty_urls:
@@ -28,7 +29,9 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
+# Raw HTML landing (Three.js cosmic intro) — copy through without template processing
 skip_render:
+  - cosmic-intro/**
 
 # Writing
 new_post_name: :title.md # File name of new posts
@@ -144,10 +147,13 @@ encrypt:
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
-deploy:
-  type: git
-  repo: git@github.com:Jack-infinity420/jack-infinity420.github.io.git
-  branch: main
+## ⚠ 请勿使用 hexo deploy — public/ 缺少 intro 门禁页。
+## 改为: hexo generate && node tools/assemble-deploy.js
+## 然后 force-push public-deploy/ 到服务器。
+# deploy:
+#   type: git
+#   repo: git@github.com:Jack-infinity420/jack-infinity420.github.io.git
+#   branch: main
 
 # Baidu URL Submit
 ## https://github.com/huiwang/hexo-baidu-url-submit
