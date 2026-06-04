@@ -31,3 +31,26 @@
   width: 110px;
   height: 110px;
 }
+
+/* 重返地球 — portal accent in nav */
+#nav .menus_item a.site-page[href*="replay=1"] {
+  padding: 4px 14px;
+  margin-left: 4px;
+  border: 1px solid rgba(100, 150, 220, 0.22);
+  border-radius: 6px;
+  background: rgba(100, 150, 220, 0.05);
+  color: rgba(180, 210, 245, 0.85);
+  letter-spacing: 0.06em;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#nav .menus_item a.site-page[href*="replay=1"]:hover {
+  border-color: rgba(140, 190, 255, 0.45);
+  background: rgba(100, 150, 220, 0.10);
+  color: rgba(210, 230, 255, 0.95);
+  box-shadow: 0 0 18px rgba(80, 130, 210, 0.10);
+}
+
+#nav .menus_item a.site-page[href*="replay=1"]:not(.child)::after {
+  display: none;
+}

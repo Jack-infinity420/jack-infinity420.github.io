@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
-    "start": "hexo server",
-    "clean": "hexo clean",
-    "deploy": "hexo deploy",
-    "server": "hexo server",
-    "vercel-build": "hexo clean && hexo generate"
+    "build": "node node_modules/hexo-cli/bin/hexo generate",
+    "start": "node node_modules/hexo-cli/bin/hexo server --static",
+    "clean": "node node_modules/hexo-cli/bin/hexo clean",
+    "deploy": "git push origin main",
+    "server": "node node_modules/hexo-cli/bin/hexo server --static",
+    "server:watch": "node node_modules/hexo-cli/bin/hexo server",
+    "build:deploy": "node node_modules/hexo-cli/bin/hexo clean && node node_modules/hexo-cli/bin/hexo generate && node tools/assemble-deploy.js",
+    "vercel-build": "node node_modules/hexo-cli/bin/hexo clean && node node_modules/hexo-cli/bin/hexo generate"
   },
   "hexo": {
     "version": "8.1.1"

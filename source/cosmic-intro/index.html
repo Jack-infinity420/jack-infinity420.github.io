@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>INFINITY</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gruppo&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -143,7 +140,7 @@
     position:fixed; top:0; left:0;
     width:100vw; height:100vh;
     z-index:4; pointer-events:none;
-    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.52) 100%);
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,0.34) 100%);
   }
 
   @media (max-width:600px) {
@@ -250,31 +247,70 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    "three": "/blog/vendor/three/three.module.js",
+    "three/addons/": "/blog/vendor/three/addons/"
   }
 }
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // ============================================================
 // Textures — local high-quality (from 3d-world reference)
 // ============================================================
-var IMG_BASE = window.location.pathname.indexOf('/blog/') === 0 ? '/blog/images/cosmic' : '/images/cosmic';
-const TEX_EARTH       = IMG_BASE + '/earth-hd.jpg';
-const TEX_EARTH_NIGHT = IMG_BASE + '/8k_earth_nightmap.jpg';
-const TEX_BUMP        = IMG_BASE + '/earth-bump.jpg';
-const TEX_CLOUD       = IMG_BASE + '/clouds-hd.png';
-const TEX_MOON        = IMG_BASE + '/moon.jpg';
-const TEX_MARS        = IMG_BASE + '/8k_mars.jpg';
-const TEX_MILKYWAY    = IMG_BASE + '/8k_stars_milky_way.jpg';
+const PREFERS_REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CPU_CORES = navigator.hardwareConcurrency || 4;
+const DEVICE_MEMORY = navigator.deviceMemory || 8;
+const IS_SMALL_VIEWPORT = window.innerWidth < 760;
+const QUALITY =
+  PREFERS_REDUCED_MOTION || IS_SMALL_VIEWPORT || CPU_CORES <= 4 || DEVICE_MEMORY <= 4
+    ? 'low'
+    : (window.innerWidth >= 1440 && CPU_CORES >= 8 && DEVICE_MEMORY >= 8 ? 'high' : 'medium');
+const DPR_LIMIT = QUALITY === 'high' ? 1.6 : QUALITY === 'medium' ? 1.35 : 1.1;
+const STAR_DENSITY = QUALITY === 'high' ? 1.18 : QUALITY === 'medium' ? 1 : 0.78;
+const STAR_BRIGHTNESS = QUALITY === 'high' ? 1.35 : QUALITY === 'medium' ? 1.55 : 1.7;
+const USE_POSTPROCESSING = QUALITY === 'high';
+const SITE_ROOT = window.location.pathname.indexOf('/blog/') === 0 ? '/blog/' : '/';
+const IMG_BASE = SITE_ROOT + 'images/cosmic';
+const OPT_BASE = SITE_ROOT + 'opt-images';
+const TEX_FALLBACKS = new Map();
+
+function getRenderPixelRatio() {
+  return Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+}
+
+function scaledCount(count) {
+  return Math.max(80, Math.round(count * STAR_DENSITY));
+}
+
+function textureURL(optimizedName, fallbackFile, forceOriginal) {
+  const fallback = IMG_BASE + '/' + fallbackFile;
+  const primary = forceOriginal || QUALITY === 'high'
+    ? fallback
+    : OPT_BASE + '/' + optimizedName + '-1280w.webp';
+  TEX_FALLBACKS.set(primary, fallback);
+  return primary;
+}
+
+const TEX_EARTH       = textureURL('earth-hd', 'earth-hd.jpg', true);
+const TEX_EARTH_NIGHT = textureURL('8k_earth_nightmap', '8k_earth_nightmap.jpg', false);
+const TEX_BUMP        = textureURL('earth-bump', 'earth-bump.jpg', true);
+const TEX_CLOUD       = textureURL('clouds-hd', 'clouds-hd.png', false);
+const TEX_MOON        = textureURL('moon', 'moon.jpg', true);
+const TEX_MARS        = textureURL('8k_mars', '8k_mars.jpg', false);
+const TEX_MILKYWAY    = textureURL('8k_stars_milky_way', '8k_stars_milky_way.jpg', false);
 
 const T = new THREE.TextureLoader();
+function loadTexture(url) {
+  const tex = T.load(url, undefined, undefined, () => {
+    const fallback = TEX_FALLBACKS.get(url);
+    if (!fallback || fallback === url) return;
+    T.load(fallback, loaded => {
+      tex.image = loaded.image;
+      tex.needsUpdate = true;
+    });
+  });
+  return tex;
+}
 
 // ============================================================
 // Procedural textures (CORS-free, zero external deps)
@@ -303,9 +339,19 @@ function makeSunGlowTex() {
 // Core setup
 // ============================================================
 const canvas = document.getElementById('bg-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
+canvas.addEventListener('webglcontextlost', event => {
+  event.preventDefault();
+  document.body.classList.add('webgl-recovering');
+  setTimeout(() => window.location.reload(), 600);
+}, false);
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: QUALITY !== 'low',
+  alpha: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(getRenderPixelRatio());
+renderer.setSize(window.innerWidth, window.innerHeight, false);
 
 const scene = new THREE.Scene();
 
@@ -373,6 +419,8 @@ function createStarLayer(count, radius, size, colorHex) {
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   const mat = new THREE.PointsMaterial({
     size, color: new THREE.Color(colorHex),
+    opacity: Math.min(1, 0.72 * STAR_BRIGHTNESS),
+    transparent: true,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
@@ -381,10 +429,10 @@ function createStarLayer(count, radius, size, colorHex) {
 }
 
 const starLayers = [
-  createStarLayer(600,  12, 0.022, '#ffffff'),
-  createStarLayer(1200, 28, 0.035, '#c8d8ff'),
-  createStarLayer(2000, 55, 0.05,  '#aabbee'),
-  createStarLayer(1000, 40, 0.04,  '#ddeeff'),
+  createStarLayer(scaledCount(600),  12, 0.022, '#ffffff'),
+  createStarLayer(scaledCount(1200), 28, 0.035, '#c8d8ff'),
+  createStarLayer(scaledCount(2000), 55, 0.05,  '#aabbee'),
+  createStarLayer(scaledCount(1000), 40, 0.04,  '#ddeeff'),
 ];
 starLayers.forEach(l => scene.add(l));
 
@@ -395,12 +443,14 @@ function createBrightStars(count, radius) {
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
     const r = radius * (0.4 + Math.random() * 0.6);
-    const s = 0.02 + Math.random() * 0.07;
-    const color = new THREE.Color().setHSL(0.55 + Math.random() * 0.2, 0.25, 0.65 + Math.random() * 0.35);
+    const s = 0.035 + Math.random() * 0.095;
+    const color = new THREE.Color().setHSL(0.55 + Math.random() * 0.2, 0.28, 0.8 + Math.random() * 0.2);
     const mat = new THREE.SpriteMaterial({
       map: sunGlowTex,
       color,
+      opacity: Math.min(1, 0.86 * STAR_BRIGHTNESS),
       blending: THREE.AdditiveBlending,
+      transparent: true,
       depthWrite: false,
     });
     const sprite = new THREE.Sprite(mat);
@@ -414,17 +464,22 @@ function createBrightStars(count, radius) {
   }
   return group;
 }
-const brightStars = createBrightStars(200, 35);
+const brightStars = createBrightStars(scaledCount(200), 35);
 scene.add(brightStars);
 
 // ============================================================
 // Earth — MeshPhongMaterial for rich texture colors
 // ============================================================
-const earthGeo = new THREE.SphereGeometry(1, 80, 60);
-const earthTex = T.load(TEX_EARTH);
+const earthSegments = QUALITY === 'high' ? [80, 60] : QUALITY === 'medium' ? [64, 48] : [48, 36];
+const cloudSegments = QUALITY === 'high' ? [64, 40] : QUALITY === 'medium' ? [48, 32] : [36, 24];
+const detailSegments = QUALITY === 'high' ? [48, 48] : QUALITY === 'medium' ? [40, 36] : [32, 28];
+const backgroundSegments = QUALITY === 'high' ? [64, 32] : [48, 24];
+
+const earthGeo = new THREE.SphereGeometry(1, earthSegments[0], earthSegments[1]);
+const earthTex = loadTexture(TEX_EARTH);
 earthTex.colorSpace = THREE.SRGBColorSpace;
 
-const bumpTex = T.load(TEX_BUMP);
+const bumpTex = loadTexture(TEX_BUMP);
 bumpTex.colorSpace = THREE.SRGBColorSpace;
 
 const earthMat = new THREE.MeshPhongMaterial({
@@ -439,9 +494,9 @@ earth.rotation.set(0, 0.35, 0);
 scene.add(earth);
 
 // Cloud layer — real cloud texture from 3d-world
-const cloudTex = T.load(TEX_CLOUD);
+const cloudTex = loadTexture(TEX_CLOUD);
 cloudTex.colorSpace = THREE.SRGBColorSpace;
-const cloudGeo = new THREE.SphereGeometry(1.01, 64, 40);
+const cloudGeo = new THREE.SphereGeometry(1.01, cloudSegments[0], cloudSegments[1]);
 const cloudMat = new THREE.MeshPhongMaterial({
   map: cloudTex,
   shininess: 0,
@@ -457,9 +512,9 @@ scene.add(clouds);
 const sunDir = new THREE.Vector3(5, 3, 8).normalize();
 
 // Night lights — glows on Earth's dark side
-const nightTex = T.load(TEX_EARTH_NIGHT);
+const nightTex = loadTexture(TEX_EARTH_NIGHT);
 nightTex.colorSpace = THREE.SRGBColorSpace;
-const nightGeo = new THREE.SphereGeometry(1.004, 80, 60);
+const nightGeo = new THREE.SphereGeometry(1.004, earthSegments[0], earthSegments[1]);
 const nightUniforms = {
   uNightMap: { value: nightTex },
   uSunDir:   { value: sunDir },
@@ -497,19 +552,20 @@ const nightLights = new THREE.Mesh(nightGeo, nightMat);
 scene.add(nightLights);
 
 // Milky Way background — huge sphere around the scene
-const mwTex = T.load(TEX_MILKYWAY);
+const mwTex = loadTexture(TEX_MILKYWAY);
 mwTex.colorSpace = THREE.SRGBColorSpace;
-const mwGeo = new THREE.SphereGeometry(150, 64, 32);
+const mwGeo = new THREE.SphereGeometry(150, backgroundSegments[0], backgroundSegments[1]);
 const mwMat = new THREE.MeshBasicMaterial({
   map: mwTex,
   side: THREE.BackSide,
+  color: new THREE.Color(QUALITY === 'low' ? 0x9aa7c8 : 0xb3c2ec),
   depthWrite: false,
 });
 const milkyWay = new THREE.Mesh(mwGeo, mwMat);
 scene.add(milkyWay);
 
 // Fresnel atmosphere — single very thin layer
-const atmoGeo = new THREE.SphereGeometry(1.035, 80, 60);
+const atmoGeo = new THREE.SphereGeometry(1.035, earthSegments[0], earthSegments[1]);
 const atmoUniforms = {
   uColor:  { value: new THREE.Color(0x6699dd) },
   uPower:  { value: 4.5 },
@@ -557,9 +613,9 @@ scene.add(atmosphere);
 // ============================================================
 // Moon — real photo texture from 3d-world
 // ============================================================
-const moonTex = T.load(TEX_MOON);
+const moonTex = loadTexture(TEX_MOON);
 moonTex.colorSpace = THREE.SRGBColorSpace;
-const moonGeo = new THREE.SphereGeometry(0.27, 48, 48);
+const moonGeo = new THREE.SphereGeometry(0.27, detailSegments[0], detailSegments[1]);
 const moonMat = new THREE.MeshPhongMaterial({
   map: moonTex,
   shininess: 5,
@@ -573,9 +629,9 @@ scene.add(moon);
 // ============================================================
 // Mars — real 8K NASA texture
 // ============================================================
-const marsTex = T.load(TEX_MARS);
+const marsTex = loadTexture(TEX_MARS);
 marsTex.colorSpace = THREE.SRGBColorSpace;
-const marsGeo = new THREE.SphereGeometry(0.53, 48, 48);
+const marsGeo = new THREE.SphereGeometry(0.53, detailSegments[0], detailSegments[1]);
 const marsMat = new THREE.MeshPhongMaterial({
   map: marsTex,
   shininess: 3,
@@ -589,23 +645,44 @@ scene.add(mars);
 // ============================================================
 // Post-processing — simple: Render + subtle Film grain
 // ============================================================
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+let composer = null;
+if (USE_POSTPROCESSING) {
+  Promise.all([
+    import('three/addons/postprocessing/EffectComposer.js'),
+    import('three/addons/postprocessing/RenderPass.js'),
+    import('three/addons/postprocessing/UnrealBloomPass.js'),
+    import('three/addons/postprocessing/FilmPass.js'),
+    import('three/addons/postprocessing/OutputPass.js')
+  ]).then(([
+    { EffectComposer },
+    { RenderPass },
+    { UnrealBloomPass },
+    { FilmPass },
+    { OutputPass }
+  ]) => {
+    const nextComposer = new EffectComposer(renderer);
+    nextComposer.addPass(new RenderPass(scene, camera));
 
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.15, 0.15, 0.05
-);
-bloomPass.threshold = 0.9;
-bloomPass.strength = 0.055;
-bloomPass.radius = 0.2;
-composer.addPass(bloomPass);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.15, 0.15, 0.05
+    );
+    bloomPass.threshold = 0.9;
+    bloomPass.strength = 0.045;
+    bloomPass.radius = 0.16;
+    nextComposer.addPass(bloomPass);
 
-const filmPass = new FilmPass(0.06, false);
-composer.addPass(filmPass);
+    const filmPass = new FilmPass(0.06, false);
+    nextComposer.addPass(filmPass);
 
-const outputPass = new OutputPass();
-composer.addPass(outputPass);
+    const outputPass = new OutputPass();
+    nextComposer.addPass(outputPass);
+    composer = nextComposer;
+  }).catch(err => {
+    console.warn('Post-processing disabled:', err);
+    composer = null;
+  });
+}
 
 // ============================================================
 // Scroll → Camera path
@@ -820,7 +897,8 @@ function animate() {
   const dp = targetP - currentP;
   const absDp = Math.abs(dp);
   // 每秒前进速率(进度单位):正常 0.33/s(全程 3 秒);拉远段 0.85/s(0.18 秒走完最后 15%)
-  const stepRate = currentP > 0.85 ? 0.85 : 0.33;
+  const baseStepRate = QUALITY === 'low' ? 0.7 : 0.55;
+  const stepRate = currentP > 0.85 ? 1.15 : baseStepRate;
   let step;
   if (absDp < 0.02) {
     // 收尾 — 用时间归一化的指数 lerp,避免到达后抖动
@@ -833,17 +911,17 @@ function animate() {
   updateCamera(currentP);
 
   // 相机 pos/look 平滑 — 略放慢跟手,减少「晃」感
-  const k = 1 - Math.exp(-dtSec / 0.17);
+  const k = 1 - Math.exp(-dtSec / 0.11);
   camera.position.x += (camTarget[0] - camera.position.x) * k;
   camera.position.y += (camTarget[1] - camera.position.y) * k;
   camera.position.z += (camTarget[2] - camera.position.z) * k;
-  const kLook = 1 - Math.exp(-dtSec / 0.19);
+  const kLook = 1 - Math.exp(-dtSec / 0.13);
   smoothLook.x += (lookTarget[0] - smoothLook.x) * kLook;
   smoothLook.y += (lookTarget[1] - smoothLook.y) * kLook;
   smoothLook.z += (lookTarget[2] - smoothLook.z) * kLook;
 
   // FOV 呼吸 — 平滑 lerp 到目标 FOV(广角→长焦切换)
-  const kFov = 1 - Math.exp(-dtSec / 0.20);
+  const kFov = 1 - Math.exp(-dtSec / 0.14);
   smoothFov += (fovTarget - smoothFov) * kFov;
   if (Math.abs(camera.fov - smoothFov) > 0.05) {
     camera.fov = smoothFov;
@@ -851,7 +929,7 @@ function animate() {
   }
 
   // 相机滚转 banking — 平滑 lerp 到目标 roll(度→弧度)
-  const kRoll = 1 - Math.exp(-dtSec / 0.32);
+  const kRoll = 1 - Math.exp(-dtSec / 0.22);
   smoothRoll += (rollTarget - smoothRoll) * kRoll;
   const rollRad = smoothRoll * Math.PI / 180;
   camera.up.set(Math.sin(rollRad), Math.cos(rollRad), 0);
@@ -874,7 +952,8 @@ function animate() {
   starLayers[3].position.set(mx * 0.02, my * 0.02, 0);
   brightStars.position.set(mx * 0.025, my * 0.025, 0);
 
-  composer.render();
+  if (composer) composer.render();
+  else renderer.render(scene, camera);
 }
 
 // 初始同步:刷新到中间时,直接对齐到当前 scroll 对应的 keyframe,避免相机从 p=0 慢慢飞过去
@@ -911,8 +990,12 @@ window.addEventListener('resize', () => {
   const w = window.innerWidth, h = window.innerHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-  composer.setSize(w, h);
+  renderer.setPixelRatio(getRenderPixelRatio());
+  renderer.setSize(w, h, false);
+  if (composer) {
+    composer.setPixelRatio(getRenderPixelRatio());
+    composer.setSize(w, h);
+  }
   // 重算高度，确保 resize 后动画进度和导航点击位置准确
   totalH = allBlocks.reduce((s, b) => s + b.offsetHeight, 0);
   cosmicH = [...sections].reduce((s, b) => s + b.offsetHeight, 0);

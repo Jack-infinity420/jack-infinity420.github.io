@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重返地球 — Nav Button Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+<style>
+/* ---- reset ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'LXGW WenKai', 'Cormorant Garamond', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', serif;
+  background: #0a0a0f;
+  color: #ccc;
+  min-height: 100vh;
+}
+
+/* ---- mock Butterfly nav ---- */
+#nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  width: 100%;
+  height: 60px;
+  font-size: 1.3em;
+  background: rgba(20, 20, 30, 0.85);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  z-index: 90;
+}
+
+#blog-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#blog-info .site-icon {
+  height: 36px;
+  width: auto;
+}
+#blog-info .site-name {
+  font-size: 0.85em;
+  color: #ddd;
+}
+
+.menus_items { display: flex; align-items: center; gap: 0; }
+
+.menus_item {
+  position: relative;
+  display: inline-block;
+  padding: 0 0 0 14px;
+}
+
+.site-page {
+  position: relative;
+  padding-bottom: 6px;
+  font-size: 0.78em;
+  color: #ccc;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.site-page:hover { color: #fff; }
+
+/* Default underline animation on hover */
+.site-page:not(.child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.5);
+  transition: width 0.28s ease;
+}
+.site-page:not(.child):hover::after { width: 100%; }
+
+/* ===== 重返地球 button style ===== */
+#nav .menus_item a.site-page[href*="replay=1"] {
+  padding: 4px 14px;
+  margin-left: 4px;
+  border: 1px solid rgba(100, 150, 220, 0.22);
+  border-radius: 6px;
+  background: rgba(100, 150, 220, 0.05);
+  color: rgba(180, 210, 245, 0.85);
+  letter-spacing: 0.06em;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#nav .menus_item a.site-page[href*="replay=1"]:hover {
+  border-color: rgba(140, 190, 255, 0.45);
+  background: rgba(100, 150, 220, 0.10);
+  color: rgba(210, 230, 255, 0.95);
+  box-shadow: 0 0 18px rgba(80, 130, 210, 0.10);
+}
+
+/* Suppress the underline ::after — border already communicates interactivity */
+#nav .menus_item a.site-page[href*="replay=1"]:not(.child)::after {
+  display: none;
+}
+
+/* ---- page content behind nav ---- */
+.info {
+  padding: 100px 36px 40px;
+  max-width: 720px;
+}
+.info h2 { color: #ddd; margin-bottom: 12px; font-weight: 400; }
+.info p  { color: #888; line-height: 1.7; font-size: 0.95em; }
+.note { color: #668; font-size: 0.82em; margin-top: 24px; border-left: 1px solid rgba(100,150,220,0.2); padding-left: 14px; }
+.note strong { color: rgba(180,210,245,0.8); }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div id="blog-info">
+    <img class="site-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Ccircle cx='18' cy='18' r='16' fill='none' stroke='rgba(200,220,255,0.4)' stroke-width='2'/%3E%3Ccircle cx='18' cy='18' r='4' fill='rgba(200,220,255,0.3)'/%3E%3C/svg%3E" alt="Logo">
+    <span class="site-name">INFINITY'S BLOG</span>
+  </div>
+
+  <div class="menus_items">
+    <div class="menus_item">
+      <a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/blog/categories/humanities/"><i class="fa-fw fas fa-book"></i><span> 文以载道</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/blog/categories/tech/"><i class="fa-fw fas fa-microscope"></i><span> 格物致知</span></a>
+    </div>
+    <div class="menus_item">
+      <a class="site-page" href="/?replay=1"><i class="fa-fw fas fa-earth-americas"></i><span> 重返地球</span></a>
+    </div>
+  </div>
+</nav>
+
+<div class="info">
+  <h2>重返地球 · 菜单按钮 Demo</h2>
+  <p>模拟 Butterfly 导航栏中新增的 "重返地球" 按钮样式。</p>
+  <p>设计目标：克制、优雅、有品味 — 以淡蓝半透明边框 + 地球图标暗示"门户/返回"语义，不喧宾夺主。</p>
+  <div class="note">
+    <strong>hover 效果：</strong> 边框变亮 → 背景微升 → 文字颜色提升 → 微弱外发光<br>
+    <strong>关键约束：</strong> 无下划线动画（border 已表意），透明色系兼容亮/暗模式
+  </div>
+</div>
+
+</body>
+</html>

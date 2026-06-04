@@ -19,7 +19,7 @@ permalink: posts/:abbrlink.html
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
-  trailing_html: false # Set to false to remove trailing '.html' from permalinks
+  trailing_html: true # Keep '.html' so static hosts and local preview resolve post files
 
 # Directory
 source_dir: source
@@ -184,7 +184,7 @@ neat_js:
 
 # Image Optimization (WebP + responsive)
 ## https://github.com/next-theme/hexo-image-opt
-image_opt:
+hexo_image_opt:
   enable: true
   quality: 80
   sizes: [400, 800, 1280]
@@ -195,4 +195,3 @@ image_opt:
 abbrlink:
   alg: crc32
   rep: hex
-
