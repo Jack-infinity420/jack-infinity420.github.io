@@ -10,3 +10,4 @@ _multiconfig.yml
 .superpowers/
 .playwright-mcp/
 .cosmic-samples/public-deploy/
+.omc/
