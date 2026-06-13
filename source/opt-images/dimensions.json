@@ -66,5 +66,9 @@
   "clouds-hd": {
     "width": 2048,
     "height": 1024
+  },
+  "three-mechanisms": {
+    "width": 1733,
+    "height": 1279
   }
 }

@@ -10,7 +10,7 @@
   <rights>All rights reserved 2026, Infinity</rights>
   <subtitle>Infinity 的个人博客</subtitle>
   <title>INFINITY'S BLOG</title>
-  <updated>2026-06-13T23:26:34.335Z</updated>
+  <updated>2026-06-13T23:27:37.806Z</updated>
   <entry>
     <author>
       <name>Infinity</name>
@@ -26,17 +26,17 @@
     <category term="工作制度" scheme="https://lvjf.space/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/"/>
     <category term="GitHub" scheme="https://lvjf.space/blog/tags/GitHub/"/>
     <content>
-      <![CDATA[<p>Dear Vibe Coder<br>&#x2F; Vibe Writer<br>&#x2F; Vibe Researcher<br>&#x2F; Vibe Creator，</p><p>在 vibe 之旅中，<br>你是否经历过这样的时刻——<br>智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。<br>你是否发现过这样的问题——<br>智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。<br>你是否苦恼于这样的现状——<br>智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下</p><p>与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，<br>基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE<br>此插件将驱动智能体严格按照以下工作制度进行项目构建：</p><p>一、请示报告<br>二、督促检查<br>三、信息服务</p><p>力求用<br>铁一般的制度锻造铁一般的智能体。<br>铁一般的智能体铸就铁一般的生产力。</p><p>此插件项目已开源至github，欢迎同志们下载使用。<br>URL：<a href="https://github.com/Jack-infinity420/three-mechanisms-plugin">https://github.com/Jack-infinity420/three-mechanisms-plugin</a></p>]]>
+      <![CDATA[<p>Dear Vibe Coder<br>&#x2F; Vibe Writer<br>&#x2F; Vibe Researcher<br>&#x2F; Vibe Creator，</p><p><img src="/blog/images/three-mechanisms.jpg" alt="三大工作机制插件"></p><p>在 vibe 之旅中，<br>你是否经历过这样的时刻——<br>智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。<br>你是否发现过这样的问题——<br>智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。<br>你是否苦恼于这样的现状——<br>智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下</p><p>与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，<br>基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE<br>此插件将驱动智能体严格按照以下工作制度进行项目构建：</p><p>一、请示报告<br>二、督促检查<br>三、信息服务</p><p>力求用<br>铁一般的制度锻造铁一般的智能体。<br>铁一般的智能体铸就铁一般的生产力。</p><p>此插件项目已开源至github，欢迎同志们下载使用。<br>URL：<a href="https://github.com/Jack-infinity420/three-mechanisms-plugin">https://github.com/Jack-infinity420/three-mechanisms-plugin</a></p>]]>
     </content>
     <id>https://lvjf.space/blog/posts/4a8ca938.html</id>
     <link href="https://lvjf.space/blog/posts/4a8ca938.html"/>
     <published>2026-06-13T23:26:26.000Z</published>
     <summary>
       <![CDATA[<p>Dear Vibe Coder<br>&#x2F; Vibe Writer<br>&#x2F; Vibe Researcher<br>&#x2F; Vibe Creator，</p>
-<p>在 vibe 之旅中，<br>你是否经历过这样的时刻——<br>智能体把握不住你的意]]>
+<p><img src="/blog/images/three-mechanisms.jp]]>
     </summary>
     <title>三大工作机制插件——驱动智能体严格工作</title>
-    <updated>2026-06-13T23:26:34.335Z</updated>
+    <updated>2026-06-13T23:27:37.806Z</updated>
   </entry>
   <entry>
     <author>
@@ -136,8 +136,8 @@
     </author>
     <category term="tech" scheme="https://lvjf.space/blog/categories/tech/"/>
     <category term="体能训练" scheme="https://lvjf.space/blog/categories/tech/%E4%BD%93%E8%83%BD%E8%AE%AD%E7%BB%83/"/>
-    <category term="肩部训练" scheme="https://lvjf.space/blog/tags/%E8%82%A9%E9%83%A8%E8%AE%AD%E7%BB%83/"/>
     <category term="力量训练" scheme="https://lvjf.space/blog/tags/%E5%8A%9B%E9%87%8F%E8%AE%AD%E7%BB%83/"/>
+    <category term="肩部训练" scheme="https://lvjf.space/blog/tags/%E8%82%A9%E9%83%A8%E8%AE%AD%E7%BB%83/"/>
     <category term="三角肌" scheme="https://lvjf.space/blog/tags/%E4%B8%89%E8%A7%92%E8%82%8C/"/>
     <content>
       <![CDATA[<blockquote><p>宽阔的肩膀是力量的象征</p></blockquote><h2 id="三角肌解剖与功能"><a href="#三角肌解剖与功能" class="headerlink" title="三角肌解剖与功能"></a>三角肌解剖与功能</h2><p>三角肌分为三个部分：</p><ul><li><strong>前束</strong>：负责肩部前屈和水平内收</li><li><strong>中束</strong>：负责肩部外展，打造肩膀宽度</li><li><strong>后束</strong>：负责肩部后伸和水平外展</li></ul><h2 id="核心训练动作"><a href="#核心训练动作" class="headerlink" title="核心训练动作"></a>核心训练动作</h2><h3 id="1-哑铃肩推"><a href="#1-哑铃肩推" class="headerlink" title="1. 哑铃肩推"></a>1. 哑铃肩推</h3><p><strong>目标肌肉</strong>：三角肌整体，侧重前束<br><strong>要点</strong>：坐姿稳定，核心收紧，哑铃推至头顶<br><strong>组数</strong>：3-4组，每组8-12次</p><h3 id="2-侧平举"><a href="#2-侧平举" class="headerlink" title="2. 侧平举"></a>2. 侧平举</h3><p><strong>目标肌肉</strong>：三角肌中束<br><strong>要点</strong>：微屈肘部，抬至肩平，控制下落<br><strong>组数</strong>：3组，每组12-15次</p><h3 id="3-前平举"><a href="#3-前平举" class="headerlink" title="3. 前平举"></a>3. 前平举</h3><p><strong>目标肌肉</strong>：三角肌前束<br><strong>要点</strong>：交替或同时进行，抬至眼平高度<br><strong>组数</strong>：3组，每组10-12次</p><h3 id="4-反向飞鸟"><a href="#4-反向飞鸟" class="headerlink" title="4. 反向飞鸟"></a>4. 反向飞鸟</h3><p><strong>目标肌肉</strong>：三角肌后束<br><strong>要点</strong>：俯身45度，肘部微屈，向后打开<br><strong>组数</strong>：3组，每组12-15次</p><h2 id="训练计划示例"><a href="#训练计划示例" class="headerlink" title="训练计划示例"></a>训练计划示例</h2><h3 id="全面发展计划"><a href="#全面发展计划" class="headerlink" title="全面发展计划"></a>全面发展计划</h3><ul><li>哑铃肩推：3×8-12</li><li>侧平举：3×12-15</li><li>前平举：3×10-12</li><li>反向飞鸟：3×12-15</li></ul><h3 id="侧重宽度计划"><a href="#侧重宽度计划" class="headerlink" title="侧重宽度计划"></a>侧重宽度计划</h3><ul><li>杠铃推举：4×6-10</li><li>侧平举（递减组）：3×15-20</li><li>绳索面拉：3×12-15</li></ul><h2 id="肩部训练注意事项"><a href="#肩部训练注意事项" class="headerlink" title="肩部训练注意事项"></a>肩部训练注意事项</h2><ol><li><strong>热身充分</strong>：肩关节是复杂关节，需要充分热身</li><li><strong>避免过度</strong>：肩部训练不宜过于频繁，每周2-3次足够</li><li><strong>平衡发展</strong>：前中后束要均衡训练</li><li><strong>控制重量</strong>：肩部训练更注重肌肉感受，而非大重量</li></ol><hr><p><em>打造3D立体肩部，提升整体视觉效果！</em></p>]]>

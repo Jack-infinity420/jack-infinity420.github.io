@@ -13,7 +13,7 @@
   <url>
     <loc>https://lvjf.space/blog/opt-images/dimensions.json</loc>
     
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-13</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -214,21 +214,7 @@
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/tags/%E8%82%A9%E9%83%A8%E8%AE%AD%E7%BB%83/</loc>
-    <lastmod>2026-06-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://lvjf.space/blog/tags/%E5%8A%9B%E9%87%8F%E8%AE%AD%E7%BB%83/</loc>
-    <lastmod>2026-06-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lvjf.space/blog/tags/%E4%B8%89%E8%A7%92%E8%82%8C/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -250,6 +236,20 @@
   
   <url>
     <loc>https://lvjf.space/blog/tags/%E9%9A%8F%E7%AC%94/</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lvjf.space/blog/tags/%E8%82%A9%E9%83%A8%E8%AE%AD%E7%BB%83/</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lvjf.space/blog/tags/%E4%B8%89%E8%A7%92%E8%82%8C/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -307,14 +307,14 @@
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/categories/humanities/%E9%9A%8F%E7%AC%94/</loc>
+    <loc>https://lvjf.space/blog/categories/AI/%E5%BC%80%E6%BA%90/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/categories/AI/%E5%BC%80%E6%BA%90/</loc>
+    <loc>https://lvjf.space/blog/categories/humanities/%E9%9A%8F%E7%AC%94/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
