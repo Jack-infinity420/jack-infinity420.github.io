@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #000;
+    font-family: 'Noto Serif SC', 'LXGW WenKai', 'Gruppo', serif;
+    color: #fff;
+    overflow-x: hidden;
+  }
+  #bg-canvas {
+    position: fixed; top:0; left:0;
+    width:100vw; height:100vh;
+    z-index:0;
+  }
+  /* 文案在暗角层之上，避免被 vignette 压暗、发灰 */
+  .section {
+    width:100%; height:180vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative; z-index:6;
+    pointer-events:none;
+    padding:clamp(24px,6vh,48px) 24px clamp(72px,14vh,140px);
+    text-align:center;
+  }
+  /* 纯文字定位容器 — 无卡片、无衬底，文字直接浮于星空之上 */
+  .section .copy {
+    width:100%;
+    max-width:min(620px, 92vw);
+    margin-top:min(10vh, 88px);
+    padding:0 24px;
+  }
+  /* 入场动画 — scale 模拟镜头穿越 z 轴：文字由远及近抵达眼前 */
+  .section .copy .reveal {
+    opacity:0;
+    transform:scale(0.78);
+    filter:blur(12px);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.8s ease;
+  }
+  .section .copy.is-visible .reveal-h1 {
+    opacity:1;
+    transform:scale(1);
+    filter:blur(0);
+    transition-delay:0.04s;
+  }
+  .section .copy.is-visible .reveal-h2 {
+    opacity:1;
+    transform:scale(1);
+    filter:blur(0);
+    transition-delay:0.16s;
+  }
+  .section .copy.is-visible .reveal-p {
+    opacity:1;
+    transform:scale(1);
+    filter:blur(0);
+    transition-delay:0.28s;
+  }
+  .section h1 {
+    font-family:'Gruppo','Noto Serif SC',serif;
+    font-size:clamp(36px,6vw,66px);
+    font-weight:400;
+    letter-spacing:0.22em;
+    color:#f8faff;
+    text-shadow:
+      0 2px 8px rgba(0,0,0,0.95),
+      0 0 36px rgba(0,0,0,0.7),
+      0 0 90px rgba(50,90,170,0.28);
+    margin-bottom:14px;
+  }
+  .section h2 {
+    font-family:'Noto Serif SC','LXGW WenKai',serif;
+    font-size:clamp(16px,2.4vw,26px);
+    font-weight:400;
+    letter-spacing:0.14em;
+    color:rgba(232,240,255,0.94);
+    text-shadow:
+      0 1px 6px rgba(0,0,0,0.9),
+      0 0 24px rgba(0,0,0,0.65),
+      0 0 48px rgba(40,70,140,0.2);
+    margin-bottom:6px;
+    line-height:1.55;
+  }
+  .section p {
+    font-size:clamp(12px,1.5vw,14px);
+    letter-spacing:0.16em;
+    color:rgba(200,215,245,0.85);
+    text-shadow:
+      0 1px 5px rgba(0,0,0,0.88),
+      0 0 20px rgba(0,0,0,0.6);
+    margin-top:12px;
+    line-height:1.65;
+  }
+
+  #explore-btn.visible { opacity:1; transform:translateY(0); }
+  #explore-btn:hover { border-color:rgba(190,215,255,0.55); color:#fff; background:rgba(255,255,255,0.04); box-shadow:0 0 36px rgba(110,160,240,0.18),0 0 80px rgba(80,130,220,0.08); }
+
+  #skip-link { position:fixed; bottom:20px; right:20px; z-index:10; font-size:11px; letter-spacing:0.12em; color:rgba(160,190,230,0.45); text-decoration:none; pointer-events:auto; transition:color 0.35s, opacity 0.5s; font-family:'Noto Serif SC',serif; }
+  #skip-link:hover { color:rgba(210,225,255,0.7); }
+
+  #cookie-banner { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); z-index:20; background:rgba(8,8,20,0.85); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 20px; font-size:11px; color:rgba(200,215,245,0.6); letter-spacing:0.5px; display:none; pointer-events:auto; text-align:center; backdrop-filter:blur(12px); font-family:'Noto Serif SC',serif; }
+  #cookie-banner button { margin-left:10px; padding:4px 14px; border:1px solid rgba(255,255,255,0.15); border-radius:14px; background:rgba(255,255,255,0.03); color:rgba(200,215,245,0.7); cursor:pointer; font-size:10px; letter-spacing:0.8px; font-family:inherit; }
+  #cookie-banner button:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+
+  #nav-rail {
+    position:fixed; right:14px; top:50%; transform:translateY(-50%);
+    z-index:8; display:flex; flex-direction:column; align-items:center; gap:7px;
+  }
+  .n-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,0.07);
+    transition:all 0.4s; cursor:pointer; pointer-events:auto;
+  }
+  .n-dot.on { background:rgba(170,210,255,0.5); box-shadow:0 0 12px rgba(90,140,255,0.35); }
+  .n-tick { width:1px; height:16px; background:rgba(255,255,255,0.04); }
+
+  #scroll-hint {
+    position:fixed; bottom:34px; left:50%; transform:translateX(-50%);
+    z-index:8; font-size:11px; letter-spacing:0.18em;
+    color:rgba(210,225,255,0.72);
+    text-shadow:0 1px 12px rgba(0,0,0,0.85);
+    pointer-events:none;
+    transition:opacity 0.5s;
+    animation:float 2.2s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform:translateX(-50%) translateY(0); opacity:0.45; }
+    50% { transform:translateX(-50%) translateY(8px); opacity:0.92; }
+  }
+
+  /* Vignette — 在文案之下，只压暗边缘烘托镜头 */
+  #vignette {
+    position:fixed; top:0; left:0;
+    width:100vw; height:100vh;
+    z-index:4; pointer-events:none;
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,0.34) 100%);
+  }
+
+  @media (max-width:600px) {
+    .section h1 { font-size:26px; letter-spacing:0.12em; }
+    .section h2 { font-size:14px; letter-spacing:0.1em; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .section .copy .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+    #scroll-hint { animation: none; opacity: 0.85; }
+  }
+</style>
+</head>
+<body>
+
+<script>
+(function(){var s=localStorage.getItem('infinity_intro_seen');if(s==='1'&&!window.location.search.includes('replay=1')){window.location.replace('/blog/');}})();
+</script>
+
+<noscript>
+  <div style="color:#fff;text-align:center;padding:clamp(40px,10vh,100px) 24px;font-family:system-ui,'Noto Serif SC',serif;background:#020210;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <p style="font-size:18px;letter-spacing:0.1em;margin-bottom:16px">此页面需要 JavaScript 以渲染 3D 星球。</p>
+    <a href="/blog/" style="display:inline-block;padding:12px 32px;border:1px solid rgba(170,200,240,0.35);border-radius:24px;color:rgba(200,220,255,0.8);text-decoration:none;letter-spacing:0.2em;font-size:14px">进入博客</a>
+  </div>
+</noscript>
+
+<canvas id="bg-canvas"></canvas>
+<div id="vignette"></div>
+<a id="skip-link" href="/blog/">SKIP →</a>
+
+<div id="nav-rail">
+  <div class="n-dot on" data-idx="0"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="1"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="2"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="3"></div><div class="n-tick"></div>
+  <div class="n-dot" data-idx="4"></div>
+</div>
+<div id="scroll-hint">向下探索</div>
+<div id="cookie-banner">你已体验过这段旅程 · <button id="cookie-accept">直达博客</button></div>
+
+<section class="section" id="s0">
+  <div class="copy">
+    <h1 class="reveal reveal-h1">INFINITY</h1>
+    <h2 class="reveal reveal-h2">你的自我介绍标题</h2>
+    <p class="reveal reveal-p">向下滚动 · 开始旅程</p>
+  </div>
+</section>
+<section class="section" id="s1">
+  <div class="copy">
+    <h1 class="reveal reveal-h1">知</h1>
+    <h2 class="reveal reveal-h2">你的文案放这里</h2>
+    <p class="reveal reveal-p">知是行之始</p>
+  </div>
+</section>
+<section class="section" id="s2">
+  <div class="copy">
+    <h1 class="reveal reveal-h1">行</h1>
+    <h2 class="reveal reveal-h2">你的文案放这里</h2>
+    <p class="reveal reveal-p">行是知之成</p>
+  </div>
+</section>
+<section class="section" id="s3">
+  <div class="copy">
+    <h1 class="reveal reveal-h1">始于知 · 成于行</h1>
+    <h2 class="reveal reveal-h2">你的文案放这里</h2>
+    <p class="reveal reveal-p">一个人内心的两个世界</p>
+  </div>
+</section>
+<section id="s4" style="width:100%;height:40vh;position:relative;z-index:5;"></section>
+
+<div id="gate" style="position:relative;z-index:5;min-height:30vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:clamp(40px,10vh,100px) 24px;">
+  <a id="explore-btn" href="/blog/" style="display:inline-block;padding:14px 44px;border:1px solid rgba(170,200,240,0.28);border-radius:28px;color:rgba(215,230,255,0.82);font-family:'Gruppo','Noto Serif SC',serif;font-size:clamp(13px,1.6vw,16px);letter-spacing:0.28em;pointer-events:auto;cursor:pointer;text-decoration:none;background:rgba(255,255,255,0.015);backdrop-filter:blur(8px);transition:all 0.45s cubic-bezier(0.22,1,0.36,1);opacity:0;transform:translateY(18px);">EXPLORE</a>
+</div>
+
+<script>
+(function () {
+  function revealCopies() {
+    var copies = document.querySelectorAll('.section .copy');
+    if (!copies.length) return;
+    if (!('IntersectionObserver' in window)) {
+      copies.forEach(function (c) { c.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (e) {
+        if (e.isIntersecting) e.target.classList.add('is-visible');
+      });
+    }, { root: null, rootMargin: '-8% 0px -20% 0px', threshold: 0.22 });
+    copies.forEach(function (c) { io.observe(c); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', revealCopies);
+  } else {
+    revealCopies();
+  }
+})();
+</script>
+
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "/blog/vendor/three/three.module.js",
+    "three/addons/": "/blog/vendor/three/addons/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+// ============================================================
+// Textures — local high-quality (from 3d-world reference)
+// ============================================================
+const PREFERS_REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CPU_CORES = navigator.hardwareConcurrency || 4;
+const DEVICE_MEMORY = navigator.deviceMemory || 8;
+const IS_SMALL_VIEWPORT = window.innerWidth < 760;
+const QUALITY =
+  PREFERS_REDUCED_MOTION || IS_SMALL_VIEWPORT || CPU_CORES <= 4 || DEVICE_MEMORY <= 4
+    ? 'low'
+    : (window.innerWidth >= 1440 && CPU_CORES >= 8 && DEVICE_MEMORY >= 8 ? 'high' : 'medium');
+const DPR_LIMIT = QUALITY === 'high' ? 1.6 : QUALITY === 'medium' ? 1.35 : 1.1;
+const STAR_DENSITY = QUALITY === 'high' ? 1.18 : QUALITY === 'medium' ? 1 : 0.78;
+const STAR_BRIGHTNESS = QUALITY === 'high' ? 1.35 : QUALITY === 'medium' ? 1.55 : 1.7;
+const USE_POSTPROCESSING = QUALITY === 'high';
+const SITE_ROOT = window.location.pathname.indexOf('/blog/') === 0 ? '/blog/' : '/';
+const IMG_BASE = SITE_ROOT + 'images/cosmic';
+const OPT_BASE = SITE_ROOT + 'opt-images';
+const TEX_FALLBACKS = new Map();
+
+function getRenderPixelRatio() {
+  return Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+}
+
+function scaledCount(count) {
+  return Math.max(80, Math.round(count * STAR_DENSITY));
+}
+
+function textureURL(optimizedName, fallbackFile, forceOriginal) {
+  const fallback = IMG_BASE + '/' + fallbackFile;
+  const primary = forceOriginal || QUALITY === 'high'
+    ? fallback
+    : OPT_BASE + '/' + optimizedName + '-1280w.webp';
+  TEX_FALLBACKS.set(primary, fallback);
+  return primary;
+}
+
+const TEX_EARTH       = textureURL('earth-hd', 'earth-hd.jpg', true);
+const TEX_EARTH_NIGHT = textureURL('8k_earth_nightmap', '8k_earth_nightmap.jpg', false);
+const TEX_BUMP        = textureURL('earth-bump', 'earth-bump.jpg', true);
+const TEX_CLOUD       = textureURL('clouds-hd', 'clouds-hd.png', false);
+const TEX_MOON        = textureURL('moon', 'moon.jpg', true);
+const TEX_MARS        = textureURL('8k_mars', '8k_mars.jpg', false);
+const TEX_MILKYWAY    = textureURL('8k_stars_milky_way', '8k_stars_milky_way.jpg', false);
+
+const T = new THREE.TextureLoader();
+function loadTexture(url) {
+  const tex = T.load(url, undefined, undefined, () => {
+    const fallback = TEX_FALLBACKS.get(url);
+    if (!fallback || fallback === url) return;
+    T.load(fallback, loaded => {
+      tex.image = loaded.image;
+      tex.needsUpdate = true;
+    });
+  });
+  return tex;
+}
+
+// ============================================================
+// Procedural textures (CORS-free, zero external deps)
+// ============================================================
+
+// --- Sun glow sprite ---
+function makeSunGlowTex() {
+  const s = 256;
+  const c = document.createElement('canvas');
+  c.width = c.height = s;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  g.addColorStop(0, 'rgba(255,255,245,1)');
+  g.addColorStop(0.015, 'rgba(255,252,240,0.95)');
+  g.addColorStop(0.06, 'rgba(255,235,180,0.6)');
+  g.addColorStop(0.18, 'rgba(255,200,100,0.2)');
+  g.addColorStop(0.4, 'rgba(255,150,50,0.04)');
+  g.addColorStop(0.7, 'rgba(255,100,20,0.005)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, s, s);
+  return new THREE.CanvasTexture(c);
+}
+
+// ============================================================
+// Core setup
+// ============================================================
+const canvas = document.getElementById('bg-canvas');
+canvas.addEventListener('webglcontextlost', event => {
+  event.preventDefault();
+  document.body.classList.add('webgl-recovering');
+  setTimeout(() => window.location.reload(), 600);
+}, false);
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: QUALITY !== 'low',
+  alpha: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(getRenderPixelRatio());
+renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+const scene = new THREE.Scene();
+
+function getIdealFOV() {
+  const w = window.innerWidth;
+  return w < 480 ? 65 : w < 768 ? 58 : 50;
+}
+function getInitialCamZ() {
+  const w = window.innerWidth;
+  return w < 480 ? 3.4 : w < 768 ? 2.9 : 2.4;
+}
+
+const camera = new THREE.PerspectiveCamera(getIdealFOV(), window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(0, 0.1, getInitialCamZ());
+camera.lookAt(0, 0, 0);
+
+// ============================================================
+// Lighting — following 3d-world's proven ratios
+// ============================================================
+const sunLight = new THREE.DirectionalLight(0xfff8ee, 4.5);
+sunLight.position.set(6, 3, 9);
+scene.add(sunLight);
+
+// Ambient — kept low for dramatic contrast
+scene.add(new THREE.AmbientLight(0x334455, 0.12));
+
+// Subtle cool fill for shadow detail (not too bright)
+const fillLight = new THREE.DirectionalLight(0x446688, 0.4);
+fillLight.position.set(-3, -1, -3);
+scene.add(fillLight);
+
+// ============================================================
+// Sun — single glowing sprite (no lensflare, no mesh sphere)
+// ============================================================
+const sunGlowTex = makeSunGlowTex();
+const sunSpriteMat = new THREE.SpriteMaterial({
+  map: sunGlowTex,
+  blending: THREE.AdditiveBlending,
+  transparent: true,
+  depthWrite: false,
+});
+const sunSprite = new THREE.Sprite(sunSpriteMat);
+sunSprite.position.set(16, 8, -60);
+sunSprite.scale.set(18, 18, 1);
+scene.add(sunSprite);
+
+const sunFill = new THREE.PointLight(0xffeedd, 4, 200, 1.5);
+sunFill.position.copy(sunSprite.position);
+scene.add(sunFill);
+
+// ============================================================
+// Starfield — spherical distribution, multi-layer
+// ============================================================
+function createStarLayer(count, radius, size, colorHex) {
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius * (0.6 + Math.random() * 0.4);
+    positions[i*3]     = Math.sin(phi) * Math.cos(theta) * r;
+    positions[i*3 + 1] = Math.sin(phi) * Math.sin(theta) * r * 0.55;
+    positions[i*3 + 2] = Math.cos(phi) * r;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({
+    size, color: new THREE.Color(colorHex),
+    opacity: Math.min(1, 0.72 * STAR_BRIGHTNESS),
+    transparent: true,
+    sizeAttenuation: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  return new THREE.Points(geo, mat);
+}
+
+const starLayers = [
+  createStarLayer(scaledCount(600),  12, 0.022, '#ffffff'),
+  createStarLayer(scaledCount(1200), 28, 0.035, '#c8d8ff'),
+  createStarLayer(scaledCount(2000), 55, 0.05,  '#aabbee'),
+  createStarLayer(scaledCount(1000), 40, 0.04,  '#ddeeff'),
+];
+starLayers.forEach(l => scene.add(l));
+
+// Bright star sprites
+function createBrightStars(count, radius) {
+  const group = new THREE.Group();
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius * (0.4 + Math.random() * 0.6);
+    const s = 0.035 + Math.random() * 0.095;
+    const color = new THREE.Color().setHSL(0.55 + Math.random() * 0.2, 0.28, 0.8 + Math.random() * 0.2);
+    const mat = new THREE.SpriteMaterial({
+      map: sunGlowTex,
+      color,
+      opacity: Math.min(1, 0.86 * STAR_BRIGHTNESS),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(
+      Math.sin(phi) * Math.cos(theta) * r,
+      Math.sin(phi) * Math.sin(theta) * r * 0.55,
+      Math.cos(phi) * r
+    );
+    sprite.scale.set(s, s, 1);
+    group.add(sprite);
+  }
+  return group;
+}
+const brightStars = createBrightStars(scaledCount(200), 35);
+scene.add(brightStars);
+
+// ============================================================
+// Earth — MeshPhongMaterial for rich texture colors
+// ============================================================
+const earthSegments = QUALITY === 'high' ? [80, 60] : QUALITY === 'medium' ? [64, 48] : [48, 36];
+const cloudSegments = QUALITY === 'high' ? [64, 40] : QUALITY === 'medium' ? [48, 32] : [36, 24];
+const detailSegments = QUALITY === 'high' ? [48, 48] : QUALITY === 'medium' ? [40, 36] : [32, 28];
+const backgroundSegments = QUALITY === 'high' ? [64, 32] : [48, 24];
+
+const earthGeo = new THREE.SphereGeometry(1, earthSegments[0], earthSegments[1]);
+const earthTex = loadTexture(TEX_EARTH);
+earthTex.colorSpace = THREE.SRGBColorSpace;
+
+const bumpTex = loadTexture(TEX_BUMP);
+bumpTex.colorSpace = THREE.SRGBColorSpace;
+
+const earthMat = new THREE.MeshPhongMaterial({
+  map: earthTex,
+  bumpMap: bumpTex,
+  bumpScale: 2.5,
+  shininess: 4,
+  specular: new THREE.Color(0x151520),
+});
+const earth = new THREE.Mesh(earthGeo, earthMat);
+earth.rotation.set(0, 0.35, 0);
+scene.add(earth);
+
+// Cloud layer — real cloud texture from 3d-world
+const cloudTex = loadTexture(TEX_CLOUD);
+cloudTex.colorSpace = THREE.SRGBColorSpace;
+const cloudGeo = new THREE.SphereGeometry(1.01, cloudSegments[0], cloudSegments[1]);
+const cloudMat = new THREE.MeshPhongMaterial({
+  map: cloudTex,
+  shininess: 0,
+  specular: new THREE.Color(0x000000),
+  transparent: true,
+  opacity: 0.35,
+  depthWrite: false,
+});
+const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+scene.add(clouds);
+
+// Sun direction vector — used by night lights & atmosphere
+const sunDir = new THREE.Vector3(5, 3, 8).normalize();
+
+// Night lights — glows on Earth's dark side
+const nightTex = loadTexture(TEX_EARTH_NIGHT);
+nightTex.colorSpace = THREE.SRGBColorSpace;
+const nightGeo = new THREE.SphereGeometry(1.004, earthSegments[0], earthSegments[1]);
+const nightUniforms = {
+  uNightMap: { value: nightTex },
+  uSunDir:   { value: sunDir },
+};
+const nightVS = /* glsl */`
+varying vec3 vWorldNormal;
+varying vec2 vUv;
+void main() {
+  vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vWorldNormal = normalize(mat3(modelMatrix) * normal);
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const nightFS = /* glsl */`
+uniform sampler2D uNightMap;
+uniform vec3 uSunDir;
+varying vec3 vWorldNormal;
+varying vec2 vUv;
+void main() {
+  float NdotL = dot(vWorldNormal, uSunDir);
+  // Wide, visible terminator zone
+  float nightFac = smoothstep(0.25, -0.2, NdotL);
+  vec4 nightCol = texture(uNightMap, vUv);
+  gl_FragColor = vec4(nightCol.rgb, nightFac * 0.9);
+}`;
+const nightMat = new THREE.ShaderMaterial({
+  uniforms: nightUniforms,
+  vertexShader: nightVS,
+  fragmentShader: nightFS,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const nightLights = new THREE.Mesh(nightGeo, nightMat);
+scene.add(nightLights);
+
+// Milky Way background — huge sphere around the scene
+const mwTex = loadTexture(TEX_MILKYWAY);
+mwTex.colorSpace = THREE.SRGBColorSpace;
+const mwGeo = new THREE.SphereGeometry(150, backgroundSegments[0], backgroundSegments[1]);
+const mwMat = new THREE.MeshBasicMaterial({
+  map: mwTex,
+  side: THREE.BackSide,
+  color: new THREE.Color(QUALITY === 'low' ? 0x9aa7c8 : 0xb3c2ec),
+  depthWrite: false,
+});
+const milkyWay = new THREE.Mesh(mwGeo, mwMat);
+scene.add(milkyWay);
+
+// Fresnel atmosphere — single very thin layer
+const atmoGeo = new THREE.SphereGeometry(1.035, earthSegments[0], earthSegments[1]);
+const atmoUniforms = {
+  uColor:  { value: new THREE.Color(0x6699dd) },
+  uPower:  { value: 4.5 },
+  uBias:   { value: 0.02 },
+  uScale:  { value: 0.7 },
+  uSunDir: { value: sunDir },
+};
+const atmoVS = /* glsl */`
+varying vec3 vWorldNormal;
+varying vec3 vWorldPos;
+void main() {
+  vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vWorldPos = worldPos.xyz;
+  vWorldNormal = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const atmoFS = /* glsl */`
+uniform vec3 uColor;
+uniform float uPower;
+uniform float uBias;
+uniform float uScale;
+uniform vec3 uSunDir;
+varying vec3 vWorldNormal;
+varying vec3 vWorldPos;
+void main() {
+  vec3 viewDir = normalize(cameraPosition - vWorldPos);
+  float NdotV = abs(dot(viewDir, vWorldNormal));
+  float fresnel = uBias + uScale * pow(1.0 - NdotV, uPower);
+  float sunFac = dot(vWorldNormal, uSunDir) * 0.5 + 0.5;
+  float brightness = clamp(fresnel * (0.5 + 0.5 * sunFac), 0.0, 1.0);
+  gl_FragColor = vec4(uColor, brightness * 0.14);
+}`;
+const atmoMat = new THREE.ShaderMaterial({
+  uniforms: atmoUniforms,
+  vertexShader: atmoVS,
+  fragmentShader: atmoFS,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  side: THREE.BackSide,
+  depthWrite: false,
+});
+const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
+scene.add(atmosphere);
+
+// ============================================================
+// Moon — real photo texture from 3d-world
+// ============================================================
+const moonTex = loadTexture(TEX_MOON);
+moonTex.colorSpace = THREE.SRGBColorSpace;
+const moonGeo = new THREE.SphereGeometry(0.27, detailSegments[0], detailSegments[1]);
+const moonMat = new THREE.MeshPhongMaterial({
+  map: moonTex,
+  shininess: 5,
+  specular: new THREE.Color(0x111111),
+});
+const moon = new THREE.Mesh(moonGeo, moonMat);
+moon.position.set(3.5, 0.25, 1.5);
+moon.scale.setScalar(0.001);
+scene.add(moon);
+
+// ============================================================
+// Mars — real 8K NASA texture
+// ============================================================
+const marsTex = loadTexture(TEX_MARS);
+marsTex.colorSpace = THREE.SRGBColorSpace;
+const marsGeo = new THREE.SphereGeometry(0.53, detailSegments[0], detailSegments[1]);
+const marsMat = new THREE.MeshPhongMaterial({
+  map: marsTex,
+  shininess: 3,
+  specular: new THREE.Color(0x111111),
+});
+const mars = new THREE.Mesh(marsGeo, marsMat);
+mars.position.set(13, -0.2, 3.5);
+mars.scale.setScalar(0.001);
+scene.add(mars);
+
+// ============================================================
+// Post-processing — simple: Render + subtle Film grain
+// ============================================================
+let composer = null;
+if (USE_POSTPROCESSING) {
+  Promise.all([
+    import('three/addons/postprocessing/EffectComposer.js'),
+    import('three/addons/postprocessing/RenderPass.js'),
+    import('three/addons/postprocessing/UnrealBloomPass.js'),
+    import('three/addons/postprocessing/FilmPass.js'),
+    import('three/addons/postprocessing/OutputPass.js')
+  ]).then(([
+    { EffectComposer },
+    { RenderPass },
+    { UnrealBloomPass },
+    { FilmPass },
+    { OutputPass }
+  ]) => {
+    const nextComposer = new EffectComposer(renderer);
+    nextComposer.addPass(new RenderPass(scene, camera));
+
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.15, 0.15, 0.05
+    );
+    bloomPass.threshold = 0.9;
+    bloomPass.strength = 0.045;
+    bloomPass.radius = 0.16;
+    nextComposer.addPass(bloomPass);
+
+    const filmPass = new FilmPass(0.06, false);
+    nextComposer.addPass(filmPass);
+
+    const outputPass = new OutputPass();
+    nextComposer.addPass(outputPass);
+    composer = nextComposer;
+  }).catch(err => {
+    console.warn('Post-processing disabled:', err);
+    composer = null;
+  });
+}
+
+// ============================================================
+// Scroll → Camera path
+// ============================================================
+const sections = document.querySelectorAll('.section');
+const gate = document.getElementById('gate');
+const allBlocks = [...sections, gate].filter(Boolean);
+const scrollHint = document.getElementById('scroll-hint');
+
+let totalH = allBlocks.reduce((s, b) => s + b.offsetHeight, 0);
+// 动画进度只在 cosmic-intro 区段计算 — gate 入场前 p 已达 1.0,
+// 拉远全景能被完整看到
+let cosmicH = [...sections].reduce((s, b) => s + b.offsetHeight, 0);
+
+let targetP = 0, currentP = 0;
+let mouseX = 0, mouseY = 0;
+
+window.addEventListener('scroll', () => {
+  const vh = window.innerHeight;
+  const animMaxScroll = Math.max(cosmicH - vh, 1);
+  targetP = Math.min(Math.max(window.scrollY / animMaxScroll, 0), 1);
+
+  // EXPLORE button visibility (at 85%+ progress)
+  const exploreBtn = document.getElementById('explore-btn');
+  if (exploreBtn) exploreBtn.classList.toggle('visible', targetP > 0.85);
+
+  // Scroll hint hides after 4%
+  scrollHint.style.opacity = targetP > 0.04 ? '0' : '1';
+
+  // Skip link fades out after 60%
+  const skipLink = document.getElementById('skip-link');
+  if (skipLink) skipLink.style.opacity = targetP > 0.6 ? '0' : '1';
+
+  updateNav(targetP);
+}, { passive: true });
+
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+const navDots = document.querySelectorAll('.n-dot');
+function updateNav(p) {
+  const n = navDots.length;
+  const active = Math.min(Math.floor(p * n), n - 1);
+  navDots.forEach((d, i) => d.classList.toggle('on', i === active));
+}
+navDots.forEach(d => d.addEventListener('click', () => {
+  const idx = parseInt(d.dataset.idx);
+  window.scrollTo({ top: (idx / (navDots.length - 1)) * cosmicH, behavior: 'smooth' });
+}));
+
+// Cookie-based memory
+(function() {
+  var STORAGE_KEY = 'infinity_intro_seen';
+  var banner = document.getElementById('cookie-banner');
+  var acceptBtn = document.getElementById('cookie-accept');
+
+  var bannerShown = false;
+  window.addEventListener('scroll', function() {
+    if (bannerShown || !banner) return;
+    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (maxScroll > 0 && window.scrollY / maxScroll > 0.5) {
+      bannerShown = true;
+      banner.style.display = 'block';
+    }
+  }, { passive: true });
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', function() {
+      localStorage.setItem(STORAGE_KEY, '1');
+      window.location.href = '/blog/';
+    });
+  }
+})();
+
+// ============================================================
+// Camera — GSAP scrub-inspired: keyframes + single smoothstep + render-lerp
+// ============================================================
+function lerpArr(a, b, t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+// 电影级缓动库 — 不再用单一 smoothstep
+const Ease = {
+  // 进入缓慢加速,出去保持速度
+  inCubic:    t => t * t * t,
+  // 高速进入,缓慢减速 — 接近物体的"驻留感"
+  outCubic:   t => 1 - (1 - t) ** 3,
+  outQuart:   t => 1 - (1 - t) ** 4,
+  // 缓入缓出 — 默认电影感
+  inOutCubic: t => t < 0.5 ? 4 * t * t * t : 1 - ((-2 * t + 2) ** 3) / 2,
+  inOutQuart: t => t < 0.5 ? 8 * t * t * t * t : 1 - ((-2 * t + 2) ** 4) / 2,
+  // S 曲线 — 比 cubic 更柔和
+  inOutSine:  t => -(Math.cos(Math.PI * t) - 1) / 2,
+};
+function moonScale(p) {
+  // 月亮在 p=0.18 之前隐形,在 p=0.18 → 0.27 之间快速涌现至满尺度
+  return p < 0.18 ? 0.001 : smoothstep(0.18, 0.27, p);
+}
+function marsScale(p) {
+  // 火星在 p=0.50 之前隐形,在 p=0.50 → 0.62 之间快速涌现至满尺度
+  return p < 0.50 ? 0.001 : smoothstep(0.50, 0.62, p);
+}
+
+// 16 keyframes — "拉近 → 近距驻留 → 远离" 节奏 + FOV 呼吸 + 微转向 banking
+// 关键约束:
+//   1. 相机始终在物体的 +z 侧(z>物体z),sunDir=(5,3,8) 归一化,光从 +x+y+z 打来
+//   2. 拉近-远离节奏明确 — 距离物体的距离需先减后增,不是一闪而过
+//   3. FOV 呼吸:广角(50-60°)给宇宙感,长焦(34-46°)给特写压缩感(电影望远效果)
+//   4. roll 是相机绕视线轴的滚转角(度),用于转向 banking — 模拟空中摄影机/直升机视角
+//   5. 在每个特写处插入 DWELL 关键帧(pos/look/fov 不变),让镜头"停住"片刻 — 电影感的呼吸
+const KEYFRAMES = [
+  // ===== EARTH 拉进→驻留→远离 =====
+  { p:0.00, pos:[0,    0.10, getInitialCamZ()], look:[0,    0,    0  ], fov:50, roll:0,    ease:'inOutSine'  },
+  { p:0.05, pos:[0.2,  0.25, 1.95],             look:[0,    0,    0  ], fov:40, roll:0,    ease:'outCubic'   },
+  // DWELL — 长焦特写驻留
+  { p:0.07, pos:[0.25, 0.30, 1.93],             look:[0,    0,    0  ], fov:40, roll:0,    ease:'inOutSine'  },
+  { p:0.13, pos:[0.8,  0.60, 4.60],             look:[0,    0,    0  ], fov:52, roll:0.6,  ease:'inOutCubic' },
+
+  // ===== MOON 拉进→驻留→远离 =====
+  { p:0.22, pos:[2.6,  0.55, 3.60],             look:[3.5,  0.25, 1.5], fov:48, roll:0.9,  ease:'inOutCubic' },
+  { p:0.30, pos:[3.5,  0.42, 2.55],             look:[3.5,  0.25, 1.5], fov:36, roll:0,    ease:'inOutSine'  },
+  // DWELL — 月亮特写驻留(陨石坑细节凝固)
+  { p:0.34, pos:[3.55, 0.45, 2.50],             look:[3.5,  0.25, 1.5], fov:36, roll:0,    ease:'inOutSine'  },
+  { p:0.40, pos:[4.8,  1.05, 5.60],             look:[3.5,  0.25, 1.5], fov:54, roll:-0.7, ease:'inOutCubic' },
+
+  // ===== 航行段 =====
+  { p:0.52, pos:[8.0,  0.60, 7.50],             look:[13,  -0.2,  3.5], fov:50, roll:-0.35, ease:'inOutCubic' },
+
+  // ===== MARS 拉进→驻留→绕行→远离(高潮) =====
+  { p:0.64, pos:[11.0, 0.45, 6.20],             look:[13,  -0.2,  3.5], fov:46, roll:-0.2, ease:'inOutCubic' },
+  { p:0.74, pos:[12.6, 0.25, 5.00],             look:[13,  -0.2,  3.5], fov:34, roll:0,    ease:'inOutSine'  },
+  // DWELL — 火星特写驻留(纹理填满画面)
+  { p:0.78, pos:[12.65,0.27, 4.95],             look:[13,  -0.2,  3.5], fov:34, roll:0,    ease:'inOutSine'  },
+  { p:0.82, pos:[14.4, 0.55, 5.60],             look:[13,  -0.2,  3.5], fov:42, roll:0.55, ease:'inOutSine'  },
+  { p:0.90, pos:[17.0, 2.50, 11.0],             look:[13,  -0.2,  3.5], fov:56, roll:0,    ease:'inCubic'    },
+
+  // ===== GRAND FINALE =====
+  { p:0.96, pos:[22,   6,    24],               look:[8,    0.30, 1  ], fov:58, roll:0,    ease:'inCubic'    },
+  { p:1.00, pos:[28,   12,   60],               look:[1,    0.30, 0  ], fov:56, roll:0,    ease:'outCubic'   },
+];
+
+function getKeyframeState(p) {
+  let i = 0;
+  while (i < KEYFRAMES.length - 1 && p >= KEYFRAMES[i+1].p) i++;
+  const k0 = KEYFRAMES[i], k1 = KEYFRAMES[Math.min(i+1, KEYFRAMES.length-1)];
+  if (k0.p === k1.p) return { targetPos: k0.pos, targetLook: k0.look, targetFov: k0.fov ?? 50, targetRoll: k0.roll ?? 0 };
+  const t = (p - k0.p) / (k1.p - k0.p);
+  // 用关键帧自带的 ease,默认 inOutCubic
+  const easeFn = Ease[k0.ease] || Ease.inOutCubic;
+  const st = easeFn(Math.max(0, Math.min(1, t)));
+  const fov0 = k0.fov ?? 50, fov1 = k1.fov ?? 50;
+  const roll0 = k0.roll ?? 0, roll1 = k1.roll ?? 0;
+  return {
+    targetPos:  lerpArr(k0.pos,  k1.pos,  st),
+    targetLook: lerpArr(k0.look, k1.look, st),
+    targetFov:  fov0 + (fov1 - fov0) * st,
+    targetRoll: roll0 + (roll1 - roll0) * st,
+  };
+}
+
+let camTarget = [0, 0.10, getInitialCamZ()];
+let lookTarget = [0, 0, 0];
+let fovTarget = 50;
+let rollTarget = 0;
+let smoothFov = 50;
+let smoothRoll = 0;
+// 平滑的 look 锚点 — 直接对 lookTarget 做帧间 lerp,不再用"相机方向短杠杆"
+const smoothLook = new THREE.Vector3(0, 0, 0);
+
+function updateCamera(p) {
+  const { targetPos, targetLook, targetFov, targetRoll } = getKeyframeState(p);
+  camTarget = targetPos;
+  lookTarget = targetLook;
+  // FOV 按屏幕宽度比例缩放(在 50° 基准下设计的关键帧值,小屏适当放宽)
+  const fovScale = getIdealFOV() / 50;
+  fovTarget = targetFov * fovScale;
+  rollTarget = targetRoll;
+
+  moon.scale.setScalar(moonScale(p));
+  mars.scale.setScalar(marsScale(p));
+
+  if (p > 0.35) {
+    const t = Math.min(1, (p - 0.35) / 0.45);
+    const st = t * t * (3 - 2 * t);
+    const s = 1 - st * 0.82;
+    [earth, clouds, atmosphere, nightLights].forEach(o => o.scale.setScalar(s));
+  } else {
+    [earth, clouds, atmosphere, nightLights].forEach(o => o.scale.setScalar(1));
+  }
+}
+
+// ============================================================
+// Render loop
+// ============================================================
+function animate() {
+  requestAnimationFrame(animate);
+
+  // dt 归一化 — 不依赖 fps,无论 60 还是 200 fps 速率恒定
+  const now = performance.now();
+  const dtSec = Math.min(0.05, (now - (window.__lastFrame || now)) / 1000);
+  window.__lastFrame = now;
+
+  // ============================================================
+  // 电影感核心:currentP 每秒最大速率 cap (按时间归一化)
+  // 无论用户多暴力滚动,镜头都以恒定速率前进,确保每段都被"看见"
+  // 拉远段(p > 0.85)速率翻倍 — 给宇宙级远去的爽感,避免被博客地板盖住
+  // ============================================================
+  const dp = targetP - currentP;
+  const absDp = Math.abs(dp);
+  // 每秒前进速率(进度单位):正常 0.33/s(全程 3 秒);拉远段 0.85/s(0.18 秒走完最后 15%)
+  const baseStepRate = QUALITY === 'low' ? 0.7 : 0.55;
+  const stepRate = currentP > 0.85 ? 1.15 : baseStepRate;
+  let step;
+  if (absDp < 0.02) {
+    // 收尾 — 用时间归一化的指数 lerp,避免到达后抖动
+    step = dp * Math.min(1, 4 * dtSec);
+  } else {
+    // 匀速段 — 不管 targetP 跳多远,镜头永远以 stepRate/秒 前进
+    step = Math.sign(dp) * Math.min(absDp, stepRate * dtSec);
+  }
+  currentP += step;
+  updateCamera(currentP);
+
+  // 相机 pos/look 平滑 — 略放慢跟手,减少「晃」感
+  const k = 1 - Math.exp(-dtSec / 0.11);
+  camera.position.x += (camTarget[0] - camera.position.x) * k;
+  camera.position.y += (camTarget[1] - camera.position.y) * k;
+  camera.position.z += (camTarget[2] - camera.position.z) * k;
+  const kLook = 1 - Math.exp(-dtSec / 0.13);
+  smoothLook.x += (lookTarget[0] - smoothLook.x) * kLook;
+  smoothLook.y += (lookTarget[1] - smoothLook.y) * kLook;
+  smoothLook.z += (lookTarget[2] - smoothLook.z) * kLook;
+
+  // FOV 呼吸 — 平滑 lerp 到目标 FOV(广角→长焦切换)
+  const kFov = 1 - Math.exp(-dtSec / 0.14);
+  smoothFov += (fovTarget - smoothFov) * kFov;
+  if (Math.abs(camera.fov - smoothFov) > 0.05) {
+    camera.fov = smoothFov;
+    camera.updateProjectionMatrix();
+  }
+
+  // 相机滚转 banking — 平滑 lerp 到目标 roll(度→弧度)
+  const kRoll = 1 - Math.exp(-dtSec / 0.22);
+  smoothRoll += (rollTarget - smoothRoll) * kRoll;
+  const rollRad = smoothRoll * Math.PI / 180;
+  camera.up.set(Math.sin(rollRad), Math.cos(rollRad), 0);
+
+  camera.lookAt(smoothLook);
+
+  // Rotations
+  earth.rotation.y += 0.001;
+  clouds.rotation.y += 0.0007;
+  nightLights.rotation.y += 0.001;
+  moon.rotation.y += 0.0004;
+  mars.rotation.y += 0.0006;
+
+  // Star parallax — 减轻幅度,避免「景在晃」
+  const mx = mouseX * 0.22;
+  const my = mouseY * 0.16;
+  starLayers[0].position.set(mx * 0.06, my * 0.06, 0);
+  starLayers[1].position.set(mx * 0.03, my * 0.03, 0);
+  starLayers[2].position.set(mx * 0.012, my * 0.012, 0);
+  starLayers[3].position.set(mx * 0.02, my * 0.02, 0);
+  brightStars.position.set(mx * 0.025, my * 0.025, 0);
+
+  if (composer) composer.render();
+  else renderer.render(scene, camera);
+}
+
+// 初始同步:刷新到中间时,直接对齐到当前 scroll 对应的 keyframe,避免相机从 p=0 慢慢飞过去
+(function syncInitial() {
+  const vh = window.innerHeight;
+  const animMaxScroll = Math.max(cosmicH - vh, 1);
+  targetP = Math.min(Math.max(window.scrollY / animMaxScroll, 0), 1);
+  currentP = targetP;
+  const s = getKeyframeState(currentP);
+  camTarget = s.targetPos;
+  lookTarget = s.targetLook;
+  // 初始化 fov/roll smooth 状态,避免动画启动时 FOV 突然变化
+  const fovScale = getIdealFOV() / 50;
+  fovTarget = s.targetFov * fovScale;
+  rollTarget = s.targetRoll;
+  smoothFov = fovTarget;
+  smoothRoll = rollTarget;
+  camera.fov = smoothFov;
+  camera.updateProjectionMatrix();
+  const rollRad0 = smoothRoll * Math.PI / 180;
+  camera.up.set(Math.sin(rollRad0), Math.cos(rollRad0), 0);
+  camera.position.set(camTarget[0], camTarget[1], camTarget[2]);
+  smoothLook.set(lookTarget[0], lookTarget[1], lookTarget[2]);
+  camera.lookAt(smoothLook);
+  updateCamera(currentP);
+})();
+
+animate();
+
+// ============================================================
+// Responsive
+// ============================================================
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(getRenderPixelRatio());
+  renderer.setSize(w, h, false);
+  if (composer) {
+    composer.setPixelRatio(getRenderPixelRatio());
+    composer.setSize(w, h);
+  }
+  // 重算高度，确保 resize 后动画进度和导航点击位置准确
+  totalH = allBlocks.reduce((s, b) => s + b.offsetHeight, 0);
+  cosmicH = [...sections].reduce((s, b) => s + b.offsetHeight, 0);
+});
+</script>
+
+</body>
+</html>

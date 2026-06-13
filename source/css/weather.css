@@ -463,6 +463,112 @@
   }
 }
 
+/* ===== Current Butterfly weather card ===== */
+.card-weather {
+  padding: 18px 16px 16px;
+  border: 1px solid var(--infinity-line, rgba(61, 73, 91, 0.12));
+  background:
+    radial-gradient(circle at 85% 12%, rgba(184, 145, 75, 0.10), transparent 34%),
+    var(--card-bg, rgba(255, 255, 255, 0.86));
+  overflow: hidden;
+}
+
+.card-weather::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(47, 111, 143, 0.08), transparent 46%);
+  content: "";
+  pointer-events: none;
+}
+
+.card-weather > * {
+  position: relative;
+  z-index: 1;
+}
+
+.weather-poem-fixed {
+  margin-bottom: 10px;
+  color: var(--infinity-gold, #b8914b);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  font-weight: 600;
+}
+
+.weather-greeting {
+  color: var(--text-highlight-color, #1d2736);
+  font-size: 0.93rem;
+  line-height: 1.75;
+}
+
+.weather-api-poem {
+  margin-top: 10px;
+  color: var(--infinity-ink, #233044);
+  font-size: 0.92rem;
+  line-height: 1.9;
+}
+
+.weather-poem-location,
+.weather-hint {
+  margin-top: 6px;
+  color: var(--infinity-muted, #66758a);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.weather-divider {
+  width: 42px;
+  height: 1px;
+  margin: 14px auto 12px;
+  background: linear-gradient(90deg, transparent, var(--infinity-gold, #b8914b), transparent);
+}
+
+.weather-info {
+  color: var(--infinity-accent, #2f6f8f);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.weather-mobile-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--infinity-line, rgba(61, 73, 91, 0.12));
+  border-radius: 8px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.86));
+  box-shadow: var(--card-box-shadow, 0 16px 42px rgba(31, 41, 55, 0.10));
+  color: var(--infinity-muted, #66758a);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.weather-poem-fixed-m {
+  color: var(--infinity-gold, #b8914b);
+  font-weight: 600;
+}
+
+.weather-greeting-m,
+.weather-api-poem-m,
+.weather-info-m,
+.weather-hint-m {
+  overflow-wrap: anywhere;
+}
+
+.weather-info-m {
+  color: var(--infinity-accent, #2f6f8f);
+}
+
+@media (max-width: 600px) {
+  .weather-mobile-bar {
+    margin: 0 0 12px;
+    padding: 12px;
+    font-size: 0.84rem;
+  }
+}
+
 /* ============================================================
    Butterfly 主题暗黑模式适配
    ============================================================ */
@@ -500,10 +606,19 @@
   color: #c0c8d0;
 }
 
+[data-theme='dark'] .card-weather {
+  background:
+    radial-gradient(circle at 85% 12%, rgba(213, 176, 111, 0.11), transparent 34%),
+    var(--card-bg, rgba(24, 28, 34, 0.84));
+}
+
+[data-theme='dark'] .weather-api-poem {
+  color: rgba(242, 245, 248, 0.86);
+}
+
 /* ===== Butterfly 侧栏/移动端欢迎卡片：关闭过渡动画（仅保留信息展示）===== */
 .card-weather,
 .card-weather::before,
 .weather-mobile-bar {
-  transition: none !important;
   animation: none !important;
 }

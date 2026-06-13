@@ -151,7 +151,7 @@ post_meta:
 # The position of site info, eg: 300px/300em/300rem/10%
 index_site_info_top:
 # The height of top_img, eg: 300px/300em/300rem
-index_top_img_height:
+index_top_img_height: 72vh
 
 # The subtitle on homepage
 subtitle:
@@ -204,7 +204,7 @@ index_layout: 1
 index_post_content:
   method: 2
   # If you set method to 2 or 3, the length need to config
-  length: 500
+  length: 220
 
 # --------------------------------------
 # Post Settings
@@ -295,7 +295,7 @@ aside:
   hide: false
   # Show the button to hide the aside in bottom right button
   button: true
-  mobile: true
+  mobile: false
   # Position: left / right
   position: right
   display:
@@ -459,9 +459,9 @@ wordcount:
 
 # Busuanzi count for PV / UV in site
 busuanzi:
-  site_uv: true
-  site_pv: true
-  page_pv: true
+  site_uv: false
+  site_pv: false
+  page_pv: false
 
 # --------------------------------------
 # Math
@@ -474,7 +474,7 @@ math:
   # Choose: mathjax, katex
   # Leave it empty if you don't need math
   use:
-  per_page: true
+  per_page: false
   hide_scrollbar: false
 
   mathjax:
@@ -832,7 +832,7 @@ preloader:
   pace_css_url:
 
 # Page Transition
-enter_transitions: true
+enter_transitions: false
 
 # Default display mode - light (default) / dark
 display_mode: light
@@ -852,13 +852,13 @@ beautify:
 font:
   global_font_size: 16px
   code_font_size: 14px
-  font_family: 'LXGW WenKai, Cormorant Garamond, Noto Sans SC, PingFang SC, Microsoft YaHei, serif'
+  font_family: 'LXGW WenKai, Noto Serif SC, Source Han Serif SC, PingFang SC, Microsoft YaHei, serif'
   code_font_family: 'Fira Code, Consolas, Monaco, monospace'
 
 # Font settings for the site title and the site subtitle
 blog_title_font:
-  font_link: https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap
-  font_family: 'LXGW WenKai, Cormorant Garamond, serif'
+  font_link:
+  font_family: 'LXGW WenKai, Georgia, Times New Roman, serif'
 
 # The setting of divider icon
 hr_icon:
@@ -1091,7 +1091,6 @@ inject:
     - <script src="/blog/js/geo.js"></script>
     - <script src="/blog/js/weather.js"></script>
     - <script src="/blog/js/poetry.js"></script>
-    - <script src="/blog/js/daynight.js"></script>
     - <script src="/blog/js/weather-card.js"></script>
     - <script src="/blog/js/weather-init.js"></script>
 
