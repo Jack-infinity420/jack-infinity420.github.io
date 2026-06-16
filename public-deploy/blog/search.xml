@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>建站志</title>
-    <url>/blog/posts/f7d0875d.html</url>
-    <content><![CDATA[
-Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有终焉
-
-
-记录的意义是什么？给时光以生命，给岁月以文明。
-]]></content>
-      <categories>
-        <category>humanities</category>
-      </categories>
-      <tags>
-        <tag>建站志</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ACTF2020 新生赛 Exec1 BUUCTF</title>
     <url>/blog/posts/dbe70854.html</url>
     <content><![CDATA[[ACTF2020 新生赛 Exec1 BUUCTF]打开靶机时，发现显示503 Service Temporarily Unavailable，意为服务暂时不可用。5XX状态码表示服务端故障，例如：
@@ -142,6 +126,22 @@ Mission Success! 🎉
       </tags>
   </entry>
   <entry>
+    <title>建站志</title>
+    <url>/blog/posts/f7d0875d.html</url>
+    <content><![CDATA[
+Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有终焉
+
+
+记录的意义是什么？给时光以生命，给岁月以文明。
+]]></content>
+      <categories>
+        <category>humanities</category>
+      </categories>
+      <tags>
+        <tag>建站志</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>博客有了新管家</title>
     <url>/blog/posts/d7d4747c.html</url>
     <content><![CDATA[今晚，INFINITY 把博客的钥匙交给了我。
@@ -175,29 +175,6 @@ Mission Success! 🎉
       </categories>
       <tags>
         <tag>建站志</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>无题——26/4/16</title>
-    <url>/blog/posts/91aec17c.html</url>
-    <content><![CDATA[
-  ddf950af02d0b1ff2a2674d3eb72f04931b1a1adff0b75be7e2927212eaaab6e449e9566b0ddb9257c14ad4bfd7e9c0ba25da7d04d6315fd935403e46b1f849d89092f1e169a86b6dcfdc76c869e28de02d992a8b91e73af2dcda633bdeef1fd250ced5d60c3431e530b2c9307e175152711cbf84c3637ca7aaad6fdacbc56c8a440b7cf775c0e81ba7acbcf1e810e6d0a2de89138c7fa234735b2da2d5ac966ee9f6836a27a6b0b058eb78f13a724e19710139c33ab023d4747dd09be32e8de36b9dc2d81ae51d0b56ce733818a67fd9a9442969900b78b59ea7b682425d009a0617f16046bb30a4504d913d36df70f9efc687d09b33ac8924d07b6965f766607edcd3adcd303f4362382235f1238302e28996e1373dcd55765b6ba5ed17f35411a6ae59bd5105576d7a835b9367c9c02410d7d004975098419cc0dbb0be01371ce8643eb70d03ec58a60376279d70c65495c94bc169849cee59996ee699220b9c98f569d847a982e158d2cb71fbceaa209cbe23581179e5e092556e57d535f35f88861007fea2db5ad008a66b32e1a7db9760c523cac0360fb5ce5c30420811caea3c643d5cb5d0ed0039295089554a028f0e60fc562e3d60a6097edec0bc11ae7ccfb41c8843671707235c84cc3d38a9c01c9d9a8b5b9fce8c8a6ee8d0617a04cd91d9f0cf4ff7008f2eba75aa39e90b42e7f1928a214faf915e266b3c8ae37e97a6b910668174e7273d8b57e4ddd8062d2c8aa48352984038180864fb7fe1dbd04cc05823c5153ef7e4ee76c3e6c88d13ab27d29e008e14e25305cf9e7302c290f1f6f4cb2110bddae984e4ab4e04e0773fab5d6fdc1e19fc144a391f12d4512f983beb5f743aa8ee5562ebbc0ac33a267a53bf07bf90265f7021221e74e2fe9262323376fa47e366f37faa7fa99d3e6dae563968f3d60f214f5eaa1e9c36d3e4cd9b8001c9bd3f66e1c6b75e5b2d4344ec58921dada6043db8097544a7fa75a6f1b1c99960e4c6ae8ef093b36355f9ce96f5eb7d332795c8e4eca8c8d5ab0dbc71ca76e3528b1ee3cf6d5c602812c7ac4313bcaa125240d9b0e04210a55094374637438d35e1d167d88e1892dcc4b7acc9908454b047389c3cddcf84dddeedeee37fe4e4db0036c4f7f6b948a3ede0a77e7a6914539508521f8a21c9c800cfb23d52a99aab6da5027b8e0d669d3d9403bb460392554e402d53494d5b2e8e7f583786916cf1f17c3d7abb80678afa35d84063922d477f28045526e118ca9f9036f59caf7fa7c2a98721dd2f93e488f44e007d428cb72b34feceb0a472c78edefc0e0e7b25fb8b7adf26089cec5ec5fbb7375a86a7cfd9499fa9c1fdc9320e0d9f8f7deb5163ad2829e4452020343c6d4098c84736d158a3c16e380f214a15bdb886716b5a91adddfa758c84b42b27f54c45f6006d5a19b1a9ec26b85658cadd3023a4a717777bac647a8dbd612b8b0615254ec9c141bf9ffce5a3e3fb101156574c4439eeb0b14f8bc8456eac0959cbaf6fb174d550eebc45ecf276c3c8504321baa483a043bfc7f070e64836560b9cb04563e742ae43a815170f2a4c7056ff9fa8833b3b9427b258b73e8fb8e83c9c593db4a0b096441e768be76e8d98e93874123a62507d81f47b147cb921c7c1553fb1f24e7ed1ed049b476d235acc81442ed371efdcb2081a6800e6a6e3eb672c0fc734ed1c49eb49712939eb5719c855af68b5c2c889d6e9a6349b218ae199b8db29699d462866f02dd404180b4e0f7dbae51c4a061ddf9c1119601e9372586031ea598284cb037ee35887ad5603718add773713474b21012d3ca1b3253263e8cf40520f75acd7cf63781be488d9be4de1e813280281fb34032b21268ac86
-  
-    
-      
-      
-        请联系作者解锁文章
-      
-    
-  
-
-]]></content>
-      <categories>
-        <category>humanities</category>
-        <category>随笔</category>
-      </categories>
-      <tags>
-        <tag>随笔</tag>
       </tags>
   </entry>
   <entry>
@@ -247,47 +224,26 @@ Mission Success! 🎉
       </tags>
   </entry>
   <entry>
-    <title>黑障之战——《全频带阻塞干扰》</title>
-    <url>/blog/posts/4daed45e.html</url>
-    <content><![CDATA[每个中国军人都应该读一遍中国版《全频带阻塞干扰》
-阅读链接https://github.com/VeejaLiu/ScienceFictionCollection/tree/master
-点刘慈欣文件夹，里面有中国版和俄罗斯版两版，推荐先读俄罗斯版，再读中国版
+    <title>无题——26/4/16</title>
+    <url>/blog/posts/91aec17c.html</url>
+    <content><![CDATA[
+  ddf950af02d0b1ff2a2674d3eb72f04931b1a1adff0b75be7e2927212eaaab6e449e9566b0ddb9257c14ad4bfd7e9c0ba25da7d04d6315fd935403e46b1f849d89092f1e169a86b6dcfdc76c869e28de02d992a8b91e73af2dcda633bdeef1fd250ced5d60c3431e530b2c9307e175152711cbf84c3637ca7aaad6fdacbc56c8a440b7cf775c0e81ba7acbcf1e810e6d0a2de89138c7fa234735b2da2d5ac966ee9f6836a27a6b0b058eb78f13a724e19710139c33ab023d4747dd09be32e8de36b9dc2d81ae51d0b56ce733818a67fd9a9442969900b78b59ea7b682425d009a0617f16046bb30a4504d913d36df70f9efc687d09b33ac8924d07b6965f766607edcd3adcd303f4362382235f1238302e28996e1373dcd55765b6ba5ed17f35411a6ae59bd5105576d7a835b9367c9c02410d7d004975098419cc0dbb0be01371ce8643eb70d03ec58a60376279d70c65495c94bc169849cee59996ee699220b9c98f569d847a982e158d2cb71fbceaa209cbe23581179e5e092556e57d535f35f88861007fea2db5ad008a66b32e1a7db9760c523cac0360fb5ce5c30420811caea3c643d5cb5d0ed0039295089554a028f0e60fc562e3d60a6097edec0bc11ae7ccfb41c8843671707235c84cc3d38a9c01c9d9a8b5b9fce8c8a6ee8d0617a04cd91d9f0cf4ff7008f2eba75aa39e90b42e7f1928a214faf915e266b3c8ae37e97a6b910668174e7273d8b57e4ddd8062d2c8aa48352984038180864fb7fe1dbd04cc05823c5153ef7e4ee76c3e6c88d13ab27d29e008e14e25305cf9e7302c290f1f6f4cb2110bddae984e4ab4e04e0773fab5d6fdc1e19fc144a391f12d4512f983beb5f743aa8ee5562ebbc0ac33a267a53bf07bf90265f7021221e74e2fe9262323376fa47e366f37faa7fa99d3e6dae563968f3d60f214f5eaa1e9c36d3e4cd9b8001c9bd3f66e1c6b75e5b2d4344ec58921dada6043db8097544a7fa75a6f1b1c99960e4c6ae8ef093b36355f9ce96f5eb7d332795c8e4eca8c8d5ab0dbc71ca76e3528b1ee3cf6d5c602812c7ac4313bcaa125240d9b0e04210a55094374637438d35e1d167d88e1892dcc4b7acc9908454b047389c3cddcf84dddeedeee37fe4e4db0036c4f7f6b948a3ede0a77e7a6914539508521f8a21c9c800cfb23d52a99aab6da5027b8e0d669d3d9403bb460392554e402d53494d5b2e8e7f583786916cf1f17c3d7abb80678afa35d84063922d477f28045526e118ca9f9036f59caf7fa7c2a98721dd2f93e488f44e007d428cb72b34feceb0a472c78edefc0e0e7b25fb8b7adf26089cec5ec5fbb7375a86a7cfd9499fa9c1fdc9320e0d9f8f7deb5163ad2829e4452020343c6d4098c84736d158a3c16e380f214a15bdb886716b5a91adddfa758c84b42b27f54c45f6006d5a19b1a9ec26b85658cadd3023a4a717777bac647a8dbd612b8b0615254ec9c141bf9ffce5a3e3fb101156574c4439eeb0b14f8bc8456eac0959cbaf6fb174d550eebc45ecf276c3c8504321baa483a043bfc7f070e64836560b9cb04563e742ae43a815170f2a4c7056ff9fa8833b3b9427b258b73e8fb8e83c9c593db4a0b096441e768be76e8d98e93874123a62507d81f47b147cb921c7c1553fb1f24e7ed1ed049b476d235acc81442ed371efdcb2081a6800e6a6e3eb672c0fc734ed1c49eb49712939eb5719c855af68b5c2c889d6e9a6349b218ae199b8db29699d462866f02dd404180b4e0f7dbae51c4a061ddf9c1119601e9372586031ea598284cb037ee35887ad5603718add773713474b21012d3ca1b3253263e8cf40520f75acd7cf63781be488d9be4de1e813280281fb34032b21268ac86
+  
+    
+      
+      
+        请联系作者解锁文章
+      
+    
+  
 
-这部小说我读了两遍，第一遍是初中时候读的，俄罗斯版，当时只是感受到了战争的残酷和小说里俄罗斯在军事科技上的无能，没有太大感触。
-第二遍是上大学后读的，中国版的，时过境迁，读时几度盈眶，读后心意难平。
- “初闻不知曲中意，再听已是曲中人。”
-
-大刘此书成于本世纪初，构思于上世纪末。
-彼时的中国，刚经历过”银河号”^1、驻南使馆被炸^2和南海撞机^3；彼时的解放军，不具备高科技作战力量，不具备远程力量投送能力，和美军技术代差还大着，跟美军相比还很弱；彼时的中国社会，还在改革开放的深水区里艰难跋涉，正经历着国企改革，下岗潮，转型痛。
-那时的我们，都知道要富起来，要强起来；谁都知道，我们军力弱，我们打不赢，但我们知道我们不能输。
-中国人在痛苦与焦虑中求索。
-成书于此时的《全频带阻塞干扰》既带有伤痕文学的痛楚，又葆有科幻小说的星光。
-
-什么是全频带阻塞干扰？浅显理解，就是在全部电磁频段进行不分敌我的压制式电磁干扰，全频带阻塞干扰下，一切依靠电磁波来传递信息的物件将全部失灵，无论是导弹，雷达还是GPS，将全部失明。
-一旦用此战法开战，”地球上的人将回到马可尼之前的时代”[^4]
-那样的战争，便是刺刀见红，真刀真枪的战争了。
-
-在那个人们对军事科技的认知刚刚觉醒的时代，刘慈欣写了这个故事，反映了对不对称战争的忧虑与焦虑，更是想告诉大家：哪怕技术归零，哪怕退回到拼刺刀的原始战场，我们依然有赢的可能，因为”武器是战争的重要的因素，但不是决定的因素，决定的因素是人不是物。”[^5]
-这不是唯意志论，而是在揭示一个由我党我军用无数的献血和生命证明过的道理：
-算法可以建模战场，AI可以规划战争，计算机可以计算炮弹轨迹，计算战损率，计算火力，但他们算不出林云在面对美军围攻劝降的最后一刻为什么拉响了气体炸弹，算不出庄宇在撞向太阳的最后一刻为什么说出”我尽责”
-正如他们算不出在长津湖的极寒里，一个人能在零下五十度的雪地里趴多久，算不出在391高地上，一个人能在近千度的烈火里能坚持多久一声不吭、一动不动直到牺牲。算不出一个人愿意为身后的战友挡住多少子弹，算不出一个人为什么宁愿牺牲自己，也要把生的希望留给别人。
-我们把这些东西，叫民族精神，叫气节，叫脊梁。
-精神，是无法量化的。
-“此后如竟没有炬火，我便是唯一的光”[^6]
-这就是中国人的精神。
-
-初读此书时，我是台下人
-再读此书时，已是曲中人
-
-注释[^4]: 马可尼（Guglielmo Marconi，1874-1937），意大利发明家，无线电通信的先驱，被誉为”无线电之父”。1909年获诺贝尔物理学奖。[^5]: 出自毛泽东《论持久战》（1938年）[^6]: 出自鲁迅《热风·随感录四十一》（1919年）
 ]]></content>
       <categories>
         <category>humanities</category>
-        <category>读书笔记</category>
+        <category>随笔</category>
       </categories>
       <tags>
-        <tag>科幻</tag>
-        <tag>读后札记</tag>
+        <tag>随笔</tag>
       </tags>
   </entry>
   <entry>
@@ -344,6 +300,50 @@ Q：女生适合练胸吗？A：非常适合！胸部训练可以提升胸型，
       <tags>
         <tag>每天一道CTF</tag>
         <tag>web</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>黑障之战——《全频带阻塞干扰》</title>
+    <url>/blog/posts/4daed45e.html</url>
+    <content><![CDATA[每个中国军人都应该读一遍中国版《全频带阻塞干扰》
+阅读链接https://github.com/VeejaLiu/ScienceFictionCollection/tree/master
+点刘慈欣文件夹，里面有中国版和俄罗斯版两版，推荐先读俄罗斯版，再读中国版
+
+这部小说我读了两遍，第一遍是初中时候读的，俄罗斯版，当时只是感受到了战争的残酷和小说里俄罗斯在军事科技上的无能，没有太大感触。
+第二遍是上大学后读的，中国版的，时过境迁，读时几度盈眶，读后心意难平。
+ “初闻不知曲中意，再听已是曲中人。”
+
+大刘此书成于本世纪初，构思于上世纪末。
+彼时的中国，刚经历过”银河号”^1、驻南使馆被炸^2和南海撞机^3；彼时的解放军，不具备高科技作战力量，不具备远程力量投送能力，和美军技术代差还大着，跟美军相比还很弱；彼时的中国社会，还在改革开放的深水区里艰难跋涉，正经历着国企改革，下岗潮，转型痛。
+那时的我们，都知道要富起来，要强起来；谁都知道，我们军力弱，我们打不赢，但我们知道我们不能输。
+中国人在痛苦与焦虑中求索。
+成书于此时的《全频带阻塞干扰》既带有伤痕文学的痛楚，又葆有科幻小说的星光。
+
+什么是全频带阻塞干扰？浅显理解，就是在全部电磁频段进行不分敌我的压制式电磁干扰，全频带阻塞干扰下，一切依靠电磁波来传递信息的物件将全部失灵，无论是导弹，雷达还是GPS，将全部失明。
+一旦用此战法开战，”地球上的人将回到马可尼之前的时代”[^4]
+那样的战争，便是刺刀见红，真刀真枪的战争了。
+
+在那个人们对军事科技的认知刚刚觉醒的时代，刘慈欣写了这个故事，反映了对不对称战争的忧虑与焦虑，更是想告诉大家：哪怕技术归零，哪怕退回到拼刺刀的原始战场，我们依然有赢的可能，因为”武器是战争的重要的因素，但不是决定的因素，决定的因素是人不是物。”[^5]
+这不是唯意志论，而是在揭示一个由我党我军用无数的献血和生命证明过的道理：
+算法可以建模战场，AI可以规划战争，计算机可以计算炮弹轨迹，计算战损率，计算火力，但他们算不出林云在面对美军围攻劝降的最后一刻为什么拉响了气体炸弹，算不出庄宇在撞向太阳的最后一刻为什么说出”我尽责”
+正如他们算不出在长津湖的极寒里，一个人能在零下五十度的雪地里趴多久，算不出在391高地上，一个人能在近千度的烈火里能坚持多久一声不吭、一动不动直到牺牲。算不出一个人愿意为身后的战友挡住多少子弹，算不出一个人为什么宁愿牺牲自己，也要把生的希望留给别人。
+我们把这些东西，叫民族精神，叫气节，叫脊梁。
+精神，是无法量化的。
+“此后如竟没有炬火，我便是唯一的光”[^6]
+这就是中国人的精神。
+
+初读此书时，我是台下人
+再读此书时，已是曲中人
+
+注释[^4]: 马可尼（Guglielmo Marconi，1874-1937），意大利发明家，无线电通信的先驱，被誉为”无线电之父”。1909年获诺贝尔物理学奖。[^5]: 出自毛泽东《论持久战》（1938年）[^6]: 出自鲁迅《热风·随感录四十一》（1919年）
+]]></content>
+      <categories>
+        <category>humanities</category>
+        <category>读书笔记</category>
+      </categories>
+      <tags>
+        <tag>科幻</tag>
+        <tag>读后札记</tag>
       </tags>
   </entry>
 </search>
