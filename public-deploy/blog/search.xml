@@ -75,6 +75,32 @@ Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有
       </tags>
   </entry>
   <entry>
+    <title>三大工作机制插件——驱动智能体严格工作</title>
+    <url>/blog/posts/4a8ca938.html</url>
+    <content><![CDATA[Dear Vibe Coder&#x2F; Vibe Writer&#x2F; Vibe Researcher&#x2F; Vibe Creator，
+
+在 vibe 之旅中，你是否经历过这样的时刻——智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。你是否发现过这样的问题——智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。你是否苦恼于这样的现状——智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下
+与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE此插件将驱动智能体严格按照以下工作制度进行项目构建：
+一、请示报告二、督促检查三、信息服务
+力求用铁一般的制度锻造铁一般的智能体。铁一般的智能体铸就铁一般的生产力。
+此插件项目已开源至github，欢迎同志们下载使用。URL：https://github.com/Jack-infinity420/three-mechanisms-plugin
+]]></content>
+      <categories>
+        <category>AI</category>
+        <category>开源</category>
+      </categories>
+      <tags>
+        <tag>Agent</tag>
+        <tag>Claude Code</tag>
+        <tag>Cursor</tag>
+        <tag>Codex CLI</tag>
+        <tag>TRAE</tag>
+        <tag>插件</tag>
+        <tag>工作制度</tag>
+        <tag>GitHub</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>杠铃平板卧推完整教学</title>
     <url>/blog/posts/56c13fea.html</url>
     <content><![CDATA[杠铃平板卧推主要目标：主要练胸大肌（让胸部变厚变饱满），同时带动三头肌和肩膀前侧增长。是瘦子增重期最有效的上半身推力基础动作。
@@ -116,29 +142,69 @@ Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有
       </tags>
   </entry>
   <entry>
-    <title>三大工作机制插件——驱动智能体严格工作</title>
-    <url>/blog/posts/4a8ca938.html</url>
-    <content><![CDATA[Dear Vibe Coder&#x2F; Vibe Writer&#x2F; Vibe Researcher&#x2F; Vibe Creator，
+    <title>无题——26/4/16</title>
+    <url>/blog/posts/91aec17c.html</url>
+    <content><![CDATA[
+  ddf950af02d0b1ff2a2674d3eb72f04931b1a1adff0b75be7e2927212eaaab6e449e9566b0ddb9257c14ad4bfd7e9c0ba25da7d04d6315fd935403e46b1f849d89092f1e169a86b6dcfdc76c869e28de02d992a8b91e73af2dcda633bdeef1fd250ced5d60c3431e530b2c9307e175152711cbf84c3637ca7aaad6fdacbc56c8a440b7cf775c0e81ba7acbcf1e810e6d0a2de89138c7fa234735b2da2d5ac966ee9f6836a27a6b0b058eb78f13a724e19710139c33ab023d4747dd09be32e8de36b9dc2d81ae51d0b56ce733818a67fd9a9442969900b78b59ea7b682425d009a0617f16046bb30a4504d913d36df70f9efc687d09b33ac8924d07b6965f766607edcd3adcd303f4362382235f1238302e28996e1373dcd55765b6ba5ed17f35411a6ae59bd5105576d7a835b9367c9c02410d7d004975098419cc0dbb0be01371ce8643eb70d03ec58a60376279d70c65495c94bc169849cee59996ee699220b9c98f569d847a982e158d2cb71fbceaa209cbe23581179e5e092556e57d535f35f88861007fea2db5ad008a66b32e1a7db9760c523cac0360fb5ce5c30420811caea3c643d5cb5d0ed0039295089554a028f0e60fc562e3d60a6097edec0bc11ae7ccfb41c8843671707235c84cc3d38a9c01c9d9a8b5b9fce8c8a6ee8d0617a04cd91d9f0cf4ff7008f2eba75aa39e90b42e7f1928a214faf915e266b3c8ae37e97a6b910668174e7273d8b57e4ddd8062d2c8aa48352984038180864fb7fe1dbd04cc05823c5153ef7e4ee76c3e6c88d13ab27d29e008e14e25305cf9e7302c290f1f6f4cb2110bddae984e4ab4e04e0773fab5d6fdc1e19fc144a391f12d4512f983beb5f743aa8ee5562ebbc0ac33a267a53bf07bf90265f7021221e74e2fe9262323376fa47e366f37faa7fa99d3e6dae563968f3d60f214f5eaa1e9c36d3e4cd9b8001c9bd3f66e1c6b75e5b2d4344ec58921dada6043db8097544a7fa75a6f1b1c99960e4c6ae8ef093b36355f9ce96f5eb7d332795c8e4eca8c8d5ab0dbc71ca76e3528b1ee3cf6d5c602812c7ac4313bcaa125240d9b0e04210a55094374637438d35e1d167d88e1892dcc4b7acc9908454b047389c3cddcf84dddeedeee37fe4e4db0036c4f7f6b948a3ede0a77e7a6914539508521f8a21c9c800cfb23d52a99aab6da5027b8e0d669d3d9403bb460392554e402d53494d5b2e8e7f583786916cf1f17c3d7abb80678afa35d84063922d477f28045526e118ca9f9036f59caf7fa7c2a98721dd2f93e488f44e007d428cb72b34feceb0a472c78edefc0e0e7b25fb8b7adf26089cec5ec5fbb7375a86a7cfd9499fa9c1fdc9320e0d9f8f7deb5163ad2829e4452020343c6d4098c84736d158a3c16e380f214a15bdb886716b5a91adddfa758c84b42b27f54c45f6006d5a19b1a9ec26b85658cadd3023a4a717777bac647a8dbd612b8b0615254ec9c141bf9ffce5a3e3fb101156574c4439eeb0b14f8bc8456eac0959cbaf6fb174d550eebc45ecf276c3c8504321baa483a043bfc7f070e64836560b9cb04563e742ae43a815170f2a4c7056ff9fa8833b3b9427b258b73e8fb8e83c9c593db4a0b096441e768be76e8d98e93874123a62507d81f47b147cb921c7c1553fb1f24e7ed1ed049b476d235acc81442ed371efdcb2081a6800e6a6e3eb672c0fc734ed1c49eb49712939eb5719c855af68b5c2c889d6e9a6349b218ae199b8db29699d462866f02dd404180b4e0f7dbae51c4a061ddf9c1119601e9372586031ea598284cb037ee35887ad5603718add773713474b21012d3ca1b3253263e8cf40520f75acd7cf63781be488d9be4de1e813280281fb34032b21268ac86
+  
+    
+      
+      
+        请联系作者解锁文章
+      
+    
+  
 
-在 vibe 之旅中，你是否经历过这样的时刻——智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。你是否发现过这样的问题——智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。你是否苦恼于这样的现状——智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下
-与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE此插件将驱动智能体严格按照以下工作制度进行项目构建：
-一、请示报告二、督促检查三、信息服务
-力求用铁一般的制度锻造铁一般的智能体。铁一般的智能体铸就铁一般的生产力。
-此插件项目已开源至github，欢迎同志们下载使用。URL：https://github.com/Jack-infinity420/three-mechanisms-plugin
 ]]></content>
       <categories>
-        <category>AI</category>
-        <category>开源</category>
+        <category>humanities</category>
+        <category>随笔</category>
       </categories>
       <tags>
-        <tag>Agent</tag>
-        <tag>Claude Code</tag>
-        <tag>Cursor</tag>
-        <tag>Codex CLI</tag>
-        <tag>TRAE</tag>
-        <tag>插件</tag>
-        <tag>工作制度</tag>
-        <tag>GitHub</tag>
+        <tag>随笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>胸部训练完整指南</title>
+    <url>/blog/posts/e79b89d.html</url>
+    <content><![CDATA[
+强健的胸肌是力量与美的象征
+
+胸大肌解剖与功能胸大肌是胸部最大的肌肉，分为上、中、下三个部分：
+
+上胸：锁骨部分，负责推举动作的上半程
+中胸：胸骨部分，负责水平推举
+下胸：肋骨部分，负责推举动作的下半程
+
+核心训练动作1. 杠铃平板卧推目标肌肉：胸大肌中部要点：肩胛骨收紧，肘部夹紧45-60度，主动掰杠组数：3-4组，每组8-12次
+2. 上斜哑铃卧推目标肌肉：胸大肌上部要点：凳面倾斜30-45度，哑铃下放至胸部两侧组数：3组，每组10-15次
+3. 哑铃飞鸟目标肌肉：胸大肌外侧要点：微屈肘部，保持张力，感受胸肌拉伸组数：3组，每组12-15次
+4. 双杠臂屈伸目标肌肉：胸大肌下部要点：身体前倾，肘部向外打开组数：3组，每组力竭
+训练计划示例初级计划（每周2次）
+杠铃平板卧推：3×8-12
+上斜哑铃卧推：3×10-15
+哑铃飞鸟：3×12-15
+
+中级计划（每周2-3次）
+杠铃平板卧推：4×6-10
+上斜杠铃卧推：3×8-12
+哑铃飞鸟：3×12-15
+器械夹胸：3×15-20
+
+常见问题与解答Q：为什么卧推时肩膀疼？A：可能是肩胛骨没有收紧，或者肘部角度过大。确保肩胛骨稳定，肘部夹紧45-60度。
+Q：如何增加卧推重量？A：循序渐进增加重量，保证动作质量。可以尝试5×5训练法。
+Q：女生适合练胸吗？A：非常适合！胸部训练可以提升胸型，预防下垂。
+
+坚持训练，科学进步，打造强健胸肌！
+]]></content>
+      <categories>
+        <category>tech</category>
+        <category>体能训练</category>
+      </categories>
+      <tags>
+        <tag>力量训练</tag>
+        <tag>卧推</tag>
+        <tag>胸部训练</tag>
       </tags>
   </entry>
   <entry>
@@ -224,49 +290,6 @@ Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有
       </tags>
   </entry>
   <entry>
-    <title>胸部训练完整指南</title>
-    <url>/blog/posts/e79b89d.html</url>
-    <content><![CDATA[
-强健的胸肌是力量与美的象征
-
-胸大肌解剖与功能胸大肌是胸部最大的肌肉，分为上、中、下三个部分：
-
-上胸：锁骨部分，负责推举动作的上半程
-中胸：胸骨部分，负责水平推举
-下胸：肋骨部分，负责推举动作的下半程
-
-核心训练动作1. 杠铃平板卧推目标肌肉：胸大肌中部要点：肩胛骨收紧，肘部夹紧45-60度，主动掰杠组数：3-4组，每组8-12次
-2. 上斜哑铃卧推目标肌肉：胸大肌上部要点：凳面倾斜30-45度，哑铃下放至胸部两侧组数：3组，每组10-15次
-3. 哑铃飞鸟目标肌肉：胸大肌外侧要点：微屈肘部，保持张力，感受胸肌拉伸组数：3组，每组12-15次
-4. 双杠臂屈伸目标肌肉：胸大肌下部要点：身体前倾，肘部向外打开组数：3组，每组力竭
-训练计划示例初级计划（每周2次）
-杠铃平板卧推：3×8-12
-上斜哑铃卧推：3×10-15
-哑铃飞鸟：3×12-15
-
-中级计划（每周2-3次）
-杠铃平板卧推：4×6-10
-上斜杠铃卧推：3×8-12
-哑铃飞鸟：3×12-15
-器械夹胸：3×15-20
-
-常见问题与解答Q：为什么卧推时肩膀疼？A：可能是肩胛骨没有收紧，或者肘部角度过大。确保肩胛骨稳定，肘部夹紧45-60度。
-Q：如何增加卧推重量？A：循序渐进增加重量，保证动作质量。可以尝试5×5训练法。
-Q：女生适合练胸吗？A：非常适合！胸部训练可以提升胸型，预防下垂。
-
-坚持训练，科学进步，打造强健胸肌！
-]]></content>
-      <categories>
-        <category>tech</category>
-        <category>体能训练</category>
-      </categories>
-      <tags>
-        <tag>力量训练</tag>
-        <tag>卧推</tag>
-        <tag>胸部训练</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>黑障之战——《全频带阻塞干扰》</title>
     <url>/blog/posts/4daed45e.html</url>
     <content><![CDATA[每个中国军人都应该读一遍中国版《全频带阻塞干扰》
@@ -308,29 +331,6 @@ Q：女生适合练胸吗？A：非常适合！胸部训练可以提升胸型，
       <tags>
         <tag>科幻</tag>
         <tag>读后札记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>无题——26/4/16</title>
-    <url>/blog/posts/91aec17c.html</url>
-    <content><![CDATA[
-  ddf950af02d0b1ff2a2674d3eb72f04931b1a1adff0b75be7e2927212eaaab6e449e9566b0ddb9257c14ad4bfd7e9c0ba25da7d04d6315fd935403e46b1f849d89092f1e169a86b6dcfdc76c869e28de02d992a8b91e73af2dcda633bdeef1fd250ced5d60c3431e530b2c9307e175152711cbf84c3637ca7aaad6fdacbc56c8a440b7cf775c0e81ba7acbcf1e810e6d0a2de89138c7fa234735b2da2d5ac966ee9f6836a27a6b0b058eb78f13a724e19710139c33ab023d4747dd09be32e8de36b9dc2d81ae51d0b56ce733818a67fd9a9442969900b78b59ea7b682425d009a0617f16046bb30a4504d913d36df70f9efc687d09b33ac8924d07b6965f766607edcd3adcd303f4362382235f1238302e28996e1373dcd55765b6ba5ed17f35411a6ae59bd5105576d7a835b9367c9c02410d7d004975098419cc0dbb0be01371ce8643eb70d03ec58a60376279d70c65495c94bc169849cee59996ee699220b9c98f569d847a982e158d2cb71fbceaa209cbe23581179e5e092556e57d535f35f88861007fea2db5ad008a66b32e1a7db9760c523cac0360fb5ce5c30420811caea3c643d5cb5d0ed0039295089554a028f0e60fc562e3d60a6097edec0bc11ae7ccfb41c8843671707235c84cc3d38a9c01c9d9a8b5b9fce8c8a6ee8d0617a04cd91d9f0cf4ff7008f2eba75aa39e90b42e7f1928a214faf915e266b3c8ae37e97a6b910668174e7273d8b57e4ddd8062d2c8aa48352984038180864fb7fe1dbd04cc05823c5153ef7e4ee76c3e6c88d13ab27d29e008e14e25305cf9e7302c290f1f6f4cb2110bddae984e4ab4e04e0773fab5d6fdc1e19fc144a391f12d4512f983beb5f743aa8ee5562ebbc0ac33a267a53bf07bf90265f7021221e74e2fe9262323376fa47e366f37faa7fa99d3e6dae563968f3d60f214f5eaa1e9c36d3e4cd9b8001c9bd3f66e1c6b75e5b2d4344ec58921dada6043db8097544a7fa75a6f1b1c99960e4c6ae8ef093b36355f9ce96f5eb7d332795c8e4eca8c8d5ab0dbc71ca76e3528b1ee3cf6d5c602812c7ac4313bcaa125240d9b0e04210a55094374637438d35e1d167d88e1892dcc4b7acc9908454b047389c3cddcf84dddeedeee37fe4e4db0036c4f7f6b948a3ede0a77e7a6914539508521f8a21c9c800cfb23d52a99aab6da5027b8e0d669d3d9403bb460392554e402d53494d5b2e8e7f583786916cf1f17c3d7abb80678afa35d84063922d477f28045526e118ca9f9036f59caf7fa7c2a98721dd2f93e488f44e007d428cb72b34feceb0a472c78edefc0e0e7b25fb8b7adf26089cec5ec5fbb7375a86a7cfd9499fa9c1fdc9320e0d9f8f7deb5163ad2829e4452020343c6d4098c84736d158a3c16e380f214a15bdb886716b5a91adddfa758c84b42b27f54c45f6006d5a19b1a9ec26b85658cadd3023a4a717777bac647a8dbd612b8b0615254ec9c141bf9ffce5a3e3fb101156574c4439eeb0b14f8bc8456eac0959cbaf6fb174d550eebc45ecf276c3c8504321baa483a043bfc7f070e64836560b9cb04563e742ae43a815170f2a4c7056ff9fa8833b3b9427b258b73e8fb8e83c9c593db4a0b096441e768be76e8d98e93874123a62507d81f47b147cb921c7c1553fb1f24e7ed1ed049b476d235acc81442ed371efdcb2081a6800e6a6e3eb672c0fc734ed1c49eb49712939eb5719c855af68b5c2c889d6e9a6349b218ae199b8db29699d462866f02dd404180b4e0f7dbae51c4a061ddf9c1119601e9372586031ea598284cb037ee35887ad5603718add773713474b21012d3ca1b3253263e8cf40520f75acd7cf63781be488d9be4de1e813280281fb34032b21268ac86
-  
-    
-      
-      
-        请联系作者解锁文章
-      
-    
-  
-
-]]></content>
-      <categories>
-        <category>humanities</category>
-        <category>随笔</category>
-      </categories>
-      <tags>
-        <tag>随笔</tag>
       </tags>
   </entry>
   <entry>
