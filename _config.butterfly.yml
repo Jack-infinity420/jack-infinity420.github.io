@@ -25,6 +25,7 @@ menu:
   # 文史哲分区
   文以载道: /categories/humanities/ || fas fa-book
   # 技术理工分区
+  项目展示: /projects/double-falcon/ || fas fa-rocket
   格物致知: /categories/tech/ || fas fa-microscope
   重返地球: /cosmic-intro/?replay=1 || fas fa-earth-americas
 # --------------------------------------
