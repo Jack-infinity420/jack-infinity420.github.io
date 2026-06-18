@@ -70,5 +70,9 @@
   "three-mechanisms": {
     "width": 1733,
     "height": 1279
+  },
+  "mission-poster": {
+    "width": 480,
+    "height": 270
   }
 }
