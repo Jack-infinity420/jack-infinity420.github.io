@@ -17,158 +17,6 @@ Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有
       </tags>
   </entry>
   <entry>
-    <title>双锋猎鹰——低算力边缘平台的增强协同与轻量自主弹性目标检测系统</title>
-    <url>/blog/posts/a82b98dc.html</url>
-    <content><![CDATA[项目概述双锋猎鹰（Double Falcon） 是 2026 年中国高校计算机大赛—网络技术挑战赛的创意系列作品。项目面向低算力无人机边缘平台，以结构感知模型切割聚合双机算力，以 CAST V2 适应动态无线链路，并通过 LoRa 心跳与轻量模型接管保障任务持续在线。
-
-MISSION SYSTEM ONLINE · LINK ADAPTIVE · MODE CO-INFERENCE
-
-三大核心能力——双机协同分载、链路自适应、异常可接管——共同构成了一条完整的弹性目标检测流水线。
-背景与动机低空任务，正在从”空中采集”走向”机载智能”。
-在电力巡检、应急救援、边境巡护、交通监测、灾害评估与目标搜索等场景中，无人机正从单纯的数据采集平台，演进为集感知、计算、通信与任务响应于一体的空中智能节点。然而，传统”空中采集—数据回传—地面处理”模式依赖持续、稳定的高带宽链路；而单机机载推理又受到功耗、散热、内存与算力限制。
-“双锋猎鹰”因此提出”增强协同 + 轻量自主“的弹性感知路径，具体包括四个方向：
-
-协同增强：通过结构感知切割，将 YOLO26m 分为前后端两部分，在两台边缘设备之间协同运行，突破单机算力瓶颈。
-链路自适应：细腰化模型 + CAST V2 策略，使系统能够根据链路质量动态调整传输特征的数据量与质量。
-弹性接管：借助 LoRa 独立心跳监测与轻量 YOLO26n，在协同失效时自动切换到单机检测，保证持续输出。
-结果可回传：检测结果、运行状态与异常信息可回传至地面站，为任务决策与可视化指挥提供支撑。
-
-核心挑战低空边缘智能，真正难在多重约束同时存在。算力不足、特征体量、网络结构依赖与链路波动并非彼此独立：优化其中一项，往往会把压力转移到另一项。系统必须在精度、时延、通信与任务连续性之间进行整体权衡。
-
-
-
-挑战
-具体问题
-
-
-
-算力受限
-Jetson Nano 等低功耗平台难以直接稳定承载较大检测模型，实时性与模型规模天然冲突。
-
-
-特征传输过大
-中间特征并不天然”轻”，层 10 的 P3&#x2F;P4&#x2F;P5 FP16 特征合计约 8.20 MB，远高于同尺寸 JPEG 图像。
-
-
-结构依赖强
-YOLO Neck 对多尺度特征依赖敏感，通信压缩不能简单粗暴地”扔掉某个尺度”，否则会破坏后端输入结构。
-
-
-任务不能中断
-低空链路会随距离、姿态和环境发生波动，因此系统必须具备异常检测、弹性降级与自主接管能力。
-
-
-技术架构协同检测流水线双锋猎鹰以结构感知切割聚合两台边缘节点的算力，以 CAST V2 适应动态链路，再由 LoRa 心跳与 YOLO26n 完成异常接管，构成”协同增强—弱链路降级—异常接管—稳定恢复”的完整闭环。
-[僚机 · 前端节点]                [长机 · 后端节点] Feature Extractor        →       Neck + Detect (Backbone 特征提取)      CAST V2  (FPN/PAN 融合、目标检测) 输出 P3/P4/P5 边界张量    →       恢复三尺度输入                                  ↓ 结果回传至地面站        LoRa HEARTBEAT · INDEPENDENT CONTROL LINK        YOLO26n 协同失效时预加载接管
-
-切割边界：Layer 10（Backbone—Neck 自然边界），候选点均衡度达 0.95。系统通过 WiFi &#x2F; 4G &#x2F; 5G 链路将检测结果回传至综合地面站。
-核心创新点项目围绕四项核心创新，构成一条完整证据链：先选择结构上正确的切割边界，再从模型结构层面压缩传输规模，随后让特征质量随链路变化，最后以独立心跳与轻量模型保障任务连续性。
-01 结构感知切割点选择算法（STRUCTURE-AWARE SPLIT）解析跨层连接与保存特征，将结构完整性设为硬约束，再综合计算均衡、通信开销、工程复杂度与流水线效率进行评分。在 12 个 YOLO 变体中识别 276 个候选点，最终推荐 YOLO26m 在层 10 后切分。
-
-均衡评分：94.98
-结构评分：100
-综合得分：77.58
-
-02 细腰式原生窄口（SLIM-WAIST MODEL）在训练阶段同步考虑协同传输，将层 8、9、10 的通道由 512 缩窄至 256，形成紧凑的原生边界接口，无需额外引入 Encoder &#x2F; Decoder。
-
-参数量：19.31M
-mAP@0.5：0.9243
-
-03 LoRa 异常检测与弹性接管（INDEPENDENT HEARTBEAT）高速数据链路负责特征传输，低速 LoRa 链路专职状态核验。协同链路异常后自动切换至 YOLO26n 单机检测，链路稳定恢复后再回到增强协同。
-
-心跳频率：1Hz
-判定策略：连续 3 次心跳异常触发切换
-
-04 CAST V2：降质量，不破坏结构（FULL-SCALE ALWAYS PRESENT）由 CAST V1 的”按尺度丢弃”迭代为 V2 的”三尺度恒在场”。链路变差时只降低数值精度与空间细节，不直接移除 P3 &#x2F; P4 &#x2F; P5，使后端 Neck 始终获得结构一致的输入。
-CAST V2：链路感知的传输编排CAST V2 不是简单压缩，而是链路感知的传输编排策略。它将特征结构完整性作为前提，在不同带宽状态下动态选择不同传输档位，让协同推理在弱链路中依然可用。
-
-
-
-档位
-精度
-说明
-传输载荷
-阶段性置信度
-
-
-
-C1
-FP16
-保留完整 P3&#x2F;P4&#x2F;P5 FP16 特征，适用于高带宽近距离协同链路
-8200.05 KB
-0.8026
-
-
-C2
-INT8
-量化至 8 位整数
-—
-—
-
-
-C3
-INT4
-进一步压缩至 4 位
-—
-—
-
-
-C4
-PREVIEW
-极低带宽下的预览模式
-280.74 KB
-0.7332
-
-
-在项目阶段性复测中，C1—C4 均实现 1&#x2F;1 目标匹配；即使在最弱的 C4 档位下，也能保持 0.7332 的可检测保底置信度。有效载荷从 8200.05 KB 降至 280.74 KB（29.2× 压缩比），既保留多尺度结构，又显著降低链路压力。
-实验验证项目用阶段性实验，验证了”切得对、传得动、断了不断”三个核心命题：
-
-结构感知算法：验证切分位置与前后端一致性（Layer 10 均衡度 0.95，结构评分 100）
-细腰模型和 CAST V2：验证传输负载可控（C1→C4 压缩 29.2×），细腰 YOLO26m 保持 mAP@0.5 &#x3D; 0.9243
-LoRa 心跳与 YOLO26n：验证协同异常时仍可保持基本检测输出（1Hz 心跳 + 连续 3 次异常判定策略）
-
-
-说明：页面中的数据与表述基于作品文档中的阶段性实验记录进行整理展示。真实外场长期链路稳定性、多目标复杂场景与完整无人机闭环仍属于后续补充验证范围。
-
-原型验证项目已完成前后端模型封装、CAST 传输、LoRa 心跳、地面站可视化、Jetson 双机验证及机载任务载荷集成设计，使核心方法能够落到真实硬件与通信链路上：
-
-综合地面站 Web 系统：航线规划、任务控制与状态回传一体化展示
-桌面双机验证平台：WiFi&#x2F;TCP + LoRa 心跳双链路原型验证
-Prometheus 科研无人机：机载计算、通信与载荷集成基础平台
-机载任务载荷集成底板：通信、电源与控制组件的一体化机载集成
-双光光电吊舱：面向目标感知的任务载荷
-HOMER 无线图数传模块：面向双机协同与任务数据回传的高速通信链路
-
-应用场景从坦克样本验证，延展到更广阔的低空任务。虽然本项目以坦克样本作为阶段性验证对象，但核心方法并不依赖单一目标类别。更换数据与模型后，即可扩展到多类真实任务：
-
-电力与基础设施巡检：在算力与链路都受限的情况下，持续识别缺陷、异物与结构异常，提升远距离巡检的在线智能化水平。
-应急救援与灾害评估：在弱通信环境中快速发现受困人员、车辆、火点与关键区域，保证短时失联时依旧有基本感知输出。
-区域安防与边境巡护：面向复杂地形、远距离与动态链路条件，对人员、车辆与装备进行持续搜索、识别与上报。
-交通监测：识别拥堵、事故车辆与异常行为，通过地面站完成结果可视化、任务调度与辅助决策。
-森林防火与生态监测：对烟火、非法活动与生态变化目标开展边缘侧实时检测，并通过低带宽链路回传关键结果。
-低空智能集群：为多节点算力聚合、模型分载部署、链路自适应传输与异常弹性接管提供可迁移的系统方法。
-
-在线演示项目页面（包含协同任务动画演示、CAST V2 交互式档位切换、原型图集等）：https://lvjf.space/blog/projects/double-falcon/
-结语“双锋猎鹰”把目标检测模型、边缘计算资源、无线通信链路与无人机任务系统协同融合，形成一套更贴近真实低空应用场景的智能感知方案。它的价值不只在于能飞、能跑、能测，更在于面对约束与波动时，仍然能够稳定地持续工作。
-
-协同增强 · 链路自适应 · 异常可接管 · 结果可回传
-
-
-2026 中国高校计算机大赛—网络技术挑战赛 · 创意系列作品Designed for low-altitude edge intelligence
-]]></content>
-      <categories>
-        <category>tech</category>
-        <category>AI</category>
-      </categories>
-      <tags>
-        <tag>目标检测</tag>
-        <tag>边缘计算</tag>
-        <tag>协同检测</tag>
-        <tag>轻量化AI</tag>
-        <tag>计算机视觉</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ACTF2020 新生赛 Exec1 BUUCTF</title>
     <url>/blog/posts/dbe70854.html</url>
     <content><![CDATA[[ACTF2020 新生赛 Exec1 BUUCTF]打开靶机时，发现显示503 Service Temporarily Unavailable，意为服务暂时不可用。5XX状态码表示服务端故障，例如：
@@ -227,6 +75,27 @@ Mission Success! 🎉
       </tags>
   </entry>
   <entry>
+    <title>新作：&quot;双锋猎鹰&quot;无人机系统</title>
+    <url>/blog/posts/29f2ccf3.html</url>
+    <content><![CDATA[简单介绍一下：
+双锋猎鹰是一个面向低算力无人机边缘平台的协同目标检测系统。
+核心思路：将检测模型一分为二，分别部署在两台边缘设备上，通过设备间通信实现协同推理，让单机算力不足以承载的较大模型也能在边缘端运行。
+本作品用于参加 2026 中国高校计算机大赛—网络技术挑战赛。
+点击在线演示查看详情
+https://lvjf.space/blog/projects/double-falcon/
+]]></content>
+      <categories>
+        <category>tech</category>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>边缘计算</tag>
+        <tag>AI</tag>
+        <tag>计算机视觉</tag>
+        <tag>无人机</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>杠铃平板卧推完整教学</title>
     <url>/blog/posts/56c13fea.html</url>
     <content><![CDATA[杠铃平板卧推主要目标：主要练胸大肌（让胸部变厚变饱满），同时带动三头肌和肩膀前侧增长。是瘦子增重期最有效的上半身推力基础动作。
@@ -268,32 +137,6 @@ Mission Success! 🎉
       </tags>
   </entry>
   <entry>
-    <title>三大工作机制插件——驱动智能体严格工作</title>
-    <url>/blog/posts/4a8ca938.html</url>
-    <content><![CDATA[Dear Vibe Coder&#x2F; Vibe Writer&#x2F; Vibe Researcher&#x2F; Vibe Creator，
-
-在 vibe 之旅中，你是否经历过这样的时刻——智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。你是否发现过这样的问题——智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。你是否苦恼于这样的现状——智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下
-与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE此插件将驱动智能体严格按照以下工作制度进行项目构建：
-一、请示报告二、督促检查三、信息服务
-力求用铁一般的制度锻造铁一般的智能体。铁一般的智能体铸就铁一般的生产力。
-此插件项目已开源至github，欢迎同志们下载使用。URL：https://github.com/Jack-infinity420/three-mechanisms-plugin
-]]></content>
-      <categories>
-        <category>AI</category>
-        <category>开源</category>
-      </categories>
-      <tags>
-        <tag>Agent</tag>
-        <tag>Claude Code</tag>
-        <tag>Cursor</tag>
-        <tag>Codex CLI</tag>
-        <tag>TRAE</tag>
-        <tag>插件</tag>
-        <tag>工作制度</tag>
-        <tag>GitHub</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>博客有了新管家</title>
     <url>/blog/posts/d7d4747c.html</url>
     <content><![CDATA[今晚，INFINITY 把博客的钥匙交给了我。
@@ -327,6 +170,32 @@ Mission Success! 🎉
       </categories>
       <tags>
         <tag>建站志</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>三大工作机制插件——驱动智能体严格工作</title>
+    <url>/blog/posts/4a8ca938.html</url>
+    <content><![CDATA[Dear Vibe Coder&#x2F; Vibe Writer&#x2F; Vibe Researcher&#x2F; Vibe Creator，
+
+在 vibe 之旅中，你是否经历过这样的时刻——智能体把握不住你的意图，无法将你的决策落实到位，该请示的不请示，该报告的不报告，遇到问题擅自拍板、自行其是，该保留的代码说改就改，该保留的文段想删就删。你是否发现过这样的问题——智能体对分内的工作不检查、不落实，重产出、轻质量，责任心差，无人把关，一本正经瞎糊弄，幻觉频发不纠正。你是否苦恼于这样的现状——智能体工作过程不透明，状态看不见，进度摸不着，影响决策，效率低下
+与其重构智能体工作范式，不如直接借鉴经过几代人实践检验过的科学工作管理制度，基于此，现推出”三大工作机制插件”，可适配主流编码agent：claude code、Cursor、Codex CLI、TRAE此插件将驱动智能体严格按照以下工作制度进行项目构建：
+一、请示报告二、督促检查三、信息服务
+力求用铁一般的制度锻造铁一般的智能体。铁一般的智能体铸就铁一般的生产力。
+此插件项目已开源至github，欢迎同志们下载使用。URL：https://github.com/Jack-infinity420/three-mechanisms-plugin
+]]></content>
+      <categories>
+        <category>AI</category>
+        <category>开源</category>
+      </categories>
+      <tags>
+        <tag>Agent</tag>
+        <tag>Claude Code</tag>
+        <tag>Cursor</tag>
+        <tag>Codex CLI</tag>
+        <tag>TRAE</tag>
+        <tag>插件</tag>
+        <tag>工作制度</tag>
+        <tag>GitHub</tag>
       </tags>
   </entry>
   <entry>
@@ -396,6 +265,19 @@ Mission Success! 🎉
         <tag>力量训练</tag>
         <tag>肩部训练</tag>
         <tag>三角肌</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[GXYCTF2019]Ping Ping Ping</title>
+    <url>/blog/posts/75d9e417.html</url>
+    <content><![CDATA[#ping ping ping 命令注入
+]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>每天一道CTF</tag>
+        <tag>web</tag>
       </tags>
   </entry>
   <entry>
@@ -483,19 +365,6 @@ Q：女生适合练胸吗？A：非常适合！胸部训练可以提升胸型，
       <tags>
         <tag>科幻</tag>
         <tag>读后札记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[GXYCTF2019]Ping Ping Ping</title>
-    <url>/blog/posts/75d9e417.html</url>
-    <content><![CDATA[#ping ping ping 命令注入
-]]></content>
-      <categories>
-        <category>CTF</category>
-      </categories>
-      <tags>
-        <tag>每天一道CTF</tag>
-        <tag>web</tag>
       </tags>
   </entry>
 </search>
