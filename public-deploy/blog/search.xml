@@ -17,27 +17,6 @@ Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有
       </tags>
   </entry>
   <entry>
-    <title>新作：&quot;双锋猎鹰&quot;无人机系统</title>
-    <url>/blog/posts/29f2ccf3.html</url>
-    <content><![CDATA[简单介绍一下：
-双锋猎鹰是一个面向低算力无人机边缘平台的协同目标检测系统。
-核心思路：将检测模型一分为二，分别部署在两台边缘设备上，通过设备间通信实现协同推理，让单机算力不足以承载的较大模型也能在边缘端运行。
-本作品用于参加 2026 中国高校计算机大赛—网络技术挑战赛。
-点击在线演示查看详情
-https://lvjf.space/blog/projects/double-falcon/
-]]></content>
-      <categories>
-        <category>tech</category>
-        <category>AI</category>
-      </categories>
-      <tags>
-        <tag>边缘计算</tag>
-        <tag>AI</tag>
-        <tag>计算机视觉</tag>
-        <tag>无人机</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ACTF2020 新生赛 Exec1 BUUCTF</title>
     <url>/blog/posts/dbe70854.html</url>
     <content><![CDATA[[ACTF2020 新生赛 Exec1 BUUCTF]打开靶机时，发现显示503 Service Temporarily Unavailable，意为服务暂时不可用。5XX状态码表示服务端故障，例如：
@@ -93,6 +72,27 @@ Mission Success! 🎉
       <tags>
         <tag>每天一道CTF</tag>
         <tag>web</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>新作：&quot;双锋猎鹰&quot;无人机系统</title>
+    <url>/blog/posts/29f2ccf3.html</url>
+    <content><![CDATA[简单介绍一下：
+双锋猎鹰是一个面向低算力无人机边缘平台的协同目标检测系统。
+核心思路：将检测模型一分为二，分别部署在两台边缘设备上，通过设备间通信实现协同推理，让单机算力不足以承载的较大模型也能在边缘端运行。
+本作品用于参加 2026 中国高校计算机大赛—网络技术挑战赛。
+点击在线演示查看详情
+https://lvjf.space/blog/projects/double-falcon/
+]]></content>
+      <categories>
+        <category>tech</category>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>边缘计算</tag>
+        <tag>AI</tag>
+        <tag>计算机视觉</tag>
+        <tag>无人机</tag>
       </tags>
   </entry>
   <entry>
@@ -227,38 +227,44 @@ Mission Success! 🎉
     <content><![CDATA[
 
 
-纯自我内耗折磨人，翻来覆去走轮回，到处碎碎念鸡汤，打怪没爽感，全程闷着跟自己较劲，玩完憋一肚子气……但我还是说：谢谢你玩我的游戏。
+
+  温柔囚笼
+
+  
+    GENTLE CAGE
+  
+
+  
+    
+      作者
+      很酷不说话
+    
+    
+      日期
+      2026.06.20
+    
+    
+      类型
+      Canvas · 像素互动
+    
+  
+
+  
+    作者说
+    
+      纯自我内耗折磨人，翻来覆去走轮回，到处碎碎念鸡汤，打怪没爽感，全程闷着跟自己较劲，玩完憋一肚子气……
+    
+    
+      但我还是说：谢谢你玩我的游戏。
+    
+  
+
+  
+    🎮 进入游戏
+  
 
 
 
-
-
-
-
-
-
-
-
-作品
-温柔囚笼
-
-
-作者
-很酷不说话
-
-
-日期
-2026 年 6 月 20 日
-
-
-类型
-像素风 Canvas 互动游戏
-
-
-
-
-
-  🎮 进入游戏
 
 ]]></content>
       <categories>
@@ -316,61 +322,6 @@ Mission Success! 🎉
       </tags>
   </entry>
   <entry>
-    <title>胸部训练完整指南</title>
-    <url>/blog/posts/e79b89d.html</url>
-    <content><![CDATA[
-强健的胸肌是力量与美的象征
-
-胸大肌解剖与功能胸大肌是胸部最大的肌肉，分为上、中、下三个部分：
-
-上胸：锁骨部分，负责推举动作的上半程
-中胸：胸骨部分，负责水平推举
-下胸：肋骨部分，负责推举动作的下半程
-
-核心训练动作1. 杠铃平板卧推目标肌肉：胸大肌中部要点：肩胛骨收紧，肘部夹紧45-60度，主动掰杠组数：3-4组，每组8-12次
-2. 上斜哑铃卧推目标肌肉：胸大肌上部要点：凳面倾斜30-45度，哑铃下放至胸部两侧组数：3组，每组10-15次
-3. 哑铃飞鸟目标肌肉：胸大肌外侧要点：微屈肘部，保持张力，感受胸肌拉伸组数：3组，每组12-15次
-4. 双杠臂屈伸目标肌肉：胸大肌下部要点：身体前倾，肘部向外打开组数：3组，每组力竭
-训练计划示例初级计划（每周2次）
-杠铃平板卧推：3×8-12
-上斜哑铃卧推：3×10-15
-哑铃飞鸟：3×12-15
-
-中级计划（每周2-3次）
-杠铃平板卧推：4×6-10
-上斜杠铃卧推：3×8-12
-哑铃飞鸟：3×12-15
-器械夹胸：3×15-20
-
-常见问题与解答Q：为什么卧推时肩膀疼？A：可能是肩胛骨没有收紧，或者肘部角度过大。确保肩胛骨稳定，肘部夹紧45-60度。
-Q：如何增加卧推重量？A：循序渐进增加重量，保证动作质量。可以尝试5×5训练法。
-
-坚持训练，科学进步，打造强健胸肌！
-]]></content>
-      <categories>
-        <category>tech</category>
-        <category>体能训练</category>
-      </categories>
-      <tags>
-        <tag>力量训练</tag>
-        <tag>卧推</tag>
-        <tag>胸部训练</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[GXYCTF2019]Ping Ping Ping</title>
-    <url>/blog/posts/75d9e417.html</url>
-    <content><![CDATA[#ping ping ping 命令注入
-]]></content>
-      <categories>
-        <category>CTF</category>
-      </categories>
-      <tags>
-        <tag>每天一道CTF</tag>
-        <tag>web</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>黑障之战——《全频带阻塞干扰》</title>
     <url>/blog/posts/4daed45e.html</url>
     <content><![CDATA[每个中国军人都应该读一遍中国版《全频带阻塞干扰》
@@ -412,6 +363,61 @@ Q：如何增加卧推重量？A：循序渐进增加重量，保证动作质量
       <tags>
         <tag>科幻</tag>
         <tag>读后札记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[GXYCTF2019]Ping Ping Ping</title>
+    <url>/blog/posts/75d9e417.html</url>
+    <content><![CDATA[#ping ping ping 命令注入
+]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>每天一道CTF</tag>
+        <tag>web</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>胸部训练完整指南</title>
+    <url>/blog/posts/e79b89d.html</url>
+    <content><![CDATA[
+强健的胸肌是力量与美的象征
+
+胸大肌解剖与功能胸大肌是胸部最大的肌肉，分为上、中、下三个部分：
+
+上胸：锁骨部分，负责推举动作的上半程
+中胸：胸骨部分，负责水平推举
+下胸：肋骨部分，负责推举动作的下半程
+
+核心训练动作1. 杠铃平板卧推目标肌肉：胸大肌中部要点：肩胛骨收紧，肘部夹紧45-60度，主动掰杠组数：3-4组，每组8-12次
+2. 上斜哑铃卧推目标肌肉：胸大肌上部要点：凳面倾斜30-45度，哑铃下放至胸部两侧组数：3组，每组10-15次
+3. 哑铃飞鸟目标肌肉：胸大肌外侧要点：微屈肘部，保持张力，感受胸肌拉伸组数：3组，每组12-15次
+4. 双杠臂屈伸目标肌肉：胸大肌下部要点：身体前倾，肘部向外打开组数：3组，每组力竭
+训练计划示例初级计划（每周2次）
+杠铃平板卧推：3×8-12
+上斜哑铃卧推：3×10-15
+哑铃飞鸟：3×12-15
+
+中级计划（每周2-3次）
+杠铃平板卧推：4×6-10
+上斜杠铃卧推：3×8-12
+哑铃飞鸟：3×12-15
+器械夹胸：3×15-20
+
+常见问题与解答Q：为什么卧推时肩膀疼？A：可能是肩胛骨没有收紧，或者肘部角度过大。确保肩胛骨稳定，肘部夹紧45-60度。
+Q：如何增加卧推重量？A：循序渐进增加重量，保证动作质量。可以尝试5×5训练法。
+
+坚持训练，科学进步，打造强健胸肌！
+]]></content>
+      <categories>
+        <category>tech</category>
+        <category>体能训练</category>
+      </categories>
+      <tags>
+        <tag>力量训练</tag>
+        <tag>卧推</tag>
+        <tag>胸部训练</tag>
       </tags>
   </entry>
 </search>
