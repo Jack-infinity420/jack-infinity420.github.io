@@ -27,7 +27,7 @@ menu:
   # 技术理工分区
   项目展示: /projects/double-falcon/ || fas fa-rocket
   格物致知: /categories/tech/ || fas fa-microscope
-  创意展示: /categories/创意展示/ || fas fa-lightbulb
+  创意展示: /creative/ || fas fa-lightbulb
   重返地球: /cosmic-intro/?replay=1 || fas fa-earth-americas
 # --------------------------------------
 # Code Blocks Settings

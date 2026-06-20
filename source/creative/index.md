@@ -1,7 +1,7 @@
 ---
 title: 创意展示
 date: 2026-06-20 22:20:00
-type: categories
+type: creative
 comments: false
 ---
 
@@ -10,3 +10,13 @@ comments: false
 > 不要害怕想法古怪，如今被接纳的真理，都曾离经叛道。——伯特兰·罗素
 
 如果你想让你的创意拥有更大的舞台，reach out to me at bchljf048694@163.com
+
+<br>
+
+---
+
+<br>
+
+### 作品列表
+
+{% post_link 温柔囚笼 %}
