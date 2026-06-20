@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>建站志</title>
+    <url>/blog/posts/f7d0875d.html</url>
+    <content><![CDATA[
+Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有终焉
+
+
+记录的意义是什么？给时光以生命，给岁月以文明。
+]]></content>
+      <categories>
+        <category>humanities</category>
+      </categories>
+      <tags>
+        <tag>建站志</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>新作：&quot;双锋猎鹰&quot;无人机系统</title>
+    <url>/blog/posts/29f2ccf3.html</url>
+    <content><![CDATA[简单介绍一下：
+双锋猎鹰是一个面向低算力无人机边缘平台的协同目标检测系统。
+核心思路：将检测模型一分为二，分别部署在两台边缘设备上，通过设备间通信实现协同推理，让单机算力不足以承载的较大模型也能在边缘端运行。
+本作品用于参加 2026 中国高校计算机大赛—网络技术挑战赛。
+点击在线演示查看详情
+https://lvjf.space/blog/projects/double-falcon/
+]]></content>
+      <categories>
+        <category>tech</category>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>边缘计算</tag>
+        <tag>AI</tag>
+        <tag>计算机视觉</tag>
+        <tag>无人机</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ACTF2020 新生赛 Exec1 BUUCTF</title>
     <url>/blog/posts/dbe70854.html</url>
     <content><![CDATA[[ACTF2020 新生赛 Exec1 BUUCTF]打开靶机时，发现显示503 Service Temporarily Unavailable，意为服务暂时不可用。5XX状态码表示服务端故障，例如：
@@ -56,43 +93,6 @@ Mission Success! 🎉
       <tags>
         <tag>每天一道CTF</tag>
         <tag>web</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>建站志</title>
-    <url>/blog/posts/f7d0875d.html</url>
-    <content><![CDATA[
-Earth is but a cradle; the cosmos knows no end.地球惟是摇篮，宇宙未有终焉
-
-
-记录的意义是什么？给时光以生命，给岁月以文明。
-]]></content>
-      <categories>
-        <category>humanities</category>
-      </categories>
-      <tags>
-        <tag>建站志</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>新作：&quot;双锋猎鹰&quot;无人机系统</title>
-    <url>/blog/posts/29f2ccf3.html</url>
-    <content><![CDATA[简单介绍一下：
-双锋猎鹰是一个面向低算力无人机边缘平台的协同目标检测系统。
-核心思路：将检测模型一分为二，分别部署在两台边缘设备上，通过设备间通信实现协同推理，让单机算力不足以承载的较大模型也能在边缘端运行。
-本作品用于参加 2026 中国高校计算机大赛—网络技术挑战赛。
-点击在线演示查看详情
-https://lvjf.space/blog/projects/double-falcon/
-]]></content>
-      <categories>
-        <category>tech</category>
-        <category>AI</category>
-      </categories>
-      <tags>
-        <tag>边缘计算</tag>
-        <tag>AI</tag>
-        <tag>计算机视觉</tag>
-        <tag>无人机</tag>
       </tags>
   </entry>
   <entry>
@@ -199,24 +199,6 @@ https://lvjf.space/blog/projects/double-falcon/
       </tags>
   </entry>
   <entry>
-    <title>温柔囚笼</title>
-    <url>/blog/posts/9619853e.html</url>
-    <content><![CDATA[像素风 Canvas 互动小游戏。
-作者：很酷不说话日期：2026&#x2F;06&#x2F;20
-
-“纯自我内耗折磨人，翻来覆去走轮回，到处碎碎念鸡汤，打怪没爽感，全程闷着跟自己较劲，玩完憋一肚子气……但我还是说：谢谢你玩我的游戏”
-
-👉 打开游戏
-]]></content>
-      <categories>
-        <category>创意展示</category>
-      </categories>
-      <tags>
-        <tag>HTML游戏</tag>
-        <tag>Canvas</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>无题——26/4/16</title>
     <url>/blog/posts/91aec17c.html</url>
     <content><![CDATA[
@@ -237,6 +219,54 @@ https://lvjf.space/blog/projects/double-falcon/
       </categories>
       <tags>
         <tag>随笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>温柔囚笼</title>
+    <url>/blog/posts/9619853e.html</url>
+    <content><![CDATA[
+
+
+纯自我内耗折磨人，翻来覆去走轮回，到处碎碎念鸡汤，打怪没爽感，全程闷着跟自己较劲，玩完憋一肚子气……但我还是说：谢谢你玩我的游戏。
+
+
+
+
+
+
+
+
+
+
+
+作品
+温柔囚笼
+
+
+作者
+很酷不说话
+
+
+日期
+2026 年 6 月 20 日
+
+
+类型
+像素风 Canvas 互动游戏
+
+
+
+
+
+  🎮 进入游戏
+
+]]></content>
+      <categories>
+        <category>创意展示</category>
+      </categories>
+      <tags>
+        <tag>HTML游戏</tag>
+        <tag>Canvas</tag>
       </tags>
   </entry>
   <entry>
