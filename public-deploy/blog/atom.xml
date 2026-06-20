@@ -10,28 +10,7 @@
   <rights>All rights reserved 2026, Infinity</rights>
   <subtitle>Infinity 的个人博客</subtitle>
   <title>INFINITY'S BLOG</title>
-  <updated>2026-06-20T13:52:06.217Z</updated>
-  <entry>
-    <author>
-      <name>Infinity</name>
-    </author>
-    <category term="创意展示" scheme="https://lvjf.space/blog/categories/%E5%88%9B%E6%84%8F%E5%B1%95%E7%A4%BA/"/>
-    <category term="HTML游戏" scheme="https://lvjf.space/blog/tags/HTML%E6%B8%B8%E6%88%8F/"/>
-    <category term="Canvas" scheme="https://lvjf.space/blog/tags/Canvas/"/>
-    <content>
-      <![CDATA[<br><div style="background: linear-gradient(135deg, #0a0a16 0%, #1a1530 100%); border-radius: 16px; padding: 32px 24px; text-align: center; border: 1px solid rgba(200,180,255,0.15);">  <div style="font-size: 28px; font-weight: 700; color: #d4c4ff; letter-spacing: 4px; margin-bottom: 16px;">温柔囚笼</div>  <div style="font-size: 13px; color: rgba(200,180,255,0.5); letter-spacing: 2px; margin-bottom: 24px;">    GENTLE CAGE  </div>  <div style="display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-bottom: 24px;">    <div style="text-align: center;">      <div style="font-size: 12px; color: rgba(200,180,255,0.45); letter-spacing: 2px; margin-bottom: 6px;">作者</div>      <div style="font-size: 15px; color: #ccc; font-weight: 500;">很酷不说话</div>    </div>    <div style="text-align: center;">      <div style="font-size: 12px; color: rgba(200,180,255,0.45); letter-spacing: 2px; margin-bottom: 6px;">日期</div>      <div style="font-size: 15px; color: #ccc; font-weight: 500;">2026.06.20</div>    </div>    <div style="text-align: center;">      <div style="font-size: 12px; color: rgba(200,180,255,0.45); letter-spacing: 2px; margin-bottom: 6px;">类型</div>      <div style="font-size: 15px; color: #ccc; font-weight: 500;">Canvas · 像素互动</div>    </div>  </div>  <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; margin-bottom: 24px; position: relative;">    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 11px; color: rgba(200,180,255,0.4); letter-spacing: 3px; background: #110e1f; padding: 2px 12px; border-radius: 20px;">作者说</div>    <p style="color: rgba(220,200,220,0.75); font-size: 14px; line-height: 2; margin: 8px 0 0 0; text-align: left;">      纯自我内耗折磨人，翻来覆去走轮回，到处碎碎念鸡汤，打怪没爽感，全程闷着跟自己较劲，玩完憋一肚子气……    </p>    <p style="color: #b8a0d0; font-size: 14px; font-weight: 600; margin: 8px 0 0 0; text-align: right;">      但我还是说：谢谢你玩我的游戏。    </p>  </div>  <a href="/creative/gentle-cage/" target="_blank" style="display: inline-block; padding: 14px 48px; font-size: 16px; color: #fff; background: linear-gradient(135deg, #6c5ce7, #a855f7); border-radius: 12px; text-decoration: none; letter-spacing: 4px; font-weight: 600; box-shadow: 0 4px 20px rgba(108,92,231,0.3); transition: all 0.3s;">    🎮 进入游戏  </a></div><br>]]>
-    </content>
-    <id>https://lvjf.space/blog/posts/9619853e.html</id>
-    <link href="https://lvjf.space/blog/posts/9619853e.html"/>
-    <published>2026-06-20T13:50:00.000Z</published>
-    <summary>
-      <![CDATA[<br>
-
-<div style="background: linear-gradient(135deg, #0a0a16 0%, #1a1530 100%); border-radius: 16px; padding: 32px 24px; text-align: center]]>
-    </summary>
-    <title>温柔囚笼</title>
-    <updated>2026-06-20T13:52:06.217Z</updated>
-  </entry>
+  <updated>2026-06-18T03:53:56.421Z</updated>
   <entry>
     <author>
       <name>Infinity</name>

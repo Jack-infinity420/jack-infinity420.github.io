@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>创意展示 | INFINITY'S BLOG</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;background:#0d0d14;color:#ccc;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:60px 20px}
+h1{font-size:28px;color:#d4c4ff;letter-spacing:4px;margin-bottom:8px}
+.subtitle{font-size:13px;color:rgba(200,180,255,0.4);letter-spacing:3px;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;max-width:900px;width:100%}
+.card{background:linear-gradient(135deg,#13101f 0%,#1a1530 100%);border:1px solid rgba(200,180,255,0.1);border-radius:14px;overflow:hidden;transition:all .3s;text-decoration:none;display:block}
+.card:hover{border-color:rgba(200,180,255,0.3);box-shadow:0 8px 32px rgba(120,100,200,0.12);transform:translateY(-2px)}
+.card-body{padding:24px 20px}
+.card-title{font-size:18px;font-weight:700;color:#d4c4ff;letter-spacing:2px;margin-bottom:12px}
+.card-meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px}
+.card-meta-item{font-size:12px;color:rgba(200,180,255,0.4);letter-spacing:1px}
+.card-meta-item span{color:rgba(255,255,255,0.6)}
+.card-tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;background:rgba(200,180,255,0.08);color:rgba(200,180,255,0.5);letter-spacing:1px;margin-right:6px}
+.card-play{display:block;text-align:center;padding:12px;background:rgba(255,255,255,0.03);font-size:13px;color:rgba(200,180,255,0.5);letter-spacing:3px;transition:all .3s}
+.card:hover .card-play{color:#d4c4ff;background:rgba(200,180,255,0.06)}
+.back{color:rgba(200,180,255,0.4);text-decoration:none;font-size:13px;letter-spacing:2px;margin-bottom:30px;transition:all .3s}
+.back:hover{color:#d4c4ff}
+.empty{text-align:center;color:rgba(255,255,255,0.2);font-size:14px;letter-spacing:2px;padding:60px 0}
+@media(max-width:640px){body{padding:40px 16px}h1{font-size:22px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="back" href="/blog/">← 返回博客</a>
+<h1>创意展示</h1>
+<div class="subtitle">CREATIVE WORKS</div>
+
+<div class="grid">
+
+  <a class="card" href="/creative/gentle-cage/">
+    <div class="card-body">
+      <div class="card-title">温柔囚笼</div>
+      <div class="card-meta">
+        <div class="card-meta-item">作者 <span>很酷不说话</span></div>
+        <div class="card-meta-item">日期 <span>2026.06.20</span></div>
+      </div>
+      <div>
+        <span class="card-tag">Canvas</span>
+        <span class="card-tag">像素互动</span>
+      </div>
+    </div>
+    <div class="card-play">▶ 打开作品</div>
+  </a>
+
+</div>
+
+</body>
+</html>
