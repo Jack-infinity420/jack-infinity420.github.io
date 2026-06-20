@@ -89,6 +89,13 @@ if (missing.length) {
 console.log('\n✓ Deploy assembled: public-deploy/');
 console.log('  Deploy public-deploy/ to server root with force push.');
 
+// 6. Fix canonical/og:url missing /blog/ prefix (Hexo generates root-relative URLs)
+try {
+  require('./fix-canonical.js');
+} catch (e) {
+  console.error('⚠ Canonical fix warning:', e.message);
+}
+
 function copyDir(src, dst, exclude) {
   exclude = exclude || [];
   var entries = fs.readdirSync(src, { withFileTypes: true });

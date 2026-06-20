@@ -2,6 +2,7 @@
 title: 创意展示
 date: 2026-06-20 22:20:00
 type: page
+url: /blog/creative-showcase/
 comments: false
 ---
 
