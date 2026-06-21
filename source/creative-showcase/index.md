@@ -20,4 +20,4 @@ comments: false
 
 ### 作品列表
 
-*暂无作品，敬请期待……*
+{% post_link 温柔囚笼 %}
