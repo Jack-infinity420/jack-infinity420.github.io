@@ -20,4 +20,4 @@ comments: false
 
 ### 作品列表
 
-{% post_link 温柔囚笼 %}
+- [温柔囚笼](/blog/creative-showcase/gentle-cage.html) —— 一场关于逃避与禁锢的故事

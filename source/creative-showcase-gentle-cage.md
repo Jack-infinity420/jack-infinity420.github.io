@@ -1,12 +1,10 @@
 ---
 title: 温柔囚笼
-categories: 创意展示
-tags:
-  - Canvas
-  - 像素游戏
-abbrlink: 9619853e
 date: 2026-06-20 21:50:00
-hide: true
+type: page
+layout: page
+permalink: creative-showcase/gentle-cage.html
+comments: false
 ---
 
 <br>
