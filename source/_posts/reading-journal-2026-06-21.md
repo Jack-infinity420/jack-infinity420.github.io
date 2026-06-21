@@ -1,6 +1,6 @@
 ---
 title: 摘抄｜2026-06-21
-categories: 阅读拾光
+categories: 星海拾燧
 tags: 摘抄
 hidden: true
 abbrlink: aac5ba11
