@@ -29,7 +29,7 @@
     var config = data.config || {};
     var fixedPoem = config.fixed_poem || '海内存知己，天涯若比邻';
     var poemFallback = config.poem_fallback || fixedPoem;
-    var greeting = config.greeting_template || '{time_period}好，欢迎来自{province}·{city}的同志';
+    var greeting = config.greeting_template || '{time_period}好，猜你在{province}·{city}';
     var hintDesktop = (config.switch_hint_desktop != null && String(config.switch_hint_desktop).trim() !== '')
       ? config.switch_hint_desktop
       : '';

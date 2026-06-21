@@ -5,7 +5,7 @@ fixed_poem: "长风破浪会有时，直挂云帆济沧海"
 # {time_period} - 时间段（早上好/上午好/下午好/晚上好）
 # {province} - 省份
 # {city} - 城市
-greeting_template: "{time_period}好，欢迎来自{province}·{city}的朋友"
+greeting_template: "{time_period}好，猜你在{province}·{city}"
 
 # 当今日诗词 API 失败时的降级诗句
 poem_fallback: "海内存知己，天涯若比邻"
