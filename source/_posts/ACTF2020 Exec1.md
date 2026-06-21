@@ -1,6 +1,5 @@
 ---
-title:
-  - ACTF2020 新生赛 Exec1 BUUCTF
+title: ACTF2020 新生赛 Exec1 BUUCTF
 tags:
   - 每天一道CTF
   - web

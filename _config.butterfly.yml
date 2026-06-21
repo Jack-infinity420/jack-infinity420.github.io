@@ -651,7 +651,7 @@ twikoo:
 # Giscus
 # https://giscus.app/
 giscus:
-  enable: true
+  enable: false
   repo: Jack-infinity420/blog-comments
   repo_id: # 需要从 giscus.app 获取
   category: Announcements
@@ -1087,9 +1087,9 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
-    - <link rel="preconnect" href="https://fonts.googleapis.com">
-    - <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    - <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    - <link rel="preload" href="/blog/fonts/playfair-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    - <link rel="preload" href="/blog/fonts/eb-garamond-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    - <link rel="stylesheet" href="/blog/css/fonts.css">
     - <link rel="stylesheet" href="/blog/css/reading-journal-fonts.css">
     - <link rel="stylesheet" href="/blog/css/custom.css">
     - <link rel="stylesheet" href="/blog/css/weather.css">

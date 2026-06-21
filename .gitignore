@@ -12,3 +12,4 @@ _multiconfig.yml
 .cosmic-samples/public-deploy/
 .omc/
 .aider*
+debug.log

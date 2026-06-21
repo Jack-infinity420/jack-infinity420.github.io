@@ -180,7 +180,7 @@ neat_js:
   mangle: true
   output:
   compress:
-    drop_console: true
+    drop_console: false
   exclude:
     - '*.min.js'
 
