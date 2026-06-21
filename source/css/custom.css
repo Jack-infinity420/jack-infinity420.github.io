@@ -508,13 +508,14 @@ body,
 
 /* 卷首语 */
 .page.type-reading-journal #article-container > blockquote:first-of-type {
+  font-family: 'Playfair Display', 'LXGW WenKai', 'Noto Serif SC', serif;
   background: linear-gradient(135deg, #fdfcfb 0%, #f7f4ed 100%);
   border: none;
   border-left: 4px solid #c9a96e;
   border-radius: 0 12px 12px 0;
   padding: 28px 32px;
   margin: 0 0 48px 0;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   line-height: 2;
   color: #5a4a3a;
   font-style: italic;
@@ -524,9 +525,10 @@ body,
 
 /* 每一条摘抄 - 日期标题 */
 .page.type-reading-journal #article-container h3 {
-  font-size: 0.9rem;
+  font-family: 'EB Garamond', 'LXGW WenKai', serif;
+  font-size: 1rem;
   color: #a09080;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   font-weight: 400;
   margin: 40px 0 16px 0;
   padding-bottom: 8px;
@@ -536,24 +538,27 @@ body,
 
 /* 摘抄引用块 - 大幅醒目 */
 .page.type-reading-journal #article-container blockquote:not(:first-of-type) {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', 'Source Han Serif SC', serif;
   background: transparent;
   border: none;
   border-left: 3px solid #d4b896;
-  padding: 6px 0 6px 24px;
-  margin: 0 0 24px 0;
-  font-size: 1.15rem;
-  line-height: 2.1;
+  padding: 8px 0 8px 28px;
+  margin: 0 0 28px 0;
+  font-size: 1.2rem;
+  line-height: 2.2;
   color: #3a3028;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
   position: relative;
 }
 
 /* 摘抄出处 - 右对齐小字 */
 .page.type-reading-journal #article-container blockquote:not(:first-of-type) div {
+  font-family: 'EB Garamond', 'LXGW WenKai', serif !important;
   font-size: 0.85rem !important;
   color: #b0a090 !important;
   letter-spacing: 1px;
-  margin-top: 12px !important;
+  margin-top: 14px !important;
+  font-style: italic;
 }
 
 /* 暗色模式适配 */
