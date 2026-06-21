@@ -1,13 +1,14 @@
 /**
  * IP 地理定位模块
- * 接口: https://ipapi.co/json/
- * 缓存: localStorage, key=blog_location, 有效期 30 天
+ * 主接口: ip-api.com (免费, 无需 API key, 支持中文)
+ * 备用接口: ipapi.co (英文)
+ * 缓存: localStorage, key=blog_location, 有效期 7 天
  */
 (function () {
   'use strict';
 
   const CACHE_KEY = 'blog_location';
-  const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 天
+  const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 天
 
   function getCached() {
     try {
@@ -15,6 +16,11 @@
       if (!raw) return null;
       const data = JSON.parse(raw);
       if (Date.now() - data._ts > CACHE_TTL) {
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+      // 忽略缓存中的未知/空城市
+      if (!data.city || data.city === '未知') {
         localStorage.removeItem(CACHE_KEY);
         return null;
       }
@@ -33,55 +39,26 @@
     }
   }
 
-  // 通过 pconline JSONP 获取中文城市名（对国内IP准确）
-  function fetchLocationChinese() {
-    return new Promise(function (resolve, reject) {
-      var callbackName = 'blogGeoCb_' + Date.now();
-      var script = document.createElement('script');
-      script.src = 'https://whois.pconline.com.cn/ipJson.jsp?callback=' + callbackName;
-      script.charset = 'gbk';
-      script.async = true;
-
-      var timer = setTimeout(function () {
-        cleanup();
-        reject(new Error('pconline timeout'));
-      }, 5000);
-
-      window[callbackName] = function (data) {
-        clearTimeout(timer);
-        cleanup();
-        resolve({
-          province: data.pro || '',
-          city: data.city || '',
-          country: '中国'
-        });
-      };
-
-      function cleanup() {
-        delete window[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      script.onerror = function () {
-        clearTimeout(timer);
-        cleanup();
-        reject(new Error('pconline failed'));
-      };
-
-      document.head.appendChild(script);
+  // ip-api.com — 免费，支持 ?lang=zh-CN 返回中文城市名
+  async function fetchFromIpApi() {
+    const resp = await fetch('http://ip-api.com/json/?lang=zh-CN', {
+      signal: AbortSignal.timeout(5000)
     });
+    if (!resp.ok) throw new Error('ip-api returned ' + resp.status);
+    const json = await resp.json();
+    if (json.status !== 'success') throw new Error(json.message || 'ip-api error');
+    return {
+      province: json.regionName || '',
+      city: json.city || '',
+      country: json.country || ''
+    };
   }
 
-  async function fetchLocation() {
-    // 1. 先尝试中文定位（对国内IP准确）
-    try {
-      return await fetchLocationChinese();
-    } catch (e) {
-      console.warn('[BlogGeo] 中文定位失败，fallback 到英文:', e.message);
-    }
-
-    // 2. fallback 到 ipapi.co（返回英文）
-    const resp = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
+  // ipapi.co — 备用，返回英文
+  async function fetchFromIpapiCo() {
+    const resp = await fetch('https://ipapi.co/json/', {
+      signal: AbortSignal.timeout(5000)
+    });
     if (!resp.ok) throw new Error('ipapi returned ' + resp.status);
     const json = await resp.json();
     if (json.error) throw new Error(json.reason || 'ipapi error');
@@ -92,18 +69,39 @@
     };
   }
 
+  async function fetchLocation() {
+    // 1. 优先 ip-api.com（支持中文，准确性高）
+    try {
+      return await fetchFromIpApi();
+    } catch (e) {
+      console.warn('[BlogGeo] ip-api 失败, 尝试备用:', e.message);
+    }
+
+    // 2. 备用 ipapi.co
+    try {
+      return await fetchFromIpapiCo();
+    } catch (e) {
+      console.warn('[BlogGeo] ipapi 失败:', e.message);
+    }
+
+    // 3. 全部失败
+    return { province: '', city: '', country: '' };
+  }
+
   async function getLocation() {
     // 1. 先查缓存
     const cached = getCached();
-    if (cached && cached.city) return cached;
+    if (cached) return cached;
 
     // 2. 请求 API
     try {
       const data = await fetchLocation();
-      setCache(data);
+      // 防止 API 返回空字符串或 "未知"
+      if (data.city && data.city !== '未知') {
+        setCache(data);
+      }
       return data;
     } catch (e) {
-      // 3. API 失败，返回空数据，卡片不显示
       console.warn('[BlogGeo] 定位失败:', e.message);
       return { province: '', city: '', country: '' };
     }
