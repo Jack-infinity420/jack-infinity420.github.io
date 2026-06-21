@@ -494,3 +494,86 @@ body,
     animation: none !important;
   }
 }
+
+/* ==========================================
+   星海拾燧 · 摘抄专栏样式
+   ========================================== */
+
+/* 专栏容器 - 书籍质感 */
+.page.type-reading-journal #article-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 卷首语 */
+.page.type-reading-journal #article-container > blockquote:first-of-type {
+  background: linear-gradient(135deg, #fdfcfb 0%, #f7f4ed 100%);
+  border: none;
+  border-left: 4px solid #c9a96e;
+  border-radius: 0 12px 12px 0;
+  padding: 28px 32px;
+  margin: 0 0 48px 0;
+  font-size: 1.05rem;
+  line-height: 2;
+  color: #5a4a3a;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+/* 每一条摘抄 - 日期标题 */
+.page.type-reading-journal #article-container h3 {
+  font-size: 0.9rem;
+  color: #a09080;
+  letter-spacing: 2px;
+  font-weight: 400;
+  margin: 40px 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e0d6c8;
+  text-transform: none;
+}
+
+/* 摘抄引用块 - 大幅醒目 */
+.page.type-reading-journal #article-container blockquote:not(:first-of-type) {
+  background: transparent;
+  border: none;
+  border-left: 3px solid #d4b896;
+  padding: 6px 0 6px 24px;
+  margin: 0 0 24px 0;
+  font-size: 1.15rem;
+  line-height: 2.1;
+  color: #3a3028;
+  letter-spacing: 0.6px;
+  position: relative;
+}
+
+/* 摘抄出处 - 右对齐小字 */
+.page.type-reading-journal #article-container blockquote:not(:first-of-type) div {
+  font-size: 0.85rem !important;
+  color: #b0a090 !important;
+  letter-spacing: 1px;
+  margin-top: 12px !important;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .page.type-reading-journal #article-container > blockquote:first-of-type {
+  background: linear-gradient(135deg, #1e1b18 0%, #25201a 100%);
+  border-left-color: #8b7355;
+  color: #c8bfb0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .page.type-reading-journal #article-container h3 {
+  color: #8b8070;
+  border-bottom-color: #3a3530;
+}
+
+[data-theme="dark"] .page.type-reading-journal #article-container blockquote:not(:first-of-type) {
+  border-left-color: #8b7355;
+  color: #c8bfb0;
+}
+
+[data-theme="dark"] .page.type-reading-journal #article-container blockquote:not(:first-of-type) div {
+  color: #6b6050 !important;
+}
