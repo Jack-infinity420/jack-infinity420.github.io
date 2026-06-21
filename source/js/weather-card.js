@@ -45,14 +45,17 @@
 
     var greetingText = greeting
       .replace('{time_period}', timePeriod)
+      .replace(/{province}·{city}/g, province && city ? province + '·' + city : '')
       .replace('{province}', province)
       .replace('{city}', city);
+    // 清除模板中可能残留的 '来自·' 或 '来自'
+    greetingText = greetingText.replace(/欢迎来自·/, '欢迎').replace(/欢迎来自$/, '欢迎').replace(/欢迎来自 /, '欢迎，');
 
     var weatherIcon = data.weather ? data.weather.icon : '☀️';
     var weatherLabel = data.weather ? getWeatherLabel(data.weather.type) : '晴天';
     var temp = data.weather ? data.weather.temp : '--';
 
-    if (!province && !city) return;
+    // 即使没有定位到城市，也显示默认欢迎卡片
 
     removeOld();
 

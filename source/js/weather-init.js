@@ -37,8 +37,9 @@
       });
     }
 
-    if (!geo || !geo.city) {
-      return;
+    // 即使没有定位到城市，也继续渲染默认欢迎卡片
+    if (!geo) {
+      geo = { province: '', city: '', country: '' };
     }
 
     // 3. 并行获取天气和诗词
