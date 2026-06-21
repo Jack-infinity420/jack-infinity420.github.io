@@ -13,9 +13,26 @@ comments: false
 
 <br>
 
-### 📖 摘抄目录
+### 2026-06-22
 
-摘抄内容 👉 [星海拾燧专栏](/blog/categories/星海拾燧/)
+> 从前种种，譬如昨日死；
+> 从后种种，譬如今日生。
+>
+> 此义理再生之身。
+>
+> <div style="text-align: right; color: #888; font-size: 13px;">—— 《了凡四训》</div>
 
-> 每条摘抄作为一个独立 Post，分类为"星海拾燧"，自动汇入本专栏。
-> 摘抄不会出现在首页和归档中。
+<br>
+
+### 2026-06-21
+
+> 我们都是星尘。
+> We are all stardust.
+>
+> <div style="text-align: right; color: #888; font-size: 13px;">—— Carl Sagan</div>
+
+<br>
+
+> 世界上最让人感动的，是遥远的相似性。
+>
+> <div style="text-align: right; color: #888; font-size: 13px;">—— 霍金</div>
