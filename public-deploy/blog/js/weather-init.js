@@ -15,10 +15,26 @@
       window.BlogDayNight.watchManualToggle();
     }
 
-    // 2. IP 定位
+    // 2. IP 定位（带重试，等待 scripts 加载完成）
     var geo = null;
     if (window.BlogGeo) {
       geo = await window.BlogGeo.getLocation();
+    } else {
+      // geo.js 尚未加载，等待最多 5s
+      geo = await new Promise(function (resolve) {
+        var waited = 0;
+        var maxWait = 5000;
+        var interval = setInterval(function () {
+          waited += 200;
+          if (window.BlogGeo) {
+            clearInterval(interval);
+            window.BlogGeo.getLocation().then(resolve);
+          } else if (waited >= maxWait) {
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 200);
+      });
     }
 
     if (!geo || !geo.city) {
@@ -58,7 +74,7 @@
     // 降级默认值
     return {
       fixed_poem: '海内存知己，天涯若比邻',
-      greeting_template: '{time_period}好，欢迎来自{province}·{city}的同志',
+      greeting_template: '{time_period}好，欢迎来自{province}·{city}的朋友',
       poem_fallback: '海内存知己，天涯若比邻',
       switch_hint_desktop: '',
       switch_hint_mobile: ''
