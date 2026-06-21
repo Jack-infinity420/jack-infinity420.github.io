@@ -861,7 +861,7 @@ font:
 # Font settings for the site title and the site subtitle
 blog_title_font:
   font_link:
-  font_family: 'LXGW WenKai, Georgia, Times New Roman, serif'
+  font_family: "'Playfair Display', 'LXGW WenKai', Georgia, serif"
 
 # The setting of divider icon
 hr_icon:

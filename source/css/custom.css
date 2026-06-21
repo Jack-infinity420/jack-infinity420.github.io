@@ -496,6 +496,71 @@ body,
 }
 
 /* ==========================================
+   全局字体美化
+   ========================================== */
+
+/* 内联代码 - 修复 Butterfly 硬编码 Monaco */
+#article-container code:not(pre code) {
+  font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace !important;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 文章标题 */
+#article-container h1,
+#article-container h2,
+#article-container h3,
+#article-container h4 {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* 文章元信息 - 日期/分类/标签 */
+#post-meta,
+.article-meta-wrap,
+.post-meta-date-created,
+.post-meta-date-updated {
+  font-family: 'EB Garamond', 'LXGW WenKai', serif;
+  letter-spacing: 0.3px;
+}
+
+/* 侧边栏卡片标题 */
+.card-widget .item-headline {
+  font-family: 'Playfair Display', 'LXGW WenKai', serif;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+
+/* 侧边栏作者描述 */
+#aside-content .author-info-description {
+  font-family: 'EB Garamond', 'LXGW WenKai', serif;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+/* 归档/分类页标题 */
+.article-sort-title,
+.category-lists .category-list-link,
+.tag-cloud-tags a {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  letter-spacing: 0.4px;
+}
+
+/* 导航菜单项 */
+#nav .menus_item .site-page {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  letter-spacing: 0.5px;
+}
+
+/* 页脚 */
+#footer {
+  font-family: 'EB Garamond', 'LXGW WenKai', serif;
+  letter-spacing: 0.3px;
+}
+
+/* ==========================================
    星海拾燧 · 摘抄专栏样式
    ========================================== */
 
