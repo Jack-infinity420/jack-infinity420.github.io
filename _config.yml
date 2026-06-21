@@ -68,6 +68,8 @@ index_generator:
   path: ''
   per_page: 10
   order_by: -date
+  exclude:
+    - category 阅读拾光
 
 # Category & Tag
 default_category: uncategorized

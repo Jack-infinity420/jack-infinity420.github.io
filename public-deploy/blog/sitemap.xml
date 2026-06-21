@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://lvjf.space/blog/posts/aac5ba11.html</loc>
+    
+    <lastmod>2026-06-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://lvjf.space/reading-journal/index.html</loc>
+    
+    <lastmod>2026-06-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://lvjf.space/creative-showcase/index.html</loc>
     
     <lastmod>2026-06-21</lastmod>
@@ -324,6 +342,13 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>https://lvjf.space/blog/tags/%E6%91%98%E6%8A%84/</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
@@ -391,6 +416,13 @@
   
   <url>
     <loc>https://lvjf.space/blog/categories/CTF/</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lvjf.space/blog/categories/%E9%98%85%E8%AF%BB%E6%8B%BE%E5%85%89/</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
