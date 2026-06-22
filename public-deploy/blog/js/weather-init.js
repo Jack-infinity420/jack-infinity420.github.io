@@ -104,9 +104,26 @@
   });
 
   // DOM ready 后启动
+  function boot() {
+    // Catch all errors so the card never fails silently
+    main().catch(function (err) {
+      console.error('[WeatherInit] Fatal error during init:', err);
+      // Render fallback card even on error
+      if (window.WeatherCard) {
+        window.WeatherCard.render({
+          province: '',
+          city: '',
+          poem: null,
+          weather: null,
+          config: window.BLOG_WEATHER_CONFIG || {}
+        });
+      }
+    });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', main);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    main();
+    boot();
   }
 })();

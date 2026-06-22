@@ -150,7 +150,7 @@
   // ========== ip-api.com fetch（深度备用） ==========
 
   function tryIpApi() {
-    return fetch('http://ip-api.com/json/?lang=zh-CN', {
+    return fetch('https://ip-api.com/json/?lang=zh-CN', {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT)
     }).then(function (resp) {
       if (!resp.ok) throw new Error('ip-api status ' + resp.status);

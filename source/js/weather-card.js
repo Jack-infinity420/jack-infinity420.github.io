@@ -59,6 +59,14 @@
     // 即使没有定位到城市，也显示默认欢迎卡片
     console.log('[WeatherCard] isMobile:', isMobile());
 
+    // 强制覆盖 Butterfly aside.mobile:false 的 display:none CSS 规则
+    if (!document.getElementById('weather-card-force-css')) {
+      var s = document.createElement('style');
+      s.id = 'weather-card-force-css';
+      s.textContent = '.card-weather{display:block!important}@media(max-width:768px){.card-weather{display:block!important}}';
+      document.head.appendChild(s);
+    }
+
     removeOld();
 
     if (isMobile()) {
