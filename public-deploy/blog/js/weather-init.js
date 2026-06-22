@@ -1,6 +1,6 @@
 /**
  * 天气欢迎系统 - 主入口
- * 编排所有模块：IP 定位 → 天气 + 诗词 → 卡片渲染 + 粒子特效 + 面板
+ * IP 定位 → 天气 + 诗词 → 侧栏/移动端卡片（无全屏粒子、无模式切换面板）
  */
 (function () {
   'use strict';
@@ -22,13 +22,7 @@
     }
 
     if (!geo || !geo.city) {
-      // 定位失败，桌面侧边栏不显示，手机横条用默认文案
-      if (!isMobileDevice()) return;
-      geo = { province: '', city: '远方', country: '' };
-    }
-
-    function isMobileDevice() {
-      return window.innerWidth < 900;
+      return;
     }
 
     // 3. 并行获取天气和诗词
@@ -37,16 +31,14 @@
       : Promise.resolve(null);
 
     var poemPromise = window.BlogPoem
-      ? window.BlogPoem.getPoem(geo.city)
+      ? window.BlogPoem.getPoem(geo.city, geo.province)
       : Promise.resolve(null);
 
     var results = await Promise.allSettled([weatherPromise, poemPromise]);
     var weather = results[0].status === 'fulfilled' ? results[0].value : null;
     var poem = results[1].status === 'fulfilled' ? results[1].value : null;
 
-    var weatherType = weather ? weather.type : 'clear';
-
-    // 4. 渲染卡片
+    // 4. 渲染卡片（无全屏 Canvas 粒子、无天气模式面板 — 仅静态卡片 UI）
     if (window.WeatherCard) {
       window.WeatherCard.render({
         province: geo.province,
@@ -55,16 +47,6 @@
         weather: weather,
         config: config
       });
-    }
-
-    // 5. 初始化粒子特效
-    if (window.WeatherFX) {
-      window.WeatherFX.init(weatherType).catch(function () {});
-    }
-
-    // 6. 初始化控制面板
-    if (window.WeatherPanel) {
-      window.WeatherPanel.init(weatherType);
     }
   }
 
@@ -78,8 +60,8 @@
       fixed_poem: '海内存知己，天涯若比邻',
       greeting_template: '{time_period}好，欢迎来自{province}·{city}的同志',
       poem_fallback: '海内存知己，天涯若比邻',
-      switch_hint_desktop: '💡 点击右下角 ☁️ 切换天气',
-      switch_hint_mobile: '💡 点击 ☁️ 切换天气'
+      switch_hint_desktop: '',
+      switch_hint_mobile: ''
     };
   }
 

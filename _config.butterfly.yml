@@ -25,11 +25,7 @@ menu:
   # 文史哲分区
   文以载道: /categories/humanities/ || fas fa-book
   # 技术理工分区
-  项目展示: /projects/double-falcon/ || fas fa-rocket
   格物致知: /categories/tech/ || fas fa-microscope
-  创意展示: /creative-showcase/ || fas fa-lightbulb
-  星海拾燧: /reading-journal/ || fas fa-bookmark
-  重返地球: /cosmic-intro/?replay=1 || fas fa-earth-americas
 # --------------------------------------
 # Code Blocks Settings
 # --------------------------------------
@@ -154,7 +150,7 @@ post_meta:
 # The position of site info, eg: 300px/300em/300rem/10%
 index_site_info_top:
 # The height of top_img, eg: 300px/300em/300rem
-index_top_img_height: 72vh
+index_top_img_height:
 
 # The subtitle on homepage
 subtitle:
@@ -207,7 +203,7 @@ index_layout: 1
 index_post_content:
   method: 2
   # If you set method to 2 or 3, the length need to config
-  length: 220
+  length: 500
 
 # --------------------------------------
 # Post Settings
@@ -298,7 +294,7 @@ aside:
   hide: false
   # Show the button to hide the aside in bottom right button
   button: true
-  mobile: false
+  mobile: true
   # Position: left / right
   position: right
   display:
@@ -462,9 +458,9 @@ wordcount:
 
 # Busuanzi count for PV / UV in site
 busuanzi:
-  site_uv: false
-  site_pv: false
-  page_pv: false
+  site_uv: true
+  site_pv: true
+  page_pv: true
 
 # --------------------------------------
 # Math
@@ -477,7 +473,7 @@ math:
   # Choose: mathjax, katex
   # Leave it empty if you don't need math
   use:
-  per_page: false
+  per_page: true
   hide_scrollbar: false
 
   mathjax:
@@ -651,7 +647,7 @@ twikoo:
 # Giscus
 # https://giscus.app/
 giscus:
-  enable: false
+  enable: true
   repo: Jack-infinity420/blog-comments
   repo_id: # 需要从 giscus.app 获取
   category: Announcements
@@ -835,7 +831,7 @@ preloader:
   pace_css_url:
 
 # Page Transition
-enter_transitions: false
+enter_transitions: true
 
 # Default display mode - light (default) / dark
 display_mode: light
@@ -855,13 +851,13 @@ beautify:
 font:
   global_font_size: 16px
   code_font_size: 14px
-  font_family: 'LXGW WenKai, Noto Serif SC, Source Han Serif SC, PingFang SC, Microsoft YaHei, serif'
+  font_family: 'LXGW WenKai, Cormorant Garamond, Noto Sans SC, PingFang SC, Microsoft YaHei, serif'
   code_font_family: 'Fira Code, Consolas, Monaco, monospace'
 
 # Font settings for the site title and the site subtitle
 blog_title_font:
-  font_link:
-  font_family: "'Playfair Display', 'LXGW WenKai', Georgia, serif"
+  font_link: https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap
+  font_family: 'LXGW WenKai, Cormorant Garamond, serif'
 
 # The setting of divider icon
 hr_icon:
@@ -1020,7 +1016,7 @@ pjax:
   enable: true
   # Exclude the specified pages from pjax, such as '/music/'
   exclude:
-    - /blog/cosmic-intro/?replay=1
+    # - /xxxxxx/
 
 # Inject the css and script (aplayer/meting)
 aplayerInject:
@@ -1087,19 +1083,16 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
-    - <link rel="preload" href="/blog/fonts/playfair-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-    - <link rel="preload" href="/blog/fonts/eb-garamond-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-    - <link rel="stylesheet" href="/blog/css/fonts.css">
-    - <link rel="stylesheet" href="/blog/css/reading-journal-fonts.css">
-    - <link rel="stylesheet" href="/blog/css/custom.css">
-    - <link rel="stylesheet" href="/blog/css/weather.css">
+    - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="stylesheet" href="/css/weather.css">
   bottom:
-    - <script src="/blog/js/weather-config.js"></script>
-    - <script src="/blog/js/geo.js"></script>
-    - <script src="/blog/js/weather.js"></script>
-    - <script src="/blog/js/poetry.js"></script>
-    - <script src="/blog/js/weather-card.js"></script>
-    - <script src="/blog/js/weather-init.js"></script>
+    - <script src="/js/weather-config.js"></script>
+    - <script src="/js/geo.js"></script>
+    - <script src="/js/weather.js"></script>
+    - <script src="/js/poetry.js"></script>
+    - <script src="/js/daynight.js"></script>
+    - <script src="/js/weather-card.js"></script>
+    - <script src="/js/weather-init.js"></script>
 
 # CDN Settings - Optimized for China CDN
 # Don't modify the following settings unless you know how they work
