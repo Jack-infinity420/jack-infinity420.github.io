@@ -298,7 +298,7 @@ aside:
   hide: false
   # Show the button to hide the aside in bottom right button
   button: true
-  mobile: false
+  mobile: true
   # Position: left / right
   position: right
   display:
