@@ -22,8 +22,13 @@
     }
 
     if (!geo || !geo.city) {
-      // 无法定位，不显示卡片和天气特效
-      return;
+      // 定位失败，桌面侧边栏不显示，手机横条用默认文案
+      if (!isMobileDevice()) return;
+      geo = { province: '', city: '远方', country: '' };
+    }
+
+    function isMobileDevice() {
+      return window.innerWidth < 900;
     }
 
     // 3. 并行获取天气和诗词
