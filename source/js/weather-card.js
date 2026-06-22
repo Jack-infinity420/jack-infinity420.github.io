@@ -60,10 +60,15 @@
     console.log('[WeatherCard] isMobile:', isMobile());
 
     // 强制覆盖 Butterfly aside.mobile:false 的 display:none CSS 规则
+    // Butterfly 有 3 层规则可能隐藏: #aside-content .card-widget, .card-widget:not(#card-toc), @media
     if (!document.getElementById('weather-card-force-css')) {
       var s = document.createElement('style');
       s.id = 'weather-card-force-css';
-      s.textContent = '.card-weather{display:block!important}@media(max-width:768px){.card-weather{display:block!important}}';
+      s.textContent = [
+        '#aside-content .card-weather{display:block!important}',
+        '.card-weather{display:block!important}',
+        '@media(max-width:768px){.card-weather{display:block!important}#aside-content .card-weather{display:block!important}.weather-mobile-bar{display:flex!important}}'
+      ].join('');
       document.head.appendChild(s);
     }
 

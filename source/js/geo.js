@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  var CACHE_KEY = '***';
+  var CACHE_KEY = 'blog_location';
   var CACHE_TTL = 24 * 60 * 60 * 1000;
   var REQUEST_TIMEOUT = 3000;
 
@@ -157,9 +157,28 @@
       return resp.json();
     }).then(function (json) {
       if (!json.success) throw new Error(json.message);
+      // ipwhois 返回: region="中国北京" city="北京"
+      // 需要拆分 region 提取省
+      var province = '';
+      var city = json.city || '';
+      var region = json.region || '';
+      // region 格式: "中国北京" "广东省深圳市"
+      // 去掉"中国"前缀后取省级部分
+      if (region) {
+        var clean = region.replace(/^中国/, '');
+        // 省级行政区: 省/自治区/直辖市
+        var provMatch = clean.match(/^(.+?(?:省|自治区|市))(.+?市|.+?地区|.+?自治州|.+?盟|.+?县)?$/);
+        if (provMatch) {
+          province = provMatch[1] || '';
+          if (!city && provMatch[2]) city = provMatch[2];
+        } else {
+          province = clean;
+        }
+      }
+      if (!city) city = province; // 直辖市 fallback
       return {
-        province: json.region || '',
-        city: json.city || '',
+        province: province,
+        city: city,
         country: json.country || ''
       };
     });
