@@ -22,13 +22,7 @@
     }
 
     if (!geo || !geo.city) {
-      // 定位失败，桌面侧边栏不显示，手机横条用默认文案
-      if (!isMobileDevice()) return;
-      geo = { province: '', city: '远方', country: '' };
-    }
-
-    function isMobileDevice() {
-      return window.innerWidth < 900;
+      return;
     }
 
     // 3. 并行获取天气和诗词
