@@ -4,7 +4,7 @@
  * 策略（社区最佳实践）：
  *   1. 网易 ip.ws.126.net JSONP（city/province 字段清晰，无 CORS）
  *   2. 搜狐 pv.sohu.com JSONP（作为备用）
- *   3. ip-api.com fetch（数据最全，支持中文）
+ *   3. ipwhois.app fetch（免费 HTTPS，数据准确，支持中文）
  *   4. 全部失败 → 静默隐藏卡片
  *
  * 缓存: localStorage, key=blog_location, 有效期 24h
@@ -147,18 +147,18 @@
     });
   }
 
-  // ========== ip-api.com fetch（深度备用） ==========
+  // ========== ipwhois.app fetch（深度备用，免费 HTTPS） ==========
 
   function tryIpApi() {
-    return fetch('https://ip-api.com/json/?lang=zh-CN', {
+    return fetch('https://ipwhois.app/json/?lang=zh-CN', {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT)
     }).then(function (resp) {
-      if (!resp.ok) throw new Error('ip-api status ' + resp.status);
+      if (!resp.ok) throw new Error('ipwhois status ' + resp.status);
       return resp.json();
     }).then(function (json) {
-      if (json.status !== 'success') throw new Error(json.message);
+      if (!json.success) throw new Error(json.message);
       return {
-        province: json.regionName || '',
+        province: json.region || '',
         city: json.city || '',
         country: json.country || ''
       };
@@ -174,9 +174,9 @@
       // 2. 搜狐
       return trySohu().catch(function (err2) {
         console.warn('[BlogGeo] 搜狐失败:', err2.message);
-        // 3. ip-api.com
+        // 3. ipwhois.app
         return tryIpApi().catch(function (err3) {
-          console.warn('[BlogGeo] ip-api 失败:', err3.message);
+          console.warn('[BlogGeo] ipwhois 失败:', err3.message);
           return null;
         });
       });
