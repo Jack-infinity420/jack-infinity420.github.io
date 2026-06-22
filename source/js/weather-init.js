@@ -6,8 +6,10 @@
   'use strict';
 
   async function main() {
+    console.log('[WeatherInit] main() started');
     // 0. 加载配置
     var config = getConfig();
+    console.log('[WeatherInit] config loaded');
 
     // 1. 日夜间检测（最先执行，不依赖网络）
     if (window.BlogDayNight) {
@@ -17,10 +19,13 @@
 
     // 2. IP 定位（带重试，等待 scripts 加载完成）
     var geo = null;
+    console.log('[WeatherInit] BlogGeo exists:', !!window.BlogGeo);
     if (window.BlogGeo) {
       geo = await window.BlogGeo.getLocation();
+      console.log('[WeatherInit] geo result:', JSON.stringify(geo));
     } else {
       // geo.js 尚未加载，等待最多 5s
+      console.log('[WeatherInit] waiting for BlogGeo...');
       geo = await new Promise(function (resolve) {
         var waited = 0;
         var maxWait = 5000;
@@ -28,9 +33,14 @@
           waited += 200;
           if (window.BlogGeo) {
             clearInterval(interval);
-            window.BlogGeo.getLocation().then(resolve);
+            console.log('[WeatherInit] BlogGeo appeared after', waited, 'ms');
+            window.BlogGeo.getLocation().then(function(g) {
+              console.log('[WeatherInit] geo result:', JSON.stringify(g));
+              resolve(g);
+            });
           } else if (waited >= maxWait) {
             clearInterval(interval);
+            console.log('[WeatherInit] BlogGeo NOT found after', maxWait, 'ms');
             resolve(null);
           }
         }, 200);
@@ -41,6 +51,7 @@
     if (!geo) {
       geo = { province: '', city: '', country: '' };
     }
+    console.log('[WeatherInit] final geo:', JSON.stringify(geo));
 
     // 3. 并行获取天气和诗词
     var weatherPromise = window.BlogWeather
@@ -54,9 +65,12 @@
     var results = await Promise.allSettled([weatherPromise, poemPromise]);
     var weather = results[0].status === 'fulfilled' ? results[0].value : null;
     var poem = results[1].status === 'fulfilled' ? results[1].value : null;
+    console.log('[WeatherInit] weather:', !!weather, 'poem:', !!poem);
 
     // 4. 渲染卡片（无全屏 Canvas 粒子、无天气模式面板 — 仅静态卡片 UI）
+    console.log('[WeatherInit] WeatherCard exists:', !!window.WeatherCard);
     if (window.WeatherCard) {
+      console.log('[WeatherInit] calling WeatherCard.render...');
       window.WeatherCard.render({
         province: geo.province,
         city: geo.city,

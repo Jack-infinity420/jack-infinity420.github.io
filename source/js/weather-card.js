@@ -26,6 +26,7 @@
   }
 
   function render(data) {
+    console.log('[WeatherCard] render called', JSON.stringify({province: data.province, city: data.city, hasConfig: !!data.config}));
     var config = data.config || {};
     var fixedPoem = config.fixed_poem || '海内存知己，天涯若比邻';
     var poemFallback = config.poem_fallback || fixedPoem;
@@ -56,6 +57,7 @@
     var temp = data.weather ? data.weather.temp : '--';
 
     // 即使没有定位到城市，也显示默认欢迎卡片
+    console.log('[WeatherCard] isMobile:', isMobile());
 
     removeOld();
 
@@ -67,6 +69,7 @@
 
     function renderDesktop() {
       var aside = document.getElementById('aside-content');
+      console.log('[WeatherCard] renderDesktop, aside found:', !!aside);
       if (!aside) return;
 
       var card = document.createElement('div');
@@ -95,6 +98,7 @@
 
     function renderMobile() {
       var contentInner = document.getElementById('content-inner');
+      console.log('[WeatherCard] renderMobile, content-inner found:', !!contentInner);
       if (!contentInner) return;
 
       var bar = document.createElement('div');
