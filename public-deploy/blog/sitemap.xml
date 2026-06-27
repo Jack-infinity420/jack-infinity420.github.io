@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://lvjf.space/duan-daxue/index.html</loc>
+    <loc>https://lvjf.space/blog/opt-images/dimensions.json</loc>
     
     <lastmod>2026-06-27</lastmod>
     
@@ -11,9 +11,9 @@
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/opt-images/dimensions.json</loc>
+    <loc>https://lvjf.space/duan-daxue/index.html</loc>
     
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-06-27</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -401,14 +401,14 @@
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/categories/humanities/%E9%9A%8F%E7%AC%94/</loc>
+    <loc>https://lvjf.space/blog/categories/AI/%E5%BC%80%E6%BA%90/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://lvjf.space/blog/categories/AI/%E5%BC%80%E6%BA%90/</loc>
+    <loc>https://lvjf.space/blog/categories/humanities/%E9%9A%8F%E7%AC%94/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
