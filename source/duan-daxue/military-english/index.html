@@ -270,7 +270,8 @@ body::before{
   display:flex;flex-direction:column;
   padding:36px 40px;
   clip-path:var(--clip);
-  overflow:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
 }
 .card-front{
   background:linear-gradient(135deg,var(--surface),var(--bg-3));
@@ -302,14 +303,22 @@ body::before{
 .card-question{
   font-family:'Oswald';font-weight:500;font-size:22px;
   color:var(--khaki-bright);line-height:1.4;
-  text-align:center;flex:1;display:flex;align-items:center;justify-content:center;
+  flex:1;overflow-y:auto;
   padding:0 10px;
+  -webkit-overflow-scrolling:touch;
+}
+.card-question .card-inner{
+  margin:auto 0;width:100%;text-align:center;
 }
 .card-answer{
   font-family:'Rajdhani';font-weight:500;font-size:17px;
   color:var(--text-bright);line-height:1.6;
-  flex:1;display:flex;align-items:center;justify-content:center;
-  padding:0 10px;overflow-y:auto;
+  flex:1;overflow-y:auto;
+  padding:0 10px;
+  -webkit-overflow-scrolling:touch;
+}
+.card-answer .card-inner{
+  margin:auto 0;width:100%;
 }
 .card-answer strong{color:var(--gold)}
 .card-answer .en{font-family:'JetBrains Mono';color:var(--khaki-bright);font-size:15px}
@@ -368,7 +377,7 @@ body::before{
   border:1px solid var(--border-2);
   clip-path:var(--clip);
   padding:36px 40px;
-  position:relative;overflow:hidden;
+  position:relative;
   min-height:300px;
   display:flex;flex-direction:column;
 }
@@ -410,7 +419,7 @@ body::before{
   border:1px solid var(--border-2);
   clip-path:var(--clip);
   padding:36px 40px;
-  position:relative;overflow:hidden;
+  position:relative;
   min-height:260px;
 }
 .cloze-card::after{
@@ -668,15 +677,14 @@ body::before{
   .study-toolbar > div{flex-wrap:nowrap}
   .filter-chip{flex-shrink:0;white-space:nowrap;padding:6px 12px;font-size:12px}
   #fc-shuffle{flex-shrink:0}
-  /* Flashcard: responsive height */
+  /* Flashcard: fixed height with internal scroll for long content */
   .flashcard{
-    height:auto;
-    min-height:320px;
-    max-height:52vh;
+    height:420px;
+    min-height:420px;
   }
-  .card-face{padding:24px 18px}
+  .card-face{padding:24px 18px;position:absolute}
   .card-question{font-size:17px;line-height:1.4}
-  .card-answer{font-size:14px;line-height:1.6}
+  .card-answer{font-size:14px;line-height:1.6;padding:0 6px;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .card-cat-tag{font-size:9px}
   /* Rating buttons: wider, touch-friendly */
   .rating-bar{gap:8px;width:100%}
@@ -728,7 +736,7 @@ body::before{
   .stat-card{padding:12px 10px}
   .stat-card .value{font-size:20px}
   .hero-title{font-size:19px}
-  .flashcard{min-height:280px}
+  .flashcard{height:380px;min-height:380px}
   .card-question{font-size:15px}
   .rate-btn{font-size:12px;padding:10px 4px}
   .mn-label{font-size:9px}
@@ -1424,13 +1432,13 @@ function renderFlashcard(){
       <div class="flashcard" id="flashcard" onclick="flipCard()">
         <div class="card-face card-front">
           <div class="card-cat-tag">${getCatIcon(card.cat)} ${getCatName(card.cat)}</div>
-          <div class="card-question">${card.q}</div>
+          <div class="card-question"><div class="card-inner">${card.q}</div></div>
           <div class="card-hint card-flip-hint">▸ 点击翻转查看答案</div>
           <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
         </div>
         <div class="card-face card-back">
           <div class="card-cat-tag">✓ 答案</div>
-          <div class="card-answer">${card.a}</div>
+          <div class="card-answer"><div class="card-inner">${card.a}</div></div>
           <div class="card-hint">▸ 下方评分继续</div>
           <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
         </div>
@@ -1783,46 +1791,9 @@ document.querySelectorAll('.mode-card').forEach(card=>{
 document.getElementById('browse-search')?.addEventListener('input',()=>renderBrowse());
 document.getElementById('fc-shuffle')?.addEventListener('click',()=>shuffleQueue('flashcard'));
 
-// ===================== TOUCH SWIPE GESTURES =====================
-let touchStartX=0, touchStartY=0, touchEndX=0, touchEndY=0;
-document.addEventListener('touchstart',e=>{
-  touchStartX = e.changedTouches[0].screenX;
-  touchStartY = e.changedTouches[0].screenY;
-},{passive:true});
-document.addEventListener('touchend',e=>{
-  touchEndX = e.changedTouches[0].screenX;
-  touchEndY = e.changedTouches[0].screenY;
-  handleSwipe();
-},{passive:true});
-function handleSwipe(){
-  const deltaX = touchEndX - touchStartX;
-  const deltaY = touchEndY - touchStartY;
-  // Only handle horizontal swipes (ignore vertical scroll)
-  if(Math.abs(deltaX) < 60 || Math.abs(deltaX) < Math.abs(deltaY)) return;
-  const mode = state.view;
-  if(!['flashcard','qa','cloze','quiz'].includes(mode)) return;
-  // Don't swipe if user is typing in an input
-  if(document.activeElement?.tagName==='INPUT') return;
-  if(deltaX > 0){
-    // Swipe right → previous
-    prevCard(mode);
-  }else{
-    // Swipe left → next
-    // For flashcard: only auto-advance if already flipped
-    if(mode==='flashcard'){
-      const fc = document.getElementById('flashcard');
-      if(fc && !fc.classList.contains('flipped')){
-        flipCard();
-      }else{
-        nextCard(mode);
-      }
-    }else if(mode==='quiz'){
-      // Don't auto-advance quiz on swipe (require answering)
-    }else{
-      nextCard(mode);
-    }
-  }
-}
+// ===================== TOUCH: removed swipe to prevent accidental card changes =====================
+// Card navigation is only via the left/right buttons below the card.
+// Tapping the card only flips it (handled by the card's onclick).
 
 // Keyboard shortcuts
 document.addEventListener('keydown',e=>{

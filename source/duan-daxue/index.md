@@ -19,4 +19,4 @@ comments: false
 ### 课程列表
 
 - [计算机原理](/blog/duan-daxue/computer-principles/) —— 5章 149个知识点 · 知识图谱 · 闪卡复习 · 刷题练习
-- [军事英语](/blog/duan-daxue/military-english/) —— 82个知识点 · 5大模块 · 翻卡/问答/填空/测验四种模式
+- [军事英语](/blog/duan-daxue/military-english/) —— 81个知识点 · 5大模块 · 翻卡/问答/填空/测验四种模式
