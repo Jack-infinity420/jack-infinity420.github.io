@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
 <title>军事英语 · 期末备考背记系统</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,14 +34,16 @@
   --clip: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
   --clip-sm: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   font-family:'Rajdhani','Noto Sans SC',sans-serif;
   background:var(--bg);
   color:var(--text);
   min-height:100vh;
   overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-overflow-scrolling:touch;
   background-image:
     linear-gradient(rgba(75,83,32,.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(75,83,32,.03) 1px,transparent 1px),
@@ -586,7 +588,34 @@ body::before{
 .empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:.5}
 .empty-state .es-text{font-size:14px}
 
-/* Responsive */
+/* ========== MOBILE BOTTOM NAV (hidden on desktop) ========== */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,var(--bg-2),var(--bg));
+  border-top:1px solid var(--border);
+  z-index:200;
+  padding:0;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  justify-content:space-around;
+}
+.mn-item{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 2px 6px;
+  color:var(--text-faint);
+  cursor:pointer;transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+  min-height:52px;
+}
+.mn-item:active{background:rgba(75,83,32,.2)}
+.mn-item.active{color:var(--khaki-bright)}
+.mn-icon{font-size:20px;line-height:1}
+.mn-label{font-size:10px;font-weight:500;letter-spacing:.5px}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablet: narrow sidebar */
 @media(max-width:900px){
   .sidebar{width:60px;padding:0}
   .logo-text,.nav-item span:not(.icon),.nav-label,.nav-badge,.sidebar-stats{display:none}
@@ -594,14 +623,121 @@ body::before{
   .logo{justify-content:center;padding:16px 8px}
   .main{max-width:calc(100vw - 60px);padding:20px}
 }
-@media(max-width:600px){
-  .flashcard{height:320px}
-  .card-face{padding:24px 20px}
-  .card-question{font-size:18px}
-  .card-answer{font-size:15px}
-  .rate-btn{padding:10px 18px;font-size:12px}
-  .hero-title{font-size:24px}
-  .main{padding:16px}
+
+/* Mobile: bottom nav + full width */
+@media(max-width:768px){
+  #app{flex-direction:column}
+  .sidebar{display:none}
+  .mobile-nav{display:flex}
+  .main{
+    max-width:100vw;
+    width:100%;
+    padding:14px 14px 90px;
+    padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));
+  }
+  /* Page header */
+  .page-header{margin-bottom:18px;gap:10px}
+  .page-title{font-size:22px}
+  .page-subtitle{font-size:12px}
+  /* Hero */
+  .hero-banner{padding:22px 20px;margin-bottom:18px}
+  .hero-title{font-size:22px;line-height:1.2}
+  .hero-desc{font-size:13px;line-height:1.5}
+  .hero-tag{font-size:10px}
+  /* Progress grid: 2x2 on mobile */
+  .progress-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+  .stat-card{padding:14px}
+  .stat-card .value{font-size:24px}
+  .stat-card .label{font-size:10px}
+  .stat-card .sub{font-size:11px}
+  /* Category grid: single column */
+  .cat-grid{grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+  .cat-card{padding:16px}
+  .cat-card .cat-name{font-size:16px}
+  .cat-card .cat-desc{font-size:12px}
+  /* Mode grid: 2 columns */
+  .mode-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .mode-card{padding:16px 12px}
+  .mode-card .mode-icon{font-size:28px;margin-bottom:8px}
+  .mode-card .mode-name{font-size:14px}
+  .mode-card .mode-desc{font-size:11px}
+  /* Study toolbar: scrollable filters */
+  .study-toolbar{padding:10px 12px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px}
+  .study-toolbar::-webkit-scrollbar{display:none}
+  .study-toolbar > span:first-child{flex-shrink:0}
+  .study-toolbar > div{flex-wrap:nowrap}
+  .filter-chip{flex-shrink:0;white-space:nowrap;padding:6px 12px;font-size:12px}
+  #fc-shuffle{flex-shrink:0}
+  /* Flashcard: responsive height */
+  .flashcard{
+    height:auto;
+    min-height:320px;
+    max-height:52vh;
+  }
+  .card-face{padding:24px 18px}
+  .card-question{font-size:17px;line-height:1.4}
+  .card-answer{font-size:14px;line-height:1.6}
+  .card-cat-tag{font-size:9px}
+  /* Rating buttons: wider, touch-friendly */
+  .rating-bar{gap:8px;width:100%}
+  .rate-btn{flex:1;padding:12px 8px;font-size:13px;min-height:52px}
+  .rate-btn small{font-size:9px}
+  /* Study nav */
+  .study-nav{max-width:100%;margin-top:16px}
+  .nav-btn{width:48px;height:48px;font-size:20px}
+  .study-progress-text{font-size:11px}
+  /* Q&A */
+  .qa-card{padding:24px 18px;min-height:260px}
+  .qa-question{font-size:17px}
+  .qa-answer{font-size:14px;padding:16px}
+  .qa-reveal-btn{padding:14px 32px;font-size:13px}
+  /* Cloze */
+  .cloze-card{padding:24px 18px;min-height:220px}
+  .cloze-sentence{font-size:16px;line-height:1.7}
+  .cloze-blank{min-width:80px;font-size:14px}
+  .cloze-input input{font-size:16px;padding:12px 14px}
+  /* Quiz */
+  .quiz-card{padding:20px 16px;max-height:none}
+  .quiz-question{font-size:16px;margin-bottom:14px}
+  .quiz-option{padding:12px 14px;font-size:13px;min-height:48px}
+  .quiz-option .opt-letter{width:26px;height:26px;font-size:12px}
+  .quiz-score{font-size:12px;gap:10px;margin-bottom:14px}
+  .quiz-score .score-val{font-size:20px}
+  /* Browse */
+  .browse-grid{grid-template-columns:1fr;gap:10px}
+  .browse-card{padding:14px 16px}
+  .browse-card .bc-q{font-size:13px}
+  .browse-card .bc-a{font-size:12px}
+  /* Search box */
+  .search-box{max-width:100%;width:100%}
+  /* Completion */
+  .completion-screen{padding:40px 16px}
+  .completion-screen .cs-title{font-size:24px}
+  .completion-stats{gap:20px}
+  .completion-stat .val{font-size:28px}
+  /* KB hints hidden on mobile */
+  .kb-hints{display:none}
+  /* Toast above bottom nav */
+  .toast{bottom:90px}
+}
+
+/* Small phones */
+@media(max-width:380px){
+  .main{padding:10px 10px 85px}
+  .progress-grid{gap:8px}
+  .stat-card{padding:12px 10px}
+  .stat-card .value{font-size:20px}
+  .hero-title{font-size:19px}
+  .flashcard{min-height:280px}
+  .card-question{font-size:15px}
+  .rate-btn{font-size:12px;padding:10px 4px}
+  .mn-label{font-size:9px}
+  .mn-icon{font-size:18px}
+}
+
+/* Desktop: hide mobile nav */
+@media(min-width:769px){
+  .mobile-nav{display:none!important}
 }
 </style>
 </head>
@@ -796,6 +932,28 @@ body::before{
   </div>
 </main>
 </div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mn-item active" data-view="home">
+    <span class="mn-icon">⌂</span><span class="mn-label">首页</span>
+  </div>
+  <div class="mn-item" data-view="flashcard">
+    <span class="mn-icon">◫</span><span class="mn-label">翻卡</span>
+  </div>
+  <div class="mn-item" data-view="qa">
+    <span class="mn-icon">?</span><span class="mn-label">问答</span>
+  </div>
+  <div class="mn-item" data-view="cloze">
+    <span class="mn-icon">▦</span><span class="mn-label">填空</span>
+  </div>
+  <div class="mn-item" data-view="quiz">
+    <span class="mn-icon">✓</span><span class="mn-label">测验</span>
+  </div>
+  <div class="mn-item" data-view="browse">
+    <span class="mn-icon">≡</span><span class="mn-label">知识库</span>
+  </div>
+</nav>
 
 <div class="toast" id="toast"></div>
 
@@ -1161,6 +1319,11 @@ function switchView(viewName){
   document.getElementById('view-'+viewName).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelector(`.nav-item[data-view="${viewName}"]`)?.classList.add('active');
+  // Sync mobile nav
+  document.querySelectorAll('.mn-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.mn-item[data-view="${viewName}"]`)?.classList.add('active');
+  // Scroll to top on view change (important for mobile)
+  window.scrollTo({top:0,behavior:'smooth'});
   // Init view
   if(viewName==='home') renderHome();
   else if(viewName==='flashcard') initStudyMode('flashcard');
@@ -1610,11 +1773,56 @@ function renderBrowse(){
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click',()=>switchView(item.dataset.view));
 });
+// Mobile bottom nav
+document.querySelectorAll('.mn-item').forEach(item=>{
+  item.addEventListener('click',()=>switchView(item.dataset.view));
+});
 document.querySelectorAll('.mode-card').forEach(card=>{
   card.addEventListener('click',()=>switchView(card.dataset.goto));
 });
 document.getElementById('browse-search')?.addEventListener('input',()=>renderBrowse());
 document.getElementById('fc-shuffle')?.addEventListener('click',()=>shuffleQueue('flashcard'));
+
+// ===================== TOUCH SWIPE GESTURES =====================
+let touchStartX=0, touchStartY=0, touchEndX=0, touchEndY=0;
+document.addEventListener('touchstart',e=>{
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleSwipe();
+},{passive:true});
+function handleSwipe(){
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  // Only handle horizontal swipes (ignore vertical scroll)
+  if(Math.abs(deltaX) < 60 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+  const mode = state.view;
+  if(!['flashcard','qa','cloze','quiz'].includes(mode)) return;
+  // Don't swipe if user is typing in an input
+  if(document.activeElement?.tagName==='INPUT') return;
+  if(deltaX > 0){
+    // Swipe right → previous
+    prevCard(mode);
+  }else{
+    // Swipe left → next
+    // For flashcard: only auto-advance if already flipped
+    if(mode==='flashcard'){
+      const fc = document.getElementById('flashcard');
+      if(fc && !fc.classList.contains('flipped')){
+        flipCard();
+      }else{
+        nextCard(mode);
+      }
+    }else if(mode==='quiz'){
+      // Don't auto-advance quiz on swipe (require answering)
+    }else{
+      nextCard(mode);
+    }
+  }
+}
 
 // Keyboard shortcuts
 document.addEventListener('keydown',e=>{
