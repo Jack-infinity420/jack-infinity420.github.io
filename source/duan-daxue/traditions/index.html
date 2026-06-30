@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人民军队优良传统 · 背书系统</title>
+<style>
+  /* ========== 全局重置与基础 ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* 沉稳党红色系：降饱和、偏暗，长时间阅读不累眼 */
+    --green-primary: #7B1A1A;    /* 暗红，深色背景/hover */
+    --green-dark: #5C1212;       /* 更深暗红，渐变深端 */
+    --green-medium: #A02828;     /* 主红：偏暗沉稳，按钮/激活态 */
+    --green-light: #B83333;      /* 稍亮红，仅hover微提亮 */
+    --green-pale: #F5E8E6;       /* 极淡暖灰底，柔和 */
+    --gold: #8B6914;             /* 暗金，点缀 */
+    --gold-light: #B8954A;       /* 柔金，重点题 */
+    --bg-cream: #F7F6F3;         /* 暖灰底，比蓝灰更柔眼 */
+    --bg-card: #ffffff;
+    --text-primary: #333333;     /* 深灰正文 */
+    --text-secondary: #666666;
+    --text-light: #999999;
+    --border: #D9D6D2;           /* 暖灰边框 */
+    --shadow: 0 2px 10px rgba(80,40,40,0.06);
+    --shadow-hover: 0 3px 16px rgba(80,40,40,0.10);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font-size: 17px;
+    --font-size-sm: 15px;
+    --line-height: 1.8;
+  }
+
+  html { font-size: var(--font-size); }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Noto Sans CJK SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg-cream);
+    color: var(--text-primary);
+    line-height: var(--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== 顶部栏 ========== */
+  .topbar {
+    background: linear-gradient(135deg, var(--green-primary), var(--green-medium));
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .topbar-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topbar-title .star { color: var(--gold-light); }
+
+  .progress-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .progress-bar {
+    width: 120px;
+    height: 8px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold-light);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  /* ========== 主体布局 ========== */
+  .layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ========== 侧边导航 ========== */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section { margin-bottom: 4px; }
+
+  .sidebar-section-title {
+    padding: 10px 16px 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sidebar-section-title:hover { background: var(--green-pale); }
+
+  .sidebar-section-title .toggle {
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+    color: var(--text-light);
+  }
+
+  .sidebar-section.collapsed .toggle { transform: rotate(-90deg); }
+  .sidebar-section.collapsed .sidebar-questions { display: none; }
+
+  .sidebar-questions { padding: 0 8px 8px; }
+
+  .sidebar-item {
+    padding: 8px 12px 8px 28px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+    line-height: 1.5;
+  }
+
+  .sidebar-item:hover { background: var(--green-pale); color: var(--green-primary); }
+
+  .sidebar-item.active {
+    background: var(--green-medium);
+    color: #fff;
+  }
+
+  .sidebar-item.active .status-dot { border-color: #fff; }
+
+  .sidebar-item .qid {
+    font-weight: 600;
+    font-size: 0.82rem;
+    min-width: 24px;
+  }
+
+  .sidebar-item .qtext {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 状态色点 */
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+  }
+  .status-dot.unlearned { background: #e74c3c; border-color: #e74c3c; }
+  .status-dot.familiar { background: #f39c12; border-color: #f39c12; }
+  .status-dot.mastered { background: #27ae60; border-color: #27ae60; }
+  .status-dot.important {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(201,162,39,0.3);
+  }
+
+  /* ========== 学习视图 ========== */
+  .content {
+    flex: 1;
+    padding: 24px 28px;
+    min-width: 0;
+  }
+
+  .question-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+
+  .question-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .question-topic {
+    font-size: 0.85rem;
+    color: var(--green-medium);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .question-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .important-badge {
+    background: var(--gold);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ========== 模式切换 ========== */
+  .mode-switcher {
+    display: flex;
+    gap: 0;
+    margin: 18px 0 20px;
+    background: var(--green-pale);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .mode-btn {
+    padding: 8px 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .mode-btn:hover { color: var(--green-primary); }
+
+  .mode-btn.active {
+    background: var(--green-medium);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(120,40,40,0.2);
+  }
+
+  /* ========== 答案区域 ========== */
+  .answer-area { min-height: 200px; }
+
+  .answer-section { margin-bottom: 20px; }
+
+  .answer-section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--green-pale);
+  }
+
+  .answer-section-intro {
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+
+  .answer-point {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+
+  .point-marker {
+    font-weight: 600;
+    color: var(--green-medium);
+    flex-shrink: 0;
+    min-width: 24px;
+  }
+
+  .point-text {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  /* 背诵模式关键词高亮 */
+  .point-text .kw-highlight {
+    background: rgba(201,162,39,0.15);
+    border-bottom: 2px solid var(--gold);
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* 检查模式填空 */
+  .fill-blank {
+    display: inline-block;
+    min-width: 100px;
+    border: none;
+    border-bottom: 2px solid var(--green-medium);
+    background: var(--green-pale);
+    padding: 2px 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+    border-radius: 3px 3px 0 0;
+    transition: all 0.2s;
+    margin: 0 2px;
+  }
+
+  .fill-blank:focus {
+    background: #fff;
+    border-bottom-color: var(--green-primary);
+    box-shadow: 0 2px 4px rgba(120,40,40,0.08);
+  }
+
+  .fill-blank.correct {
+    background: #d4edda;
+    border-bottom-color: #27ae60;
+    color: #155724;
+  }
+
+  .fill-blank.wrong {
+    background: #f8d7da;
+    border-bottom-color: #e74c3c;
+    color: #721c24;
+  }
+
+  .fill-blank.wrong::after {
+    content: attr(data-answer);
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.85rem;
+    color: #27ae60;
+  }
+
+  /* 补充说明 */
+  .notes {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: #FAF4F0;
+    border-left: 4px solid var(--gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .notes-label {
+    font-weight: 600;
+    color: var(--gold);
+    margin-right: 4px;
+  }
+
+  /* ========== 底部控制栏 ========== */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .status-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .status-btn {
+    padding: 8px 18px;
+    border: 2px solid var(--border);
+    background: #fff;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .status-btn:hover { border-color: var(--green-light); color: var(--green-primary); }
+
+  .status-btn.active.unlearned {
+    background: #e74c3c; border-color: #e74c3c; color: #fff;
+  }
+  .status-btn.active.familiar {
+    background: #f39c12; border-color: #f39c12; color: #fff;
+  }
+  .status-btn.active.mastered {
+    background: #27ae60; border-color: #27ae60; color: #fff;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    padding: 8px 20px;
+    background: var(--green-medium);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .nav-btn:hover { background: var(--green-primary); box-shadow: var(--shadow-hover); }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* ========== 史料入口 ========== */
+  .history-section {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--green-pale);
+    border-radius: var(--radius);
+  }
+
+  .history-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    margin-bottom: 10px;
+  }
+
+  .history-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .history-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid var(--green-light);
+    border-radius: var(--radius-sm);
+    color: var(--green-primary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .history-link:hover {
+    background: var(--green-medium);
+    color: #fff;
+    border-color: var(--green-medium);
+  }
+
+  /* ========== 检查模式核对按钮 ========== */
+  .check-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .check-btn {
+    padding: 10px 28px;
+    background: var(--green-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .check-btn:hover { background: var(--green-dark); box-shadow: var(--shadow-hover); }
+
+  .check-result {
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+  }
+
+  .check-result.all-correct { background: #d4edda; color: #155724; }
+  .check-result.has-wrong { background: #f8d7da; color: #721c24; }
+
+  /* ========== 汉堡菜单按钮 ========== */
+  .menu-toggle {
+    display: none;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ========== 统计面板 ========== */
+  .stats-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .stats-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    margin-bottom: 14px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-item {
+    padding: 12px 16px;
+    background: var(--green-pale);
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-item .stat-label { font-size: 0.88rem; color: var(--text-secondary); }
+  .stat-item .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--green-primary); }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 768px) {
+    :root { --font-size: 17px; }
+
+    .topbar { padding: 10px 14px; }
+    .topbar-title { font-size: 1rem; }
+    .progress-info { font-size: 0.82rem; }
+    .progress-bar { width: 80px; }
+
+    .menu-toggle { display: block; }
+
+    .sidebar {
+      position: fixed;
+      top: 48px;
+      left: -280px;
+      width: 280px;
+      height: calc(100vh - 48px);
+      z-index: 200;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+    }
+
+    .sidebar.open { left: 0; }
+
+    .content { padding: 16px 14px; }
+
+    .question-card { padding: 18px 16px; }
+
+    .question-title { font-size: 1.1rem; }
+
+    .mode-switcher { width: 100%; }
+    .mode-btn { flex: 1; text-align: center; padding: 8px 12px; font-size: 0.9rem; }
+
+    .controls { flex-direction: column; align-items: stretch; }
+    .status-buttons { justify-content: center; }
+    .nav-buttons { justify-content: space-between; }
+
+    .fill-blank { min-width: 80px; }
+
+    .point-text { font-size: 1rem; }
+
+    .sidebar-item { font-size: 0.85rem; }
+  }
+
+  /* 滚动条美化 */
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--green-light); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="topbar-title">
+      <span class="star">★</span>
+      人民军队优良传统 · 背书系统
+    </div>
+  </div>
+  <div class="progress-info">
+    <span id="progressText">0/40</span>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <span id="progressPercent">0%</span>
+  </div>
+</div>
+
+<!-- 主体布局 -->
+<div class="layout">
+
+  <!-- 侧边导航 -->
+  <aside class="sidebar" id="sidebar">
+    <!-- 统计面板 -->
+    <div class="stats-panel" style="margin:0 12px 12px;border-radius:var(--radius-sm);">
+      <div class="stats-title">学习统计</div>
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="stat-item" style="padding:8px 10px;">
+          <span class="stat-label" style="font-size:0.78rem;">已掌握</span>
+          <span class="stat-value" id="statMastered" style="font-size:1rem;">0</span>
+        </div>
+        <div class="stat-item" style="padding:8px 10px;">
+          <span class="stat-label" style="font-size:0.78rem;">熟悉</span>
+          <span class="stat-value" id="statFamiliar" style="font-size:1rem;">0</span>
+        </div>
+        <div class="stat-item" style="padding:8px 10px;">
+          <span class="stat-label" style="font-size:0.78rem;">未背</span>
+          <span class="stat-value" id="statUnlearned" style="font-size:1rem;">0</span>
+        </div>
+        <div class="stat-item" style="padding:8px 10px;">
+          <span class="stat-label" style="font-size:0.78rem;">总复习</span>
+          <span class="stat-value" id="statReviews" style="font-size:1rem;">0</span>
+        </div>
+      </div>
+    </div>
+    <div id="navList"></div>
+  </aside>
+
+  <!-- 学习视图 -->
+  <main class="content">
+    <div class="question-card" id="questionCard">
+      <!-- 内容由JS动态填充 -->
+    </div>
+  </main>
+
+</div>
+
+<script>
+// 人民军队优良传统 背诵大题 题库数据
+// 从 PDF 精准提取，共 9 个专题，41 道题
+
+const QUESTIONS = [
+  // ========== 专题一、在土地革命战争中诞生和成长 ==========
+  {
+    id: 1,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "怎样理解把握人民军队诞生的历史背景？",
+    points: [
+      { marker: "①", text: "中国共产党领导的人民军队的诞生，具有深厚复杂的社会历史环境，是近代中国革命斗争的发展的必然结果。", keywords: ["深厚复杂", "必然结果"] },
+      { marker: "②", text: "创建新型人民军队，是中国共产党肩负起中华民族伟大复兴历史使命的必然要求，是中国共产党从血淋淋的历史教训中得出的必然结论。", keywords: ["历史使命", "必然结论"] },
+      { marker: "③", text: "中国共产党的早期军事实践，为创建新型人民军队作了必要准备。", keywords: ["早期军事实践", "必要准备"] }
+    ],
+    notes: "（什么准备？国共合作创办黄埔军校；推行特别党部、党代表和政治部制度；将工农运动和武装斗争密切结合起来）",
+    important: false
+  },
+  {
+    id: 2,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "三湾改编的意义？",
+    points: [
+      { marker: "①", text: "核心与关键：加强了党对军队的领导。", keywords: ["党对军队的领导"] },
+      { marker: "②", text: "从组织上确立了党对军队的领导，是中国共产党建设无产阶级领导的新型人民军队的重要开端。", keywords: ["组织上", "重要开端"] },
+      { marker: "③", text: "奠定了党对人民军队的绝对领导的基石。", keywords: ["基石"] }
+    ],
+    notes: "（部队建设三项措施：\"支部建在连上\"、实行新的党代表制度和民主制度，官兵政治上、生活上一律平等）",
+    important: false
+  },
+  {
+    id: 3,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "怎样理解古田会议对人民军队建设的深远影响？",
+    points: [
+      { marker: "①", text: "系统地、创造性地回答和解决了当时党和军队建设面临的一系列根本性、方向性、全局性问题。", keywords: ["根本性", "方向性", "全局性"] },
+      { marker: "②", text: "确立了思想建党、政治建军的原则，初步回答了在农村进行长期革命战争的条件下，如何保持党的无产阶级先锋队性质，如何建设新型人民军队的重大问题。", keywords: ["思想建党", "政治建军"] },
+      { marker: "③", text: "古田会议决议所确立的重要原则，对党和人民军队建设产生了深远影响。", keywords: ["深远影响"] }
+    ],
+    notes: "（古田会议决议主要精神体现在以下四个原则：1.红军是一个执行革命的政治任务的武装集团。2.红军必须置于党的绝对领导之下。3.红军必须建立强有力的政治工作。4.红军必须建立很好的内部和外部关系。）",
+    important: false
+  },
+  {
+    id: 4,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "红军作战原则是怎样形成的？其主要内容有哪些？",
+    sections: [
+      {
+        title: "（1）形成：",
+        points: [
+          { marker: "", text: "在井冈山斗争期间，毛泽东总结游击战和当地农民武装的斗争经验，提出了\"十六字诀\"。在红一方面军粉碎敌人\"围剿\"的斗争中，毛泽东、朱德等在其基础上，提出了\"诱敌深入、积极防御\"的战略战术思想。到战胜第三次\"围剿\"时，红军作战原则基本形成。除红一方面军外，鄂豫皖、湘鄂西等其他根据地的红军也在斗争中摸索出了行之有效的作战原则，对红军作战原则的形成作出了重大贡献。", keywords: ["十六字诀", "诱敌深入", "积极防御"] }
+        ]
+      },
+      {
+        title: "（2）主要内容：",
+        intro: "红军作战原则是建立在\"积极防御\"基础上的，大致涵盖以下几个方面：",
+        points: [
+          { marker: "①", text: "以反\"围剿\"为主要形式，依托根据地作战。", keywords: ["反\"围剿\"", "根据地"] },
+          { marker: "②", text: "实行战略退却，诱敌深入。", keywords: ["战略退却", "诱敌深入"] },
+          { marker: "③", text: "慎重初战，确保首战必胜。", keywords: ["慎重初战", "首战必胜"] },
+          { marker: "④", text: "集中兵力实行运动战、速决战、歼灭战。", keywords: ["运动战", "速决战", "歼灭战"] },
+          { marker: "⑤", text: "不失时机地实施进攻，扩大战果或将敌之\"围剿\"打破于计划实施之前。", keywords: ["实施进攻", "扩大战果"] }
+        ]
+      }
+    ],
+    important: false
+  },
+  {
+    id: 5,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "遵义会议的意义？",
+    points: [
+      { marker: "①", text: "会议果断结束了博古、李德的错误军事指挥，解决了党和红军面临的组织问题和军事问题。", keywords: ["错误军事指挥", "组织问题", "军事问题"] },
+      { marker: "②", text: "确立了毛泽东同志在红军和党中央的领导地位，开始确立了以毛泽东同志为主要代表的马克思主义的正确路线在党中央的地位，在极其危急的情况下挽救了党、挽救了红军、挽救了中国革命。", keywords: ["领导地位", "挽救了党", "挽救了红军", "挽救了中国革命"] },
+      { marker: "③", text: "开始形成以毛泽东同志为核心的党的第一代中央领导集体，开启了党独立自主解决中国革命实际问题的新阶段。", keywords: ["第一代中央领导集体", "独立自主"] }
+    ],
+    important: false
+  },
+  {
+    id: 6,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "长征胜利的意义？",
+    points: [
+      { marker: "①", text: "红军长征的胜利，宣告了国民党反动派消灭中国共产党和红军的图谋彻底失败。", keywords: ["图谋彻底失败"] },
+      { marker: "②", text: "宣告了中国共产党和红军肩负着民族希望胜利实现北上抗日的战略转移，实现了中国共产党和中国革命事业从挫折走向胜利的伟大转折。", keywords: ["北上抗日", "伟大转折"] },
+      { marker: "③", text: "开启了中国共产党为实现民族独立、人民解放而斗争的新的伟大进军。", keywords: ["民族独立", "人民解放"] },
+      { marker: "④", text: "长征是历史纪录上的第一次，长征是宣言书，长征是宣传队，长征是播种机。", keywords: ["宣言书", "宣传队", "播种机"] },
+      { marker: "⑤", text: "长征是一次理想信念的伟大远征、一次检验真理的伟大远征、一次唤醒民众的伟大远征、一次开创新局的伟大远征。", keywords: ["理想信念", "检验真理", "唤醒民众", "开创新局"] }
+    ],
+    important: false
+  },
+  {
+    id: 7,
+    topic: "专题一、在土地革命战争中诞生和成长",
+    question: "在强军兴军新征程中，我们应如何弘扬长征精神、走好新的长征路？",
+    points: [
+      { marker: "①", text: "在新的长征路上，我们要坚持以党在新形势下的强军目标为引领，深入贯彻新形势下军事战略方针，努力建设世界一流军队。", keywords: ["强军目标", "世界一流军队"] },
+      { marker: "②", text: "要紧紧扭住政治建军不放松，坚持党对军队的绝对领导。", keywords: ["政治建军", "绝对领导"] },
+      { marker: "③", text: "要紧紧扭住改革强军不放松，坚定不移深化国防和军队改革。", keywords: ["改革强军"] },
+      { marker: "④", text: "要紧紧扭住依法治军不放松，着力构建中国特色军事法治体系。", keywords: ["依法治军", "军事法治体系"] },
+      { marker: "⑤", text: "要紧紧扭住备战打仗不放松，坚持战斗力这个唯一的根本标准。", keywords: ["备战打仗", "战斗力"] },
+      { marker: "⑥", text: "要深入贯彻军民融合发展战略，更好把国防和军队建设融入国家经济社会发展体系。", keywords: ["军民融合"] },
+      { marker: "⑦", text: "要加强国防动员和后备力量建设，巩固和发展军政军民团结。", keywords: ["国防动员", "军政军民团结"] },
+      { marker: "⑧", text: "要加强国际军事安全合作，积极履行同中国国际地位相适应的责任和义务。", keywords: ["国际军事安全合作"] }
+    ],
+    notes: "（弘扬伟大长征精神，走好今天的长征路，必须加强党的领导，坚持全面从严治党，为推进党的建设新的伟大工程而矢志奋斗。）",
+    important: true
+  },
+
+  // ========== 专题二、全民族抗战的中坚力量 ==========
+  {
+    id: 8,
+    topic: "专题二、全民族抗战的中坚力量",
+    question: "怎样在改编中坚持党对军队的绝对领导？",
+    points: [
+      { marker: "①", text: "建立健全党对军队的领导指挥体制。", keywords: ["领导指挥体制"] },
+      { marker: "②", text: "加强新形势下的人民军队政治工作。", keywords: ["政治工作"] },
+      { marker: "③", text: "同王明的右倾错误进行坚决斗争。", keywords: ["王明", "右倾错误"] }
+    ],
+    notes: "（1937年8月，成立决定成立以毛泽东为书记的新的中共中央革命军事委员会，为党对军队绝对领导的最高军事机构；加强改编过程中的思想政治教育——三大教育：形势教育、抗日民族统一战线政策教育、改编中独立自主原则的教育；恢复政治委员及政治机关制度；确立政治工作三大原则：官兵一致、军民一致、瓦解敌军和宽待俘虏；毛泽东在六届六中全会强调，在抗日民族统一战线中要坚持无产阶级领导权，坚持共产党绝对领导八路军的原则）",
+    important: false
+  },
+  {
+    id: 9,
+    topic: "专题二、全民族抗战的中坚力量",
+    question: "怎样理解持久战的战略总方针和独立自主的山地游击战争军事战略方针？",
+    sections: [
+      {
+        title: "持久战的战略总方针：",
+        points: [
+          { marker: "①", text: "中日战争必将是一场持久战，最后胜利属于中国而不是日本。中日双方存在相互矛盾的四个基本特点：敌强我弱，敌小我大，敌退步我进步，敌寡助我多助。", keywords: ["持久战", "敌强我弱", "敌小我大", "敌退步我进步", "敌寡助我多助"] },
+          { marker: "②", text: "持久抗战将经历战略防御、战略相持、战略反攻三个阶段。明确指出，通过三个阶段，在力量对比上，中国必然由劣势平衡到优势，而日本必将由优势平衡到劣势，其中，战略相持阶段的时间相当长，遇到的困难也将最多，然而它是整个战争转变的枢纽。", keywords: ["战略防御", "战略相持", "战略反攻", "枢纽"] },
+          { marker: "③", text: "抗日战争是全民族的解放战争，它的胜利离不开全国人民的总动员，离不开广泛的人民战争。因为\"兵民是胜利之本\"，\"战争的伟力之最深厚的根源，存在于民众之中\"。", keywords: ["人民战争", "兵民是胜利之本"] },
+          { marker: "④", text: "在《论持久战》中，毛泽东明确地提出：人民战争的战略方针\"基本的是游击战，但不放松有利条件下的运动战\"。", keywords: ["游击战", "运动战"] }
+        ]
+      },
+      {
+        title: "独立自主的山地游击战争军事战略方针：",
+        points: [
+          { marker: "①", text: "所谓独立自主，是在统一战线下的相对独立自主，一定要争取战略方针的共同商量。", keywords: ["相对独立自主", "统一战线"] },
+          { marker: "②", text: "所谓山地，是指首先在山区创造根据地，依托山地开展游击战争。", keywords: ["山区", "根据地"] },
+          { marker: "③", text: "所谓游击战争，是指分散以发动群众，集中以消灭敌人，打得赢就打，打不赢就走。", keywords: ["分散", "集中", "打得赢就打"] }
+        ]
+      }
+    ],
+    notes: "（独立自主的原因：①兵力悬殊②日军扫荡③国军立场不坚定——三次反共高潮）",
+    important: false
+  },
+  {
+    id: 10,
+    topic: "专题二、全民族抗战的中坚力量",
+    question: "谈谈人民军队战胜严重困难、坚持敌后抗战的现实启示。",
+    sections: [
+      {
+        title: "严重困难：",
+        points: [
+          { marker: "①", text: "1941—1942年，日本向中国大量增兵，对抗日根据地展开疯狂进攻。", keywords: ["1941—1942年", "疯狂进攻"] },
+          { marker: "②", text: "国民党挑起反共摩擦，断绝了对八路军的粮饷和其他供应，派兵分割根据地。", keywords: ["反共摩擦", "分割根据地"] },
+          { marker: "③", text: "华北、华中先后发生严重旱灾、虫灾、水灾，造成严重物质经济困难。", keywords: ["旱灾", "虫灾", "水灾"] }
+        ]
+      },
+      {
+        title: "解决办法：",
+        points: [
+          { marker: "①", text: "加强党的一元化领导。", keywords: ["一元化领导"] },
+          { marker: "②", text: "实行精兵简政。", keywords: ["精兵简政"] },
+          { marker: "③", text: "发展三结合武装力量。", keywords: ["三结合武装力量"] },
+          { marker: "④", text: "反扫荡、反蚕食、反清乡。", keywords: ["反扫荡", "反蚕食", "反清乡"] },
+          { marker: "⑤", text: "打退国民党三次反共高潮。", keywords: ["三次反共高潮"] },
+          { marker: "⑥", text: "开展全军整风运动、大生产运动、拥政爱民运动。", keywords: ["整风运动", "大生产运动", "拥政爱民运动"] },
+          { marker: "⑦", text: "实行三三制。", keywords: ["三三制"] }
+        ]
+      }
+    ],
+    notes: "（主力军、地方军和民兵、自卫队，注意三者的相互转化；代表工人阶级和贫农的共产党员、代表和联系广大小资产阶级的非党左派进步分子和代表中等资产阶级、开明绅士、地方实力派的中间分子各占三分之一）",
+    important: false
+  },
+  {
+    id: 11,
+    topic: "专题二、全民族抗战的中坚力量",
+    question: "怎样理解人民军队是坚持和夺取抗战胜利的中坚力量？",
+    points: [
+      { marker: "", text: "在全民族抗战中，中国共产党领导的人民军队坚持贯彻党的全面抗战路线和持久战的战略总方针，执行\"基本的是游击战，但不放松有利条件下的运动战\"的军事战略方针，形成了华北、华中、华南和东北四大敌后战场，与正面战场相配合，构成了对侵华日军两面夹击的有利战略态势，发挥了独当一面、影响全局的战略作用。", keywords: ["全面抗战路线", "四大敌后战场", "两面夹击"] },
+      { marker: "①", text: "率先举起抗日民族解放战争的旗帜。", keywords: ["抗日民族解放战争"] },
+      { marker: "②", text: "制定全面的全民族抗战路线即人民战争路线。", keywords: ["人民战争路线"] },
+      { marker: "③", text: "提出持久战的战略方针，开展独立自主的敌后游击战争。", keywords: ["持久战", "敌后游击战争"] },
+      { marker: "④", text: "组织和推动国民党统治区的抗日民主运动。", keywords: ["抗日民主运动"] },
+      { marker: "⑤", text: "坚持、巩固和发展抗日民族统一战线。", keywords: ["抗日民族统一战线"] },
+      { marker: "⑥", text: "随着战争的进行，敌后战场逐步上升为中国抗战的主战场，中国共产党领导的人民军队成为坚持和夺取抗战胜利的中坚力量。", keywords: ["主战场", "中坚力量"] }
+    ],
+    important: false
+  },
+  {
+    id: 12,
+    topic: "专题二、全民族抗战的中坚力量",
+    question: "列举我军在抗战中涌现出的英模人物和英雄事迹，联系实际谈谈如何崇尚英雄、捍卫英雄、学习英雄、关爱英雄。",
+    sections: [
+      {
+        title: "英模人物与英雄事迹：",
+        intro: "\"八女投江\"（东北抗日联军8名女官兵英勇抗击日军、集体投江殉国）、狼牙山五壮士、杨靖宇、赵一曼、赵尚志、左权、刘老庄连、马本斋母亲等。",
+        points: []
+      },
+      {
+        title: "联系实际：",
+        intro: "崇尚英雄才会产生英雄，争做英雄才能英雄辈出。新时代要大力弘扬英雄精神，传承红色基因，讲好英雄故事，营造尊崇英雄、学习英雄的良好氛围，把对英雄的敬仰转化为强军兴军的实际行动。",
+        points: []
+      }
+    ],
+    notes: "（本题供参考，可结合具体英雄事迹展开）",
+    important: false
+  },
+
+  // ========== 专题三、夺取解放战争的全国性胜利 ==========
+  {
+    id: 13,
+    topic: "专题三、夺取解放战争的全国性胜利",
+    question: "怎样理解新式整军运动的主要内容和重要意义？",
+    sections: [
+      {
+        title: "主要内容：",
+        points: [
+          { marker: "①", text: "\"诉苦\"是新式整军运动的中心内容之一，是土改教育在部队的深入发展。广大指战员寻苦源、挖苦根，把个人的苦同阶级的苦联系起来，让官兵明白了\"为谁当兵\"\"为谁打仗\"的大道理。", keywords: ["诉苦", "土改教育", "为谁当兵", "为谁打仗"] },
+          { marker: "②", text: "\"三查三整\"是新式整军运动的主要内容。", keywords: ["三查三整"] }
+        ]
+      },
+      {
+        title: "重要意义：",
+        intro: "新式整军运动，使全军\"部队各方面都有了进步，面貌焕然一新\"，具体表现在：",
+        points: [
+          { marker: "①", text: "这一运动提高了广大干部、战士的阶级觉悟，激发了他们的革命斗志。", keywords: ["阶级觉悟", "革命斗志"] },
+          { marker: "②", text: "教育改造了大约80万从国民党军队中俘虏过来的士兵。", keywords: ["80万", "俘虏"] },
+          { marker: "③", text: "充分发扬了人民军队政治、经济、军事三大民主，从而进一步密切了官兵关系，提高了部队的战斗力，从政治上、思想上、组织上为夺取解放战争在全国的胜利做了准备。", keywords: ["三大民主", "官兵关系", "战斗力"] }
+        ]
+      }
+    ],
+    notes: "（\"三查\"是指查阶级、查工作、查斗志；\"三整\"是指整顿思想、整顿作风、整顿组织。\"三整\"是与\"三查\"结合进行的，边查边整，最后落实到整顿组织）",
+    important: false
+  },
+  {
+    id: 14,
+    topic: "专题三、夺取解放战争的全国性胜利",
+    question: "怎样理解全国解放战争胜利的重大意义？",
+    points: [
+      { marker: "①", text: "标志着中国共产党领导的新民主主义革命，经过20多年的浴血奋战，终于取得最后的胜利。", keywords: ["新民主主义革命", "最后的胜利"] },
+      { marker: "②", text: "几千年来束缚中国人民的封建制度、百余年来侵略中华民族的帝国主义势力和20多年祸国殃民的官僚资本主义都被彻底推翻。", keywords: ["封建制度", "帝国主义", "官僚资本主义"] },
+      { marker: "③", text: "在辽阔的中国大地上结束了极少数剥削者统治广大劳动人民的历史，彻底终结了旧中国一盘散沙的局面，实现了梦寐以求的民族独立和人民解放，为实现国家富强和人民幸福，实现中华民族的伟大复兴，开辟了广阔的道路。", keywords: ["民族独立", "人民解放", "伟大复兴"] },
+      { marker: "④", text: "这一伟大胜利，是中国共产党领导的人民军队用鲜血和生命浇灌出来的。", keywords: ["鲜血和生命"] }
+    ],
+    important: false
+  },
+  {
+    id: 15,
+    topic: "专题三、夺取解放战争的全国性胜利",
+    question: "结合学习十大军事原则的体会，谈谈对\"从战争中学习战争\"的理解。",
+    sections: [
+      {
+        title: "十大军事原则（核心是打歼灭战，不断消灭敌人的有生力量）：",
+        points: [
+          { marker: "①", text: "先打分散和孤立之敌，后打集中和强大之敌。", keywords: ["分散孤立", "集中强大"] },
+          { marker: "②", text: "先取小城市、中等城市和广大乡村，后取大城市。", keywords: ["小城市", "乡村", "大城市"] },
+          { marker: "③", text: "以歼灭敌人有生力量为主要目标，不以保守或夺取城市和地方为主要目标。", keywords: ["有生力量"] },
+          { marker: "④", text: "每战集中绝对优势兵力，四面包围敌人，力求全歼，不使漏网。", keywords: ["绝对优势兵力", "全歼"] },
+          { marker: "⑤", text: "不打无准备之仗，不打无把握之仗，每战都应力求有准备，力求在敌我条件对比下有胜利的把握。", keywords: ["无准备", "无把握"] },
+          { marker: "⑥", text: "发扬勇敢战斗、不怕牺牲、不怕疲劳和连续作战的作风。", keywords: ["勇敢战斗", "连续作战"] },
+          { marker: "⑦", text: "力求在运动中歼灭敌人。同时，注重阵地攻击战术，夺取敌人的据点和城市。", keywords: ["运动中", "阵地攻击"] },
+          { marker: "⑧", text: "在攻城问题上，一切敌人守备薄弱的据点和城市，坚决夺取之；一切敌人有中等程度的守备、而环境又许可加以夺取的据点和城市，相机夺取之；一切敌人守备强固的据点和城市，则等候条件成熟时然后夺取之。", keywords: ["守备薄弱", "相机夺取", "等候条件成熟"] },
+          { marker: "⑨", text: "以俘获敌人的全部武器和大部人员，补充自己。我军人力物力的来源，主要在前线。", keywords: ["补充自己", "主要在前线"] },
+          { marker: "⑩", text: "善于利用两个战役之间的间隙，休息和整训部队。休整的时间，一般地不要过长，尽可能不使敌人获得喘息的时间。", keywords: ["间隙", "休息和整训", "不使敌人获得喘息"] }
+        ]
+      },
+      {
+        title: "对\"从战争中学习战争\"的理解：",
+        points: [
+          { marker: "", text: "过去，我军长期处于敌强我弱、无后方作战状态，环境、时间和物质条件均不允许办正规院校，因而更看重在职培养，大部分指战员都是从战争中成长起来。", keywords: ["敌强我弱", "在职培养"] },
+          { marker: "", text: "现在，世界处于相对和平阶段，我军更要在有限的军事实践中汲取营养。一是经验总结，特别是失败的教训；二是开展群众性练兵运动。", keywords: ["经验总结", "群众性练兵运动"] }
+        ]
+      }
+    ],
+    notes: "（十大军事原则是建立在人民战争基础之上的，因而是任何反人民的军队不能利用也无法对付的。本题供参考）",
+    important: false
+  },
+  {
+    id: 16,
+    topic: "专题三、夺取解放战争的全国性胜利",
+    question: "结合\"淮海战役的胜利，是人民群众用小推车推出来的\"这一著名论断，谈谈新的历史条件下怎样发挥人民战争的整体威力。",
+    points: [
+      { marker: "", text: "淮海战役胜利后，华东野战军司令员陈毅曾深情地说：\"淮海战役的胜利，是人民群众用小车推出来的。\"这句话的意思是：人民群众从人力、物力等方面积极支援前线，在人民群众的支持下才赢得了淮海战役的胜利。", keywords: ["小车推出来", "人力物力", "支援前线"] },
+      { marker: "", text: "依靠人民群众进行战争，必须正确处理人和武器的关系。毛泽东指出：\"武器是战争的重要的因素，但不是决定的因素，决定的因素是人不是物。力量的对比不但是军力和经济力的对比，而且是人力和人心的对比。军力和经济力是要人去掌握的。\"", keywords: ["人不是物", "人力和人心"] },
+      { marker: "", text: "平战结合、军民融合，人民战争的形式应延伸到相对和平时期和更加宽广的范围。一个国家能够进行全民支持和广泛参与的人民战争，对任何挑衅它的敌对一方来说，都是一种巨大的威慑。", keywords: ["平战结合", "军民融合", "威慑"] },
+      { marker: "", text: "要保持这种威慑，并使这种威慑能够随时转化成战争能力，就必须平战结合、军民融合、寓军于民，把国防和军队现代化建设融入经济社会发展体系之中，使其协调发展。", keywords: ["寓军于民", "协调发展"] },
+      { marker: "", text: "要积极探索新的时代条件下在经济、科技、教育、人才等各个领域和更广范围内平战结合和军民融合的新途径和新方法，把人民群众战时参加和支援战争的形式延伸到相对和平时期，以此来增强广大人民群众的国防意识，提高军民共建现代化国防的自觉性和打赢新时代人民战争的责任感。", keywords: ["新途径", "国防意识", "责任感"] }
+    ],
+    notes: "（本题供参考，详见教材P96）",
+    important: false
+  },
+
+  // ========== 专题四、抗美援朝，保家卫国 ==========
+  {
+    id: 17,
+    topic: "专题四、抗美援朝，保家卫国",
+    question: "怎样理解中共中央作出\"抗美援朝、保家卫国\"决策的战略考虑？",
+    sections: [
+      {
+        title: "背景：",
+        intro: "美入侵朝鲜、第七舰队入侵台湾海峡；韩朝内战在美策划下演变成侵略战争；美实施仁川登陆、越过三八线，逼近我国边境，我国边境安全岌岌可危。组建东北边防军，整训备战，成为中国人民志愿军的基础。",
+        points: []
+      },
+      {
+        title: "战略考虑：",
+        points: [
+          { marker: "①", text: "维护新中国核心利益。", keywords: ["核心利益"] },
+          { marker: "②", text: "保卫东北边防的安全。", keywords: ["东北边防"] },
+          { marker: "③", text: "保卫亚洲和世界的和平。", keywords: ["亚洲和世界和平"] },
+          { marker: "④", text: "支持朝鲜的革命事业。", keywords: ["朝鲜", "革命事业"] }
+        ]
+      }
+    ],
+    important: false
+  },
+  {
+    id: 18,
+    topic: "专题四、抗美援朝，保家卫国",
+    question: "谈谈对抗美援朝战争每个阶段指导方针特点的理解。",
+    sections: [
+      {
+        title: "第一阶段（1950.10.25—1951.6）：",
+        intro: "采用运动歼敌的方针，以运动战为主，与部分阵地战、游击战相结合，争取主动，协同朝鲜人民军转入反击作战。",
+        points: []
+      },
+      {
+        title: "第二阶段（1951.6—1953.7.27）：",
+        intro: "边打边谈，求得朝鲜问题公平合理的解决；军事上确定了\"持久作战、积极防御\"和作战上\"与谈判的要求相配合、相适应\"的方针，采取\"零敲牛皮糖\"的方法，对美英军实行战术的小包围，打小歼灭战，逐步向打大歼灭战过渡。",
+        points: []
+      }
+    ],
+    important: false
+  },
+  {
+    id: 19,
+    topic: "专题四、抗美援朝，保家卫国",
+    question: "怎样理解抗美援朝战争胜利的伟大意义？",
+    points: [
+      { marker: "①", text: "是保卫和平、反抗侵略的正义之战，粉碎了侵略者陈兵国门、进而将新中国扼杀在摇篮之中的图谋。", keywords: ["正义之战", "扼杀在摇篮"] },
+      { marker: "②", text: "打出了新中国的国威和人民军队的军威，创造了以弱胜强的范例。", keywords: ["国威", "军威", "以弱胜强"] },
+      { marker: "③", text: "弘扬和光大了中国共产党和人民军队的革命精神。", keywords: ["革命精神"] },
+      { marker: "④", text: "是全国各民族共同谱写的壮丽凯歌。", keywords: ["壮丽凯歌"] },
+      { marker: "⑤", text: "进一步锤炼了经过严酷战争洗礼的人民军队。", keywords: ["锤炼", "严酷战争洗礼"] },
+      { marker: "⑥", text: "为世界和平与人类进步事业作出了巨大贡献，极大地提高了我国的国际地位，鼓舞了全世界被压迫民族和人民争取民族独立和人民解放的正义事业。", keywords: ["国际地位", "被压迫民族", "正义事业"] }
+    ],
+    important: false
+  },
+  {
+    id: 20,
+    topic: "专题四、抗美援朝，保家卫国",
+    question: "结合志愿军官兵在抗美援朝战争中展现的革命英雄主义精神，谈谈怎样理解\"现在部队'钢'多了，'气'要更多，骨头要更硬\"。",
+    points: [
+      { marker: "", text: "\"钢\"指的是武器，\"气\"指的是精神。抗美援朝时期，我军是钢少、气多、骨头硬，但还是取得了把\"联合国军\"从中朝边境打退到三八线的伟大胜利。", keywords: ["钢", "气", "骨头硬"] },
+      { marker: "", text: "在装备落后、给养差的条件下能够取得胜利，靠的就是精气神，骨头硬，舍身卫国，不怕牺牲的爱国主义、英雄主义精神。志愿官兵们的革命英雄主义精神是我军的光荣传统、优良作风。", keywords: ["精气神", "舍身卫国", "光荣传统"] },
+      { marker: "", text: "目前，我军在武器装备方面取得了长足进步，\"钢多了\"，但不能心存已经被我们打破的唯武器论，要继续发扬我军的光荣传统、优良作风，要做到气要更多、骨头要更硬，利用好\"钢多了\"的后发优势，实现能打、敢打、打赢的目标。", keywords: ["唯武器论", "后发优势", "能打", "敢打", "打赢"] }
+    ],
+    notes: "（本题供参考，可结合黄继光、杨根思等英雄事迹及抗美援朝精神展开）",
+    important: false
+  },
+
+  // ========== 专题五、建设现代化正规化革命军队 ==========
+  {
+    id: 21,
+    topic: "专题五、建设现代化正规化革命军队",
+    question: "全国军事系统党的高级干部会议的主要内容有哪些？怎样理解这次会议的重要意义？",
+    sections: [
+      {
+        title: "主要内容：",
+        points: [
+          { marker: "①", text: "明确了军队建设的总方针和总任务为\"建设一支优良的现代化革命军队，以保卫我国社会主义建设，防御帝国主义侵略\"，规划了建设蓝图。", keywords: ["总方针", "总任务", "现代化革命军队"] },
+          { marker: "②", text: "明确提出现代化军队建设中长期、经常的中心工作是训练部队，特别是训练干部。", keywords: ["中心工作", "训练部队", "训练干部"] },
+          { marker: "③", text: "明确提出正规化建设是现代化军队必不可少的基本条件。", keywords: ["正规化建设", "基本条件"] },
+          { marker: "④", text: "明确指出加强各级司令机关和后勤工作的建设是军队现代化建设的重要环节。", keywords: ["司令机关", "后勤工作"] },
+          { marker: "⑤", text: "明确加强党的领导和政治工作是建设现代化军队的根本保证。", keywords: ["根本保证"] },
+          { marker: "⑥", text: "就如何学习苏军、巩固国防和国防建设、军队的体制编制、武器装备等问题进行了讨论，并作出相应决定。", keywords: ["学习苏军", "体制编制", "武器装备"] }
+        ]
+      },
+      {
+        title: "重要意义：",
+        points: [
+          { marker: "①", text: "全国军事系统党的高级干部会议，在人民解放军建军史上具有划时代的意义。", keywords: ["划时代"] },
+          { marker: "②", text: "会议确定了军队建设的总方针、总任务和建设现代化正规化革命军队的若干重大问题，使人民解放军的建设有了宏伟的、长期的奋斗目标，为和平时期的军队建设指明了方向。", keywords: ["总方针", "奋斗目标"] },
+          { marker: "③", text: "这次会议的召开，标志着人民解放军完成了由革命战争向和平时期建设的转变，是人民解放军由低级阶段走向高级阶段的里程碑，成为人民解放军全面展开现代化正规化建设的实际开端。", keywords: ["里程碑", "实际开端"] }
+        ]
+      }
+    ],
+    notes: "（主要靠办好院校，同时抓紧组织广大干部的在职训练；正规化即达到\"五统四性\"的要求：做到\"统一的指挥、统一的制度、统一的编制、统一的纪律、统一的训练\"，和与此相适应的高度的\"组织性、计划性、准确性、纪律性\"）",
+    important: false
+  },
+  {
+    id: 22,
+    topic: "专题五、建设现代化正规化革命军队",
+    question: "新中国成立初期我军在现代化正规化建设方面进行了哪些探索，取得了什么成果？",
+    points: [
+      { marker: "①", text: "调整体制编制，加强合成军队质量建设。", keywords: ["体制编制", "合成军队"] },
+      { marker: "②", text: "颁布政治工作条例，实行三大制度。", keywords: ["政治工作条例", "三大制度"] },
+      { marker: "③", text: "正规军事训练。", keywords: ["正规军事训练"] },
+      { marker: "④", text: "积极防御的国防战略。", keywords: ["积极防御"] },
+      { marker: "⑤", text: "全国武装力量领导体制的确立。", keywords: ["领导体制"] },
+      { marker: "⑥", text: "精简整编与组建新的军兵种、军事院校。", keywords: ["精简整编", "军兵种"] },
+      { marker: "⑦", text: "颁布制定条令条例。", keywords: ["条令条例"] },
+      { marker: "⑧", text: "加强政治工作的决定与措施。", keywords: ["政治工作"] },
+      { marker: "⑨", text: "建立统一的后勤体系。", keywords: ["后勤体系"] },
+      { marker: "⑩", text: "建立国防工业，实现武器装备制式化。", keywords: ["国防工业", "制式化"] }
+    ],
+    notes: "（重新设立中共中央军事委员会，组建八总部、13大军区，恢复海陆空三个军种，裁军至240万人；颁布政治工作条例、实行义务兵役制、薪金制和军衔制；内务条令、纪律条令、队列条令；\"对国家负责，对部队负责\"的后勤建设思想；三反：反贪污、反浪费、反官僚主义）",
+    important: false
+  },
+  {
+    id: 23,
+    topic: "专题五、建设现代化正规化革命军队",
+    question: "谈谈20世纪六七十年代我国在极端困难条件下研制出\"两弹一星\"的现实启示。",
+    sections: [
+      {
+        title: "背景：",
+        intro: "以\"两弹一星\"为代表的国防尖端技术的研制成功，是贯彻执行\"自力更生、奋发图强\"方针的重大胜利，是广大科技工作者团结协作、奋力攻关的结果，标志着中国国防科技发展进入了一个新的阶段，人民解放军从此有了核反击的能力，打破了帝国主义的核垄断，增强了我国的国防战略能力，为维护世界和平与安全提供了有力的保证。",
+        points: []
+      },
+      {
+        title: "现实启示：",
+        points: [
+          { marker: "①", text: "展现了中国人民自力更生、奋发图强的民族精神。", keywords: ["自力更生", "奋发图强"] },
+          { marker: "②", text: "充分显示出社会主义制度集中力量办大事的优势。", keywords: ["集中力量办大事"] },
+          { marker: "③", text: "军事上使中国的国防建设进入一个新阶段，国防实力取得巨大成就。", keywords: ["新阶段", "国防实力"] },
+          { marker: "④", text: "培养了科技队伍，积累了经验，形成了全国协作网。", keywords: ["科技队伍", "全国协作网"] }
+        ]
+      }
+    ],
+    notes: "（可从克服困难、取得巨大成就两方面出发，谈现实启示）",
+    important: false
+  },
+  {
+    id: 24,
+    topic: "专题五、建设现代化正规化革命军队",
+    question: "结合20世纪60年代我军开展的群众性大练兵活动，谈谈怎样全面提高新时代备战打仗能力。",
+    points: [
+      { marker: "①", text: "训练理论创新。", keywords: ["训练理论创新"] },
+      { marker: "②", text: "学习先进典型。", keywords: ["先进典型"] },
+      { marker: "③", text: "从严从难治训，贴近实战化训练。", keywords: ["从严从难", "实战化训练"] },
+      { marker: "④", text: "要有\"一不怕苦，二不怕死\"的战斗精神。", keywords: ["一不怕苦", "二不怕死"] },
+      { marker: "⑤", text: "比学赶帮超，掀起练兵热潮。", keywords: ["比学赶帮超"] },
+      { marker: "⑥", text: "将军事训练摆在中心工作。", keywords: ["中心工作"] }
+    ],
+    notes: "（如郭兴福教学法、好八连、王杰\"一不怕苦、二不怕死\"等）",
+    important: false
+  },
+
+  // ========== 专题六、实现国防和军队建设的战略性转变 ==========
+  {
+    id: 25,
+    topic: "专题六、实现国防和军队建设的战略性转变",
+    question: "新时期军队建设总目标的确立对人民军队建设发展有什么重要意义？",
+    points: [
+      { marker: "", text: "总目标：建设强大的现代化正规化革命军队（现代化、正规化、革命化）", keywords: ["现代化", "正规化", "革命化"] },
+      { marker: "①", text: "革命化，反映的是人民解放军的阶级本质和政治思想水平，规定着我军的性质、宗旨和政治方向。", keywords: ["阶级本质", "政治方向"] },
+      { marker: "②", text: "现代化，是军队战斗力水平的最直接反映，是决定军队战斗力强弱的核心因素。", keywords: ["战斗力", "核心因素"] },
+      { marker: "③", text: "正规化，反映一支军队的组织、管理和纪律水平，是影响军队战斗力的重要因素。", keywords: ["组织", "管理", "纪律"] },
+      { marker: "④", text: "革命化、现代化、正规化相互依赖、相互促进，辩证统一于军队的全面建设。革命化是现代化和正规化的灵魂，现代化为革命化和正规化规定了具体任务和落脚点，正规化是革命化和现代化的重要保障。", keywords: ["辩证统一", "灵魂", "重要保障"] },
+      { marker: "⑤", text: "军队建设总目标的提出，标志着人民军队建设进入到了一个新的历史发展阶段。", keywords: ["新的历史发展阶段"] }
+    ],
+    important: false
+  },
+  {
+    id: 26,
+    topic: "专题六、实现国防和军队建设的战略性转变",
+    question: "怎样理解新时期国防和军队建设指导思想的战略性转变？",
+    points: [
+      { marker: "", text: "转变：从立足于早打、大打、打核战争的临战准备状态转到和平建设轨道上来，军事斗争重点转向打赢现代化局部战争。", keywords: ["临战准备", "和平建设", "现代化局部战争"] },
+      { marker: "①", text: "标志着国防和军队建设进入新的发展时期。", keywords: ["新的发展时期"] },
+      { marker: "②", text: "适应了和平与发展的时代主题和以经济建设为中心进行社会主义现代化建设的要求。", keywords: ["和平与发展", "经济建设为中心"] },
+      { marker: "③", text: "理顺了国防和军队建设与国家经济建设，以及和平时期的军队建设与战备工作等各方面关系，使国防和军队建设在新的历史条件下走上了健康、正确的发展轨道，是一次重大的理论和实践突破。", keywords: ["健康", "正确", "理论和实践突破"] },
+      { marker: "④", text: "对于保障国家以经济建设为中心和推动军队以现代化建设为中心的总体建设具有重要而深远的历史意义。", keywords: ["深远的历史意义"] }
+    ],
+    important: false
+  },
+  {
+    id: 27,
+    topic: "专题六、实现国防和军队建设的战略性转变",
+    question: "人民军队为什么要走中国特色精兵之路？",
+    points: [
+      { marker: "", text: "历史发展到20世纪80年代，虽然战争危险依然存在，和平力量也日益增长。邓小平在科学分析中国国情的基础上认为：国家的安全保障最终取决于一个国家的经济实力。国家经济建设是大局，必须硬着头皮把经济搞上去，一切要服从这个大局，即军队要多节省开支，改善武器装备，更要提高军政素质，这就必须减少数量。", keywords: ["经济实力", "减少数量"] },
+      { marker: "①", text: "建设符合自己国情军情特点的人民军队。", keywords: ["国情军情"] },
+      { marker: "②", text: "提高现代化正规化革命军队的战斗力。", keywords: ["战斗力"] },
+      { marker: "③", text: "是马克思主义与中国国情结合的体现。", keywords: ["马克思主义", "中国国情"] }
+    ],
+    notes: "逐步把人民解放军建设成为一支机构精干、指挥灵便、装备精良、训练有素、反应快速、效率很高、战斗力很强的精兵。",
+    important: false
+  },
+  {
+    id: 28,
+    topic: "专题六、实现国防和军队建设的战略性转变",
+    question: "结合改革开放以来人民军队在服从大局、支援国家经济建设方面作出的贡献，谈谈新时代怎样践行全心全意为人民服务的根本宗旨。",
+    sections: [
+      {
+        title: "主要贡献：",
+        points: [
+          { marker: "①", text: "军费紧张的情况下，发扬艰苦奋斗、勤俭建军优良传统，大力发展农副业生产。", keywords: ["艰苦奋斗", "勤俭建军"] },
+          { marker: "②", text: "军工企业发挥科技力量比较雄厚的优势，帮助地方进行科技发展。", keywords: ["科技力量", "帮助地方"] },
+          { marker: "③", text: "抽调一定兵力支援国家建设。", keywords: ["支援国家建设"] },
+          { marker: "④", text: "人民军队始终是抢险救灾的突击队。", keywords: ["抢险救灾", "突击队"] }
+        ]
+      },
+      {
+        title: "新时代的践行：",
+        points: [
+          { marker: "①", text: "牢固树立为民服务的意识。", keywords: ["为民服务"] },
+          { marker: "②", text: "坚定做好本职工作的理想信念。", keywords: ["本职工作", "理想信念"] },
+          { marker: "③", text: "切实增强为民服务的情怀。", keywords: ["情怀"] },
+          { marker: "④", text: "努力找准为民服务的方法。", keywords: ["方法"] },
+          { marker: "⑤", text: "以身作则，廉洁奉公、服务群众。", keywords: ["廉洁奉公", "服务群众"] }
+        ]
+      }
+    ],
+    notes: "（青藏公路、大庆油田等；唐山救灾、98抗洪等）",
+    important: false
+  },
+
+  // ========== 专题七、迎接世界新军事革命挑战 ==========
+  {
+    id: 29,
+    topic: "专题七、迎接世界新军事革命挑战",
+    question: "谈谈对推进中国特色军事变革的理解。",
+    sections: [
+      {
+        title: "背景：",
+        intro: "国防和军队建设的国内外环境发生深刻改变。国际上，东欧剧变，苏联解体，西方敌对势力肆意扬言要搞垮中国；国内改革开放不断深入发展，社会主义市场经济体制逐步建立，社会观念多样嬗变。",
+        points: []
+      },
+      {
+        title: "措施：",
+        points: [
+          { marker: "①", text: "军队\"五句话\"总要求的提出。", keywords: ["五句话"] },
+          { marker: "②", text: "新时期军事战略方针的制定。", keywords: ["军事战略方针"] },
+          { marker: "③", text: "科技强军战略，\"三步走\"发展战略和双重跨越历史任务的确立。", keywords: ["科技强军", "三步走", "双重跨越"] }
+        ]
+      }
+    ],
+    notes: "（政治合格、军事过硬、作风优良、纪律严明、保障有力；要把军事斗争准备的基点，放在打赢现代技术特别是高技术条件下的局部战争上）",
+    important: false
+  },
+  {
+    id: 30,
+    topic: "专题七、迎接世界新军事革命挑战",
+    question: "谈谈对\"打得赢\"\"不变质\"关系的理解。（两个提供）",
+    points: [
+      { marker: "", text: "\"打得赢\"是人民军队的使命要求，\"不变质\"是人民军队的政治要求。", keywords: ["使命要求", "政治要求"] },
+      { marker: "", text: "国际形势虽然有所缓和，但世界新军事变革如火如荼，局部地区仍动荡不安，尤其是1991年的海湾战争，使我国如梦初醒。为了维护处在改革开放关键时刻的和平环境，打赢未来战争，是人民军队必须解决的紧迫问题，这就要求\"打得赢\"。", keywords: ["海湾战争", "打得赢"] },
+      { marker: "", text: "一方面高技术对军事领域的影响越来越广泛深刻，加强思想建设越来越成为军队现代化建设的军事准备的重要基础；另一方面，各种思想文化互相激荡，社会上一些资本主义的腐朽思想和生活方式有所滋长蔓延，对部队带来了不同程度的侵蚀和影响，这就要求人民军队\"不变质\"。", keywords: ["思想建设", "不变质"] }
+    ],
+    important: false
+  },
+  {
+    id: 31,
+    topic: "专题七、迎接世界新军事革命挑战",
+    question: "怎样理解新世纪新阶段我军历史使命？",
+    sections: [
+      {
+        title: "内容：",
+        points: [
+          { marker: "①", text: "为党巩固执政地位提供重要的力量保证。", keywords: ["执政地位", "力量保证"] },
+          { marker: "②", text: "为维护国家发展的重要战略机遇期提供坚强的安全保障。", keywords: ["战略机遇期", "安全保障"] },
+          { marker: "③", text: "为维护国家利益提供有力的战略支撑。", keywords: ["国家利益", "战略支撑"] },
+          { marker: "④", text: "为维护世界和平与促进共同发展发挥重要作用。", keywords: ["世界和平", "共同发展"] }
+        ]
+      },
+      {
+        title: "意义：",
+        intro: "新世纪新阶段军队历史使命的提出，科学回答了新世纪新阶段国防和军队建设朝什么方向发展、如何科学发展，未来战争需要什么样的军事力量、如何科学运用军事力量的时代课题，拓展了人民解放军的职能任务，实现了人民解放军历史使命的与时俱进，为人民解放军在更高起点上推进中国特色军事变革和军事斗争准备，实现国防和军队现代化建设跨越式发展，提供了根本引领。",
+        points: []
+      }
+    ],
+    important: false
+  },
+  {
+    id: 32,
+    topic: "专题七、迎接世界新军事革命挑战",
+    question: "怎样理解推动国防和军队建设科学发展的主题主线？",
+    points: [
+      { marker: "①", text: "国防和军队建设科学发展是统领国防和军队建设全局的总纲；以加快转变战斗力生成模式为主线，是推动国防和军队建设科学发展的必由之路。", keywords: ["总纲", "战斗力生成模式", "必由之路"] },
+      { marker: "②", text: "把科学发展确立为国防和军队建设的主题，就是要按照革命化现代化正规化相统一的原则加强军队全面建设，把以人为本作为重要的建军治军理念，把统筹兼顾作为推动国防和军队建设的着眼点。", keywords: ["革命化现代化正规化", "以人为本", "统筹兼顾"] },
+      { marker: "③", text: "把加快转变战斗力生成模式确立为国防和军队建设的主线，揭示了新形势下国防和军队建设发展的规律性要求，明确了国防和军队建设的战略抓手。", keywords: ["规律性要求", "战略抓手"] }
+    ],
+    important: false
+  },
+
+  // ========== 专题八、国防和军队建设进入新时代 ==========
+  {
+    id: 33,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "为什么要牢固确立习近平强军思想在国防和军队建设中的指导地位？",
+    points: [
+      { marker: "", text: "习近平强军思想内容：\"十一个明确\"", keywords: ["十一个明确"] },
+      { marker: "①", text: "习近平强军思想深深植根我国由大向强新的革命性实践，是逻辑严密的科学理论体系，开辟了党的军事指导理论发展新境界，把马克思主义军事理论中国化进程历史性开拓性地向前推进了一大步。", keywords: ["科学理论体系", "新境界", "马克思主义军事理论中国化"] },
+      { marker: "②", text: "习近平强军思想彰显了党的军事指导理论的精神特质，具有使命性、时代性、实践性、进取性、开放性。传承了马克思主义的真理基因，凝结着党的军事指导理论创新的历史经验，兼具真理的光芒与思想的魅力。", keywords: ["使命性", "时代性", "实践性", "进取性", "开放性"] },
+      { marker: "③", text: "习近平强军思想是习近平新时代中国特色社会主义思想的重要组成部分，是我们党不懈探索中国特色强军之路形成的宝贵思想结晶，是加快国防和军队现代化、全面建设世界一流军队的根本遵循和行动指南。", keywords: ["重要组成部分", "根本遵循", "行动指南"] }
+    ],
+    important: true
+  },
+  {
+    id: 34,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "如何全面深入贯彻军委主席负责制？",
+    points: [
+      { marker: "①", text: "全面扎实开展军委主席负责制学习教育，学好用好《坚持党对军队的绝对领导》《军委主席负责制学习读本》，高标准抓好\"三项机制\"落实。", keywords: ["学习教育", "三项机制"] },
+      { marker: "②", text: "深刻领悟\"两个确立\"的决定性意义，坚决做到\"两个维护\"，进一步强化贯彻军委主席负责制的政治自觉。", keywords: ["两个确立", "两个维护", "政治自觉"] },
+      { marker: "③", text: "2023年2月，经中央军委批准，军委办公厅印发《军委主席负责制学习教育规划（2023—2027年）》，明确深入开展军委主席负责制学习教育的总体要求、基本内容、重点任务和组织保障，是推动军委主席负责制学习教育深入开展的重要举措。", keywords: ["2023年2月", "学习教育规划"] }
+    ],
+    notes: "（三项机制：请示报告、督促检查、信息服务）",
+    important: true
+  },
+  {
+    id: 35,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "怎样理解推进新时代强军事业的战略部署和举措？",
+    points: [
+      { marker: "①", text: "确定国防和军队现代化建设的战略重点，以重点突破带动整体提升。", keywords: ["战略重点", "重点突破"] },
+      { marker: "②", text: "全面推进革命化现代化正规化建设，全面从严治军，推动治军方式根本性转变，提高国防和军队建设法治化水平。", keywords: ["全面从严治军", "法治化水平"] },
+      { marker: "③", text: "坚持战斗力标准，向能打仗、打胜仗聚焦，扎实做好各战略方向的军事斗争准备，发展新型作战力量和保障力量，开展实战化军事训练，加强军事训练应用，加快军事智能化发展。", keywords: ["战斗力标准", "能打仗", "打胜仗", "军事智能化"] },
+      { marker: "④", text: "开创新时代军民融合深度发展格局，构建一体化的国家战略体系和能力，维护军人合法权益，让军人成为全社会尊崇的职业，深化武警部队改革，建设现代化武装警察部队。", keywords: ["军民融合", "国家战略体系", "尊崇的职业"] }
+    ],
+    important: false
+  },
+  {
+    id: 36,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "如何理解人民军队坚决履行新时代使命任务，以顽强斗争精神和实际行动捍卫国家主权、安全、发展利益？",
+    sections: [
+      {
+        title: "任务内容（\"四个战略支撑\"）：",
+        points: [
+          { marker: "①", text: "为巩固中国共产党领导和我国社会主义制度提供战略支撑。", keywords: ["中国共产党领导", "社会主义制度"] },
+          { marker: "②", text: "为捍卫国家主权、统一、领土完整提供战略支撑。", keywords: ["主权", "统一", "领土完整"] },
+          { marker: "③", text: "为拓展我国海外利益提供战略支撑。", keywords: ["海外利益"] },
+          { marker: "④", text: "为促进世界和平与发展提供战略支撑。", keywords: ["世界和平与发展"] }
+        ]
+      },
+      {
+        title: "理解：",
+        points: [
+          { marker: "①", text: "阐明了我军的政治属性，反映了党和军队之间的天然联系，要求我军必须在政治上非常过硬，坚定站在党的旗帜下，坚决维护国家政权安全、制度安全，坚决维护政治社会大局稳定。", keywords: ["政治属性", "天然联系"] },
+          { marker: "②", text: "阐明了我军的根本职能，要求我军必须做好随时打硬仗的准备，坚决反对和遏制\"台独\"分裂行径等一切形式的分裂活动，坚决捍卫国家核心利益。", keywords: ["根本职能", "打硬仗", "台独", "核心利益"] },
+          { marker: "③", text: "阐明了我军的战略功能，要求我军紧跟国家海外利益发展进程，不断增强在更广阔的空间遂行多样化军事任务能力，努力形成强有力的海外利益安全保障体系。", keywords: ["战略功能", "多样化军事任务"] },
+          { marker: "④", text: "阐明了我军的国际责任，要求我军适应服务人类命运共同体的战略要求，积极履行同我国国际地位相称的责任和义务，为维护和平的国际环境和周边环境发挥更大作用。", keywords: ["国际责任", "人类命运共同体"] }
+        ]
+      }
+    ],
+    important: true
+  },
+  {
+    id: 37,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "深化国防和军队改革三大战役取得了哪些成果？",
+    points: [
+      { marker: "", text: "深化国防和军队改革三大战役：领导指挥体制改革、规模结构和力量编成改革、军事政策制度改革。", keywords: ["领导指挥体制", "规模结构和力量编成", "军事政策制度"] },
+      { marker: "①", text: "（领导指挥体制改革）优化联合作战指挥体系，构建起中央军委——战区——部队的联合作战指挥体系；完善军兵种领导管理体制，构建起中央军委——军种——部队的领导管理体系；调整武警部队领导指挥体制、预备役部队领导体制，形成决策权、执行权、监督权既相互制约又相互协调的权力运作体系。", keywords: ["联合作战指挥体系", "战区", "领导管理体系"] },
+      { marker: "②", text: "（规模结构和力量编成改革）优化兵力规模构成，打造精干高效的现代化常备军；调整力量结构布局，从体制编制上为加快发展新型作战力量、提高战略能力提供足够空间；推动军兵种建设战略转型；深化军队院校、科研机构、训练机构改革，形成以联合作战院校为核心、以军兵种院校为基础、以军民融合为补充的院校布局，构建三位一体的人才培养体系。", keywords: ["精干高效", "新型作战力量", "三位一体"] },
+      { marker: "③", text: "（军事政策制度改革）形成维护党中央权威和集中统一领导、维护和贯彻军委主席负责制、确保党对军队绝对领导的我军党的建设制度；形成基于联合、平战一体的军事力量运用政策制度；形成聚焦打仗、激励创新、军民融合的军事力量建设政策制度；形成精准高效、全面规范、刚性约束的军事管理政策制度。", keywords: ["党的建设制度", "军事力量运用", "军事力量建设", "军事管理"] }
+    ],
+    notes: "（详见教材P250-261）",
+    important: true
+  },
+  {
+    id: 38,
+    topic: "专题八、国防和军队建设进入新时代",
+    question: "结合实际谈谈如何贯彻落实加快国防和军队现代化的战略部署。",
+    points: [
+      { marker: "①", text: "建设一切为了打仗的后勤。", keywords: ["打仗的后勤"] },
+      { marker: "②", text: "加快主战武器装备更新换代。", keywords: ["主战武器装备", "更新换代"] },
+      { marker: "③", text: "全面推进国防科技创新。", keywords: ["国防科技创新"] },
+      { marker: "④", text: "锻造德才兼备的高素质、专业化新型军事人才。", keywords: ["德才兼备", "高素质", "新型军事人才"] },
+      { marker: "⑤", text: "提高国防和军队建设法治化水平。", keywords: ["法治化水平"] }
+    ],
+    notes: "（结合实际论证，详见教材P261-274）",
+    important: true
+  },
+
+  // ========== 专题九、铭记光荣历史，弘扬优良传统 ==========
+  {
+    id: 39,
+    topic: "专题九、铭记光荣历史，弘扬优良传统",
+    question: "怎样理解人民军队为党和人民建立的伟大历史功勋？",
+    points: [
+      { marker: "①", text: "英雄的人民军队，在党领导的22年武装革命斗争中，以无往不胜的英雄气概、坚忍不拔的革命毅力、灵活机动的战略战术、英勇顽强的战斗作风，克服了各种难以想象的艰难困苦，打败了国内外异常凶恶的敌人，夺取了土地革命战争、抗日战争、解放战争的伟大胜利，推翻了压在中国人民头上的三座大山，以鲜血和生命为建立人民当家作主的新中国奠定了牢固根基，彻底扭转了中华民族近代以来落后挨打的被动局面。", keywords: ["22年武装革命斗争", "三座大山", "牢固根基"] },
+      { marker: "②", text: "英雄的人民军队，积极投身社会主义革命和建设，全面履行保卫祖国、保卫人民和平劳动的职能，胜利进行抗美援朝战争和多次边境自卫作战，打出了国威军威，捍卫了祖国万里边疆和辽阔海空，为巩固新生人民政权、形成中国大国地位、维护中华民族尊严提供了坚强后盾。", keywords: ["抗美援朝", "国威军威", "坚强后盾"] },
+      { marker: "③", text: "英雄的人民军队，积极投身改革开放新的伟大革命，有力服务和保障国家改革发展稳定大局，依法履行香港、澳门防务职责，有效应对国家安全面临的各种威胁，坚决打击一切形式的分裂破坏活动，积极参与对外军事交流合作和联合国维和行动，为维护中国共产党领导和我国社会主义制度，为维护国家主权、安全、发展利益，为维护我国发展的重要战略机遇期，为维护地区和世界和平提供了强大力量支撑。", keywords: ["改革开放", "香港澳门防务", "联合国维和", "强大力量支撑"] }
+    ],
+    important: false
+  },
+  {
+    id: 40,
+    topic: "专题九、铭记光荣历史，弘扬优良传统",
+    question: "怎样理解人民军队从胜利走向胜利的传家法宝？",
+    points: [
+      { marker: "（一）", text: "党的领导。", keywords: ["党的领导"] },
+      { marker: "（二）", text: "理想信念。", keywords: ["理想信念"] },
+      { marker: "（三）", text: "改革创新。", keywords: ["改革创新"] },
+      { marker: "（四）", text: "战斗精神。", keywords: ["战斗精神"] },
+      { marker: "（五）", text: "革命纪律。", keywords: ["革命纪律"] },
+      { marker: "（六）", text: "军民团结。", keywords: ["军民团结"] }
+    ],
+    notes: "（结合实例或材料论证）",
+    important: false
+  },
+  {
+    id: 41,
+    topic: "专题九、铭记光荣历史，弘扬优良传统",
+    question: "实现建军一百年奋斗目标对新时代革命军人提出了怎样的要求？",
+    points: [
+      { marker: "①", text: "首要的是强化思想引领，不断深化对习近平强军思想的理解认识，切实学懂弄懂做实，转化为推进强军事业的强大力量。", keywords: ["思想引领", "习近平强军思想", "强大力量"] },
+      { marker: "②", text: "全面加强练兵备战，提高人民军队打赢能力。", keywords: ["练兵备战", "打赢能力"] },
+      { marker: "③", text: "全面加强军事治理，巩固拓展国防和军队改革成果，完善军事力量结构编成，体系优化军事政策制度。", keywords: ["军事治理", "军事力量结构编成", "军事政策制度"] },
+      { marker: "④", text: "巩固提高一体化国家战略体系和能力。", keywords: ["一体化国家战略体系"] }
+    ],
+    notes: "（标\"★\"内容为新版教材新增思考题）",
+    important: true
+  }
+];
+
+// 导出题库
+if (typeof window !== 'undefined') {
+  window.QUESTIONS = QUESTIONS;
+}
+
+</script>
+<script>
+// ========== 全局状态 ==========
+let currentQuestionId = 1;
+let currentMode = 'study'; // 'study' 或 'check'
+let progress = {}; // { 1: { status: 'mastered', reviews: 3, lastReview: '2026-06-30' } }
+
+// ========== localStorage 存取 ==========
+const STORAGE_KEY = 'military_traditions_progress';
+
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) progress = JSON.parse(saved);
+  } catch(e) { progress = {}; }
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch(e) {}
+}
+
+function getQuestionStatus(qid) {
+  if (!progress[qid]) return 'unlearned';
+  return progress[qid].status || 'unlearned';
+}
+
+function setQuestionStatus(qid, status) {
+  if (!progress[qid]) progress[qid] = { status: 'unlearned', reviews: 0, lastReview: '' };
+  progress[qid].status = status;
+  saveProgress();
+  updateProgressDisplay();
+  renderNavList();
+}
+
+// ========== 工具函数 ==========
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// 将关键词在文本中高亮（背诵模式）
+function highlightKeywords(text, keywords) {
+  if (!keywords || keywords.length === 0) return escapeHtml(text);
+  let result = escapeHtml(text);
+  keywords.forEach(kw => {
+    const escapedKw = escapeHtml(kw);
+    const regex = new RegExp(escapedKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    result = result.replace(regex, '<span class="kw-highlight">' + escapedKw + '</span>');
+  });
+  return result;
+}
+
+// 将关键词挖空（检查模式）
+function blankKeywords(text, keywords, pointIndex) {
+  if (!keywords || keywords.length === 0) return escapeHtml(text);
+  let result = escapeHtml(text);
+  // 按长度降序排列，避免短词先替换破坏长词
+  const sortedKws = [...keywords].sort((a, b) => b.length - a.length);
+  let blankIndex = 0;
+  sortedKws.forEach(kw => {
+    const escapedKw = escapeHtml(kw);
+    const regex = new RegExp(escapedKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    result = result.replace(regex, () => {
+      const idx = `${pointIndex}-${blankIndex++}`;
+      return `<input type="text" class="fill-blank" data-answer="${escapedKw}" data-index="${idx}" placeholder="填空">`;
+    });
+  });
+  return result;
+}
+
+// 获取所有要点（兼容有 sections 和无 sections 的题目）
+function getAllPoints(question) {
+  if (question.sections) {
+    return question.sections;
+  }
+  return [{ title: '', points: question.points || [] }];
+}
+
+// 获取题目的所有 keywords（用于检查模式统计）
+function countBlanks(question) {
+  let count = 0;
+  const sections = getAllPoints(question);
+  sections.forEach(section => {
+    (section.points || []).forEach(point => {
+      if (point.keywords) count += point.keywords.length;
+    });
+  });
+  return count;
+}
+
+// ========== 渲染导航列表 ==========
+function renderNavList() {
+  const navList = document.getElementById('navList');
+  // 按专题分组
+  const topics = {};
+  QUESTIONS.forEach(q => {
+    if (!topics[q.topic]) topics[q.topic] = [];
+    topics[q.topic].push(q);
+  });
+
+  let html = '';
+  Object.keys(topics).forEach((topic, ti) => {
+    const questions = topics[topic];
+    html += `<div class="sidebar-section${ti === 0 ? '' : ' collapsed'}" data-topic="${escapeHtml(topic)}">`;
+    html += `<div class="sidebar-section-title" onclick="this.parentElement.classList.toggle('collapsed')">`;
+    html += `<span class="toggle">▼</span> ${escapeHtml(topic)}`;
+    html += `</div>`;
+    html += `<div class="sidebar-questions">`;
+    questions.forEach(q => {
+      const status = getQuestionStatus(q.id);
+      const dotClass = q.important ? 'important' : status;
+      const active = q.id === currentQuestionId ? ' active' : '';
+      const qtext = q.question.length > 20 ? q.question.substring(0, 20) + '...' : q.question;
+      html += `<div class="sidebar-item${active}" onclick="selectQuestion(${q.id})">`;
+      html += `<span class="status-dot ${dotClass}"></span>`;
+      html += `<span class="qid">${q.id}</span>`;
+      html += `<span class="qtext">${escapeHtml(qtext)}</span>`;
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  navList.innerHTML = html;
+}
+
+// ========== 渲染题目 ==========
+function renderQuestion() {
+  const q = QUESTIONS.find(x => x.id === currentQuestionId);
+  if (!q) return;
+
+  const card = document.getElementById('questionCard');
+  let html = '';
+
+  // 题目头部
+  html += `<div class="question-header">`;
+  html += `<div>`;
+  html += `<div class="question-topic">${escapeHtml(q.topic)}</div>`;
+  html += `<div class="question-title">${escapeHtml(q.question)}</div>`;
+  html += `</div>`;
+  if (q.important) {
+    html += `<span class="important-badge">★ 重点题</span>`;
+  }
+  html += `</div>`;
+
+  // 模式切换
+  html += `<div class="mode-switcher">`;
+  html += `<button class="mode-btn${currentMode === 'study' ? ' active' : ''}" onclick="switchMode('study')">背诵模式</button>`;
+  html += `<button class="mode-btn${currentMode === 'check' ? ' active' : ''}" onclick="switchMode('check')">检查模式</button>`;
+  html += `</div>`;
+
+  // 答案区域
+  html += `<div class="answer-area">`;
+
+  if (currentMode === 'study') {
+    html += renderStudyMode(q);
+  } else {
+    html += renderCheckMode(q);
+  }
+
+  html += `</div>`;
+
+  // 补充说明
+  if (q.notes) {
+    html += `<div class="notes">`;
+    html += `<span class="notes-label">补充说明：</span>${escapeHtml(q.notes)}`;
+    html += `</div>`;
+  }
+
+  // 底部控制栏
+  const status = getQuestionStatus(q.id);
+  html += `<div class="controls">`;
+  html += `<div class="status-buttons">`;
+  html += `<button class="status-btn${status === 'unlearned' ? ' active unlearned' : ''}" onclick="setStatus('unlearned')">未背</button>`;
+  html += `<button class="status-btn${status === 'familiar' ? ' active familiar' : ''}" onclick="setStatus('familiar')">熟悉</button>`;
+  html += `<button class="status-btn${status === 'mastered' ? ' active mastered' : ''}" onclick="setStatus('mastered')">掌握</button>`;
+  html += `</div>`;
+  html += `<div class="nav-buttons">`;
+  html += `<button class="nav-btn" onclick="prevQuestion()" ${currentQuestionId <= 1 ? 'disabled' : ''}>← 上一题</button>`;
+  html += `<button class="nav-btn" onclick="nextQuestion()" ${currentQuestionId >= QUESTIONS.length ? 'disabled' : ''}>下一题 →</button>`;
+  html += `</div>`;
+  html += `</div>`;
+
+  // 史料补充入口
+  html += renderHistorySection(q);
+
+  card.innerHTML = html;
+
+  // 如果是检查模式，绑定核对按钮
+  if (currentMode === 'check') {
+    bindCheckFunctionality();
+  }
+}
+
+// ========== 背诵模式渲染 ==========
+function renderStudyMode(q) {
+  let html = '';
+  const sections = getAllPoints(q);
+
+  sections.forEach(section => {
+    if (section.title) {
+      html += `<div class="answer-section">`;
+      html += `<div class="answer-section-title">${escapeHtml(section.title)}</div>`;
+      if (section.intro) {
+        html += `<div class="answer-section-intro">${escapeHtml(section.intro)}</div>`;
+      }
+    } else {
+      html += `<div class="answer-section">`;
+    }
+
+    (section.points || []).forEach(point => {
+      html += `<div class="answer-point">`;
+      if (point.marker) {
+        html += `<span class="point-marker">${escapeHtml(point.marker)}</span>`;
+      }
+      html += `<span class="point-text">${highlightKeywords(point.text, point.keywords)}</span>`;
+      html += `</div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  return html;
+}
+
+// ========== 检查模式渲染 ==========
+function renderCheckMode(q) {
+  let html = '';
+  const sections = getAllPoints(q);
+  let pointIndex = 0;
+
+  sections.forEach(section => {
+    html += `<div class="answer-section">`;
+    if (section.title) {
+      html += `<div class="answer-section-title">${escapeHtml(section.title)}</div>`;
+      if (section.intro) {
+        html += `<div class="answer-section-intro">${escapeHtml(section.intro)}</div>`;
+      }
+    }
+
+    (section.points || []).forEach(point => {
+      html += `<div class="answer-point">`;
+      if (point.marker) {
+        html += `<span class="point-marker">${escapeHtml(point.marker)}</span>`;
+      }
+      html += `<span class="point-text">${blankKeywords(point.text, point.keywords, pointIndex)}</span>`;
+      html += `</div>`;
+      pointIndex++;
+    });
+
+    html += `</div>`;
+  });
+
+  // 核对按钮
+  html += `<div class="check-controls">`;
+  html += `<button class="check-btn" onclick="checkAnswers()">核对答案</button>`;
+  html += `<button class="nav-btn" onclick="resetBlanks()" style="background:var(--text-light)">重置</button>`;
+  html += `<span class="check-result" id="checkResult"></span>`;
+  html += `</div>`;
+
+  return html;
+}
+
+// ========== 史料补充入口 ==========
+function renderHistorySection(q) {
+  // 提取题目的关键词作为搜索词
+  const searchTerms = q.question.replace(/[？?，,。.！!、]/g, ' ').trim().split(/\s+/).slice(0, 4).join(' ');
+
+  let html = `<div class="history-section">`;
+  html += `<div class="history-title">── 史料补充 ──</div>`;
+  html += `<div class="history-links">`;
+
+  // 党史网搜索
+  const dangshiUrl = `https://www.dangshi.cn/searchResult?keyword=${encodeURIComponent(searchTerms)}`;
+  html += `<a class="history-link" href="${dangshiUrl}" target="_blank">🔍 查党史网</a>`;
+
+  // 中国军网搜索
+  const junwangUrl = `http://www.81.cn/s?query=${encodeURIComponent(searchTerms)}`;
+  html += `<a class="history-link" href="${junwangUrl}" target="_blank">🔍 查中国军网</a>`;
+
+  // 人民日报搜索
+  const renminUrl = `http://search.people.cn/s/?keyword=${encodeURIComponent(searchTerms)}`;
+  html += `<a class="history-link" href="${renminUrl}" target="_blank">🔍 查人民日报</a>`;
+
+  html += `</div>`;
+  html += `</div>`;
+
+  return html;
+}
+
+// ========== 检查模式功能 ==========
+function bindCheckFunctionality() {
+  // 回车键跳到下一个填空
+  document.querySelectorAll('.fill-blank').forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const blanks = Array.from(document.querySelectorAll('.fill-blank'));
+        const idx = blanks.indexOf(this);
+        if (idx < blanks.length - 1) blanks[idx + 1].focus();
+        else checkAnswers();
+      }
+    });
+  });
+}
+
+function checkAnswers() {
+  const blanks = document.querySelectorAll('.fill-blank');
+  let correctCount = 0;
+  let totalCount = 0;
+
+  blanks.forEach(blank => {
+    const userAnswer = blank.value.trim();
+    const correctAnswer = blank.getAttribute('data-answer');
+    totalCount++;
+
+    blank.classList.remove('correct', 'wrong');
+
+    if (userAnswer === correctAnswer) {
+      blank.classList.add('correct');
+      correctCount++;
+    } else {
+      blank.classList.add('wrong');
+    }
+  });
+
+  const resultEl = document.getElementById('checkResult');
+  if (totalCount === 0) {
+    resultEl.className = 'check-result has-wrong';
+    resultEl.textContent = '本题无填空项';
+    return;
+  }
+
+  if (correctCount === totalCount) {
+    resultEl.className = 'check-result all-correct';
+    resultEl.textContent = `全部正确！(${correctCount}/${totalCount})`;
+    // 自动提升状态
+    const currentStatus = getQuestionStatus(currentQuestionId);
+    if (currentStatus === 'unlearned') {
+      setStatus('familiar');
+    } else if (currentStatus === 'familiar') {
+      setStatus('mastered');
+    }
+  } else {
+    resultEl.className = 'check-result has-wrong';
+    resultEl.textContent = `正确 ${correctCount}/${totalCount}，继续加油`;
+  }
+
+  // 记录复习
+  if (!progress[currentQuestionId]) progress[currentQuestionId] = { status: 'unlearned', reviews: 0, lastReview: '' };
+  progress[currentQuestionId].reviews = (progress[currentQuestionId].reviews || 0) + 1;
+  progress[currentQuestionId].lastReview = new Date().toISOString().split('T')[0];
+  saveProgress();
+  updateProgressDisplay();
+}
+
+function resetBlanks() {
+  document.querySelectorAll('.fill-blank').forEach(blank => {
+    blank.value = '';
+    blank.classList.remove('correct', 'wrong');
+  });
+  const resultEl = document.getElementById('checkResult');
+  if (resultEl) {
+    resultEl.className = 'check-result';
+    resultEl.textContent = '';
+  }
+}
+
+// ========== 交互函数 ==========
+function selectQuestion(qid) {
+  currentQuestionId = qid;
+  // 记住上次浏览的位置
+  progress._lastViewed = qid;
+  saveProgress();
+  renderQuestion();
+  renderNavList();
+  // 手机端关闭侧边栏
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  // 滚动到顶部
+  window.scrollTo(0, 0);
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  progress._lastMode = mode;
+  saveProgress();
+  renderQuestion();
+}
+
+function setStatus(status) {
+  setQuestionStatus(currentQuestionId, status);
+  renderQuestion();
+}
+
+function prevQuestion() {
+  if (currentQuestionId > 1) {
+    selectQuestion(currentQuestionId - 1);
+  }
+}
+
+function nextQuestion() {
+  if (currentQuestionId < QUESTIONS.length) {
+    selectQuestion(currentQuestionId + 1);
+  }
+}
+
+// 键盘导航
+document.addEventListener('keydown', function(e) {
+  // 如果焦点在输入框，不触发导航
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft' && currentQuestionId > 1) {
+    e.preventDefault();
+    prevQuestion();
+  } else if (e.key === 'ArrowRight' && currentQuestionId < QUESTIONS.length) {
+    e.preventDefault();
+    nextQuestion();
+  }
+});
+
+// ========== 进度显示 ==========
+function updateProgressDisplay() {
+  let mastered = 0, familiar = 0, unlearned = 0, totalReviews = 0;
+
+  QUESTIONS.forEach(q => {
+    const s = getQuestionStatus(q.id);
+    if (s === 'mastered') mastered++;
+    else if (s === 'familiar') familiar++;
+    else unlearned++;
+
+    if (progress[q.id] && progress[q.id].reviews) {
+      totalReviews += progress[q.id].reviews;
+    }
+  });
+
+  const total = QUESTIONS.length;
+  const progressNum = mastered + familiar;
+  const percent = Math.round((mastered / total) * 100);
+
+  document.getElementById('progressText').textContent = `${mastered}/${total}`;
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressPercent').textContent = percent + '%';
+
+  document.getElementById('statMastered').textContent = mastered;
+  document.getElementById('statFamiliar').textContent = familiar;
+  document.getElementById('statUnlearned').textContent = unlearned;
+  document.getElementById('statReviews').textContent = totalReviews;
+}
+
+// ========== 汉堡菜单 ==========
+document.getElementById('menuToggle').addEventListener('click', function() {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// 点击侧边栏外关闭（手机端）
+document.addEventListener('click', function(e) {
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    if (sidebar.classList.contains('open') &&
+        !sidebar.contains(e.target) &&
+        !menuToggle.contains(e.target)) {
+      sidebar.classList.remove('open');
+    }
+  }
+});
+
+// ========== 初始化 ==========
+function init() {
+  loadProgress();
+
+  // 恢复上次浏览位置
+  if (progress._lastViewed && QUESTIONS.find(q => q.id === progress._lastViewed)) {
+    currentQuestionId = progress._lastViewed;
+  }
+  if (progress._lastMode) {
+    currentMode = progress._lastMode;
+  }
+
+  renderNavList();
+  renderQuestion();
+  updateProgressDisplay();
+}
+
+init();
+</script>
+
+</body>
+</html>
