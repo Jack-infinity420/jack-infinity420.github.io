@@ -187,6 +187,7 @@ neat_js:
     drop_console: false
   exclude:
     - '*.min.js'
+    - 'busuanzi-today.js'
 
 # Image Optimization (WebP + responsive)
 ## https://github.com/next-theme/hexo-image-opt

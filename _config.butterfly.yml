@@ -1101,6 +1101,7 @@ inject:
     - <script src="/blog/js/poetry.js"></script>
     - <script src="/blog/js/weather-card.js"></script>
     - <script src="/blog/js/weather-init.js"></script>
+    - <script src="/blog/js/busuanzi-today.js"></script>
 
 # CDN Settings - Optimized for China CDN
 # Don't modify the following settings unless you know how they work
