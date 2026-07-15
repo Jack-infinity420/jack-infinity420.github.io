@@ -13,3 +13,7 @@ _multiconfig.yml
 .omc/
 .aider*
 debug.log
+public-deploy/
+.cursor/
+.trae/
+.vscode/
