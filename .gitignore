@@ -20,3 +20,5 @@ public-deploy/
 devshots/
 demos/
 .codex-*.log
+docs/superpowers/specs/textures/
+source/js/weather-config.js
