@@ -17,3 +17,6 @@ public-deploy/
 .cursor/
 .trae/
 .vscode/
+devshots/
+demos/
+.codex-*.log

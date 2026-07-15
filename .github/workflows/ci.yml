@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit (fail on critical only)
+        run: npm audit --audit-level=critical
+        continue-on-error: true
+
+      - name: Build site
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          if [ ! -d "public/posts" ]; then
+            echo "ERROR: public/posts/ not found — build may have failed"
+            exit 1
+          fi
+          POST_COUNT=$(find public/posts -name "*.html" | wc -l)
+          echo "Generated $POST_COUNT post HTML files"
+          if [ "$POST_COUNT" -eq 0 ]; then
+            echo "ERROR: no post HTML files generated"
+            exit 1
+          fi
