@@ -42,7 +42,7 @@
     "hexo-wordcount": "^6.0.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1"
+    "@playwright/test": "^1.61.1"
   },
   "overrides": {
     "protobufjs": "^7.4.0",
