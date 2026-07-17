@@ -38,6 +38,7 @@ skip_render:
   - duan-daxue/military-english/**
   - duan-daxue/word-master/**
   - duan-daxue/traditions/**
+  - duan-daxue/english-vocab-review/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

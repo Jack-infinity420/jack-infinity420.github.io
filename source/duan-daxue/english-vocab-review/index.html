@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>军事英语 · 单词复习</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;width:100%;max-width:1200px;margin-bottom:1rem}
+.pickers{display:flex;gap:.4rem;flex-wrap:wrap}
+.pbtn{padding:.3rem .7rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.8rem;transition:.15s}
+.pbtn:hover{background:#334155}
+.pbtn.cur{background:#2563eb;color:#fff;font-weight:600}
+.tb{display:flex;gap:.5rem;margin-bottom:.5rem}
+.tbv{padding:.4rem 1.2rem;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.85rem}
+.tbv.cur{background:#60a5fa;color:#0f172a;font-weight:600}
+.pn{display:none;width:100%;max-width:1200px}
+.pn.cur{display:flex;flex-direction:column;align-items:center}
+h1{font-size:1.5rem;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.c{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;align-items:center;justify-content:center}
+.c button,.c select{padding:.4rem .9rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#e2e8f0;font-size:.82rem;cursor:pointer}
+.c button.cur{background:#60a5fa;color:#0f172a;font-weight:600}
+.s{display:flex;gap:.8rem;margin-bottom:.8rem;font-size:.82rem;color:#94a3b8;flex-wrap:wrap}
+.s span{background:#1e293b;padding:.2rem .6rem;border-radius:5px}
+.s strong{color:#60a5fa}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.7rem;width:100%}
+.cd{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:.8rem 1rem;cursor:pointer;min-height:100px;position:relative;transition:.15s}
+.cd:hover{border-color:#4b5563}
+.cd .speaker{position:absolute;top:.3rem;right:.45rem;font-size:.82rem;cursor:pointer;color:#64748b;width:1.5rem;height:1.5rem;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:.15s;z-index:2}
+.cd .speaker:hover{background:#475569;color:#e2e8f0}
+.cd .en{font-size:1.05rem;font-weight:600;color:#f1f5f9;padding-right:1.8rem;margin-top:.1rem}
+.cd .phonetic{font-size:.72rem;color:#64748b;margin-top:.1rem;font-family:'Consolas','Courier New',monospace;min-height:1rem}
+.cd .cn{font-size:.95rem;color:#94a3b8;margin-top:.1rem}
+.cd .cn.h{opacity:0;max-height:0;overflow:hidden;margin:0}
+.cd .cn.r{opacity:1;color:#a78bfa}
+.cd .full{font-size:.78rem;color:#6b7280}
+.cd .full.h{opacity:0;max-height:0;overflow:hidden;margin:0}
+.cd .full.r{opacity:1}
+.cd .tg{position:absolute;bottom:.35rem;right:.45rem;font-size:.55rem;padding:.1rem .4rem;border-radius:3px;font-weight:600}
+.tg-a{background:#f59e0b;color:#0f172a}
+.tg-n{background:#3b82f6;color:#fff}
+.cd .star{position:absolute;top:.3rem;left:.45rem;font-size:.9rem;cursor:pointer;user-select:none;line-height:1;z-index:2}
+.cd .star.ns{color:#4b5563;opacity:.4;transition:.15s}
+.cd .star.ns:hover{opacity:1;color:#fbbf24}
+.cd .star.s{color:#f59e0b}
+.cd.m{border-color:#22c55e;background:#1a2e1a}
+.cd.m .en{color:#86efac}
+.cd .mb{display:none}
+.cd.m .mb{display:block;position:absolute;bottom:.35rem;right:2.5rem;font-size:.5rem;color:#22c55e}
+.ed{width:100%;max-width:800px}
+.ed textarea{width:100%;min-height:200px;padding:.7rem;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-family:monospace}
+.ed .br{display:flex;gap:.5rem;margin-top:.7rem;flex-wrap:wrap}
+.ed .br button{padding:.4rem 1.2rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#e2e8f0;cursor:pointer;font-size:.85rem}
+.ed .br .p{background:#2563eb;font-weight:600}
+.fh{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:.7rem;margin-bottom:.8rem;font-size:.8rem;color:#94a3b8;line-height:1.6}
+.sc{color:#22c55e}.er{color:#ef4444}
+.st{font-size:.82rem;margin-top:.4rem;min-height:1.3rem}
+.hint{margin-bottom:.5rem;font-size:.75rem;color:#6b7280;display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center}
+.hint span{display:flex;align-items:center;gap:.3rem}
+.hint .k{display:inline-block;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;background:#334155;color:#d1d5db}
+@media(max-width:640px){.g{grid-template-columns:1fr}h1{font-size:1.2rem}.pbtn{font-size:.72rem;padding:.2rem .5rem}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="tb"><div class="tbv cur" id="tabP">背单词</div><div class="tbv" id="tabE">编辑单词</div></div></div>
+<div class="pickers" id="pickers"></div>
+<div class="pn cur" id="pnP">
+<div class="hint">
+<span><span class="k">单击</span> 显示/隐藏中文</span>
+<span><span class="k">双击</span> 标记已掌握</span>
+<span><span class="k">&hearts;</span> 点击星标重点单词</span>
+<span><span class="k">&#128266;</span> 点击发音</span>
+</div>
+<div class="c"><button id="bSh" class="cur">随机顺序</button><button id="bR">全部重置</button><button id="bH">隐藏答案</button>
+<select id="fS"><option value="all">全部</option><option value="abbr">仅缩写</option><option value="normal">仅普通</option><option value="m">已掌握</option><option value="s">重点单词（当前）</option><option value="sa">重点单词（全部单元）</option><option value="u">未掌握</option></select>
+<button id="bD">移除已掌握</button></div>
+<div class="s"><span>总计:<strong id="st">0</strong></span><span>已掌握:<strong id="sm">0</strong></span><span>&#11088; 重点:<strong id="ss">0</strong></span><span>已揭晓:<strong id="sr">0</strong></span></div>
+<div class="g" id="g"></div></div>
+<div class="pn" id="pnE"><div class="ed">
+<div class="fh"><b>格式</b>：英文 | 中文（普通）&nbsp;&nbsp;英文 | 中文 | abbr（缩写，带全称）</div>
+<textarea id="ta" spellcheck="false"></textarea>
+<div class="br"><button class="p" id="bSv">保存并切换</button><button id="bDef">恢复当前单元</button><button id="bEx">导出</button><button id="bIm">导入</button></div>
+<div class="st" id="sst"></div></div></div>
+<input type="file" id="fI" accept=".txt,.csv" style="display:none">
+<script>
+var ALL_DATA = [[{"en":"active service","cn":"现役","abbr":false,"full":"active service","phonetic":"/ˈæktɪv ˈsɜːrvɪs/"},{"en":"air defense","cn":"防空","abbr":false,"full":"air defense","phonetic":"/ɛər dɪˈfɛns/"},{"en":"Air Force","cn":"空军","abbr":false,"full":"Air Force","phonetic":"/ɛər fɔːrs/"},{"en":"aircraft carrier","cn":"航空母舰","abbr":false,"full":"aircraft carrier","phonetic":"/ˈɛərkræft ˈkærɪər/"},{"en":"airlift","cn":"空运","abbr":false,"full":"airlift","phonetic":"/ˈɛərlɪft/"},{"en":"airman","cn":"空军士兵，飞行员","abbr":false,"full":"airman","phonetic":"/ˈɛərmən/"},{"en":"amphibious","cn":"两栖作战的；水陆两用的；两栖的","abbr":false,"full":"amphibious","phonetic":"/æmˈfɪbiəs/"},{"en":"arm","cn":"兵种","abbr":false,"full":"arm","phonetic":"/ɑːrm/"},{"en":"armor","cn":"装甲兵","abbr":false,"full":"armor","phonetic":"/ˈɑːrmər/"},{"en":"Army","cn":"陆军","abbr":false,"full":"Army","phonetic":"/ˈɑːrmi/"},{"en":"Army National Guard","cn":"（美）陆军国民警卫队","abbr":false,"full":"Army National Guard"},{"en":"Army Reserve","cn":"（美）陆军预备役","abbr":false,"full":"Army Reserve"},{"en":"artillery","cn":"炮兵；火炮","abbr":false,"full":"artillery","phonetic":"/ɑːrˈtɪləri/"},{"en":"aviation","cn":"航空兵","abbr":false,"full":"aviation","phonetic":"/ˌeɪviˈeɪʃən/"},{"en":"bomber","cn":"轰炸机","abbr":false,"full":"bomber","phonetic":"/ˈbɒmər/"},{"en":"cavalry","cn":"骑兵；高度机动的地面部队","abbr":false,"full":"cavalry","phonetic":"/ˈkævəlri/"},{"en":"Coast Guard","cn":"（美）海岸警卫队","abbr":false,"full":"Coast Guard","phonetic":"/koʊst ɡɑːrd/"},{"en":"combat arms","cn":"作战部队","abbr":false,"full":"combat arms"},{"en":"combat arms support","cn":"作战支援部队","abbr":false,"full":"combat arms support"},{"en":"combat service support","cn":"作战支援保障部队","abbr":false,"full":"combat service support"},{"en":"corps","cn":"军团；特殊兵种；部队","abbr":false,"full":"corps","phonetic":"/kɔːr/"},{"en":"DoD","cn":"（美）国防部","abbr":true,"full":"Department of Defense（DoD）","speakWord":"Department of Defense","phonetic":"/dɪˈpɑːrtmənt əv dɪˈfɛns/"},{"en":"DAF","cn":"（美）空军部","abbr":true,"full":"Department of the Air Force (DAF)","speakWord":"Department of the Air Force","phonetic":"/dɪˈpɑːrtmənt əv ði ɛər fɔːrs/"},{"en":"drone","cn":"无人机","abbr":false,"full":"drone","phonetic":"/droʊn/"},{"en":"engineer","cn":"工兵","abbr":false,"full":"engineer","phonetic":"/ˌɛndʒɪˈnɪər/"},{"en":"fleet","cn":"舰队；（飞机的）机队","abbr":false,"full":"fleet","phonetic":"/fliːt/"},{"en":"guardian","cn":"（美）太空军士兵","abbr":false,"full":"guardian","phonetic":"/ˈɡɑːrdiən/"},{"en":"helicopter","cn":"直升机","abbr":false,"full":"helicopter","phonetic":"/ˈhɛlɪkɒptər/"},{"en":"intelligence","cn":"情报","abbr":false,"full":"intelligence","phonetic":"/ɪnˈtɛlɪdʒəns/"},{"en":"joint force","cn":"联合部队","abbr":false,"full":"joint force"},{"en":"joint operation(s)","cn":"联合作战","abbr":false,"full":"joint operation(s)"},{"en":"logistics","cn":"后勤；后勤学","abbr":false,"full":"logistics","phonetic":"/ləˈdʒɪstɪks/"},{"en":"marine","cn":"海军陆战队员；海上的；海事的","abbr":false,"full":"marine","phonetic":"/məˈriːn/"},{"en":"Marine Corps","cn":"海军陆战队","abbr":false,"full":"Marine Corps"},{"en":"Navy","cn":"海军","abbr":false,"full":"Navy","phonetic":"/ˈneɪvi/"},{"en":"ordnance","cn":"军械","abbr":false,"full":"ordnance","phonetic":"/ˈɔːrdnəns/"},{"en":"propulsion","cn":"推进","abbr":false,"full":"propulsion","phonetic":"/prəˈpʌlʃən/"},{"en":"quartermaster","cn":"军需","abbr":false,"full":"quartermaster","phonetic":"/ˈkwɔːrtərˌmæstər/"},{"en":"reconnaissance","cn":"侦察","abbr":false,"full":"reconnaissance","phonetic":"/rɪˈkɒnɪsəns/"},{"en":"sailor","cn":"海军士兵，水兵","abbr":false,"full":"sailor","phonetic":"/ˈseɪlər/"},{"en":"sensor","cn":"传感器","abbr":false,"full":"sensor","phonetic":"/ˈsɛnsər/"},{"en":"service","cn":"军种；服役","abbr":false,"full":"service","phonetic":"/ˈsɜːrvɪs/"},{"en":"signal","cn":"通信兵","abbr":false,"full":"signal","phonetic":"/ˈsɪɡnəl/"},{"en":"SPC","cn":"（美）太空司令部","abbr":true,"full":"Space Command（SPC）","speakWord":"specialist","phonetic":"/ˈspɛʃəlɪst/"},{"en":"Space Force","cn":"（美）太空军","abbr":false,"full":"Space Force"},{"en":"special forces","cn":"特种部队","abbr":false,"full":"special forces","phonetic":"/ˈspɛʃəl ˈfɔːrsɪz/"},{"en":"squadron","cn":"中队","abbr":false,"full":"squadron","phonetic":"/ˈskwɒdrən/"},{"en":"stealth","cn":"隐形","abbr":false,"full":"stealth","phonetic":"/stɛlθ/"},{"en":"submarine","cn":"潜艇","abbr":false,"full":"submarine","phonetic":"/ˌsʌbməˈriːn/"},{"en":"surveillance","cn":"监视","abbr":false,"full":"surveillance","phonetic":"/sərˈveɪləns/"}],[{"en":"second lieutenant (2LT)","cn":"（陆、空、海军陆战队）少尉","abbr":true,"full":"second lieutenant (2LT)","speakWord":"second lieutenant","phonetic":"/ˈsɛkənd luːˈtɛnənt/"},{"en":"LT","cn":"（陆、空、海军陆战队）中尉；（海军）上尉","abbr":true,"full":"lieutenant (LT)","speakWord":"lieutenant","phonetic":"/luːˈtɛnənt/"},{"en":"CPT","cn":"（陆、空、海军陆战队）上尉；（海军）上校","abbr":true,"full":"captain (CPT)","speakWord":"captain","phonetic":"/ˈkæptɪn/"},{"en":"MAJ","cn":"（陆、空、海军陆战队）少校","abbr":true,"full":"major (MAJ)","speakWord":"major","phonetic":"/ˈmeɪdʒər/"},{"en":"LTC","cn":"（陆、空、海军陆战队）中校","abbr":true,"full":"lieutenant colonel  (LTC)","speakWord":"lieutenant colonel","phonetic":"/luːˈtɛnənt ˈkɜːrnəl/"},{"en":"COL","cn":"（陆、空、海军陆战队）上校","abbr":true,"full":"colonel (COL)","speakWord":"colonel","phonetic":"/ˈkɜːrnəl/"},{"en":"BG","cn":"（陆、空、海军陆战队）准将","abbr":true,"full":"brigadier general (BG)","speakWord":"brigadier general","phonetic":"/ˌbrɪɡəˈdɪər ˈdʒɛnərəl/"},{"en":"MG","cn":"（陆、空、海军陆战队）少将","abbr":true,"full":"major general (MG)","speakWord":"major general","phonetic":"/ˈmeɪdʒər ˈdʒɛnərəl/"},{"en":"LG","cn":"（陆、空、海军陆战队）中将","abbr":true,"full":"lieutenant general (LG)","speakWord":"lieutenant general","phonetic":"/luːˈtɛnənt ˈdʒɛnərəl/"},{"en":"GEN","cn":"（陆、空、海军陆战队）上将","abbr":true,"full":"general (GEN)","speakWord":"general","phonetic":"/ˈdʒɛnərəl/"},{"en":"ENS","cn":"（海军）少尉","abbr":true,"full":"ensign (ENS)","speakWord":"ensign","phonetic":"/ˈɛnsaɪn/"},{"en":"LTJG","cn":"（海军）中尉","abbr":true,"full":"lieutenant junior grade (LTJG)","speakWord":"lieutenant junior grade","phonetic":"/luːˈtɛnənt ˈdʒuːnjər ɡreɪd/"},{"en":"LTCR","cn":"（海军）少校","abbr":true,"full":"lieutenant commander (LTCR)","speakWord":"lieutenant commander","phonetic":"/luːˈtɛnənt kəˈmændər/"},{"en":"CDR","cn":"（海军）中校","abbr":true,"full":"commander (CDR)","speakWord":"commander","phonetic":"/kəˈmændər/"},{"en":"RDML","cn":"（海军）准将","abbr":true,"full":"rear admiral lower half (RDML)","speakWord":"rear admiral lower half","phonetic":"/rɪər ˈædmərəl ˈloʊər hæf/"},{"en":"RADM","cn":"（海军）少将","abbr":true,"full":"rear admiral upper half (RADM)","speakWord":"rear admiral upper half","phonetic":"/rɪər ˈædmərəl ˈʌpər hæf/"},{"en":"VADM","cn":"（海军）中将","abbr":true,"full":"vice admiral (VADM)","speakWord":"vice admiral","phonetic":"/vaɪs ˈædmərəl/"},{"en":"ADM","cn":"（海军）上将","abbr":true,"full":"admiral (ADM)","speakWord":"admiral","phonetic":"/ˈædmərəl/"},{"en":"CO","cn":"委任军官","abbr":true,"full":"commissioned officer (CO)","speakWord":"commissioned officer"},{"en":"NCO","cn":"士官","abbr":true,"full":"non-commissioned officer (NCO)","speakWord":"non-commissioned officer","phonetic":"/ˌnɒn kəˈmɪʃənd ˈɒfɪsər/"},{"en":"enlisted","cn":"士兵","abbr":false,"full":"enlisted"},{"en":"warrant officer","cn":"准尉","abbr":false,"full":"warrant officer"},{"en":"PVT","cn":"列兵","abbr":true,"full":"private (PVT)","speakWord":"private","phonetic":"/ˈpraɪvɪt/"},{"en":"PV1","cn":"上等兵","abbr":true,"full":"private first class (PV1)","speakWord":"private first class","phonetic":"/ˈpraɪvɪt fɜːrst klæs/"},{"en":"SPC","cn":"专业兵；专业军士","abbr":true,"full":"specialist (SPC)","speakWord":"specialist","phonetic":"/ˈspɛʃəlɪst/"},{"en":"CPL","cn":"下士","abbr":true,"full":"corporal (CPL)","speakWord":"corporal","phonetic":"/ˈkɔːrpərəl/"},{"en":"SGT","cn":"军士；（美陆军、海军陆战队）中士","abbr":true,"full":"sergeant (SGT)","speakWord":"sergeant","phonetic":"/ˈsɑːrdʒənt/"},{"en":"SSG","cn":"（美陆军、海军陆战队）上士；（美空军）中士","abbr":true,"full":"staff sergeant (SSG)","speakWord":"staff sergeant","phonetic":"/stæf ˈsɑːrdʒənt/"},{"en":"SFC","cn":"（美陆军）三级军士长","abbr":true,"full":"sergeant first class (SFC)","speakWord":"sergeant first class","phonetic":"/ˈsɑːrdʒənt fɜːrst klæs/"},{"en":"MSG","cn":"（美陆军）二级军士长","abbr":true,"full":"master sergeant (MSG)","speakWord":"master sergeant","phonetic":"/ˈmæstər ˈsɑːrdʒənt/"},{"en":"first sergeant (1SG)","cn":"（美陆军）二级军士长","abbr":true,"full":"first sergeant (1SG)","speakWord":"first sergeant"},{"en":"SGM","cn":"（美陆军）一级军士长","abbr":true,"full":"sergeant major (SGM)/command sergeant major (CSM)","speakWord":"sergeant major","phonetic":"/ˈsɑːrdʒənt ˈmeɪdʒər/"},{"en":"SMA","cn":"（美陆军）总军士长","abbr":true,"full":"Sergeant Major of the Army (SMA)","speakWord":"Sergeant Major of the Army","phonetic":"/ˈsɑːrdʒənt ˈmeɪdʒər əv ði ˈɑːrmi/"},{"en":"etiquette","cn":"礼节","abbr":false,"full":"etiquette"},{"en":"address","cn":"称呼","abbr":false,"full":"address"},{"en":"superior","cn":"上级；长官","abbr":false,"full":"superior"},{"en":"subordinate","cn":"下级；下属","abbr":false,"full":"subordinate"},{"en":"salute","cn":"敬礼","abbr":false,"full":"salute"},{"en":"promote","cn":"晋升","abbr":false,"full":"promote"},{"en":"serve","cn":"服役","abbr":false,"full":"serve"}],[{"en":"service uniform","cn":"常服","abbr":false,"full":"service uniform"},{"en":"combat uniform","cn":"作训服","abbr":false,"full":"combat uniform"},{"en":"physical training uniform","cn":"体能服","abbr":false,"full":"physical training uniform"},{"en":"dinner dress/mess dress/evening dress/dress uniform","cn":"礼服","abbr":false,"full":"dinner dress/mess dress/evening dress/dress uniform"},{"en":"esprit de corps","cn":"士气","abbr":false,"full":"esprit de corps"},{"en":"waistcoat","cn":"西装背心","abbr":false,"full":"waistcoat"},{"en":"service cap/flight cap","cn":"军帽","abbr":false,"full":"service cap/flight cap"},{"en":"long-sleeve","cn":"长袖","abbr":false,"full":"long-sleeve"},{"en":"short-sleeve","cn":"短袖","abbr":false,"full":"short-sleeve"},{"en":"pants","cn":"裤子","abbr":false,"full":"pants"},{"en":"breeches","cn":"马裤","abbr":false,"full":"breeches"},{"en":"chevron","cn":"V 形线条","abbr":false,"full":"chevron"},{"en":"camouflage","cn":"迷彩","abbr":false,"full":"camouflage"},{"en":"epaulets","cn":"肩章","abbr":false,"full":"epaulets"},{"en":"plain shoulder","cn":"无肩章","abbr":false,"full":"plain shoulder"},{"en":"stripe","cn":"条纹","abbr":false,"full":"stripe"},{"en":"nylon","cn":"尼龙","abbr":false,"full":"nylon"},{"en":"authorize","cn":"授权，批准","abbr":false,"full":"authorize"},{"en":"calf-length","cn":"齐腿肚子","abbr":false,"full":"calf-length"},{"en":"ankle-length","cn":"齐脚踝的","abbr":false,"full":"ankle-length"},{"en":"five-toed shoes","cn":"五趾鞋","abbr":false,"full":"five-toed shoes"},{"en":"compression shorts","cn":"压力短裤","abbr":false,"full":"compression shorts"},{"en":"reflective belt","cn":"反光腰带","abbr":false,"full":"reflective belt"},{"en":"lapel","cn":"西装上的翻领","abbr":false,"full":"lapel"},{"en":"pleat","cn":"衣服上面的褶皱","abbr":false,"full":"pleat"},{"en":"waistband","cn":"束腰带","abbr":false,"full":"waistband"},{"en":"insignia","cn":"徽章","abbr":false,"full":"insignia"},{"en":"name plate","cn":"姓名牌","abbr":false,"full":"name plate"}],[{"en":"battalion","cn":"营","abbr":false,"full":"battalion","phonetic":"/bəˈtæljən/"},{"en":"brigade","cn":"旅","abbr":false,"full":"brigade","phonetic":"/brɪˈɡeɪd/"},{"en":"chain of command","cn":"指挥系统；指挥关系；指挥链","abbr":false,"full":"chain of command"},{"en":"COS","cn":"参谋长","abbr":true,"full":"Chief of Staff（COS）","speakWord":"Chief of Staff","phonetic":"/tʃiːf əv stæf/"},{"en":"company/troop/battery","cn":"步兵连/骑兵连/炮兵连","abbr":false,"full":"company/troop/battery"},{"en":"division","cn":"师","abbr":false,"full":"division","phonetic":"/dɪˈvɪʒən/"},{"en":"flight","cn":"（飞行）小队；机群","abbr":false,"full":"flight"},{"en":"flotilla","cn":"（小）舰队；（小）船队；纵队","abbr":false,"full":"flotilla"},{"en":"group","cn":"大队","abbr":false,"full":"group"},{"en":"JCS","cn":"参谋长联席会议","abbr":true,"full":"Joint Chiefs of Staff (JCS)","speakWord":"Joint Chiefs of Staff","phonetic":"/dʒɔɪnt tʃiːfs əv stæf/"},{"en":"Joint Staff","cn":"(美)联合参谋部","abbr":false,"full":"Joint Staff"},{"en":"Marine expeditionary brigade","cn":"美国海军陆战队远征旅","abbr":false,"full":"Marine expeditionary brigade"},{"en":"Marine expeditionary force","cn":"美国海军陆战队远征部队","abbr":false,"full":"Marine expeditionary force"},{"en":"Marine expeditionary unit","cn":"美国海军陆战队远征小队","abbr":false,"full":"Marine expeditionary unit"},{"en":"Pentagon","cn":"（美）国防部","abbr":false,"full":"Pentagon"},{"en":"platoon","cn":"排","abbr":false,"full":"platoon","phonetic":"/pləˈtuːn/"},{"en":"regiment","cn":"团","abbr":false,"full":"regiment"},{"en":"section","cn":"（英）班；小队（海军舰只）；双机组（空军或海军航空兵）","abbr":false,"full":"section"},{"en":"squad","cn":"班","abbr":false,"full":"squad","phonetic":"/skwɒd/"},{"en":"squadron","cn":"中队","abbr":false,"full":"squadron","phonetic":"/ˈskwɒdrən/"},{"en":"staff","cn":"参谋人员；参谋机构；参谋部","abbr":false,"full":"staff","phonetic":"/stæf/"},{"en":"Task Element","cn":"特混支队","abbr":false,"full":"Task Element"},{"en":"Task Force","cn":"特混部队","abbr":false,"full":"Task Force"},{"en":"Task Group","cn":"特混大队","abbr":false,"full":"Task Group"},{"en":"Task Unit","cn":"特混小队","abbr":false,"full":"Task Unit"},{"en":"wing","cn":"空军联队；航空兵联队；侧翼部队","abbr":false,"full":"wing"}],[{"en":"CIMIC","cn":"军民合作","abbr":true,"full":"Civil-Military Cooperation (CIMIC)","speakWord":"Civil-Military Cooperation","phonetic":"/ˌsɪvəl ˈmɪlɪtɛri koʊˌɒpəˈreɪʃən/"},{"en":"CO","cn":"指挥官；舰长；主官","abbr":true,"full":"Commanding Officer(CO)","speakWord":"commissioned officer"},{"en":"DRU","cn":"直属单位","abbr":true,"full":"Directing Reporting Unit(DRU)","speakWord":"Directing Reporting Unit","phonetic":"/dɪˈrɛktɪŋ rɪˈpɔːrtɪŋ ˈjuːnɪt/"},{"en":"DOS","cn":"参谋部主任","abbr":true,"full":"Director of Staff (DOS)","speakWord":"Director of Staff","phonetic":"/dɪˈrɛktər əv stæf/"},{"en":"XO","cn":"执行官；副舰长；副职指挥员","abbr":true,"full":"Executive Officer(XO)","speakWord":"Executive Officer","phonetic":"/ɪɡˈzɛkjʊtɪv ˈɒfɪsər/"},{"en":"HQ","cn":"司令部；指挥部；总部","abbr":true,"full":"headquarters (HQ)","speakWord":"headquarters","phonetic":"/ˈhɛdˈkwɔːrtərz/"},{"en":"JOCC","cn":"联合作战指挥中心","abbr":true,"full":"Joint Operations Command Center (JOCC)","speakWord":"Joint Operations Command Center","phonetic":"/dʒɔɪnt ˌɒpəˈreɪʃənz kəˈmænd ˈsɛntər/"},{"en":"JSD","cn":"联合参谋部","abbr":true,"full":"Joint Staff Department (JSD)","speakWord":"Joint Staff Department","phonetic":"/dʒɔɪnt stæf dɪˈpɑːrtmənt/"},{"en":"liaison","cn":"联络","abbr":false,"full":"liaison"},{"en":"NATO","cn":"北大西洋公约组织（北约）","abbr":true,"full":"North Atlantic Treaty Organization (NATO)","speakWord":"North Atlantic Treaty Organization","phonetic":"/nɔːrθ ətˈlæntɪk ˈtriːti ˌɔːrɡənɪˈzeɪʃən/"},{"en":"Protocol Chief","cn":"礼宾处处长","abbr":false,"full":"Protocol Chief"},{"en":"Protocol Office","cn":"礼宾处","abbr":false,"full":"Protocol Office"},{"en":"PIO","cn":"新闻处","abbr":true,"full":"Public Information Office (PIO)","speakWord":"Public Information Office"},{"en":"staff officer","cn":"参谋","abbr":false,"full":"staff officer"}],[{"en":"addressee","cn":"收信人；收件人","abbr":false,"full":"addressee"},{"en":"BCC","cn":"密件抄送；密送","abbr":true,"full":"Blind Carbon Copy (BCC)","speakWord":"Blind Carbon Copy","phonetic":"/blaɪnd ˈkɑːrbən ˈkɒpi/"},{"en":"boulevard","cn":"大街；（市区的）林荫大道","abbr":false,"full":"boulevard"},{"en":"CC","cn":"抄送","abbr":true,"full":"Carbon Copy/ Courtesy copy (CC)","speakWord":"Carbon Copy","phonetic":"/ˈkɑːrbən ˈkɒpi/"},{"en":"classified","cn":"机密的; 分类的","abbr":false,"full":"classified"},{"en":"complimentary close","cn":"结尾客套语","abbr":false,"full":"complimentary close"},{"en":"confidential","cn":"机密","abbr":false,"full":"confidential"},{"en":"CF","cn":"提供的副本","abbr":true,"full":"copies furnished (CF)","speakWord":"copies furnished","phonetic":"/ˈkɒpiz ˈfɜːrnɪʃt/"},{"en":"cryptology","cn":"密码术","abbr":false,"full":"cryptology"},{"en":"declassify","cn":"解密","abbr":false,"full":"declassify"},{"en":"enclosure","cn":"(信中的)附件","abbr":false,"full":"enclosure"},{"en":"facsimile","cn":"传真","abbr":false,"full":"facsimile"},{"en":"interim","cn":"暂时的；过渡的","abbr":false,"full":"interim"},{"en":"memorandum","cn":"备忘录；建议书；报告","abbr":false,"full":"memorandum"},{"en":"mobilization","cn":"动员（尤指战时）","abbr":false,"full":"mobilization","phonetic":"/ˌmoʊbɪlɪˈzeɪʃən/"},{"en":"Official Use Only","cn":"官方填写；仅供官方使用","abbr":false,"full":"Official Use Only"},{"en":"POC","cn":"联系点","abbr":true,"full":"point of contact (POC)","speakWord":"point of contact","phonetic":"/pɔɪnt əv ˈkɒntækt/"},{"en":"Regrets Only","cn":"如不能出席请务必回复","abbr":false,"full":"Regrets Only"},{"en":"RSVP","cn":"敬请回复","abbr":true,"full":"RSVP (=reply, if you please)","speakWord":"RSVP"},{"en":"salutation","cn":"称呼；称谓","abbr":false,"full":"salutation"},{"en":"See Distribution","cn":"见接收人清单","abbr":false,"full":"See Distribution"},{"en":"template","cn":"模板","abbr":false,"full":"template"},{"en":"terminate","cn":"终止；使停止","abbr":false,"full":"terminate"}],[{"en":"air-to-air missile","cn":"空空导弹；空战导弹","abbr":false,"full":"air-to-air missile"},{"en":"barrel","cn":"枪管；炮筒","abbr":false,"full":"barrel"},{"en":"buttstock","cn":"枪托","abbr":false,"full":"buttstock"},{"en":"caliber","cn":"（枪、炮等的）口径","abbr":false,"full":"caliber"},{"en":"cannon","cn":"火炮；加农炮；机关炮","abbr":false,"full":"cannon"},{"en":"ceiling","cn":"升限；射高；（飞机）舱顶","abbr":false,"full":"ceiling"},{"en":"combat boots","cn":"作战靴","abbr":false,"full":"combat boots"},{"en":"corvette","cn":"轻型护卫舰;轻巡洋舰","abbr":false,"full":"corvette"},{"en":"displacement","cn":"（舰船）排水量","abbr":false,"full":"displacement"},{"en":"draft","cn":"征兵；(船的）吃水深度","abbr":false,"full":"draft"},{"en":"exoskeleton","cn":"外骨骼","abbr":false,"full":"exoskeleton"},{"en":"feed","cn":"进弹，装弹，送弹","abbr":false,"full":"feed"},{"en":"fighter","cn":"战斗机；歼击机；斗士；战斗员","abbr":false,"full":"fighter"},{"en":"frigate","cn":"护卫舰","abbr":false,"full":"frigate"},{"en":"goggles","cn":"护目镜","abbr":false,"full":"goggles"},{"en":"grenade","cn":"手雷；手榴弹；枪榴弹","abbr":false,"full":"grenade","phonetic":"/ɡrəˈneɪd/"},{"en":"grip","cn":"握把","abbr":false,"full":"grip"},{"en":"handle","cn":"手柄，把手","abbr":false,"full":"handle"},{"en":"helicopter","cn":"直升机","abbr":false,"full":"helicopter","phonetic":"/ˈhɛlɪkɒptər/"},{"en":"howitzer","cn":"榴弹炮","abbr":false,"full":"howitzer"},{"en":"Hull","cn":"壳体（坦克、自行火炮、舰艇等的主要结构）","abbr":false,"full":"Hull"},{"en":"IFV","cn":"步兵战车","abbr":true,"full":"IFV (Infantry Fighting Vehicle)","speakWord":"Infantry Fighting Vehicle","phonetic":"/ˈɪnfəntri ˈfaɪtɪŋ ˈviːɪkəl/"},{"en":"javelon","cn":"标枪，投枪","abbr":false,"full":"javelon"},{"en":"lever","cn":"杠杆，手柄","abbr":false,"full":"lever"},{"en":"machine gun","cn":"机枪；机关枪","abbr":false,"full":"machine gun","phonetic":"/məˈʃiːn ɡʌn/"},{"en":"magazine","cn":"弹匣；弹仓","abbr":false,"full":"magazine"},{"en":"MBT","cn":"主战坦克","abbr":true,"full":"MBT(main battle tank)","speakWord":"main battle tank","phonetic":"/meɪn ˈbætəl tæŋk/"},{"en":"mortar","cn":"迫击炮","abbr":false,"full":"mortar","phonetic":"/ˈmɔːrtər/"},{"en":"muzzle","cn":"枪口；炮口","abbr":false,"full":"muzzle"},{"en":"pistol","cn":"手枪","abbr":false,"full":"pistol","phonetic":"/ˈpɪstəl/"},{"en":"projectile","cn":"弹丸；炮弹；射弹","abbr":false,"full":"projectile"},{"en":"range","cn":"射程；靶场；射击场","abbr":false,"full":"range"},{"en":"rifle","cn":"来复枪；步枪；膛线","abbr":false,"full":"rifle","phonetic":"/ˈraɪfəl/"},{"en":"rocket launcher","cn":"火箭炮；火箭发射器","abbr":false,"full":"rocket launcher"},{"en":"round","cn":"一发（弹），整发弹；一轮","abbr":false,"full":"round"},{"en":"safety","cn":"安全设备，保险装置","abbr":false,"full":"safety"},{"en":"sight","cn":"瞄准具；观测器；瞄准","abbr":false,"full":"sight"},{"en":"small arms","cn":"轻武器","abbr":false,"full":"small arms"},{"en":"specification","cn":"性能表，规格，规范","abbr":false,"full":"specification"},{"en":"surface vessel","cn":"水面舰艇","abbr":false,"full":"surface vessel"},{"en":"surface-to-air missile","cn":"地对空导弹；舰对空导弹","abbr":false,"full":"surface-to-air missile"},{"en":"tandem","cn":"串列的，串联的；（飞机）串座式的","abbr":false,"full":"tandem"},{"en":"trajectory","cn":"轨道；弹道","abbr":false,"full":"trajectory"}],[{"en":"alumni","cn":"校友","abbr":false,"full":"alumni"},{"en":"assign","cn":"编入建制；委派；任命；指派","abbr":false,"full":"assign"},{"en":"cadet","cn":"(军校)学员","abbr":false,"full":"cadet"},{"en":"commandant","cn":"(要塞、基地、海军陆战队)司令官；(军事院校)院(校)长","abbr":false,"full":"commandant"},{"en":"conscript","cn":"义务兵；被征召入伍者；征召；招募","abbr":false,"full":"conscript"},{"en":"demote","cn":"降衔(级)","abbr":false,"full":"demote"},{"en":"discharge","cn":"退伍；退役","abbr":false,"full":"discharge"},{"en":"drill","cn":"队列训练；操练","abbr":false,"full":"drill"},{"en":"elite","cn":"尖子；精英","abbr":false,"full":"elite"},{"en":"enlist","cn":"征募；参军；入伍","abbr":false,"full":"enlist"},{"en":"foster","cn":"培养","abbr":false,"full":"foster"},{"en":"honor code","cn":"行为准则","abbr":false,"full":"honor code"},{"en":"lethal","cn":"致命的","abbr":false,"full":"lethal"},{"en":"military academy","cn":"军事院校","abbr":false,"full":"military academy"},{"en":"nomination","cn":"提名","abbr":false,"full":"nomination"},{"en":"tuition","cn":"学费","abbr":false,"full":"tuition"},{"en":"volunteer","cn":"志愿兵；志愿军人","abbr":false,"full":"volunteer"},{"en":"wield","cn":"运用；使用","abbr":false,"full":"wield"}],[{"en":"boot camp","cn":"新兵训练营","abbr":false,"full":"boot camp"},{"en":"drill","cn":"队列","abbr":false,"full":"drill"},{"en":"NBC warfare","cn":"核、生物、化学武器","abbr":true,"full":"NBC warfare","speakWord":"Nuclear, Biological, Chemical warfare","phonetic":"/ˈnjuːkliər ˌbaɪəˈlɒdʒɪkəl ˈkɛmɪkəl ˈwɔːrfɛər/"},{"en":"basic rifle marksmanship","cn":"步枪射击基础（训练）","abbr":false,"full":"basic rifle marksmanship"},{"en":"obstacle course","cn":"障碍训练场","abbr":false,"full":"obstacle course"},{"en":"foot march","cn":"拉练","abbr":false,"full":"foot march"},{"en":"stretching exercise","cn":"拉伸运动","abbr":false,"full":"stretching exercise"},{"en":"weight training","cn":"举重","abbr":false,"full":"weight training"},{"en":"push up","cn":"俯卧撑","abbr":false,"full":"push up"},{"en":"sit up","cn":"仰卧起坐","abbr":false,"full":"sit up"},{"en":"pull up","cn":"引体向上","abbr":false,"full":"pull up"},{"en":"squat","cn":"深蹲","abbr":false,"full":"squat"},{"en":"long run","cn":"长跑","abbr":false,"full":"long run"},{"en":"hand to hand combat","cn":"徒手格斗","abbr":false,"full":"hand to hand combat"},{"en":"Fall in!","cn":"集合","abbr":false,"full":"Fall in!"},{"en":"Attention!","cn":"立正","abbr":false,"full":"Attention!"},{"en":"Parade, rest!","cn":"跨立","abbr":false,"full":"Parade, rest!"},{"en":"At ease!","cn":"稍息","abbr":false,"full":"At ease!"},{"en":"Left-face (Left turn)!","cn":"向左转","abbr":false,"full":"Left-face (Left turn)!"},{"en":"About, face (About turn)!","cn":"向后转","abbr":false,"full":"About, face (About turn)!"},{"en":"Forward, march!","cn":"齐步走","abbr":false,"full":"Forward, march!"},{"en":"Mark time, march!","cn":"踏步走","abbr":false,"full":"Mark time, march!"},{"en":"Double time, march!","cn":"跑步走","abbr":false,"full":"Double time, march!"},{"en":"At ease, march!","cn":"便步走","abbr":false,"full":"At ease, march!"},{"en":"Halt!","cn":"立定","abbr":false,"full":"Halt!"},{"en":"Eyes, right!/ Right-dress!","cn":"向右看齐","abbr":false,"full":"Eyes, right!/ Right-dress!"},{"en":"Eyes-front/Ready-front!","cn":"向前看","abbr":false,"full":"Eyes-front/Ready-front!"},{"en":"Count off!","cn":"报数","abbr":false,"full":"Count off!"},{"en":"Here!","cn":"到","abbr":false,"full":"Here!"},{"en":"Advance!","cn":"前进","abbr":false,"full":"Advance!"},{"en":"Fire!","cn":"射击","abbr":false,"full":"Fire!"},{"en":"Dismiss!","cn":"解散","abbr":false,"full":"Dismiss!"},{"en":"core muscles","cn":"核心肌群","abbr":false,"full":"core muscles"},{"en":"cargo net","cn":"装卸网","abbr":false,"full":"cargo net"},{"en":"ditch","cn":"壕沟","abbr":false,"full":"ditch"},{"en":"low wall","cn":"矮墙","abbr":false,"full":"low wall"},{"en":"fence","cn":"栅栏","abbr":false,"full":"fence"},{"en":"ramp","cn":"斜坡","abbr":false,"full":"ramp"},{"en":"tunnel","cn":"坑道","abbr":false,"full":"tunnel"},{"en":"wire","cn":"铁丝网","abbr":false,"full":"wire"},{"en":"log","cn":"圆木","abbr":false,"full":"log"},{"en":"sprint","cn":"冲刺、全速跑","abbr":false,"full":"sprint"}],[{"en":"accommodate","cn":"使适应, 顺应","abbr":false,"full":"accommodate"},{"en":"cliff","cn":"悬崖","abbr":false,"full":"cliff"},{"en":"contour line","cn":"等高线","abbr":false,"full":"contour line"},{"en":"coordinate","cn":"使协调; 使调和","abbr":false,"full":"coordinate"},{"en":"draw","cn":"山坳","abbr":false,"full":"draw"},{"en":"depression","cn":"洼地","abbr":false,"full":"depression"},{"en":"elevation","cn":"海拔","abbr":false,"full":"elevation","phonetic":"/ˌɛlɪˈveɪʃən/"},{"en":"entangle","cn":"使某人(某物/自己)缠绕","abbr":false,"full":"entangle"},{"en":"hard duty","cn":"重型负载","abbr":false,"full":"hard duty"},{"en":"hill","cn":"小山","abbr":false,"full":"hill"},{"en":"horizontal","cn":"水平的, 与地平线平行的","abbr":false,"full":"horizontal"},{"en":"improved road","cn":"铺装路面","abbr":false,"full":"improved road"},{"en":"intermittent stream","cn":"间歇河流","abbr":false,"full":"intermittent stream"},{"en":"latitude","cn":"纬度","abbr":false,"full":"latitude"},{"en":"legend","cn":"图例","abbr":false,"full":"legend"},{"en":"longitude","cn":"经度","abbr":false,"full":"longitude"},{"en":"marsh","cn":"沼泽","abbr":false,"full":"marsh"},{"en":"MGRS","cn":"军事网格坐标","abbr":true,"full":"MGRS (Military Grid Reference System)","speakWord":"Military Grid Reference System","phonetic":"/ˈmɪlɪtɛri ɡrɪd ˈrɛfərəns ˈsɪstəm/"},{"en":"orchard","cn":"果园","abbr":false,"full":"orchard"},{"en":"plot","cn":"绘制; 标出","abbr":false,"full":"plot"},{"en":"precipitous","cn":"险峻的, 陡峭的","abbr":false,"full":"precipitous"},{"en":"relief","cn":"地形","abbr":false,"full":"relief","phonetic":"/rɪˈliːf/"},{"en":"ridge","cn":"山脊","abbr":false,"full":"ridge"},{"en":"saddle","cn":"鞍部","abbr":false,"full":"saddle"},{"en":"spur","cn":"尖坡","abbr":false,"full":"spur"},{"en":"swamp","cn":"沼泽","abbr":false,"full":"swamp"},{"en":"temporize","cn":"顺应时势,迎合潮流;拖延，耽搁","abbr":false,"full":"temporize"},{"en":"terrain","cn":"地形","abbr":false,"full":"terrain","phonetic":"/təˈreɪn/"},{"en":"topographic","cn":"地形的","abbr":false,"full":"topographic"},{"en":"valley","cn":"山谷","abbr":false,"full":"valley"},{"en":"vertical","cn":"垂直的，直立的","abbr":false,"full":"vertical"},{"en":"woods","cn":"树林","abbr":false,"full":"woods"}],[{"en":"callsign","cn":"无线电通联呼号","abbr":false,"full":"callsign"},{"en":"chronological","cn":"按发生时间顺序排列的","abbr":false,"full":"chronological"},{"en":"clear","cn":"音质好","abbr":false,"full":"clear"},{"en":"comply","cn":"服从,顺从","abbr":false,"full":"comply"},{"en":"digit","cn":"（零到九中的任一）数字","abbr":false,"full":"digit"},{"en":"dismount","cn":"下车","abbr":false,"full":"dismount"},{"en":"distorted","cn":"声音失真","abbr":false,"full":"distorted"},{"en":"dog tag","cn":"狗牌：指美军佩戴在脖子上的一块小金属牌，上面刻有他们的姓名和编号","abbr":false,"full":"dog tag"},{"en":"fading","cn":"信号变弱","abbr":false,"full":"fading"},{"en":"figure","cn":"数字","abbr":false,"full":"figure"},{"en":"good","cn":"信号好","abbr":false,"full":"good"},{"en":"grid","cn":"坐标网格","abbr":false,"full":"grid","phonetic":"/ɡrɪd/"},{"en":"interference","cn":"信号有干扰","abbr":false,"full":"interference"},{"en":"intermittent","cn":"信号时有时无","abbr":false,"full":"intermittent"},{"en":"K-I-A","cn":"阵亡","abbr":true,"full":"K-I-A (killed in action)","speakWord":"killed in action","phonetic":"/kɪld ɪn ˈækʃən/"},{"en":"loud","cn":"信号强","abbr":false,"full":"loud"},{"en":"midday","cn":"中午，正午","abbr":false,"full":"midday"},{"en":"military alphabet","cn":"军用字母表","abbr":false,"full":"military alphabet"},{"en":"misinterpretation","cn":"曲解","abbr":false,"full":"misinterpretation"},{"en":"nothing heard","cn":"听不见","abbr":false,"full":"nothing heard"},{"en":"proword (procedure word)","cn":"无线电通联规范用语","abbr":false,"full":"proword (procedure word)"},{"en":"radio check","cn":"电台检查","abbr":false,"full":"radio check"},{"en":"radio net","cn":"无线电通信网络","abbr":false,"full":"radio net"},{"en":"readability","cn":"信号音质","abbr":false,"full":"readability"},{"en":"readable","cn":"可以听清","abbr":false,"full":"readable"},{"en":"recce","cn":"侦察","abbr":false,"full":"recce"},{"en":"roger","cn":"已收到，明白","abbr":false,"full":"roger"},{"en":"signal strength","cn":"信号强度","abbr":false,"full":"signal strength"},{"en":"signal","cn":"信号","abbr":false,"full":"signal","phonetic":"/ˈsɪɡnəl/"},{"en":"SITREP","cn":"军情报告","abbr":true,"full":"SITREP (situation report)","speakWord":"situation report"},{"en":"transmit","cn":"（无线电等信号的）播送，发送","abbr":false,"full":"transmit","phonetic":"/trænzˈmɪt/"},{"en":"unreadable/not readable","cn":"听不清","abbr":false,"full":"unreadable/not readable"},{"en":"waypoint","cn":"路径；路标","abbr":false,"full":"waypoint"},{"en":"weak","cn":"信号弱","abbr":false,"full":"weak"}],[{"en":"ambush","cn":"伏击","abbr":false,"full":"ambush"},{"en":"ammo","cn":"弹药;军火","abbr":false,"full":"ammo"},{"en":"assault position","cn":"冲锋出发阵地","abbr":false,"full":"assault position"},{"en":"attachment","cn":"配属部队","abbr":false,"full":"attachment"},{"en":"attack position","cn":"进攻出发阵地","abbr":false,"full":"attack position"},{"en":"chow","cn":"食物","abbr":false,"full":"chow"},{"en":"CO","cn":"指挥官","abbr":true,"full":"CO (commanding officer)","speakWord":"commanding officer","phonetic":"/kəˈmændɪŋ ˈɒfɪsər/"},{"en":"combat order","cn":"战斗命令","abbr":false,"full":"combat order"},{"en":"commander’s intent","cn":"指挥官意图","abbr":false,"full":"commander’s intent"},{"en":"concept of operations","cn":"作战概念","abbr":false,"full":"concept of operations"},{"en":"consolidate","cn":"巩固，加强","abbr":false,"full":"consolidate"},{"en":"consolidated","cn":"巩固的","abbr":false,"full":"consolidated"},{"en":"coordinated","cn":"协调一致的","abbr":false,"full":"coordinated"},{"en":"corpsman","cn":"医护兵;卫生员","abbr":false,"full":"corpsman"},{"en":"counterattack","cn":"反击;反攻","abbr":false,"full":"counterattack"},{"en":"detachment","cn":"分遣部队","abbr":false,"full":"detachment"},{"en":"disrupt","cn":"扰乱;瓦解","abbr":false,"full":"disrupt"},{"en":"ERW","cn":"战俘","abbr":true,"full":"ERW(Enemy Prisoner of War)","speakWord":"Enemy Prisoner of War","phonetic":"/ˈɛnəmi ˈprɪzənər əv wɔːr/"},{"en":"fire team","cn":"火力小组","abbr":false,"full":"fire team"},{"en":"flank","cn":"翼侧;侧面","abbr":false,"full":"flank"},{"en":"fragmentary order","cn":"补充命令","abbr":false,"full":"fragmentary order"},{"en":"gunnery sergeant","cn":"枪炮军士","abbr":false,"full":"gunnery sergeant"},{"en":"harassing attack","cn":"扰乱攻击","abbr":false,"full":"harassing attack"},{"en":"inflict","cn":"使遭受;使承受","abbr":false,"full":"inflict"},{"en":"instruction","cn":"指令","abbr":false,"full":"instruction"},{"en":"insurgent","cn":"叛乱","abbr":false,"full":"insurgent"},{"en":"line of departure","cn":"起始线;出发线","abbr":false,"full":"line of departure"},{"en":"main effort","cn":"主攻部队","abbr":false,"full":"main effort"},{"en":"MRE","cn":"口粮","abbr":true,"full":"MRE (Meal Ready to Eat)","speakWord":"Meal Ready to Eat","phonetic":"/miːl ˈrɛdi tuː iːt/"},{"en":"operations order","cn":"作战命令","abbr":false,"full":"operations order"},{"en":"EPW","cn":"战俘","abbr":true,"full":"EPW (Enemy Prisoner of War)","speakWord":"Enemy Prisoner of War","phonetic":"/ˈɛnəmi ˈprɪzənər əv wɔːr/"},{"en":"proximity","cn":"靠近","abbr":false,"full":"proximity"},{"en":"QRF","cn":"快速反应部队","abbr":true,"full":"QRF (Quick Reaction Force)","speakWord":"Quick Reaction Force","phonetic":"/kwɪk riˈækʃən fɔːrs/"},{"en":"RPG","cn":"火箭弹","abbr":true,"full":"RPG (Rocket-Propelled Grenade)","speakWord":"Rocket-Propelled Grenade","phonetic":"/ˈrɒkɪt prəˈpɛld ɡrəˈneɪd/"},{"en":"scheme of maneuver","cn":"机动计划","abbr":false,"full":"scheme of maneuver"},{"en":"skirmisher","cn":"散兵;突击手","abbr":false,"full":"skirmisher"},{"en":"supply line","cn":"补给线","abbr":false,"full":"supply line"},{"en":"supporting effort","cn":"助攻行动","abbr":false,"full":"supporting effort"},{"en":"vicinity","cn":"周围地区；邻近地区","abbr":false,"full":"vicinity"},{"en":"warning order","cn":"警示命令","abbr":false,"full":"warning order"},{"en":"wedge","cn":"楔形队形","abbr":false,"full":"wedge"}],[{"en":"allergy","cn":"过敏；敏感","abbr":false,"full":"allergy"},{"en":"arterial","cn":"动脉的","abbr":false,"full":"arterial"},{"en":"automated external defibrillator","cn":"自动体外除颤器","abbr":false,"full":"automated external defibrillator"},{"en":"band","cn":"段；带，箍；带状物","abbr":false,"full":"band"},{"en":"bandage","cn":"绷带","abbr":false,"full":"bandage"},{"en":"blockage","cn":"堵塞，阻塞","abbr":false,"full":"blockage"},{"en":"cardiac arrest","cn":"心脏骤停","abbr":false,"full":"cardiac arrest"},{"en":"CPR","cn":"心肺复苏术","abbr":true,"full":"cardiopulmonary resuscitation（CPR）","speakWord":"cardiopulmonary resuscitation","phonetic":"/ˌkɑːrdioʊˈpʌlmənɛri rɪˌsʌsɪˈteɪʃən/"},{"en":"CASEVAC","cn":"伤病员后送","abbr":true,"full":"casualty evacuation (CASEVAC)","speakWord":"casualty evacuation","phonetic":"/ˈkæʒuəlti ɪˌvækjuˈeɪʃən/"},{"en":"chest seal","cn":"胸腔密封贴，胸封","abbr":false,"full":"chest seal"},{"en":"circulation","cn":"血液循环","abbr":false,"full":"circulation"},{"en":"clammy","cn":"湿粘的；湿冷的","abbr":false,"full":"clammy"},{"en":"clip","cn":"夹子","abbr":false,"full":"clip"},{"en":"coma","cn":"昏迷","abbr":false,"full":"coma"},{"en":"compression","cn":"胸部按压","abbr":false,"full":"compression"},{"en":"deprivation","cn":"贫困，匮乏，剥夺","abbr":false,"full":"deprivation"},{"en":"deterioration","cn":"恶化","abbr":false,"full":"deterioration"},{"en":"disposable","cn":"一次性的","abbr":false,"full":"disposable"},{"en":"distal pulse","cn":"远端脉搏","abbr":false,"full":"distal pulse"},{"en":"evacuate","cn":"撤离；疏散","abbr":false,"full":"evacuate"},{"en":"first aid","cn":"急救","abbr":false,"full":"first aid","phonetic":"/fɜːrst eɪd/"},{"en":"fracture","cn":"断裂；骨折","abbr":false,"full":"fracture"},{"en":"gauze","cn":"纱布；薄纱；","abbr":false,"full":"gauze"},{"en":"hoist","cn":"升降机；绞车","abbr":false,"full":"hoist"},{"en":"IR","cn":"红外线(IR)频闪灯","abbr":true,"full":"infrared (IR) strobes","speakWord":"infrared","phonetic":"/ˌɪnfrəˈrɛd/"},{"en":"kit","cn":"成套工具，成套设备；箱子","abbr":false,"full":"kit"},{"en":"MEDEVAC","cn":"医疗后送","abbr":true,"full":"medical evacuation (MEDEVAC)","speakWord":"medical evacuation","phonetic":"/ˈmɛdɪkəl ɪˌvækjuˈeɪʃən/"},{"en":"NPA","cn":"鼻咽导气管","abbr":true,"full":"nasopharyngeal airway (NPA)","speakWord":"nasopharyngeal airway","phonetic":"/ˌneɪzoʊfəˈrɪndʒiəl ˈɛərweɪ/"},{"en":"NBC","cn":"核生化污染","abbr":true,"full":"Nuclear, biological, and chemical (NBC) Contamination","speakWord":"Nuclear, biological, and chemical","phonetic":"/ˈnjuːkliər ˌbaɪəˈlɒdʒɪkəl ænd ˈkɛmɪkəl/"},{"en":"onset","cn":"（尤指某种坏事情的）开始；发作","abbr":false,"full":"onset"},{"en":"oral rehydration salts","cn":"口服补液盐","abbr":false,"full":"oral rehydration salts"},{"en":"rod","cn":"棒，杆","abbr":false,"full":"rod"},{"en":"shrapnel","cn":"弹片；榴霰弹","abbr":false,"full":"shrapnel"},{"en":"spasm","cn":"痉挛，抽搐","abbr":false,"full":"spasm"},{"en":"splint","cn":"（固定断骨的）夹板","abbr":false,"full":"splint"},{"en":"SOP","cn":"标准作战程序；标准作业程序","abbr":true,"full":"standard operating procedure (SOP)","speakWord":"standard operating procedure","phonetic":"/ˈstændərd ˈɒpəreɪtɪŋ prəˈsiːdʒər/"},{"en":"strap","cn":"带子；皮带","abbr":false,"full":"strap"},{"en":"surgical gloves","cn":"外科手套；手术手套；医用手套","abbr":false,"full":"surgical gloves"},{"en":"tourniquet","cn":"止血带","abbr":false,"full":"tourniquet"},{"en":"trauma","cn":"损伤；外伤；挫折","abbr":false,"full":"trauma"},{"en":"underbrush","cn":"矮树丛","abbr":false,"full":"underbrush"},{"en":"ventilator","cn":"人工呼吸器","abbr":false,"full":"ventilator"}],[{"en":"ammo pouch","cn":"弹药袋","abbr":false,"full":"ammo pouch"},{"en":"assault","cn":"攻击或袭击（敌方阵地）","abbr":false,"full":"assault"},{"en":"breakdown","cn":"（机器的）故障","abbr":false,"full":"breakdown"},{"en":"bunker","cn":"掩体；地堡；暗堡","abbr":false,"full":"bunker"},{"en":"canteen","cn":"水壶","abbr":false,"full":"canteen"},{"en":"compromise","cn":"失密；泄密；暴露","abbr":false,"full":"compromise"},{"en":"covert","cn":"隐密的","abbr":false,"full":"covert"},{"en":"dead reckoning","cn":"航位推算法","abbr":false,"full":"dead reckoning"},{"en":"detect","cn":"发现；探测","abbr":false,"full":"detect"},{"en":"discretion","cn":"谨慎；慎重","abbr":false,"full":"discretion"},{"en":"dispatch","cn":"派遣","abbr":false,"full":"dispatch"},{"en":"distress signal","cn":"遇险求救信号；遇难信号","abbr":false,"full":"distress signal"},{"en":"emplacement","cn":"炮火掩体；炮位（座）","abbr":false,"full":"emplacement"},{"en":"extract","cn":"撤出（作战区域）；撤离","abbr":false,"full":"extract"},{"en":"first aid kit","cn":"急救包","abbr":false,"full":"first aid kit"},{"en":"flak vest","cn":"防弹背心","abbr":false,"full":"flak vest"},{"en":"folding shovel","cn":"折叠锹","abbr":false,"full":"folding shovel"},{"en":"fortification","cn":"防御工事","abbr":false,"full":"fortification"},{"en":"harass","cn":"屡次袭扰（敌人）","abbr":false,"full":"harass"},{"en":"infiltration","cn":"渗透","abbr":false,"full":"infiltration"},{"en":"litter","cn":"担架","abbr":false,"full":"litter"},{"en":"man","cn":"保卫（防御工事）","abbr":false,"full":"man"},{"en":"neutralize","cn":"（在军事或秘密行动中）消除威胁；摧毁","abbr":false,"full":"neutralize"},{"en":"overrun","cn":"占领","abbr":false,"full":"overrun"},{"en":"oversee","cn":"监督；管理","abbr":false,"full":"oversee"},{"en":"patrol pack","cn":"巡逻背包","abbr":false,"full":"patrol pack"},{"en":"raid","cn":"突击","abbr":false,"full":"raid"},{"en":"ration","cn":"口粮；给养","abbr":false,"full":"ration"},{"en":"reinforce","cn":"增援","abbr":false,"full":"reinforce"},{"en":"rotate","cn":"轮流；轮换；轮岗","abbr":false,"full":"rotate"},{"en":"sustain","cn":"作战保障；战斗保障","abbr":false,"full":"sustain"},{"en":"synchronize","cn":"同步；协调","abbr":false,"full":"synchronize"},{"en":"vigilance","cn":"警戒；警惕","abbr":false,"full":"vigilance"},{"en":"webbing","cn":"背带；挂带","abbr":false,"full":"webbing"}],[{"en":"alert status","cn":"警备状态","abbr":false,"full":"alert status"},{"en":"alternative route","cn":"替代路线","abbr":false,"full":"alternative route"},{"en":"ambush","cn":"埋伏，伏击","abbr":false,"full":"ambush"},{"en":"APC","cn":"人员装甲运输车","abbr":true,"full":"APC (Armored Personnel Carrier)","speakWord":"Armored Personnel Carrier","phonetic":"/ˈɑːrmərd ˌpɜːrsəˈnɛl ˈkæriər/"},{"en":"armed","cn":"武装的","abbr":false,"full":"armed"},{"en":"armored","cn":"装甲的","abbr":false,"full":"armored","phonetic":"/ˈɑːrmərd/"},{"en":"breakdown","cn":"（汽车或机器的）故障，损坏","abbr":false,"full":"breakdown"},{"en":"CC","cn":"车队指挥官","abbr":true,"full":"CC (Convoy Commander)","speakWord":"Convoy Commander","phonetic":"/ˈkɒnvɔɪ kəˈmændər/"},{"en":"civilian","cn":"平民，百姓；平民的","abbr":false,"full":"civilian"},{"en":"contingency","cn":"突发事件","abbr":false,"full":"contingency"},{"en":"convoy","cn":"车队","abbr":false,"full":"convoy","phonetic":"/ˈkɒnvɔɪ/"},{"en":"checkpoint","cn":"检查站，关卡","abbr":false,"full":"CP (checkpoint)"},{"en":"crossroad","cn":"十字路口","abbr":false,"full":"crossroad"},{"en":"curve","cn":"弯道","abbr":false,"full":"curve"},{"en":"DC","cn":"副指挥官","abbr":true,"full":"DC (Deputy Commander)","speakWord":"Deputy Commander","phonetic":"/ˈdɛpjuti kəˈmændər/"},{"en":"debriefing","cn":"情况汇报；行动后讲评","abbr":false,"full":"debriefing"},{"en":"escort","cn":"护送，陪同；护航舰；护卫队；护送者","abbr":false,"full":"escort"},{"en":"ETA","cn":"预计到达时间","abbr":true,"full":"ETA (estimated time of arrival)","speakWord":"estimated time of arrival","phonetic":"/ˈɛstɪmeɪtɪd taɪm əv əˈraɪvəl/"},{"en":"ETD","cn":"预计出发时间","abbr":true,"full":"ETD (estimated time of departure)","speakWord":"estimated time of departure","phonetic":"/ˈɛstɪmeɪtɪd taɪm əv dɪˈpɑːrtʃər/"},{"en":"formation","cn":"编队","abbr":false,"full":"formation"},{"en":"halt","cn":"停止；立定","abbr":false,"full":"halt"},{"en":"hostile","cn":"敌对(的)，敌方的；怀敌意的","abbr":false,"full":"hostile"},{"en":"humanitarian aid","cn":"人道主义救援","abbr":false,"full":"humanitarian aid"},{"en":"invalid","cn":"无效的","abbr":false,"full":"invalid"},{"en":"junction","cn":"岔路口","abbr":false,"full":"junction"},{"en":"OP","cn":"监视哨，观察站，观察哨","abbr":true,"full":"OP (observation post)","speakWord":"observation post","phonetic":"/ˌɒbzərˈveɪʃən poʊst/"},{"en":"QRF","cn":"快速反应部队","abbr":true,"full":"QRF (Quick Reaction Force)","speakWord":"Quick Reaction Force","phonetic":"/kwɪk riˈækʃən fɔːrs/"},{"en":"recovery support","cn":"救援支援","abbr":false,"full":"recovery support"},{"en":"reporting point","cn":"报告点","abbr":false,"full":"reporting point"},{"en":"ROE","cn":"交战规则","abbr":true,"full":"ROE (Rules of Engagement)","speakWord":"Rules of Engagement","phonetic":"/ruːlz əv ɪnˈɡeɪdʒmənt/"},{"en":"roundabout","cn":"环岛","abbr":false,"full":"roundabout"},{"en":"RP","cn":"分进点","abbr":true,"full":"RP (release point)","speakWord":"release point","phonetic":"/rɪˈliːs pɔɪnt/"},{"en":"scout group/team","cn":"侦察组","abbr":false,"full":"scout group/team"},{"en":"shipment","cn":"运送","abbr":false,"full":"shipment"},{"en":"signpost","cn":"指示牌","abbr":false,"full":"signpost"},{"en":"SITREP","cn":"战况报告；形势报告","abbr":true,"full":"SITREP (situation report)","speakWord":"situation report"},{"en":"SP","cn":"出发点","abbr":true,"full":"SP (start point)","speakWord":"start point","phonetic":"/stɑːrt pɔɪnt/"},{"en":"strip map","cn":"带状图","abbr":false,"full":"strip map"},{"en":"tactic","cn":"策略，战术","abbr":false,"full":"tactic"}],[{"en":"amphibious exercise","cn":"两栖演习","abbr":false,"full":"amphibious exercise"},{"en":"anti-terrorism drill","cn":"反恐演习","abbr":false,"full":"anti-terrorism drill"},{"en":"Blue Sword-2023","cn":"蓝剑-2023","abbr":false,"full":"Blue Sword-2023"},{"en":"Cobra Gold-2024","cn":"金色眼镜蛇-2024","abbr":false,"full":"Cobra Gold-2024"},{"en":"catastrophe","cn":"灾难","abbr":false,"full":"catastrophe"},{"en":"Command Post Exercise","cn":"指挥所演习","abbr":false,"full":"Command Post Exercise"},{"en":"combined training exercise","cn":"多国合成训练演习","abbr":false,"full":"combined training exercise"},{"en":"Counter-Terrorism Field Training Exercise-2023","cn":"反恐实战演习-2023","abbr":false,"full":"Counter-Terrorism Field Training Exercise-2023"},{"en":"cyber exercise","cn":"网络演习","abbr":false,"full":"cyber exercise"},{"en":"Eagle Strike-2024","cn":"雄鹰突击-2024","abbr":false,"full":"Eagle Strike-2024"},{"en":"field training exercise","cn":"野战训练演习","abbr":false,"full":"field training exercise"},{"en":"fire coordination exercise","cn":"火力协调演习","abbr":false,"full":"fire coordination exercise"},{"en":"hedging strategy","cn":"对冲策略","abbr":false,"full":"hedging strategy"},{"en":"joint exercise","cn":"联合军演","abbr":false,"full":"joint exercise"},{"en":"logistics exercise","cn":"后勤演习","abbr":false,"full":"logistics exercise"},{"en":"map exercise","cn":"地图推演","abbr":false,"full":"map exercise"},{"en":"masquerade","cn":"掩饰","abbr":false,"full":"masquerade"},{"en":"mobilize","cn":"调动","abbr":false,"full":"mobilize"},{"en":"METT-T","cn":"作战任务、敌军、地形、军力、时间","abbr":true,"full":"Mission, Enemy, Troops, Terrain, and Time Available (METT-T)","speakWord":"Mission, Enemy, Troops, Terrain, and Time Available","phonetic":"/ˈmɪʃən ˈɛnəmi truːps təˈreɪn ænd taɪm əˈveɪləbəl/"},{"en":"Peace Angel-2023","cn":"和平天使-2023","abbr":false,"full":"Peace Angel-2023"},{"en":"prioritize","cn":"优先","abbr":false,"full":"prioritize"},{"en":"Pure Homeland-2023","cn":"净土-2023","abbr":false,"full":"Pure Homeland-2023"},{"en":"staff exercise","cn":"参谋人员演习","abbr":false,"full":"staff exercise"},{"en":"situational exercise","cn":"情景训练演习","abbr":false,"full":"situational exercise"},{"en":"synchronize","cn":"同步","abbr":false,"full":"synchronize"},{"en":"table top exercise","cn":"桌面推演","abbr":false,"full":"table top exercise"},{"en":"The 10th Mountain Division","cn":"第十山地师","abbr":false,"full":"The 10th Mountain Division"}],[{"en":"alleviate","cn":"减轻，缓和","abbr":false,"full":"alleviate"},{"en":"ambivalence","cn":"矛盾情绪；正反感情并存","abbr":false,"full":"ambivalence"},{"en":"armistice","cn":"(正式的)休战协议","abbr":false,"full":"armistice","phonetic":"/ˈɑːrmɪstɪs/"},{"en":"blemish","cn":"瑕疵","abbr":false,"full":"blemish"},{"en":"Blue Beret","cn":"蓝色贝雷帽；维和人员","abbr":false,"full":"Blue Beret"},{"en":"buffer zone","cn":"缓冲区：中立区","abbr":false,"full":"buffer zone"},{"en":"ceasefire","cn":"(较正式的)停火协议","abbr":false,"full":"ceasefire","phonetic":"/ˈsiːsˈfaɪər/"},{"en":"configuration","cn":"布局，构造；配置","abbr":false,"full":"configuration"},{"en":"consent","cn":"同意","abbr":false,"full":"consent"},{"en":"dearth","cn":"缺乏","abbr":false,"full":"dearth"},{"en":"demining","cn":"扫雷","abbr":false,"full":"demining"},{"en":"detachment","cn":"分遣队","abbr":false,"full":"detachment"},{"en":"disinformation","cn":"虚假信息","abbr":false,"full":"disinformation"},{"en":"disarmament","cn":"裁军；缴械","abbr":false,"full":"disarmament","phonetic":"/dɪsˈɑːrməmənt/"},{"en":"geopolitical","cn":"地缘政治","abbr":false,"full":"geopolitical"},{"en":"impartiality","cn":"公正","abbr":false,"full":"impartiality"},{"en":"inactivity","cn":"不作为","abbr":false,"full":"inactivity"},{"en":"interim","cn":"临时的，暂时的","abbr":false,"full":"interim"},{"en":"landmine","cn":"地雷","abbr":false,"full":"landmine"},{"en":"legitimacy","cn":"合法性，合理性","abbr":false,"full":"legitimacy"},{"en":"leverage","cn":"利用","abbr":false,"full":"leverage"},{"en":"mandate","cn":"授权，委托","abbr":false,"full":"mandate","phonetic":"/ˈmændeɪt/"},{"en":"mediation","cn":"调解，仲裁","abbr":false,"full":"mediation","phonetic":"/ˌmiːdiˈeɪʃən/"},{"en":"mine clearance","cn":"扫雷，排雷","abbr":false,"full":"mine clearance"},{"en":"multi-dimensional","cn":"多层面","abbr":false,"full":"multi-dimensional"},{"en":"neutrality","cn":"中立","abbr":false,"full":"neutrality"},{"en":"ordnance","cn":"军械；军火","abbr":false,"full":"ordnance","phonetic":"/ˈɔːrdnəns/"},{"en":"peacekeeping","cn":"维和","abbr":false,"full":"peacekeeping","phonetic":"/ˈpiːsˌkiːpɪŋ/"},{"en":"proportionate","cn":"成比例的；相称的；适当的","abbr":false,"full":"proportionate"},{"en":"reconciliation","cn":"和解；复交","abbr":false,"full":"reconciliation","phonetic":"/ˌrɛkənˌsɪliˈeɪʃən/"},{"en":"referendum","cn":"全民投票","abbr":false,"full":"referendum"},{"en":"refugee","cn":"难民，避难者","abbr":false,"full":"refugee","phonetic":"/ˌrɛfjuˈdʒiː/"},{"en":"Regime","cn":"政权","abbr":false,"full":"Regime"},{"en":"rehabilitation","cn":"复原；恢复；修复","abbr":false,"full":"rehabilitation","phonetic":"/ˌriːəˌbɪlɪˈteɪʃən/"},{"en":"ROE","cn":"交战规则","abbr":true,"full":"Rules of Engagement（ROE）","speakWord":"Rules of Engagement","phonetic":"/ruːlz əv ɪnˈɡeɪdʒmənt/"},{"en":"sideline","cn":"边线；副业","abbr":false,"full":"sideline"},{"en":"spill-over","cn":"溢出 ; 外溢","abbr":false,"full":"spill-over"},{"en":"supervise","cn":"监督","abbr":false,"full":"supervise"},{"en":"supervision","cn":"监督，管理","abbr":false,"full":"supervision"},{"en":"truce","cn":"(非正式的、短期的)停战（或停火）","abbr":false,"full":"truce","phonetic":"/truːs/"},{"en":"UN Charter","cn":"联合国宪章","abbr":true,"full":"UN Charter","speakWord":"United Nations Charter","phonetic":"/juˈnaɪtɪd ˈneɪʃənz ˈtʃɑːrtər/"},{"en":"UNPKO","cn":"联合国维和行动","abbr":true,"full":"United Nations Peacekeeping Operation (UNPKO)","speakWord":"United Nations Peacekeeping Operation","phonetic":"/juˈnaɪtɪd ˈneɪʃənz ˈpiːsˌkiːpɪŋ ˌɒpəˈreɪʃən/"},{"en":"withdrawal","cn":"撤退","abbr":false,"full":"withdrawal","phonetic":"/wɪðˈdrɔːəl/"}],[{"en":"accord","cn":"使受到，给予（某种待遇）","abbr":false,"full":"accord"},{"en":"animosity","cn":"仇恨，敌意","abbr":false,"full":"animosity"},{"en":"area of responsibility","cn":"责任区","abbr":false,"full":"area of responsibility"},{"en":"armed escort","cn":"武装护卫","abbr":false,"full":"armed escort"},{"en":"armistice","cn":"休战","abbr":false,"full":"armistice","phonetic":"/ˈɑːrmɪstɪs/"},{"en":"assessment","cn":"评估，评价，评定","abbr":false,"full":"assessment","phonetic":"/əˈsɛsmənt/"},{"en":"ceasefire","cn":"停火","abbr":false,"full":"ceasefire","phonetic":"/ˈsiːsˈfaɪər/"},{"en":"Code of Conduct","cn":"行为准则","abbr":false,"full":"Code of Conduct"},{"en":"compile","cn":"收集，搜集（信息，资料）","abbr":false,"full":"compile"},{"en":"contingent troop","cn":"维和分队","abbr":false,"full":"contingent troop"},{"en":"coordination","cn":"协调，配合","abbr":false,"full":"coordination","phonetic":"/koʊˌɔːrdɪˈneɪʃən/"},{"en":"demobilization","cn":"复员，遣散","abbr":false,"full":"demobilization","phonetic":"/diːˌmoʊbɪlɪˈzeɪʃən/"},{"en":"demonstration","cn":"示威","abbr":false,"full":"demonstration"},{"en":"disarmament","cn":"裁军，武装解除，缴械","abbr":false,"full":"disarmament","phonetic":"/dɪsˈɑːrməmənt/"},{"en":"discontent","cn":"不满","abbr":false,"full":"discontent"},{"en":"dispute","cn":"争论，纠纷，争夺","abbr":false,"full":"dispute"},{"en":"engagement","cn":"参加，从事","abbr":false,"full":"engagement","phonetic":"/ɪnˈɡeɪdʒmənt/"},{"en":"immunity","cn":"免除，豁免","abbr":false,"full":"immunity"},{"en":"impartiality","cn":"公正，公平，不偏不倚","abbr":false,"full":"impartiality"},{"en":"ingenuity","cn":"聪明才智，巧妙","abbr":false,"full":"ingenuity"},{"en":"intermediation","cn":"调解，仲裁，调停","abbr":false,"full":"intermediation"},{"en":"liaise","cn":"联络，沟通","abbr":false,"full":"liaise"},{"en":"mandate","cn":"授权，命令，指示","abbr":false,"full":"mandate","phonetic":"/ˈmændeɪt/"},{"en":"mediation","cn":"调解，仲裁","abbr":false,"full":"mediation","phonetic":"/ˌmiːdiˈeɪʃən/"},{"en":"MILOB","cn":"军事观察员","abbr":true,"full":"MILOB，military observer","speakWord":"military observer","phonetic":"/ˈmɪlɪtɛri əbˈzɜːrvər/"},{"en":"monitor","cn":"监督，监控，监视","abbr":false,"full":"monitor"},{"en":"negotiation","cn":"谈判，协商，","abbr":false,"full":"negotiation","phonetic":"/nɪˌɡoʊʃiˈeɪʃən/"},{"en":"outreach","cn":"外联","abbr":false,"full":"outreach"},{"en":"PPE","cn":"个人保护装备","abbr":true,"full":"PPE, personal protective equipment","speakWord":"personal protective equipment","phonetic":"/ˈpɜːrsənəl prəˈtɛktɪv ɪˈkwɪpmənt/"},{"en":"PX","cn":"军营超市","abbr":true,"full":"PX, Post Exchange","speakWord":"Post Exchange","phonetic":"/poʊst ɪksˈtʃeɪndʒ/"},{"en":"roadblock","cn":"路障，障碍物","abbr":false,"full":"roadblock"},{"en":"supervise","cn":"指导，监督","abbr":false,"full":"supervise"},{"en":"team site","cn":"观察员营地","abbr":false,"full":"team site"},{"en":"truce","cn":"休战","abbr":false,"full":"truce","phonetic":"/truːs/"},{"en":"verify","cn":"证实，证明，核实","abbr":false,"full":"verify"}]];
+var UNIT_NAMES = ["Arms and Services", "Military Ranks", "Military Uniform", "Military Organization", "Headquarters", "Military Writing", "Military Equipment", "Military Technology", "Military Education", "Military Training", "Military Map Reading", "Radio Communication", "Operation Orders", "CASEVAC", "Patrol", "Convoy", "Military Exercises", "Humanitarian Action", "UN Peacekeeping Operations", "Military Observers"];
+// U8 and U18 have no data. Data indices 0-17 -> U1-7, U9-17, U19-20
+var DATA_TO_UNIT = [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20];
+var ui=0,words=[],items=[];
+
+function getUnitNum(di){return DATA_TO_UNIT[di]||(di+1);}
+
+function speakText(text,cb){
+  if(!window.speechSynthesis){if(cb)cb();return;}
+  try{
+    window.speechSynthesis.cancel();
+  }catch(e){}
+  // Small delay to ensure cancel takes effect (helps mobile)
+  setTimeout(function(){
+    try{
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang="en-US";
+      u.rate=0.85;
+      u.pitch=1;
+      u.volume=1;
+      u.onend=function(){if(cb)cb();};
+      u.onerror=function(e){
+        // Retry once on mobile
+        if(e.error==="canceled"||e.error==="interrupted"){
+          setTimeout(function(){
+            try{
+              var u2=new SpeechSynthesisUtterance(text);
+              u2.lang="en-US";
+              u2.rate=0.85;
+              u2.pitch=1;
+              u2.volume=1;
+              u2.onend=function(){if(cb)cb();};
+              u2.onerror=function(){if(cb)cb();};
+              window.speechSynthesis.speak(u2);
+            }catch(e2){if(cb)cb();}
+          },300);
+        }else{if(cb)cb();}
+      };
+      window.speechSynthesis.speak(u);
+    }catch(e){if(cb)cb();}
+  },100);
+}
+
+// Wake speech on first touch/click - critical for mobile
+document.addEventListener("click",function(){
+  try{
+    var w=new SpeechSynthesisUtterance("");
+    w.volume=0;
+    window.speechSynthesis.speak(w);
+    setTimeout(function(){try{window.speechSynthesis.cancel();}catch(e){}},200);
+  }catch(e){}
+},{once:true});
+document.addEventListener("touchstart",function(){
+  try{
+    var w=new SpeechSynthesisUtterance("");
+    w.volume=0;
+    window.speechSynthesis.speak(w);
+    setTimeout(function(){try{window.speechSynthesis.cancel();}catch(e){}},200);
+  }catch(e){}
+},{once:true});
+
+var picker=document.getElementById("pickers");
+for(var i=0;i<ALL_DATA.length;i++){
+  (function(idx){
+    var b=document.createElement("div");
+    b.className="pbtn";
+    b.textContent="U"+DATA_TO_UNIT[idx];
+    b.title=UNIT_NAMES[idx];
+    b.onclick=function(){loadUnit(idx)};
+    picker.appendChild(b);
+  })(i);
+}
+
+function loadUnit(idx){
+  ui=idx;
+  words=JSON.parse(JSON.stringify(ALL_DATA[idx]));
+  rb();
+  try{
+    var rd=localStorage.getItem("mer");
+    if(rd){
+      var dd=JSON.parse(rd);
+      if(dd.ms){
+        for(var ii=0;ii<items.length;ii++){
+          var kk=items[ii].en+"|"+items[ii].cn;
+          if(dd.ms[kk]){
+            items[ii].mastered=!!dd.ms[kk].m;
+            items[ii].revealed=!!dd.ms[kk].r;
+            items[ii].starred=!!dd.ms[kk].st;
+          }
+        }
+      }
+    }
+  }catch(e){}
+  render();se();
+  var bs=picker.querySelectorAll(".pbtn");
+  for(var i=0;i<bs.length;i++)bs[i].className="pbtn"+(i===ui?" cur":"");
+  sv();
+  for(var i=items.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=items[i];items[i]=items[j];items[j]=t;
+  }
+  render();
+}
+
+function rb(){
+  var s={},u=[];
+  for(var i=0;i<words.length;i++){
+    var w=words[i],k=w.en+"|"+w.cn;
+    if(!s[k]){s[k]=1;u.push(w);}
+  }
+  words=u;items=[];
+  for(var i=0;i<u.length;i++){
+    items.push({id:i,en:u[i].en,cn:u[i].cn,abbr:!!u[i].abbr,full:u[i].full||u[i].en,phonetic:u[i].phonetic||"",speakWord:u[i].speakWord||"",revealed:false,mastered:false,starred:false});
+  }
+}
+
+function render(){
+  var g=document.getElementById("g"),fv=document.getElementById("fS").value;
+  var a=[];
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    if(fv==="abbr"&&!it.abbr)continue;
+    if(fv==="normal"&&it.abbr)continue;
+    if(fv==="m"&&!it.mastered)continue;
+    if(fv==="s"&&!it.starred)continue;
+    if(fv==="sa"&&!it.starred)continue;
+    if(fv==="u"&&it.mastered)continue;
+    a.push(it);
+  }
+  a.sort(function(x,y){return x.id-y.id});
+
+  if(fv==="sa"){
+    var allStarred=[];
+    var allUnits=JSON.parse(JSON.stringify(ALL_DATA));
+    for(var ui2=0;ui2<allUnits.length;ui2++){
+      var uw=allUnits[ui2];
+      for(var wi=0;wi<uw.length;wi++){
+        var wk=uw[wi].en+"|"+uw[wi].cn;
+        var saved=null;
+        try{var rd=localStorage.getItem("mer");if(rd){var dd=JSON.parse(rd);if(dd.ms)saved=dd.ms[wk];}}catch(e){}
+        if(!saved||!saved.st)continue;
+        allStarred.push({
+          en:uw[wi].en,cn:uw[wi].cn,abbr:!!uw[wi].abbr,full:uw[wi].full||uw[wi].en,speakWord:uw[wi].speakWord||"",
+          phonetic:uw[wi].phonetic||"",
+          revealed:false,mastered:saved?!!saved.m:false,starred:true
+        });
+      }
+    }
+    if(allStarred.length===0){
+      g.innerHTML="<div style='text-align:center;color:#475569;padding:2rem'>暂无重点单词</div>";
+    }else{
+      var h="<div style='font-size:.82rem;color:#94a3b8;margin-bottom:.5rem;grid-column:1/-1'>共 "+allStarred.length+" 个重点单词（全部单元）</div>";
+      for(var i=0;i<allStarred.length;i++){
+        var it=allStarred[i];
+        h+="<div class='cd"+(it.mastered?" m":"")+"' style='border-color:#f59e0b'>"+
+          "<span class='star s' style='display:none'>&#9733;</span>"+
+          "<span class='speaker' data-speak='"+esc(it.speakWord||it.en)+"'>&#128266;</span>"+
+          "<div class='en'>"+esc(it.en)+"</div>"+
+          "<div class='phonetic'>"+esc(it.phonetic||"")+"</div>"+
+          "<div class='cn r'>"+esc(it.cn)+"</div>"+
+          (it.abbr?"<div class='full r'>"+esc(it.full)+"</div>":"")+
+          "</div>";
+      }
+      g.innerHTML=h;
+      g.querySelectorAll(".speaker").forEach(function(sp){
+        sp.onclick=function(e){e.stopPropagation();var w=sp.getAttribute("data-speak")||sp.getAttribute("data-word");if(w)speakText(w);};
+      });
+    }
+    document.getElementById("st").textContent="-";
+    document.getElementById("sm").textContent="-";
+    document.getElementById("ss").textContent="-";
+    document.getElementById("sr").textContent="-";
+    return;
+  }
+
+  if(a.length===0){
+    g.innerHTML="<div style='text-align:center;color:#475569;padding:2rem'>暂无单词</div>";
+  }else{
+    var h="";
+    for(var i=0;i<a.length;i++){
+      var it=a[i];
+      h+="<div class='cd"+(it.mastered?" m":"")+"' data-id='"+it.id+"'>"+
+        "<span class='star "+(it.starred?"s":"ns")+"' data-sid='"+it.id+"'>"+(it.starred?"&#9733;":"&#9825;")+"</span>"+
+        "<span class='speaker' data-speak='"+esc(it.speakWord||it.en)+"'>&#128266;</span>"+
+        "<div class='en'>"+esc(it.en)+"</div>"+
+        "<div class='phonetic'>"+esc(it.phonetic||"")+"</div>"+
+        "<div class='cn "+(it.revealed?"r":"h")+"'>"+esc(it.cn)+"</div>"+
+        (it.abbr?"<div class='full "+(it.revealed?"r":"h")+"'>"+esc(it.full)+"</div>":"")+
+        "<span class='mb'>&#10004;&#65039; 已掌握</span></div>";
+    }
+    g.innerHTML=h;
+  }
+
+  var cards=g.querySelectorAll(".cd");
+  for(var i=0;i<cards.length;i++){
+    (function(c){
+      c.onclick=function(e){
+        if(e.target.classList.contains("star")||e.target.classList.contains("speaker"))return;
+        var id=parseInt(c.getAttribute("data-id"));
+        for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].revealed=!items[j].revealed;render();sv();return;}}
+      };
+      c.ondblclick=function(e){
+        e.stopPropagation();
+        var id=parseInt(c.getAttribute("data-id"));
+        for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].mastered=!items[j].mastered;render();sv();return;}}
+      };
+    })(cards[i]);
+  }
+
+  g.querySelectorAll(".star").forEach(function(s){
+    s.onclick=function(e){
+      e.stopPropagation();
+      var id=parseInt(s.getAttribute("data-sid"));
+      for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].starred=!items[j].starred;render();sv();return;}}
+    };
+  });
+
+  g.querySelectorAll(".speaker").forEach(function(sp){
+    sp.onclick=function(e){
+      e.stopPropagation();
+      var w=sp.getAttribute("data-speak")||sp.getAttribute("data-word");
+      if(w)speakText(w);
+    };
+  });
+
+  var t=0,m=0,r=0,sn=0;
+  for(var i=0;i<items.length;i++){t++;if(items[i].mastered)m++;if(items[i].revealed)r++;if(items[i].starred)sn++;}
+  document.getElementById("st").textContent=t;
+  document.getElementById("sm").textContent=m;
+  document.getElementById("ss").textContent=sn;
+  document.getElementById("sr").textContent=r;
+}
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function sv(){
+  try{
+    var s={};
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      s[it.en+"|"+it.cn]={m:it.mastered,r:it.revealed,st:it.starred};
+    }
+    var allMs={};
+    try{
+      var old=localStorage.getItem("mer");
+      if(old){var od=JSON.parse(old);if(od.ms){allMs=od.ms;}}
+    }catch(e){}
+    for(var k in s){allMs[k]=s[k];}
+    localStorage.setItem("mer",JSON.stringify({u:ui,ms:allMs}));
+  }catch(e){}
+}
+
+var sms={};
+try{
+  var r=localStorage.getItem("mer");
+  if(r){var d=JSON.parse(r);if(typeof d.u==="number")ui=d.u;sms=d.ms||{};}
+}catch(e){}
+
+function se(){
+  var l=[];
+  for(var i=0;i<words.length;i++){
+    var w=words[i];
+    l.push(w.abbr?w.en+" | "+w.cn+" | abbr":w.en+" | "+w.cn);
+  }
+  document.getElementById("ta").value=l.join(String.fromCharCode(10));
+}
+
+function pw(t){
+  var r=[];
+  var lns=t.split(String.fromCharCode(10));
+  for(var i=0;i<lns.length;i++){
+    var l=lns[i].trim();if(!l)continue;
+    var p=l.split("|");
+    if(p.length<2)continue;
+    var e=p[0].trim(),c=p[1].trim();
+    if(!e||!c)continue;
+    r.push({en:e,cn:c,abbr:p.length>=3&&p[2].trim().toLowerCase()==="abbr",full:e});
+  }
+  return r;
+}
+
+document.getElementById("bSh").onclick=function(){
+  this.classList.toggle("cur");
+  for(var i=items.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=items[i];items[i]=items[j];items[j]=t;
+  }
+  for(var i=0;i<items.length;i++)items[i].id=i;
+  render();
+};
+
+document.getElementById("bR").onclick=function(){
+  for(var i=0;i<items.length;i++){items[i].revealed=false;items[i].mastered=false;items[i].starred=false;}
+  render();sv();
+};
+
+document.getElementById("bH").onclick=function(){
+  for(var i=0;i<items.length;i++){items[i].revealed=false;}
+  render();
+};
+
+document.getElementById("fS").onchange=function(){render();};
+
+document.getElementById("bD").onclick=function(){
+  var nw=[];
+  for(var i=0;i<items.length;i++){if(!items[i].mastered)nw.push({en:items[i].en,cn:items[i].cn,abbr:items[i].abbr,full:items[i].full});}
+  words=nw;rb();sv();render();
+};
+
+document.getElementById("bSv").onclick=function(){
+  var p=pw(document.getElementById("ta").value);
+  if(!p.length){document.getElementById("sst").textContent="没有有效单词";return;}
+  words=p;rb();sv();render();
+  document.getElementById("tabP").click();
+  document.getElementById("sst").textContent="已保存"+words.length+"个单词";
+  document.getElementById("sst").className="sc";
+};
+
+document.getElementById("bDef").onclick=function(){
+  words=JSON.parse(JSON.stringify(ALL_DATA[ui]));rb();sv();render();se();
+  document.getElementById("sst").textContent="已恢复";
+  document.getElementById("sst").className="sc";
+};
+
+document.getElementById("bEx").onclick=function(){
+  var tx="";
+  for(var i=0;i<words.length;i++){
+    var w=words[i];
+    tx+=w.abbr?w.en+" | "+w.cn+" | abbr\n":w.en+" | "+w.cn+"\n";
+  }
+  var b=new Blob([tx],{type:"text/plain;charset=utf-8"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="U"+getUnitNum(ui)+".txt";a.click();
+};
+
+document.getElementById("bIm").onclick=function(){document.getElementById("fI").click();};
+
+document.getElementById("fI").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var raw=ev.target.result;
+    var lns=raw.split(String.fromCharCode(10)).map(function(s){return s.trim();}).filter(function(s){return s;});
+    var p=pw(lns.join(String.fromCharCode(10)));
+    if(!p.length){document.getElementById("sst").textContent="格式有误";return;}
+    words=p;rb();sv();render();se();
+    document.getElementById("sst").textContent="已导入"+words.length+"个单词";
+    document.getElementById("sst").className="sc";
+  };
+  reader.readAsText(f,"UTF-8");this.value="";
+};
+
+(function(){
+  var tabs=[document.getElementById("tabP"),document.getElementById("tabE")];
+  var panels=[document.getElementById("pnP"),document.getElementById("pnE")];
+  tabs[0].onclick=function(){
+    tabs[0].className="tbv cur";tabs[1].className="tbv";
+    panels[0].className="pn cur";panels[1].className="pn";
+  };
+  tabs[1].onclick=function(){
+    tabs[0].className="tbv";tabs[1].className="tbv cur";
+    panels[0].className="pn";panels[1].className="pn cur";
+    se();
+  };
+})();
+
+loadUnit(ui);
+if(sms){
+  for(var i=0;i<items.length;i++){
+    var k=items[i].en+"|"+items[i].cn;
+    if(sms[k]){items[i].mastered=!!sms[k].m;items[i].revealed=!!sms[k].r;items[i].starred=!!sms[k].st;}
+  }
+}
+render();se();
+</script>
+</body>
+</html>
