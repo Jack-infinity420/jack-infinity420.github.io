@@ -2,1839 +2,461 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
-<title>军事英语 · 期末备考背记系统</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>军事英语 · 单词复习</title>
 <style>
-:root{
-  --bg:#0d1108;
-  --bg-2:#161c10;
-  --bg-3:#1e2616;
-  --surface:#222b18;
-  --surface-2:#2c3622;
-  --border:#3a4630;
-  --border-2:#4d5c3e;
-  --olive:#4b5320;
-  --olive-light:#6b7d33;
-  --khaki:#c3b091;
-  --khaki-bright:#e0d0a8;
-  --sand:#d4a574;
-  --gold:#c9a227;
-  --red:#a52929;
-  --red-bright:#d44545;
-  --green:#5a8a3a;
-  --green-bright:#7bc04a;
-  --text:#d4cfb8;
-  --text-bright:#f0ebd8;
-  --text-dim:#8a8770;
-  --text-faint:#5c5a48;
-  --shadow:0 4px 24px rgba(0,0,0,.5);
-  --clip: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
-  --clip-sm: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  font-family:'Rajdhani','Noto Sans SC',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-  -webkit-overflow-scrolling:touch;
-  background-image:
-    linear-gradient(rgba(75,83,32,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(75,83,32,.03) 1px,transparent 1px),
-    radial-gradient(ellipse at 20% 0%,rgba(75,83,32,.08),transparent 60%),
-    radial-gradient(ellipse at 80% 100%,rgba(165,41,41,.05),transparent 60%);
-  background-size:40px 40px,40px 40px,100% 100%,100% 100%;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .33 0 0 0 0 .13 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity:.5;
-}
-/* ========== APP SHELL ========== */
-#app{position:relative;z-index:1;display:flex;min-height:100vh}
-/* SIDEBAR */
-.sidebar{
-  width:240px;min-height:100vh;flex-shrink:0;
-  background:linear-gradient(180deg,var(--bg-2),var(--bg));
-  border-right:1px solid var(--border);
-  position:sticky;top:0;height:100vh;
-  display:flex;flex-direction:column;
-  padding:0 0 20px;
-  z-index:100;
-}
-.logo{
-  padding:22px 20px 18px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;
-}
-.logo-mark{
-  width:38px;height:38px;flex-shrink:0;
-  background:var(--olive);
-  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Oswald';font-weight:700;font-size:18px;color:var(--khaki-bright);
-  position:relative;
-}
-.logo-mark::after{
-  content:'';position:absolute;inset:3px;
-  border:1px solid rgba(195,176,145,.3);
-  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
-}
-.logo-text{font-family:'Oswald';font-weight:600;font-size:15px;color:var(--khaki-bright);letter-spacing:1px;line-height:1.2}
-.logo-text small{display:block;font-family:'Rajdhani';font-weight:400;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-
-.nav-section{padding:16px 0 8px}
-.nav-label{padding:0 20px 8px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint)}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 20px;
-  font-size:14px;font-weight:500;color:var(--text-dim);
-  cursor:pointer;transition:all .2s;
-  border-left:3px solid transparent;
-  position:relative;
-}
-.nav-item:hover{color:var(--khaki);background:rgba(75,83,32,.15)}
-.nav-item.active{color:var(--khaki-bright);background:rgba(75,83,32,.2);border-left-color:var(--gold)}
-.nav-item .icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.7}
-.nav-item.active .icon{opacity:1}
-.nav-badge{
-  margin-left:auto;font-size:10px;font-weight:600;
-  background:var(--surface-2);color:var(--text-dim);
-  padding:1px 7px;border-radius:2px;
-}
-.nav-item.active .nav-badge{background:var(--olive);color:var(--khaki-bright)}
-
-.sidebar-stats{
-  margin-top:auto;padding:16px 20px;
-  border-top:1px solid var(--border);
-}
-.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:8px}
-.stat-row span:first-child{color:var(--text-dim)}
-.stat-row span:last-child{color:var(--khaki);font-weight:600;font-family:'JetBrains Mono'}
-.streak-display{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gold);font-weight:600}
-
-/* MAIN */
-.main{flex:1;padding:28px 36px 60px;max-width:calc(100vw - 240px);overflow-x:hidden}
-.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px}
-.page-title{font-family:'Oswald';font-weight:600;font-size:28px;color:var(--khaki-bright);letter-spacing:1px}
-.page-subtitle{font-size:13px;color:var(--text-dim);margin-top:4px;letter-spacing:.5px}
-
-/* ========== HOME / DASHBOARD ========== */
-.view{display:none;animation:fadeIn .4s ease}
-.view.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.hero-banner{
-  background:linear-gradient(135deg,var(--bg-3),var(--surface));
-  border:1px solid var(--border);
-  clip-path:var(--clip);
-  padding:32px 36px;
-  margin-bottom:28px;
-  position:relative;overflow:hidden;
-}
-.hero-banner::before{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(circle at 90% 20%,rgba(201,162,39,.1),transparent 50%),
-    linear-gradient(rgba(75,83,32,.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(75,83,32,.04) 1px,transparent 1px);
-  background-size:100% 100%,30px 30px,30px 30px;
-}
-.hero-content{position:relative;z-index:1}
-.hero-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.hero-tag::before{content:'';width:24px;height:1px;background:var(--gold)}
-.hero-title{font-family:'Oswald';font-weight:700;font-size:36px;color:var(--khaki-bright);letter-spacing:1px;line-height:1.15;margin-bottom:8px}
-.hero-desc{font-size:14px;color:var(--text-dim);max-width:600px;line-height:1.6}
-
-/* Progress overview */
-.progress-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  clip-path:var(--clip-sm);
-  padding:20px;
-  position:relative;overflow:hidden;
-  transition:transform .2s,border-color .2s;
-}
-.stat-card:hover{transform:translateY(-2px);border-color:var(--border-2)}
-.stat-card .label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px}
-.stat-card .value{font-family:'Oswald';font-weight:700;font-size:32px;color:var(--khaki-bright);line-height:1}
-.stat-card .sub{font-size:12px;color:var(--text-faint);margin-top:6px}
-.stat-card .accent-bar{position:absolute;bottom:0;left:0;height:3px;background:var(--olive-light);transition:width .6s ease}
-.stat-card.gold .value{color:var(--gold)}
-.stat-card.green .value{color:var(--green-bright)}
-.stat-card.red .value{color:var(--red-bright)}
-
-/* Category cards */
-.section-title{font-family:'Oswald';font-weight:600;font-size:18px;color:var(--khaki);letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.section-title::before{content:'';width:4px;height:18px;background:var(--gold);clip-path:var(--clip-sm)}
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px}
-.cat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  clip-path:var(--clip-sm);
-  padding:22px;
-  cursor:pointer;
-  transition:all .25s;
-  position:relative;overflow:hidden;
-}
-.cat-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:var(--shadow)}
-.cat-card::after{
-  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
-  background:radial-gradient(circle,rgba(201,162,39,.08),transparent 70%);
-  pointer-events:none;
-}
-.cat-card .cat-icon{font-size:28px;margin-bottom:10px}
-.cat-card .cat-name{font-family:'Oswald';font-weight:600;font-size:17px;color:var(--khaki-bright);margin-bottom:4px;letter-spacing:.5px}
-.cat-card .cat-desc{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
-.cat-progress-bar{height:5px;background:var(--bg-3);border-radius:2px;overflow:hidden;margin-bottom:8px}
-.cat-progress-fill{height:100%;background:linear-gradient(90deg,var(--olive-light),var(--green-bright));border-radius:2px;transition:width .6s ease}
-.cat-card .cat-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--text-faint)}
-.cat-card .cat-stats .mastered{color:var(--green-bright)}
-
-/* Mode cards */
-.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-.mode-card{
-  background:linear-gradient(135deg,var(--surface),var(--bg-3));
-  border:1px solid var(--border);
-  clip-path:var(--clip-sm);
-  padding:24px;
-  cursor:pointer;
-  transition:all .25s;
-  text-align:center;
-}
-.mode-card:hover{border-color:var(--gold);transform:translateY(-3px)}
-.mode-card .mode-icon{font-size:36px;margin-bottom:12px}
-.mode-card .mode-name{font-family:'Oswald';font-weight:600;font-size:16px;color:var(--khaki-bright);margin-bottom:4px;letter-spacing:.5px}
-.mode-card .mode-desc{font-size:12px;color:var(--text-dim);line-height:1.4}
-
-/* ========== STUDY MODES ========== */
-.study-toolbar{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  margin-bottom:24px;padding:14px 18px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  clip-path:var(--clip-sm);
-}
-.filter-chip{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;font-size:12px;font-weight:500;
-  background:var(--bg-3);color:var(--text-dim);
-  border:1px solid var(--border);
-  cursor:pointer;transition:all .2s;
-  border-radius:2px;
-}
-.filter-chip:hover{color:var(--khaki);border-color:var(--border-2)}
-.filter-chip.active{background:var(--olive);color:var(--khaki-bright);border-color:var(--olive-light)}
-.filter-chip .count{font-size:10px;opacity:.7;font-family:'JetBrains Mono'}
-.toolbar-spacer{flex:1}
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 18px;font-size:13px;font-weight:600;
-  font-family:'Rajdhani';letter-spacing:.5px;
-  border:none;cursor:pointer;transition:all .2s;
-  clip-path:var(--clip-sm);
-}
-.btn-primary{background:var(--olive);color:var(--khaki-bright)}
-.btn-primary:hover{background:var(--olive-light)}
-.btn-gold{background:var(--gold);color:#1a1a0a}
-.btn-gold:hover{background:#dba830}
-.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border)}
-.btn-ghost:hover{color:var(--khaki);border-color:var(--border-2)}
-.btn-sm{padding:6px 12px;font-size:12px}
-
-/* Flashcard */
-.flashcard-container{
-  display:flex;flex-direction:column;align-items:center;
-  perspective:1600px;
-}
-.flashcard{
-  width:100%;max-width:680px;
-  height:380px;
-  position:relative;
-  transform-style:preserve-3d;
-  transition:transform .6s cubic-bezier(.4,0,.2,1);
-  cursor:pointer;
-}
-.flashcard.flipped{transform:rotateY(180deg)}
-.card-face{
-  position:absolute;inset:0;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
-  display:flex;flex-direction:column;
-  padding:36px 40px;
-  clip-path:var(--clip);
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-}
-.card-front{
-  background:linear-gradient(135deg,var(--surface),var(--bg-3));
-  border:1px solid var(--border-2);
-}
-.card-back{
-  background:linear-gradient(135deg,var(--bg-3),var(--surface));
-  border:1px solid var(--olive-light);
-  transform:rotateY(180deg);
-}
-.card-face::before{
-  content:'';position:absolute;inset:0;
-  background:
-    linear-gradient(rgba(75,83,32,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(75,83,32,.03) 1px,transparent 1px);
-  background-size:24px 24px;
-  pointer-events:none;
-}
-.card-face::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--olive),var(--gold),var(--olive));
-}
-.card-cat-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
-  color:var(--gold);margin-bottom:auto;
-}
-.card-cat-tag::before{content:'';width:16px;height:1px;background:var(--gold)}
-.card-question{
-  font-family:'Oswald';font-weight:500;font-size:22px;
-  color:var(--khaki-bright);line-height:1.4;
-  flex:1;overflow-y:auto;
-  padding:0 10px;
-  -webkit-overflow-scrolling:touch;
-}
-.card-question .card-inner{
-  margin:auto 0;width:100%;text-align:center;
-}
-.card-answer{
-  font-family:'Rajdhani';font-weight:500;font-size:17px;
-  color:var(--text-bright);line-height:1.6;
-  flex:1;overflow-y:auto;
-  padding:0 10px;
-  -webkit-overflow-scrolling:touch;
-}
-.card-answer .card-inner{
-  margin:auto 0;width:100%;
-}
-.card-answer strong{color:var(--gold)}
-.card-answer .en{font-family:'JetBrains Mono';color:var(--khaki-bright);font-size:15px}
-.card-hint{font-size:11px;color:var(--text-faint);text-align:center;margin-top:auto;letter-spacing:1px}
-.card-flip-hint{display:flex;align-items:center;gap:6px;justify-content:center}
-.card-counter{
-  position:absolute;bottom:16px;right:20px;
-  font-family:'JetBrains Mono';font-size:12px;color:var(--text-faint);
-}
-.card-counter strong{color:var(--khaki)}
-
-/* Rating buttons */
-.rating-bar{
-  display:flex;gap:12px;margin-top:24px;justify-content:center;
-  flex-wrap:wrap;
-}
-.rate-btn{
-  padding:12px 28px;font-size:13px;font-weight:600;
-  font-family:'Rajdhani';letter-spacing:.5px;
-  border:none;cursor:pointer;transition:all .2s;
-  clip-path:var(--clip-sm);
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-}
-.rate-btn small{font-size:10px;opacity:.7;font-weight:400}
-.rate-btn .key{font-family:'JetBrains Mono';font-size:10px;opacity:.5}
-.rate-again{background:var(--red);color:#fff}
-.rate-again:hover{background:var(--red-bright)}
-.rate-hard{background:#8a6d2e;color:var(--khaki-bright)}
-.rate-hard:hover{background:#a08238}
-.rate-good{background:var(--olive);color:var(--khaki-bright)}
-.rate-good:hover{background:var(--olive-light)}
-.rate-easy{background:var(--green);color:#fff}
-.rate-easy:hover{background:var(--green-bright)}
-
-/* Study nav */
-.study-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-top:20px;width:100%;max-width:680px;
-}
-.nav-btn{
-  width:44px;height:44px;
-  background:var(--surface);border:1px solid var(--border);
-  color:var(--text-dim);font-size:18px;
-  cursor:pointer;transition:all .2s;
-  clip-path:var(--clip-sm);
-  display:flex;align-items:center;justify-content:center;
-}
-.nav-btn:hover{color:var(--khaki);border-color:var(--border-2)}
-.nav-btn:disabled{opacity:.3;cursor:not-allowed}
-.study-progress-text{font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono'}
-
-/* Q&A mode */
-.qa-card{
-  width:100%;max-width:680px;
-  background:linear-gradient(135deg,var(--surface),var(--bg-3));
-  border:1px solid var(--border-2);
-  clip-path:var(--clip);
-  padding:36px 40px;
-  position:relative;
-  min-height:300px;
-  display:flex;flex-direction:column;
-}
-.qa-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--olive),var(--gold),var(--olive));
-}
-.qa-question{
-  font-family:'Oswald';font-weight:500;font-size:20px;
-  color:var(--khaki-bright);line-height:1.5;
-  margin-bottom:20px;
-}
-.qa-answer-area{
-  flex:1;display:flex;flex-direction:column;justify-content:center;
-}
-.qa-answer{
-  font-family:'Rajdhani';font-weight:500;font-size:16px;
-  color:var(--text-bright);line-height:1.7;
-  padding:20px;background:var(--bg-3);border-left:3px solid var(--gold);
-  clip-path:var(--clip-sm);
-  animation:slideIn .4s ease;
-}
-@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
-.qa-answer strong{color:var(--gold)}
-.qa-answer .en{font-family:'JetBrains Mono';color:var(--khaki-bright)}
-.qa-reveal-btn{
-  align-self:center;margin:20px 0;
-  padding:14px 36px;font-size:14px;font-weight:600;
-  background:var(--olive);color:var(--khaki-bright);
-  border:none;cursor:pointer;clip-path:var(--clip-sm);
-  transition:all .2s;letter-spacing:1px;
-}
-.qa-reveal-btn:hover{background:var(--olive-light);transform:scale(1.03)}
-
-/* Cloze mode */
-.cloze-card{
-  width:100%;max-width:680px;
-  background:linear-gradient(135deg,var(--surface),var(--bg-3));
-  border:1px solid var(--border-2);
-  clip-path:var(--clip);
-  padding:36px 40px;
-  position:relative;
-  min-height:260px;
-}
-.cloze-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--olive),var(--gold),var(--olive));
-}
-.cloze-sentence{
-  font-family:'Oswald';font-weight:400;font-size:19px;
-  color:var(--text-bright);line-height:1.8;
-  margin-bottom:24px;
-}
-.cloze-blank{
-  display:inline-block;min-width:100px;
-  border-bottom:2px solid var(--gold);
-  margin:0 4px;padding:0 8px;
-  font-family:'JetBrains Mono';font-size:16px;
-  color:var(--gold);text-align:center;
-  transition:all .3s;
-}
-.cloze-blank.revealed{border-bottom-color:var(--green-bright);color:var(--green-bright)}
-.cloze-blank.wrong{border-bottom-color:var(--red-bright);color:var(--red-bright)}
-.cloze-input{
-  display:flex;gap:10px;margin-bottom:16px;
-}
-.cloze-input input{
-  flex:1;padding:10px 16px;font-size:15px;
-  font-family:'JetBrains Mono';
-  background:var(--bg-3);border:1px solid var(--border);
-  color:var(--khaki-bright);outline:none;
-  clip-path:var(--clip-sm);
-  transition:border-color .2s;
-}
-.cloze-input input:focus{border-color:var(--gold)}
-.cloze-feedback{
-  font-size:13px;padding:10px 14px;
-  clip-path:var(--clip-sm);
-  display:none;
-}
-.cloze-feedback.show{display:block;animation:slideIn .3s}
-.cloze-feedback.correct{background:rgba(90,138,58,.2);color:var(--green-bright);border:1px solid var(--green)}
-.cloze-feedback.wrong{background:rgba(165,41,41,.2);color:var(--red-bright);border:1px solid var(--red)}
-
-/* Quiz mode */
-.quiz-card{
-  width:100%;max-width:680px;
-  background:linear-gradient(135deg,var(--surface),var(--bg-3));
-  border:1px solid var(--border-2);
-  clip-path:var(--clip);
-  padding:28px 32px;
-  position:relative;
-  max-height:72vh;overflow-y:auto;
-}
-.quiz-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--olive),var(--gold),var(--olive));
-}
-.quiz-question{
-  font-family:'Oswald';font-weight:500;font-size:18px;
-  color:var(--khaki-bright);line-height:1.5;
-  margin-bottom:18px;
-}
-.quiz-options{display:flex;flex-direction:column;gap:10px}
-.quiz-option{
-  padding:12px 16px;
-  background:var(--bg-3);border:1px solid var(--border);
-  color:var(--text);font-size:14px;font-weight:500;
-  cursor:pointer;transition:all .2s;
-  clip-path:var(--clip-sm);
-  display:flex;align-items:flex-start;gap:10px;
-  text-align:left;line-height:1.4;
-}
-.quiz-option span:last-child{
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-  overflow:hidden;
-}
-.quiz-option:hover{border-color:var(--border-2);background:var(--surface-2)}
-.quiz-option .opt-letter{
-  width:28px;height:28px;flex-shrink:0;
-  background:var(--surface-2);color:var(--text-dim);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Oswald';font-weight:600;font-size:13px;
-  border-radius:2px;transition:all .2s;
-}
-.quiz-option:hover .opt-letter{color:var(--khaki)}
-.quiz-option.correct{background:rgba(90,138,58,.15);border-color:var(--green)}
-.quiz-option.correct .opt-letter{background:var(--green);color:#fff}
-.quiz-option.wrong{background:rgba(165,41,41,.15);border-color:var(--red)}
-.quiz-option.wrong .opt-letter{background:var(--red);color:#fff}
-.quiz-option.disabled{pointer-events:none}
-.quiz-result{
-  margin-top:20px;padding:14px 18px;
-  clip-path:var(--clip-sm);
-  font-size:14px;font-weight:500;
-  display:none;
-}
-.quiz-result.show{display:block;animation:slideIn .3s}
-.quiz-result.correct{background:rgba(90,138,58,.15);color:var(--green-bright);border:1px solid var(--green)}
-.quiz-result.wrong{background:rgba(165,41,41,.15);color:var(--red-bright);border:1px solid var(--red)}
-.quiz-score{
-  display:flex;align-items:center;gap:16px;
-  margin-bottom:20px;font-size:14px;color:var(--text-dim);
-}
-.quiz-score .score-val{font-family:'Oswald';font-weight:700;font-size:24px;color:var(--gold)}
-
-/* Browse mode */
-.browse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
-.browse-card{
-  background:var(--surface);border:1px solid var(--border);
-  clip-path:var(--clip-sm);padding:18px 20px;
-  transition:all .2s;cursor:pointer;
-}
-.browse-card:hover{border-color:var(--border-2);transform:translateY(-2px)}
-.browse-card .bc-cat{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.browse-card .bc-q{font-family:'Oswald';font-weight:500;font-size:14px;color:var(--khaki-bright);margin-bottom:8px;line-height:1.4}
-.browse-card .bc-a{font-size:13px;color:var(--text);line-height:1.5;display:none}
-.browse-card.expanded .bc-a{display:block;animation:slideIn .3s}
-.browse-card .bc-a strong{color:var(--gold)}
-.browse-card .bc-a .en{font-family:'JetBrains Mono';color:var(--khaki)}
-.browse-card .bc-status{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:8px;vertical-align:middle}
-.bc-status.new{background:var(--text-faint)}
-.bc-status.learning{background:var(--gold)}
-.bc-status.mastered{background:var(--green-bright)}
-
-/* Search */
-.search-box{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 14px;background:var(--bg-3);
-  border:1px solid var(--border);clip-path:var(--clip-sm);
-  flex:1;max-width:300px;
-}
-.search-box input{
-  flex:1;background:none;border:none;outline:none;
-  color:var(--text-bright);font-size:13px;font-family:'Rajdhani';
-}
-.search-box input::placeholder{color:var(--text-faint)}
-
-/* Completion screen */
-.completion-screen{
-  text-align:center;padding:60px 20px;
-}
-.completion-screen .cs-icon{font-size:64px;margin-bottom:20px}
-.completion-screen .cs-title{font-family:'Oswald';font-weight:700;font-size:28px;color:var(--gold);margin-bottom:10px;letter-spacing:1px}
-.completion-screen .cs-desc{font-size:14px;color:var(--text-dim);margin-bottom:30px}
-.completion-stats{display:flex;justify-content:center;gap:30px;margin-bottom:30px;flex-wrap:wrap}
-.completion-stat{text-align:center}
-.completion-stat .val{font-family:'Oswald';font-weight:700;font-size:36px;color:var(--khaki-bright)}
-.completion-stat .lbl{font-size:12px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
-
-/* Toast */
-.toast{
-  position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
-  background:var(--surface-2);border:1px solid var(--border-2);
-  color:var(--khaki-bright);padding:12px 24px;font-size:13px;
-  clip-path:var(--clip-sm);z-index:1000;
-  transition:transform .3s ease;box-shadow:var(--shadow);
-}
-.toast.show{transform:translateX(-50%) translateY(0)}
-
-/* Keyboard hint */
-.kb-hints{
-  display:flex;gap:16px;justify-content:center;
-  margin-top:30px;flex-wrap:wrap;
-}
-.kb-hint{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint)}
-.kb-key{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:24px;height:22px;padding:0 6px;
-  background:var(--bg-3);border:1px solid var(--border);
-  color:var(--text-dim);font-family:'JetBrains Mono';font-size:11px;
-  border-radius:3px;
-}
-
-/* Empty state */
-.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim)}
-.empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:.5}
-.empty-state .es-text{font-size:14px}
-
-/* ========== MOBILE BOTTOM NAV (hidden on desktop) ========== */
-.mobile-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;
-  background:linear-gradient(180deg,var(--bg-2),var(--bg));
-  border-top:1px solid var(--border);
-  z-index:200;
-  padding:0;
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  justify-content:space-around;
-}
-.mn-item{
-  flex:1;
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:8px 2px 6px;
-  color:var(--text-faint);
-  cursor:pointer;transition:color .2s;
-  -webkit-tap-highlight-color:transparent;
-  min-height:52px;
-}
-.mn-item:active{background:rgba(75,83,32,.2)}
-.mn-item.active{color:var(--khaki-bright)}
-.mn-icon{font-size:20px;line-height:1}
-.mn-label{font-size:10px;font-weight:500;letter-spacing:.5px}
-
-/* ========== RESPONSIVE ========== */
-
-/* Tablet: narrow sidebar */
-@media(max-width:900px){
-  .sidebar{width:60px;padding:0}
-  .logo-text,.nav-item span:not(.icon),.nav-label,.nav-badge,.sidebar-stats{display:none}
-  .nav-item{justify-content:center;padding:12px 8px}
-  .logo{justify-content:center;padding:16px 8px}
-  .main{max-width:calc(100vw - 60px);padding:20px}
-}
-
-/* Mobile: bottom nav + full width */
-@media(max-width:768px){
-  #app{flex-direction:column}
-  .sidebar{display:none}
-  .mobile-nav{display:flex}
-  .main{
-    max-width:100vw;
-    width:100%;
-    padding:14px 14px 90px;
-    padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));
-  }
-  /* Page header */
-  .page-header{margin-bottom:18px;gap:10px}
-  .page-title{font-size:22px}
-  .page-subtitle{font-size:12px}
-  /* Hero */
-  .hero-banner{padding:22px 20px;margin-bottom:18px}
-  .hero-title{font-size:22px;line-height:1.2}
-  .hero-desc{font-size:13px;line-height:1.5}
-  .hero-tag{font-size:10px}
-  /* Progress grid: 2x2 on mobile */
-  .progress-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-  .stat-card{padding:14px}
-  .stat-card .value{font-size:24px}
-  .stat-card .label{font-size:10px}
-  .stat-card .sub{font-size:11px}
-  /* Category grid: single column */
-  .cat-grid{grid-template-columns:1fr;gap:12px;margin-bottom:24px}
-  .cat-card{padding:16px}
-  .cat-card .cat-name{font-size:16px}
-  .cat-card .cat-desc{font-size:12px}
-  /* Mode grid: 2 columns */
-  .mode-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .mode-card{padding:16px 12px}
-  .mode-card .mode-icon{font-size:28px;margin-bottom:8px}
-  .mode-card .mode-name{font-size:14px}
-  .mode-card .mode-desc{font-size:11px}
-  /* Study toolbar: scrollable filters */
-  .study-toolbar{padding:10px 12px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px}
-  .study-toolbar::-webkit-scrollbar{display:none}
-  .study-toolbar > span:first-child{flex-shrink:0}
-  .study-toolbar > div{flex-wrap:nowrap}
-  .filter-chip{flex-shrink:0;white-space:nowrap;padding:6px 12px;font-size:12px}
-  #fc-shuffle{flex-shrink:0}
-  /* Flashcard: fixed height with internal scroll for long content */
-  .flashcard{
-    height:420px;
-    min-height:420px;
-  }
-  .card-face{padding:24px 18px;position:absolute}
-  .card-question{font-size:17px;line-height:1.4}
-  .card-answer{font-size:14px;line-height:1.6;padding:0 6px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .card-cat-tag{font-size:9px}
-  /* Rating buttons: wider, touch-friendly */
-  .rating-bar{gap:8px;width:100%}
-  .rate-btn{flex:1;padding:12px 8px;font-size:13px;min-height:52px}
-  .rate-btn small{font-size:9px}
-  /* Study nav */
-  .study-nav{max-width:100%;margin-top:16px}
-  .nav-btn{width:48px;height:48px;font-size:20px}
-  .study-progress-text{font-size:11px}
-  /* Q&A */
-  .qa-card{padding:24px 18px;min-height:260px}
-  .qa-question{font-size:17px}
-  .qa-answer{font-size:14px;padding:16px}
-  .qa-reveal-btn{padding:14px 32px;font-size:13px}
-  /* Cloze */
-  .cloze-card{padding:24px 18px;min-height:220px}
-  .cloze-sentence{font-size:16px;line-height:1.7}
-  .cloze-blank{min-width:80px;font-size:14px}
-  .cloze-input input{font-size:16px;padding:12px 14px}
-  /* Quiz */
-  .quiz-card{padding:20px 16px;max-height:none}
-  .quiz-question{font-size:16px;margin-bottom:14px}
-  .quiz-option{padding:12px 14px;font-size:13px;min-height:48px}
-  .quiz-option .opt-letter{width:26px;height:26px;font-size:12px}
-  .quiz-score{font-size:12px;gap:10px;margin-bottom:14px}
-  .quiz-score .score-val{font-size:20px}
-  /* Browse */
-  .browse-grid{grid-template-columns:1fr;gap:10px}
-  .browse-card{padding:14px 16px}
-  .browse-card .bc-q{font-size:13px}
-  .browse-card .bc-a{font-size:12px}
-  /* Search box */
-  .search-box{max-width:100%;width:100%}
-  /* Completion */
-  .completion-screen{padding:40px 16px}
-  .completion-screen .cs-title{font-size:24px}
-  .completion-stats{gap:20px}
-  .completion-stat .val{font-size:28px}
-  /* KB hints hidden on mobile */
-  .kb-hints{display:none}
-  /* Toast above bottom nav */
-  .toast{bottom:90px}
-}
-
-/* Small phones */
-@media(max-width:380px){
-  .main{padding:10px 10px 85px}
-  .progress-grid{gap:8px}
-  .stat-card{padding:12px 10px}
-  .stat-card .value{font-size:20px}
-  .hero-title{font-size:19px}
-  .flashcard{height:380px;min-height:380px}
-  .card-question{font-size:15px}
-  .rate-btn{font-size:12px;padding:10px 4px}
-  .mn-label{font-size:9px}
-  .mn-icon{font-size:18px}
-}
-
-/* Desktop: hide mobile nav */
-@media(min-width:769px){
-  .mobile-nav{display:none!important}
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;width:100%;max-width:1200px;margin-bottom:1rem}
+.pickers{display:flex;gap:.4rem;flex-wrap:wrap}
+.pbtn{padding:.3rem .7rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.8rem;transition:.15s}
+.pbtn:hover{background:#334155}
+.pbtn.cur{background:#2563eb;color:#fff;font-weight:600}
+.tb{display:flex;gap:.5rem;margin-bottom:.5rem}
+.tbv{padding:.4rem 1.2rem;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.85rem}
+.tbv.cur{background:#60a5fa;color:#0f172a;font-weight:600}
+.pn{display:none;width:100%;max-width:1200px}
+.pn.cur{display:flex;flex-direction:column;align-items:center}
+h1{font-size:1.5rem;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.c{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem;align-items:center;justify-content:center}
+.c button,.c select{padding:.4rem .9rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#e2e8f0;font-size:.82rem;cursor:pointer}
+.c button.cur{background:#60a5fa;color:#0f172a;font-weight:600}
+.s{display:flex;gap:.8rem;margin-bottom:.8rem;font-size:.82rem;color:#94a3b8;flex-wrap:wrap}
+.s span{background:#1e293b;padding:.2rem .6rem;border-radius:5px}
+.s strong{color:#60a5fa}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.7rem;width:100%}
+.cd{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:.8rem 1rem;cursor:pointer;min-height:100px;position:relative;transition:.15s}
+.cd:hover{border-color:#4b5563}
+.cd .speaker{position:absolute;top:.3rem;right:.45rem;font-size:.82rem;cursor:pointer;color:#64748b;width:1.5rem;height:1.5rem;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:.15s;z-index:2}
+.cd .speaker:hover{background:#475569;color:#e2e8f0}
+.cd .en{font-size:1.05rem;font-weight:600;color:#f1f5f9;padding-right:1.8rem;margin-top:.1rem}
+.cd .phonetic{font-size:.72rem;color:#64748b;margin-top:.1rem;font-family:'Consolas','Courier New',monospace;min-height:1rem}
+.cd .cn{font-size:.95rem;color:#94a3b8;margin-top:.1rem}
+.cd .cn.h{opacity:0;max-height:0;overflow:hidden;margin:0}
+.cd .cn.r{opacity:1;color:#a78bfa}
+.cd .full{font-size:.78rem;color:#6b7280}
+.cd .full.h{opacity:0;max-height:0;overflow:hidden;margin:0}
+.cd .full.r{opacity:1}
+.cd .tg{position:absolute;bottom:.35rem;right:.45rem;font-size:.55rem;padding:.1rem .4rem;border-radius:3px;font-weight:600}
+.tg-a{background:#f59e0b;color:#0f172a}
+.tg-n{background:#3b82f6;color:#fff}
+.cd .star{position:absolute;top:.3rem;left:.45rem;font-size:.9rem;cursor:pointer;user-select:none;line-height:1;z-index:2}
+.cd .star.ns{color:#4b5563;opacity:.4;transition:.15s}
+.cd .star.ns:hover{opacity:1;color:#fbbf24}
+.cd .star.s{color:#f59e0b}
+.cd.m{border-color:#22c55e;background:#1a2e1a}
+.cd.m .en{color:#86efac}
+.cd .mb{display:none}
+.cd.m .mb{display:block;position:absolute;bottom:.35rem;right:2.5rem;font-size:.5rem;color:#22c55e}
+.ed{width:100%;max-width:800px}
+.ed textarea{width:100%;min-height:200px;padding:.7rem;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-family:monospace}
+.ed .br{display:flex;gap:.5rem;margin-top:.7rem;flex-wrap:wrap}
+.ed .br button{padding:.4rem 1.2rem;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#e2e8f0;cursor:pointer;font-size:.85rem}
+.ed .br .p{background:#2563eb;font-weight:600}
+.fh{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:.7rem;margin-bottom:.8rem;font-size:.8rem;color:#94a3b8;line-height:1.6}
+.sc{color:#22c55e}.er{color:#ef4444}
+.st{font-size:.82rem;margin-top:.4rem;min-height:1.3rem}
+.hint{margin-bottom:.5rem;font-size:.75rem;color:#6b7280;display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center}
+.hint span{display:flex;align-items:center;gap:.3rem}
+.hint .k{display:inline-block;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;background:#334155;color:#d1d5db}
+@media(max-width:640px){.g{grid-template-columns:1fr}h1{font-size:1.2rem}.pbtn{font-size:.72rem;padding:.2rem .5rem}}
 </style>
 </head>
 <body>
-<div id="app">
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">★</div>
-    <div class="logo-text">军事英语<small>FINAL EXAM PREP</small></div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">导航</div>
-    <div class="nav-item active" data-view="home">
-      <span class="icon">⌂</span><span>指挥中心</span>
-    </div>
-    <div class="nav-item" data-view="flashcard">
-      <span class="icon">◫</span><span>翻卡模式</span>
-      <span class="nav-badge" id="nav-fc-count">0</span>
-    </div>
-    <div class="nav-item" data-view="qa">
-      <span class="icon">?</span><span>问答模式</span>
-    </div>
-    <div class="nav-item" data-view="cloze">
-      <span class="icon">▦</span><span>填空模式</span>
-    </div>
-    <div class="nav-item" data-view="quiz">
-      <span class="icon">✓</span><span>测验模式</span>
-    </div>
-    <div class="nav-item" data-view="browse">
-      <span class="icon">≡</span><span>知识库</span>
-    </div>
-  </div>
-  <div class="sidebar-stats">
-    <div class="stat-row"><span>总卡片</span><span id="sb-total">0</span></div>
-    <div class="stat-row"><span>已掌握</span><span id="sb-mastered" style="color:var(--green-bright)">0</span></div>
-    <div class="stat-row"><span>学习中</span><span id="sb-learning" style="color:var(--gold)">0</span></div>
-    <div class="stat-row"><span>连续天数</span><span class="streak-display" id="sb-streak">🔥 0</span></div>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-  <!-- HOME VIEW -->
-  <div class="view active" id="view-home">
-    <div class="hero-banner">
-      <div class="hero-content">
-        <div class="hero-tag">TACTICAL STUDY SYSTEM</div>
-        <div class="hero-title">军事英语期末备考背记系统</div>
-        <div class="hero-desc">基于教材重点知识点，涵盖军种兵种、军衔、军装、常用表达及军事通信术语。支持翻卡、问答、填空、测验四种学习模式，进度自动保存。</div>
-      </div>
-    </div>
-
-    <div class="progress-grid">
-      <div class="stat-card">
-        <div class="label">总知识点</div>
-        <div class="value" id="home-total">0</div>
-        <div class="sub">全部卡片</div>
-        <div class="accent-bar" style="width:100%;background:var(--border-2)"></div>
-      </div>
-      <div class="stat-card green">
-        <div class="label">已掌握</div>
-        <div class="value" id="home-mastered">0</div>
-        <div class="sub" id="home-mastered-pct">0% 掌握率</div>
-        <div class="accent-bar" id="home-mastered-bar" style="width:0%"></div>
-      </div>
-      <div class="stat-card gold">
-        <div class="label">学习中</div>
-        <div class="value" id="home-learning">0</div>
-        <div class="sub">需继续复习</div>
-        <div class="accent-bar" id="home-learning-bar" style="width:0%;background:var(--gold)"></div>
-      </div>
-      <div class="stat-card red">
-        <div class="label">未开始</div>
-        <div class="value" id="home-new">0</div>
-        <div class="sub">尚未学习</div>
-        <div class="accent-bar" id="home-new-bar" style="width:0%;background:var(--red)"></div>
-      </div>
-    </div>
-
-    <div class="section-title">知识模块</div>
-    <div class="cat-grid" id="cat-grid"></div>
-
-    <div class="section-title">学习模式</div>
-    <div class="mode-grid">
-      <div class="mode-card" data-goto="flashcard">
-        <div class="mode-icon">◫</div>
-        <div class="mode-name">翻卡模式</div>
-        <div class="mode-desc">点击翻转卡片，正面问题背面答案，支持评分调度</div>
-      </div>
-      <div class="mode-card" data-goto="qa">
-        <div class="mode-icon">?</div>
-        <div class="mode-name">问答模式</div>
-        <div class="mode-desc">先看问题主动回忆，再揭示答案验证</div>
-      </div>
-      <div class="mode-card" data-goto="cloze">
-        <div class="mode-icon">▦</div>
-        <div class="mode-name">填空模式</div>
-        <div class="mode-desc">关键术语填空，强化拼写记忆</div>
-      </div>
-      <div class="mode-card" data-goto="quiz">
-        <div class="mode-icon">✓</div>
-        <div class="mode-name">测验模式</div>
-        <div class="mode-desc">四选一选择题，检验综合掌握程度</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FLASHCARD VIEW -->
-  <div class="view" id="view-flashcard">
-    <div class="page-header">
-      <div>
-        <div class="page-title">翻卡模式</div>
-        <div class="page-subtitle">点击卡片翻转 · 评分后自动调度复习</div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="resetSession('flashcard')">↻ 重新开始</button>
-    </div>
-    <div class="study-toolbar">
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px">模块筛选:</span>
-      <div id="fc-filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-      <div class="toolbar-spacer"></div>
-      <button class="btn btn-ghost btn-sm" id="fc-shuffle">⤮ 打乱</button>
-    </div>
-    <div id="fc-content"></div>
-  </div>
-
-  <!-- Q&A VIEW -->
-  <div class="view" id="view-qa">
-    <div class="page-header">
-      <div>
-        <div class="page-title">问答模式</div>
-        <div class="page-subtitle">先回忆再揭示答案 · 主动回忆效果最佳</div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="resetSession('qa')">↻ 重新开始</button>
-    </div>
-    <div class="study-toolbar">
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px">模块筛选:</span>
-      <div id="qa-filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-    <div id="qa-content"></div>
-  </div>
-
-  <!-- CLOZE VIEW -->
-  <div class="view" id="view-cloze">
-    <div class="page-header">
-      <div>
-        <div class="page-title">填空模式</div>
-        <div class="page-subtitle">填入关键术语 · 强化拼写与精准记忆</div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="resetSession('cloze')">↻ 重新开始</button>
-    </div>
-    <div class="study-toolbar">
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px">模块筛选:</span>
-      <div id="cl-filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-    <div id="cl-content"></div>
-  </div>
-
-  <!-- QUIZ VIEW -->
-  <div class="view" id="view-quiz">
-    <div class="page-header">
-      <div>
-        <div class="page-title">测验模式</div>
-        <div class="page-subtitle">四选一 · 检验综合掌握程度</div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="resetSession('quiz')">↻ 重新开始</button>
-    </div>
-    <div class="study-toolbar">
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px">模块筛选:</span>
-      <div id="qz-filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-    <div id="qz-content"></div>
-  </div>
-
-  <!-- BROWSE VIEW -->
-  <div class="view" id="view-browse">
-    <div class="page-header">
-      <div>
-        <div class="page-title">知识库</div>
-        <div class="page-subtitle">浏览全部知识点 · 点击展开答案</div>
-      </div>
-      <div class="search-box">
-        <span style="color:var(--text-faint)">⌕</span>
-        <input type="text" id="browse-search" placeholder="搜索关键词...">
-      </div>
-    </div>
-    <div class="study-toolbar">
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px">模块筛选:</span>
-      <div id="br-filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-    <div class="browse-grid" id="br-content"></div>
-  </div>
-</main>
+<div class="bar"><div class="tb"><div class="tbv cur" id="tabP">背单词</div><div class="tbv" id="tabE">编辑单词</div></div></div>
+<div class="pickers" id="pickers"></div>
+<div class="pn cur" id="pnP">
+<div class="hint">
+<span><span class="k">单击</span> 显示/隐藏中文</span>
+<span><span class="k">双击</span> 标记已掌握</span>
+<span><span class="k">&hearts;</span> 点击星标重点单词</span>
+<span><span class="k">&#128266;</span> 点击发音</span>
 </div>
-
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav" id="mobile-nav">
-  <div class="mn-item active" data-view="home">
-    <span class="mn-icon">⌂</span><span class="mn-label">首页</span>
-  </div>
-  <div class="mn-item" data-view="flashcard">
-    <span class="mn-icon">◫</span><span class="mn-label">翻卡</span>
-  </div>
-  <div class="mn-item" data-view="qa">
-    <span class="mn-icon">?</span><span class="mn-label">问答</span>
-  </div>
-  <div class="mn-item" data-view="cloze">
-    <span class="mn-icon">▦</span><span class="mn-label">填空</span>
-  </div>
-  <div class="mn-item" data-view="quiz">
-    <span class="mn-icon">✓</span><span class="mn-label">测验</span>
-  </div>
-  <div class="mn-item" data-view="browse">
-    <span class="mn-icon">≡</span><span class="mn-label">知识库</span>
-  </div>
-</nav>
-
-<div class="toast" id="toast"></div>
-
+<div class="c"><button id="bSh" class="cur">随机顺序</button><button id="bR">全部重置</button><button id="bH">隐藏答案</button>
+<select id="fS"><option value="all">全部</option><option value="abbr">仅缩写</option><option value="normal">仅普通</option><option value="m">已掌握</option><option value="s">重点单词（当前）</option><option value="sa">重点单词（全部单元）</option><option value="u">未掌握</option></select>
+<button id="bD">移除已掌握</button></div>
+<div class="s"><span>总计:<strong id="st">0</strong></span><span>已掌握:<strong id="sm">0</strong></span><span>&#11088; 重点:<strong id="ss">0</strong></span><span>已揭晓:<strong id="sr">0</strong></span></div>
+<div class="g" id="g"></div></div>
+<div class="pn" id="pnE"><div class="ed">
+<div class="fh"><b>格式</b>：英文 | 中文（普通）&nbsp;&nbsp;英文 | 中文 | abbr（缩写，带全称）</div>
+<textarea id="ta" spellcheck="false"></textarea>
+<div class="br"><button class="p" id="bSv">保存并切换</button><button id="bDef">恢复当前单元</button><button id="bEx">导出</button><button id="bIm">导入</button></div>
+<div class="st" id="sst"></div></div></div>
+<input type="file" id="fI" accept=".txt,.csv" style="display:none">
 <script>
-// ===================== DATA =====================
-const CATEGORIES = [
-  {id:'services-arms',name:'军种与兵种',icon:'⚔',desc:'军种概念、各国军种对比、美军各军种详情、兵种演变'},
-  {id:'ranks',name:'军衔',icon:'★',desc:'军官/士官军衔体系、美军军衔对照表、军事礼仪'},
-  {id:'uniforms',name:'军装',icon:'▣',desc:'军服颜色、部件词汇、各军种礼服标识'},
-  {id:'expressions',name:'常用表达',icon:'✎',desc:'描述军种的表达句型、军种发展历史、马歇尔时间线'},
-  {id:'comms',name:'军事通信与术语',icon:'☎',desc:'NATO字母表、无线电口令、军事单位与缩略词'}
-];
+var ALL_DATA = [[{"en":"active service","cn":"现役","abbr":false,"full":"active service","phonetic":"/ˈæktɪv ˈsɜːrvɪs/"},{"en":"air defense","cn":"防空","abbr":false,"full":"air defense","phonetic":"/ɛər dɪˈfɛns/"},{"en":"Air Force","cn":"空军","abbr":false,"full":"Air Force","phonetic":"/ɛər fɔːrs/"},{"en":"aircraft carrier","cn":"航空母舰","abbr":false,"full":"aircraft carrier","phonetic":"/ˈɛərkræft ˈkærɪər/"},{"en":"airlift","cn":"空运","abbr":false,"full":"airlift","phonetic":"/ˈɛərlɪft/"},{"en":"airman","cn":"空军士兵，飞行员","abbr":false,"full":"airman","phonetic":"/ˈɛərmən/"},{"en":"amphibious","cn":"两栖作战的；水陆两用的；两栖的","abbr":false,"full":"amphibious","phonetic":"/æmˈfɪbiəs/"},{"en":"arm","cn":"兵种","abbr":false,"full":"arm","phonetic":"/ɑːrm/"},{"en":"armor","cn":"装甲兵","abbr":false,"full":"armor","phonetic":"/ˈɑːrmər/"},{"en":"Army","cn":"陆军","abbr":false,"full":"Army","phonetic":"/ˈɑːrmi/"},{"en":"Army National Guard","cn":"（美）陆军国民警卫队","abbr":false,"full":"Army National Guard"},{"en":"Army Reserve","cn":"（美）陆军预备役","abbr":false,"full":"Army Reserve"},{"en":"artillery","cn":"炮兵；火炮","abbr":false,"full":"artillery","phonetic":"/ɑːrˈtɪləri/"},{"en":"aviation","cn":"航空兵","abbr":false,"full":"aviation","phonetic":"/ˌeɪviˈeɪʃən/"},{"en":"bomber","cn":"轰炸机","abbr":false,"full":"bomber","phonetic":"/ˈbɒmər/"},{"en":"cavalry","cn":"骑兵；高度机动的地面部队","abbr":false,"full":"cavalry","phonetic":"/ˈkævəlri/"},{"en":"Coast Guard","cn":"（美）海岸警卫队","abbr":false,"full":"Coast Guard","phonetic":"/koʊst ɡɑːrd/"},{"en":"combat arms","cn":"作战部队","abbr":false,"full":"combat arms"},{"en":"combat arms support","cn":"作战支援部队","abbr":false,"full":"combat arms support"},{"en":"combat service support","cn":"作战支援保障部队","abbr":false,"full":"combat service support"},{"en":"corps","cn":"军团；特殊兵种；部队","abbr":false,"full":"corps","phonetic":"/kɔːr/"},{"en":"DoD","cn":"（美）国防部","abbr":true,"full":"Department of Defense（DoD）","speakWord":"Department of Defense","phonetic":"/dɪˈpɑːrtmənt əv dɪˈfɛns/"},{"en":"DAF","cn":"（美）空军部","abbr":true,"full":"Department of the Air Force (DAF)","speakWord":"Department of the Air Force","phonetic":"/dɪˈpɑːrtmənt əv ði ɛər fɔːrs/"},{"en":"drone","cn":"无人机","abbr":false,"full":"drone","phonetic":"/droʊn/"},{"en":"engineer","cn":"工兵","abbr":false,"full":"engineer","phonetic":"/ˌɛndʒɪˈnɪər/"},{"en":"fleet","cn":"舰队；（飞机的）机队","abbr":false,"full":"fleet","phonetic":"/fliːt/"},{"en":"guardian","cn":"（美）太空军士兵","abbr":false,"full":"guardian","phonetic":"/ˈɡɑːrdiən/"},{"en":"helicopter","cn":"直升机","abbr":false,"full":"helicopter","phonetic":"/ˈhɛlɪkɒptər/"},{"en":"intelligence","cn":"情报","abbr":false,"full":"intelligence","phonetic":"/ɪnˈtɛlɪdʒəns/"},{"en":"joint force","cn":"联合部队","abbr":false,"full":"joint force"},{"en":"joint operation(s)","cn":"联合作战","abbr":false,"full":"joint operation(s)"},{"en":"logistics","cn":"后勤；后勤学","abbr":false,"full":"logistics","phonetic":"/ləˈdʒɪstɪks/"},{"en":"marine","cn":"海军陆战队员；海上的；海事的","abbr":false,"full":"marine","phonetic":"/məˈriːn/"},{"en":"Marine Corps","cn":"海军陆战队","abbr":false,"full":"Marine Corps"},{"en":"Navy","cn":"海军","abbr":false,"full":"Navy","phonetic":"/ˈneɪvi/"},{"en":"ordnance","cn":"军械","abbr":false,"full":"ordnance","phonetic":"/ˈɔːrdnəns/"},{"en":"propulsion","cn":"推进","abbr":false,"full":"propulsion","phonetic":"/prəˈpʌlʃən/"},{"en":"quartermaster","cn":"军需","abbr":false,"full":"quartermaster","phonetic":"/ˈkwɔːrtərˌmæstər/"},{"en":"reconnaissance","cn":"侦察","abbr":false,"full":"reconnaissance","phonetic":"/rɪˈkɒnɪsəns/"},{"en":"sailor","cn":"海军士兵，水兵","abbr":false,"full":"sailor","phonetic":"/ˈseɪlər/"},{"en":"sensor","cn":"传感器","abbr":false,"full":"sensor","phonetic":"/ˈsɛnsər/"},{"en":"service","cn":"军种；服役","abbr":false,"full":"service","phonetic":"/ˈsɜːrvɪs/"},{"en":"signal","cn":"通信兵","abbr":false,"full":"signal","phonetic":"/ˈsɪɡnəl/"},{"en":"SPC","cn":"（美）太空司令部","abbr":true,"full":"Space Command（SPC）","speakWord":"specialist","phonetic":"/ˈspɛʃəlɪst/"},{"en":"Space Force","cn":"（美）太空军","abbr":false,"full":"Space Force"},{"en":"special forces","cn":"特种部队","abbr":false,"full":"special forces","phonetic":"/ˈspɛʃəl ˈfɔːrsɪz/"},{"en":"squadron","cn":"中队","abbr":false,"full":"squadron","phonetic":"/ˈskwɒdrən/"},{"en":"stealth","cn":"隐形","abbr":false,"full":"stealth","phonetic":"/stɛlθ/"},{"en":"submarine","cn":"潜艇","abbr":false,"full":"submarine","phonetic":"/ˌsʌbməˈriːn/"},{"en":"surveillance","cn":"监视","abbr":false,"full":"surveillance","phonetic":"/sərˈveɪləns/"}],[{"en":"second lieutenant (2LT)","cn":"（陆、空、海军陆战队）少尉","abbr":true,"full":"second lieutenant (2LT)","speakWord":"second lieutenant","phonetic":"/ˈsɛkənd luːˈtɛnənt/"},{"en":"LT","cn":"（陆、空、海军陆战队）中尉；（海军）上尉","abbr":true,"full":"lieutenant (LT)","speakWord":"lieutenant","phonetic":"/luːˈtɛnənt/"},{"en":"CPT","cn":"（陆、空、海军陆战队）上尉；（海军）上校","abbr":true,"full":"captain (CPT)","speakWord":"captain","phonetic":"/ˈkæptɪn/"},{"en":"MAJ","cn":"（陆、空、海军陆战队）少校","abbr":true,"full":"major (MAJ)","speakWord":"major","phonetic":"/ˈmeɪdʒər/"},{"en":"LTC","cn":"（陆、空、海军陆战队）中校","abbr":true,"full":"lieutenant colonel  (LTC)","speakWord":"lieutenant colonel","phonetic":"/luːˈtɛnənt ˈkɜːrnəl/"},{"en":"COL","cn":"（陆、空、海军陆战队）上校","abbr":true,"full":"colonel (COL)","speakWord":"colonel","phonetic":"/ˈkɜːrnəl/"},{"en":"BG","cn":"（陆、空、海军陆战队）准将","abbr":true,"full":"brigadier general (BG)","speakWord":"brigadier general","phonetic":"/ˌbrɪɡəˈdɪər ˈdʒɛnərəl/"},{"en":"MG","cn":"（陆、空、海军陆战队）少将","abbr":true,"full":"major general (MG)","speakWord":"major general","phonetic":"/ˈmeɪdʒər ˈdʒɛnərəl/"},{"en":"LG","cn":"（陆、空、海军陆战队）中将","abbr":true,"full":"lieutenant general (LG)","speakWord":"lieutenant general","phonetic":"/luːˈtɛnənt ˈdʒɛnərəl/"},{"en":"GEN","cn":"（陆、空、海军陆战队）上将","abbr":true,"full":"general (GEN)","speakWord":"general","phonetic":"/ˈdʒɛnərəl/"},{"en":"ENS","cn":"（海军）少尉","abbr":true,"full":"ensign (ENS)","speakWord":"ensign","phonetic":"/ˈɛnsaɪn/"},{"en":"LTJG","cn":"（海军）中尉","abbr":true,"full":"lieutenant junior grade (LTJG)","speakWord":"lieutenant junior grade","phonetic":"/luːˈtɛnənt ˈdʒuːnjər ɡreɪd/"},{"en":"LTCR","cn":"（海军）少校","abbr":true,"full":"lieutenant commander (LTCR)","speakWord":"lieutenant commander","phonetic":"/luːˈtɛnənt kəˈmændər/"},{"en":"CDR","cn":"（海军）中校","abbr":true,"full":"commander (CDR)","speakWord":"commander","phonetic":"/kəˈmændər/"},{"en":"RDML","cn":"（海军）准将","abbr":true,"full":"rear admiral lower half (RDML)","speakWord":"rear admiral lower half","phonetic":"/rɪər ˈædmərəl ˈloʊər hæf/"},{"en":"RADM","cn":"（海军）少将","abbr":true,"full":"rear admiral upper half (RADM)","speakWord":"rear admiral upper half","phonetic":"/rɪər ˈædmərəl ˈʌpər hæf/"},{"en":"VADM","cn":"（海军）中将","abbr":true,"full":"vice admiral (VADM)","speakWord":"vice admiral","phonetic":"/vaɪs ˈædmərəl/"},{"en":"ADM","cn":"（海军）上将","abbr":true,"full":"admiral (ADM)","speakWord":"admiral","phonetic":"/ˈædmərəl/"},{"en":"CO","cn":"委任军官","abbr":true,"full":"commissioned officer (CO)","speakWord":"commissioned officer"},{"en":"NCO","cn":"士官","abbr":true,"full":"non-commissioned officer (NCO)","speakWord":"non-commissioned officer","phonetic":"/ˌnɒn kəˈmɪʃənd ˈɒfɪsər/"},{"en":"enlisted","cn":"士兵","abbr":false,"full":"enlisted"},{"en":"warrant officer","cn":"准尉","abbr":false,"full":"warrant officer"},{"en":"PVT","cn":"列兵","abbr":true,"full":"private (PVT)","speakWord":"private","phonetic":"/ˈpraɪvɪt/"},{"en":"PV1","cn":"上等兵","abbr":true,"full":"private first class (PV1)","speakWord":"private first class","phonetic":"/ˈpraɪvɪt fɜːrst klæs/"},{"en":"SPC","cn":"专业兵；专业军士","abbr":true,"full":"specialist (SPC)","speakWord":"specialist","phonetic":"/ˈspɛʃəlɪst/"},{"en":"CPL","cn":"下士","abbr":true,"full":"corporal (CPL)","speakWord":"corporal","phonetic":"/ˈkɔːrpərəl/"},{"en":"SGT","cn":"军士；（美陆军、海军陆战队）中士","abbr":true,"full":"sergeant (SGT)","speakWord":"sergeant","phonetic":"/ˈsɑːrdʒənt/"},{"en":"SSG","cn":"（美陆军、海军陆战队）上士；（美空军）中士","abbr":true,"full":"staff sergeant (SSG)","speakWord":"staff sergeant","phonetic":"/stæf ˈsɑːrdʒənt/"},{"en":"SFC","cn":"（美陆军）三级军士长","abbr":true,"full":"sergeant first class (SFC)","speakWord":"sergeant first class","phonetic":"/ˈsɑːrdʒənt fɜːrst klæs/"},{"en":"MSG","cn":"（美陆军）二级军士长","abbr":true,"full":"master sergeant (MSG)","speakWord":"master sergeant","phonetic":"/ˈmæstər ˈsɑːrdʒənt/"},{"en":"first sergeant (1SG)","cn":"（美陆军）二级军士长","abbr":true,"full":"first sergeant (1SG)","speakWord":"first sergeant"},{"en":"SGM","cn":"（美陆军）一级军士长","abbr":true,"full":"sergeant major (SGM)/command sergeant major (CSM)","speakWord":"sergeant major","phonetic":"/ˈsɑːrdʒənt ˈmeɪdʒər/"},{"en":"SMA","cn":"（美陆军）总军士长","abbr":true,"full":"Sergeant Major of the Army (SMA)","speakWord":"Sergeant Major of the Army","phonetic":"/ˈsɑːrdʒənt ˈmeɪdʒər əv ði ˈɑːrmi/"},{"en":"etiquette","cn":"礼节","abbr":false,"full":"etiquette"},{"en":"address","cn":"称呼","abbr":false,"full":"address"},{"en":"superior","cn":"上级；长官","abbr":false,"full":"superior"},{"en":"subordinate","cn":"下级；下属","abbr":false,"full":"subordinate"},{"en":"salute","cn":"敬礼","abbr":false,"full":"salute"},{"en":"promote","cn":"晋升","abbr":false,"full":"promote"},{"en":"serve","cn":"服役","abbr":false,"full":"serve"}],[{"en":"service uniform","cn":"常服","abbr":false,"full":"service uniform"},{"en":"combat uniform","cn":"作训服","abbr":false,"full":"combat uniform"},{"en":"physical training uniform","cn":"体能服","abbr":false,"full":"physical training uniform"},{"en":"dinner dress/mess dress/evening dress/dress uniform","cn":"礼服","abbr":false,"full":"dinner dress/mess dress/evening dress/dress uniform"},{"en":"esprit de corps","cn":"士气","abbr":false,"full":"esprit de corps"},{"en":"waistcoat","cn":"西装背心","abbr":false,"full":"waistcoat"},{"en":"service cap/flight cap","cn":"军帽","abbr":false,"full":"service cap/flight cap"},{"en":"long-sleeve","cn":"长袖","abbr":false,"full":"long-sleeve"},{"en":"short-sleeve","cn":"短袖","abbr":false,"full":"short-sleeve"},{"en":"pants","cn":"裤子","abbr":false,"full":"pants"},{"en":"breeches","cn":"马裤","abbr":false,"full":"breeches"},{"en":"chevron","cn":"V 形线条","abbr":false,"full":"chevron"},{"en":"camouflage","cn":"迷彩","abbr":false,"full":"camouflage"},{"en":"epaulets","cn":"肩章","abbr":false,"full":"epaulets"},{"en":"plain shoulder","cn":"无肩章","abbr":false,"full":"plain shoulder"},{"en":"stripe","cn":"条纹","abbr":false,"full":"stripe"},{"en":"nylon","cn":"尼龙","abbr":false,"full":"nylon"},{"en":"authorize","cn":"授权，批准","abbr":false,"full":"authorize"},{"en":"calf-length","cn":"齐腿肚子","abbr":false,"full":"calf-length"},{"en":"ankle-length","cn":"齐脚踝的","abbr":false,"full":"ankle-length"},{"en":"five-toed shoes","cn":"五趾鞋","abbr":false,"full":"five-toed shoes"},{"en":"compression shorts","cn":"压力短裤","abbr":false,"full":"compression shorts"},{"en":"reflective belt","cn":"反光腰带","abbr":false,"full":"reflective belt"},{"en":"lapel","cn":"西装上的翻领","abbr":false,"full":"lapel"},{"en":"pleat","cn":"衣服上面的褶皱","abbr":false,"full":"pleat"},{"en":"waistband","cn":"束腰带","abbr":false,"full":"waistband"},{"en":"insignia","cn":"徽章","abbr":false,"full":"insignia"},{"en":"name plate","cn":"姓名牌","abbr":false,"full":"name plate"}],[{"en":"battalion","cn":"营","abbr":false,"full":"battalion","phonetic":"/bəˈtæljən/"},{"en":"brigade","cn":"旅","abbr":false,"full":"brigade","phonetic":"/brɪˈɡeɪd/"},{"en":"chain of command","cn":"指挥系统；指挥关系；指挥链","abbr":false,"full":"chain of command"},{"en":"COS","cn":"参谋长","abbr":true,"full":"Chief of Staff（COS）","speakWord":"Chief of Staff","phonetic":"/tʃiːf əv stæf/"},{"en":"company/troop/battery","cn":"步兵连/骑兵连/炮兵连","abbr":false,"full":"company/troop/battery"},{"en":"division","cn":"师","abbr":false,"full":"division","phonetic":"/dɪˈvɪʒən/"},{"en":"flight","cn":"（飞行）小队；机群","abbr":false,"full":"flight"},{"en":"flotilla","cn":"（小）舰队；（小）船队；纵队","abbr":false,"full":"flotilla"},{"en":"group","cn":"大队","abbr":false,"full":"group"},{"en":"JCS","cn":"参谋长联席会议","abbr":true,"full":"Joint Chiefs of Staff (JCS)","speakWord":"Joint Chiefs of Staff","phonetic":"/dʒɔɪnt tʃiːfs əv stæf/"},{"en":"Joint Staff","cn":"(美)联合参谋部","abbr":false,"full":"Joint Staff"},{"en":"Marine expeditionary brigade","cn":"美国海军陆战队远征旅","abbr":false,"full":"Marine expeditionary brigade"},{"en":"Marine expeditionary force","cn":"美国海军陆战队远征部队","abbr":false,"full":"Marine expeditionary force"},{"en":"Marine expeditionary unit","cn":"美国海军陆战队远征小队","abbr":false,"full":"Marine expeditionary unit"},{"en":"Pentagon","cn":"（美）国防部","abbr":false,"full":"Pentagon"},{"en":"platoon","cn":"排","abbr":false,"full":"platoon","phonetic":"/pləˈtuːn/"},{"en":"regiment","cn":"团","abbr":false,"full":"regiment"},{"en":"section","cn":"（英）班；小队（海军舰只）；双机组（空军或海军航空兵）","abbr":false,"full":"section"},{"en":"squad","cn":"班","abbr":false,"full":"squad","phonetic":"/skwɒd/"},{"en":"squadron","cn":"中队","abbr":false,"full":"squadron","phonetic":"/ˈskwɒdrən/"},{"en":"staff","cn":"参谋人员；参谋机构；参谋部","abbr":false,"full":"staff","phonetic":"/stæf/"},{"en":"Task Element","cn":"特混支队","abbr":false,"full":"Task Element"},{"en":"Task Force","cn":"特混部队","abbr":false,"full":"Task Force"},{"en":"Task Group","cn":"特混大队","abbr":false,"full":"Task Group"},{"en":"Task Unit","cn":"特混小队","abbr":false,"full":"Task Unit"},{"en":"wing","cn":"空军联队；航空兵联队；侧翼部队","abbr":false,"full":"wing"}],[{"en":"CIMIC","cn":"军民合作","abbr":true,"full":"Civil-Military Cooperation (CIMIC)","speakWord":"Civil-Military Cooperation","phonetic":"/ˌsɪvəl ˈmɪlɪtɛri koʊˌɒpəˈreɪʃən/"},{"en":"CO","cn":"指挥官；舰长；主官","abbr":true,"full":"Commanding Officer(CO)","speakWord":"commissioned officer"},{"en":"DRU","cn":"直属单位","abbr":true,"full":"Directing Reporting Unit(DRU)","speakWord":"Directing Reporting Unit","phonetic":"/dɪˈrɛktɪŋ rɪˈpɔːrtɪŋ ˈjuːnɪt/"},{"en":"DOS","cn":"参谋部主任","abbr":true,"full":"Director of Staff (DOS)","speakWord":"Director of Staff","phonetic":"/dɪˈrɛktər əv stæf/"},{"en":"XO","cn":"执行官；副舰长；副职指挥员","abbr":true,"full":"Executive Officer(XO)","speakWord":"Executive Officer","phonetic":"/ɪɡˈzɛkjʊtɪv ˈɒfɪsər/"},{"en":"HQ","cn":"司令部；指挥部；总部","abbr":true,"full":"headquarters (HQ)","speakWord":"headquarters","phonetic":"/ˈhɛdˈkwɔːrtərz/"},{"en":"JOCC","cn":"联合作战指挥中心","abbr":true,"full":"Joint Operations Command Center (JOCC)","speakWord":"Joint Operations Command Center","phonetic":"/dʒɔɪnt ˌɒpəˈreɪʃənz kəˈmænd ˈsɛntər/"},{"en":"JSD","cn":"联合参谋部","abbr":true,"full":"Joint Staff Department (JSD)","speakWord":"Joint Staff Department","phonetic":"/dʒɔɪnt stæf dɪˈpɑːrtmənt/"},{"en":"liaison","cn":"联络","abbr":false,"full":"liaison"},{"en":"NATO","cn":"北大西洋公约组织（北约）","abbr":true,"full":"North Atlantic Treaty Organization (NATO)","speakWord":"North Atlantic Treaty Organization","phonetic":"/nɔːrθ ətˈlæntɪk ˈtriːti ˌɔːrɡənɪˈzeɪʃən/"},{"en":"Protocol Chief","cn":"礼宾处处长","abbr":false,"full":"Protocol Chief"},{"en":"Protocol Office","cn":"礼宾处","abbr":false,"full":"Protocol Office"},{"en":"PIO","cn":"新闻处","abbr":true,"full":"Public Information Office (PIO)","speakWord":"Public Information Office"},{"en":"staff officer","cn":"参谋","abbr":false,"full":"staff officer"}],[{"en":"addressee","cn":"收信人；收件人","abbr":false,"full":"addressee"},{"en":"BCC","cn":"密件抄送；密送","abbr":true,"full":"Blind Carbon Copy (BCC)","speakWord":"Blind Carbon Copy","phonetic":"/blaɪnd ˈkɑːrbən ˈkɒpi/"},{"en":"boulevard","cn":"大街；（市区的）林荫大道","abbr":false,"full":"boulevard"},{"en":"CC","cn":"抄送","abbr":true,"full":"Carbon Copy/ Courtesy copy (CC)","speakWord":"Carbon Copy","phonetic":"/ˈkɑːrbən ˈkɒpi/"},{"en":"classified","cn":"机密的; 分类的","abbr":false,"full":"classified"},{"en":"complimentary close","cn":"结尾客套语","abbr":false,"full":"complimentary close"},{"en":"confidential","cn":"机密","abbr":false,"full":"confidential"},{"en":"CF","cn":"提供的副本","abbr":true,"full":"copies furnished (CF)","speakWord":"copies furnished","phonetic":"/ˈkɒpiz ˈfɜːrnɪʃt/"},{"en":"cryptology","cn":"密码术","abbr":false,"full":"cryptology"},{"en":"declassify","cn":"解密","abbr":false,"full":"declassify"},{"en":"enclosure","cn":"(信中的)附件","abbr":false,"full":"enclosure"},{"en":"facsimile","cn":"传真","abbr":false,"full":"facsimile"},{"en":"interim","cn":"暂时的；过渡的","abbr":false,"full":"interim"},{"en":"memorandum","cn":"备忘录；建议书；报告","abbr":false,"full":"memorandum"},{"en":"mobilization","cn":"动员（尤指战时）","abbr":false,"full":"mobilization","phonetic":"/ˌmoʊbɪlɪˈzeɪʃən/"},{"en":"Official Use Only","cn":"官方填写；仅供官方使用","abbr":false,"full":"Official Use Only"},{"en":"POC","cn":"联系点","abbr":true,"full":"point of contact (POC)","speakWord":"point of contact","phonetic":"/pɔɪnt əv ˈkɒntækt/"},{"en":"Regrets Only","cn":"如不能出席请务必回复","abbr":false,"full":"Regrets Only"},{"en":"RSVP","cn":"敬请回复","abbr":true,"full":"RSVP (=reply, if you please)","speakWord":"RSVP"},{"en":"salutation","cn":"称呼；称谓","abbr":false,"full":"salutation"},{"en":"See Distribution","cn":"见接收人清单","abbr":false,"full":"See Distribution"},{"en":"template","cn":"模板","abbr":false,"full":"template"},{"en":"terminate","cn":"终止；使停止","abbr":false,"full":"terminate"}],[{"en":"air-to-air missile","cn":"空空导弹；空战导弹","abbr":false,"full":"air-to-air missile"},{"en":"barrel","cn":"枪管；炮筒","abbr":false,"full":"barrel"},{"en":"buttstock","cn":"枪托","abbr":false,"full":"buttstock"},{"en":"caliber","cn":"（枪、炮等的）口径","abbr":false,"full":"caliber"},{"en":"cannon","cn":"火炮；加农炮；机关炮","abbr":false,"full":"cannon"},{"en":"ceiling","cn":"升限；射高；（飞机）舱顶","abbr":false,"full":"ceiling"},{"en":"combat boots","cn":"作战靴","abbr":false,"full":"combat boots"},{"en":"corvette","cn":"轻型护卫舰;轻巡洋舰","abbr":false,"full":"corvette"},{"en":"displacement","cn":"（舰船）排水量","abbr":false,"full":"displacement"},{"en":"draft","cn":"征兵；(船的）吃水深度","abbr":false,"full":"draft"},{"en":"exoskeleton","cn":"外骨骼","abbr":false,"full":"exoskeleton"},{"en":"feed","cn":"进弹，装弹，送弹","abbr":false,"full":"feed"},{"en":"fighter","cn":"战斗机；歼击机；斗士；战斗员","abbr":false,"full":"fighter"},{"en":"frigate","cn":"护卫舰","abbr":false,"full":"frigate"},{"en":"goggles","cn":"护目镜","abbr":false,"full":"goggles"},{"en":"grenade","cn":"手雷；手榴弹；枪榴弹","abbr":false,"full":"grenade","phonetic":"/ɡrəˈneɪd/"},{"en":"grip","cn":"握把","abbr":false,"full":"grip"},{"en":"handle","cn":"手柄，把手","abbr":false,"full":"handle"},{"en":"helicopter","cn":"直升机","abbr":false,"full":"helicopter","phonetic":"/ˈhɛlɪkɒptər/"},{"en":"howitzer","cn":"榴弹炮","abbr":false,"full":"howitzer"},{"en":"Hull","cn":"壳体（坦克、自行火炮、舰艇等的主要结构）","abbr":false,"full":"Hull"},{"en":"IFV","cn":"步兵战车","abbr":true,"full":"IFV (Infantry Fighting Vehicle)","speakWord":"Infantry Fighting Vehicle","phonetic":"/ˈɪnfəntri ˈfaɪtɪŋ ˈviːɪkəl/"},{"en":"javelon","cn":"标枪，投枪","abbr":false,"full":"javelon"},{"en":"lever","cn":"杠杆，手柄","abbr":false,"full":"lever"},{"en":"machine gun","cn":"机枪；机关枪","abbr":false,"full":"machine gun","phonetic":"/məˈʃiːn ɡʌn/"},{"en":"magazine","cn":"弹匣；弹仓","abbr":false,"full":"magazine"},{"en":"MBT","cn":"主战坦克","abbr":true,"full":"MBT(main battle tank)","speakWord":"main battle tank","phonetic":"/meɪn ˈbætəl tæŋk/"},{"en":"mortar","cn":"迫击炮","abbr":false,"full":"mortar","phonetic":"/ˈmɔːrtər/"},{"en":"muzzle","cn":"枪口；炮口","abbr":false,"full":"muzzle"},{"en":"pistol","cn":"手枪","abbr":false,"full":"pistol","phonetic":"/ˈpɪstəl/"},{"en":"projectile","cn":"弹丸；炮弹；射弹","abbr":false,"full":"projectile"},{"en":"range","cn":"射程；靶场；射击场","abbr":false,"full":"range"},{"en":"rifle","cn":"来复枪；步枪；膛线","abbr":false,"full":"rifle","phonetic":"/ˈraɪfəl/"},{"en":"rocket launcher","cn":"火箭炮；火箭发射器","abbr":false,"full":"rocket launcher"},{"en":"round","cn":"一发（弹），整发弹；一轮","abbr":false,"full":"round"},{"en":"safety","cn":"安全设备，保险装置","abbr":false,"full":"safety"},{"en":"sight","cn":"瞄准具；观测器；瞄准","abbr":false,"full":"sight"},{"en":"small arms","cn":"轻武器","abbr":false,"full":"small arms"},{"en":"specification","cn":"性能表，规格，规范","abbr":false,"full":"specification"},{"en":"surface vessel","cn":"水面舰艇","abbr":false,"full":"surface vessel"},{"en":"surface-to-air missile","cn":"地对空导弹；舰对空导弹","abbr":false,"full":"surface-to-air missile"},{"en":"tandem","cn":"串列的，串联的；（飞机）串座式的","abbr":false,"full":"tandem"},{"en":"trajectory","cn":"轨道；弹道","abbr":false,"full":"trajectory"}],[{"en":"alumni","cn":"校友","abbr":false,"full":"alumni"},{"en":"assign","cn":"编入建制；委派；任命；指派","abbr":false,"full":"assign"},{"en":"cadet","cn":"(军校)学员","abbr":false,"full":"cadet"},{"en":"commandant","cn":"(要塞、基地、海军陆战队)司令官；(军事院校)院(校)长","abbr":false,"full":"commandant"},{"en":"conscript","cn":"义务兵；被征召入伍者；征召；招募","abbr":false,"full":"conscript"},{"en":"demote","cn":"降衔(级)","abbr":false,"full":"demote"},{"en":"discharge","cn":"退伍；退役","abbr":false,"full":"discharge"},{"en":"drill","cn":"队列训练；操练","abbr":false,"full":"drill"},{"en":"elite","cn":"尖子；精英","abbr":false,"full":"elite"},{"en":"enlist","cn":"征募；参军；入伍","abbr":false,"full":"enlist"},{"en":"foster","cn":"培养","abbr":false,"full":"foster"},{"en":"honor code","cn":"行为准则","abbr":false,"full":"honor code"},{"en":"lethal","cn":"致命的","abbr":false,"full":"lethal"},{"en":"military academy","cn":"军事院校","abbr":false,"full":"military academy"},{"en":"nomination","cn":"提名","abbr":false,"full":"nomination"},{"en":"tuition","cn":"学费","abbr":false,"full":"tuition"},{"en":"volunteer","cn":"志愿兵；志愿军人","abbr":false,"full":"volunteer"},{"en":"wield","cn":"运用；使用","abbr":false,"full":"wield"}],[{"en":"boot camp","cn":"新兵训练营","abbr":false,"full":"boot camp"},{"en":"drill","cn":"队列","abbr":false,"full":"drill"},{"en":"NBC warfare","cn":"核、生物、化学武器","abbr":true,"full":"NBC warfare","speakWord":"Nuclear, Biological, Chemical warfare","phonetic":"/ˈnjuːkliər ˌbaɪəˈlɒdʒɪkəl ˈkɛmɪkəl ˈwɔːrfɛər/"},{"en":"basic rifle marksmanship","cn":"步枪射击基础（训练）","abbr":false,"full":"basic rifle marksmanship"},{"en":"obstacle course","cn":"障碍训练场","abbr":false,"full":"obstacle course"},{"en":"foot march","cn":"拉练","abbr":false,"full":"foot march"},{"en":"stretching exercise","cn":"拉伸运动","abbr":false,"full":"stretching exercise"},{"en":"weight training","cn":"举重","abbr":false,"full":"weight training"},{"en":"push up","cn":"俯卧撑","abbr":false,"full":"push up"},{"en":"sit up","cn":"仰卧起坐","abbr":false,"full":"sit up"},{"en":"pull up","cn":"引体向上","abbr":false,"full":"pull up"},{"en":"squat","cn":"深蹲","abbr":false,"full":"squat"},{"en":"long run","cn":"长跑","abbr":false,"full":"long run"},{"en":"hand to hand combat","cn":"徒手格斗","abbr":false,"full":"hand to hand combat"},{"en":"Fall in!","cn":"集合","abbr":false,"full":"Fall in!"},{"en":"Attention!","cn":"立正","abbr":false,"full":"Attention!"},{"en":"Parade, rest!","cn":"跨立","abbr":false,"full":"Parade, rest!"},{"en":"At ease!","cn":"稍息","abbr":false,"full":"At ease!"},{"en":"Left-face (Left turn)!","cn":"向左转","abbr":false,"full":"Left-face (Left turn)!"},{"en":"About, face (About turn)!","cn":"向后转","abbr":false,"full":"About, face (About turn)!"},{"en":"Forward, march!","cn":"齐步走","abbr":false,"full":"Forward, march!"},{"en":"Mark time, march!","cn":"踏步走","abbr":false,"full":"Mark time, march!"},{"en":"Double time, march!","cn":"跑步走","abbr":false,"full":"Double time, march!"},{"en":"At ease, march!","cn":"便步走","abbr":false,"full":"At ease, march!"},{"en":"Halt!","cn":"立定","abbr":false,"full":"Halt!"},{"en":"Eyes, right!/ Right-dress!","cn":"向右看齐","abbr":false,"full":"Eyes, right!/ Right-dress!"},{"en":"Eyes-front/Ready-front!","cn":"向前看","abbr":false,"full":"Eyes-front/Ready-front!"},{"en":"Count off!","cn":"报数","abbr":false,"full":"Count off!"},{"en":"Here!","cn":"到","abbr":false,"full":"Here!"},{"en":"Advance!","cn":"前进","abbr":false,"full":"Advance!"},{"en":"Fire!","cn":"射击","abbr":false,"full":"Fire!"},{"en":"Dismiss!","cn":"解散","abbr":false,"full":"Dismiss!"},{"en":"core muscles","cn":"核心肌群","abbr":false,"full":"core muscles"},{"en":"cargo net","cn":"装卸网","abbr":false,"full":"cargo net"},{"en":"ditch","cn":"壕沟","abbr":false,"full":"ditch"},{"en":"low wall","cn":"矮墙","abbr":false,"full":"low wall"},{"en":"fence","cn":"栅栏","abbr":false,"full":"fence"},{"en":"ramp","cn":"斜坡","abbr":false,"full":"ramp"},{"en":"tunnel","cn":"坑道","abbr":false,"full":"tunnel"},{"en":"wire","cn":"铁丝网","abbr":false,"full":"wire"},{"en":"log","cn":"圆木","abbr":false,"full":"log"},{"en":"sprint","cn":"冲刺、全速跑","abbr":false,"full":"sprint"}],[{"en":"accommodate","cn":"使适应, 顺应","abbr":false,"full":"accommodate"},{"en":"cliff","cn":"悬崖","abbr":false,"full":"cliff"},{"en":"contour line","cn":"等高线","abbr":false,"full":"contour line"},{"en":"coordinate","cn":"使协调; 使调和","abbr":false,"full":"coordinate"},{"en":"draw","cn":"山坳","abbr":false,"full":"draw"},{"en":"depression","cn":"洼地","abbr":false,"full":"depression"},{"en":"elevation","cn":"海拔","abbr":false,"full":"elevation","phonetic":"/ˌɛlɪˈveɪʃən/"},{"en":"entangle","cn":"使某人(某物/自己)缠绕","abbr":false,"full":"entangle"},{"en":"hard duty","cn":"重型负载","abbr":false,"full":"hard duty"},{"en":"hill","cn":"小山","abbr":false,"full":"hill"},{"en":"horizontal","cn":"水平的, 与地平线平行的","abbr":false,"full":"horizontal"},{"en":"improved road","cn":"铺装路面","abbr":false,"full":"improved road"},{"en":"intermittent stream","cn":"间歇河流","abbr":false,"full":"intermittent stream"},{"en":"latitude","cn":"纬度","abbr":false,"full":"latitude"},{"en":"legend","cn":"图例","abbr":false,"full":"legend"},{"en":"longitude","cn":"经度","abbr":false,"full":"longitude"},{"en":"marsh","cn":"沼泽","abbr":false,"full":"marsh"},{"en":"MGRS","cn":"军事网格坐标","abbr":true,"full":"MGRS (Military Grid Reference System)","speakWord":"Military Grid Reference System","phonetic":"/ˈmɪlɪtɛri ɡrɪd ˈrɛfərəns ˈsɪstəm/"},{"en":"orchard","cn":"果园","abbr":false,"full":"orchard"},{"en":"plot","cn":"绘制; 标出","abbr":false,"full":"plot"},{"en":"precipitous","cn":"险峻的, 陡峭的","abbr":false,"full":"precipitous"},{"en":"relief","cn":"地形","abbr":false,"full":"relief","phonetic":"/rɪˈliːf/"},{"en":"ridge","cn":"山脊","abbr":false,"full":"ridge"},{"en":"saddle","cn":"鞍部","abbr":false,"full":"saddle"},{"en":"spur","cn":"尖坡","abbr":false,"full":"spur"},{"en":"swamp","cn":"沼泽","abbr":false,"full":"swamp"},{"en":"temporize","cn":"顺应时势,迎合潮流;拖延，耽搁","abbr":false,"full":"temporize"},{"en":"terrain","cn":"地形","abbr":false,"full":"terrain","phonetic":"/təˈreɪn/"},{"en":"topographic","cn":"地形的","abbr":false,"full":"topographic"},{"en":"valley","cn":"山谷","abbr":false,"full":"valley"},{"en":"vertical","cn":"垂直的，直立的","abbr":false,"full":"vertical"},{"en":"woods","cn":"树林","abbr":false,"full":"woods"}],[{"en":"callsign","cn":"无线电通联呼号","abbr":false,"full":"callsign"},{"en":"chronological","cn":"按发生时间顺序排列的","abbr":false,"full":"chronological"},{"en":"clear","cn":"音质好","abbr":false,"full":"clear"},{"en":"comply","cn":"服从,顺从","abbr":false,"full":"comply"},{"en":"digit","cn":"（零到九中的任一）数字","abbr":false,"full":"digit"},{"en":"dismount","cn":"下车","abbr":false,"full":"dismount"},{"en":"distorted","cn":"声音失真","abbr":false,"full":"distorted"},{"en":"dog tag","cn":"狗牌：指美军佩戴在脖子上的一块小金属牌，上面刻有他们的姓名和编号","abbr":false,"full":"dog tag"},{"en":"fading","cn":"信号变弱","abbr":false,"full":"fading"},{"en":"figure","cn":"数字","abbr":false,"full":"figure"},{"en":"good","cn":"信号好","abbr":false,"full":"good"},{"en":"grid","cn":"坐标网格","abbr":false,"full":"grid","phonetic":"/ɡrɪd/"},{"en":"interference","cn":"信号有干扰","abbr":false,"full":"interference"},{"en":"intermittent","cn":"信号时有时无","abbr":false,"full":"intermittent"},{"en":"K-I-A","cn":"阵亡","abbr":true,"full":"K-I-A (killed in action)","speakWord":"killed in action","phonetic":"/kɪld ɪn ˈækʃən/"},{"en":"loud","cn":"信号强","abbr":false,"full":"loud"},{"en":"midday","cn":"中午，正午","abbr":false,"full":"midday"},{"en":"military alphabet","cn":"军用字母表","abbr":false,"full":"military alphabet"},{"en":"misinterpretation","cn":"曲解","abbr":false,"full":"misinterpretation"},{"en":"nothing heard","cn":"听不见","abbr":false,"full":"nothing heard"},{"en":"proword (procedure word)","cn":"无线电通联规范用语","abbr":false,"full":"proword (procedure word)"},{"en":"radio check","cn":"电台检查","abbr":false,"full":"radio check"},{"en":"radio net","cn":"无线电通信网络","abbr":false,"full":"radio net"},{"en":"readability","cn":"信号音质","abbr":false,"full":"readability"},{"en":"readable","cn":"可以听清","abbr":false,"full":"readable"},{"en":"recce","cn":"侦察","abbr":false,"full":"recce"},{"en":"roger","cn":"已收到，明白","abbr":false,"full":"roger"},{"en":"signal strength","cn":"信号强度","abbr":false,"full":"signal strength"},{"en":"signal","cn":"信号","abbr":false,"full":"signal","phonetic":"/ˈsɪɡnəl/"},{"en":"SITREP","cn":"军情报告","abbr":true,"full":"SITREP (situation report)","speakWord":"situation report"},{"en":"transmit","cn":"（无线电等信号的）播送，发送","abbr":false,"full":"transmit","phonetic":"/trænzˈmɪt/"},{"en":"unreadable/not readable","cn":"听不清","abbr":false,"full":"unreadable/not readable"},{"en":"waypoint","cn":"路径；路标","abbr":false,"full":"waypoint"},{"en":"weak","cn":"信号弱","abbr":false,"full":"weak"}],[{"en":"ambush","cn":"伏击","abbr":false,"full":"ambush"},{"en":"ammo","cn":"弹药;军火","abbr":false,"full":"ammo"},{"en":"assault position","cn":"冲锋出发阵地","abbr":false,"full":"assault position"},{"en":"attachment","cn":"配属部队","abbr":false,"full":"attachment"},{"en":"attack position","cn":"进攻出发阵地","abbr":false,"full":"attack position"},{"en":"chow","cn":"食物","abbr":false,"full":"chow"},{"en":"CO","cn":"指挥官","abbr":true,"full":"CO (commanding officer)","speakWord":"commanding officer","phonetic":"/kəˈmændɪŋ ˈɒfɪsər/"},{"en":"combat order","cn":"战斗命令","abbr":false,"full":"combat order"},{"en":"commander’s intent","cn":"指挥官意图","abbr":false,"full":"commander’s intent"},{"en":"concept of operations","cn":"作战概念","abbr":false,"full":"concept of operations"},{"en":"consolidate","cn":"巩固，加强","abbr":false,"full":"consolidate"},{"en":"consolidated","cn":"巩固的","abbr":false,"full":"consolidated"},{"en":"coordinated","cn":"协调一致的","abbr":false,"full":"coordinated"},{"en":"corpsman","cn":"医护兵;卫生员","abbr":false,"full":"corpsman"},{"en":"counterattack","cn":"反击;反攻","abbr":false,"full":"counterattack"},{"en":"detachment","cn":"分遣部队","abbr":false,"full":"detachment"},{"en":"disrupt","cn":"扰乱;瓦解","abbr":false,"full":"disrupt"},{"en":"ERW","cn":"战俘","abbr":true,"full":"ERW(Enemy Prisoner of War)","speakWord":"Enemy Prisoner of War","phonetic":"/ˈɛnəmi ˈprɪzənər əv wɔːr/"},{"en":"fire team","cn":"火力小组","abbr":false,"full":"fire team"},{"en":"flank","cn":"翼侧;侧面","abbr":false,"full":"flank"},{"en":"fragmentary order","cn":"补充命令","abbr":false,"full":"fragmentary order"},{"en":"gunnery sergeant","cn":"枪炮军士","abbr":false,"full":"gunnery sergeant"},{"en":"harassing attack","cn":"扰乱攻击","abbr":false,"full":"harassing attack"},{"en":"inflict","cn":"使遭受;使承受","abbr":false,"full":"inflict"},{"en":"instruction","cn":"指令","abbr":false,"full":"instruction"},{"en":"insurgent","cn":"叛乱","abbr":false,"full":"insurgent"},{"en":"line of departure","cn":"起始线;出发线","abbr":false,"full":"line of departure"},{"en":"main effort","cn":"主攻部队","abbr":false,"full":"main effort"},{"en":"MRE","cn":"口粮","abbr":true,"full":"MRE (Meal Ready to Eat)","speakWord":"Meal Ready to Eat","phonetic":"/miːl ˈrɛdi tuː iːt/"},{"en":"operations order","cn":"作战命令","abbr":false,"full":"operations order"},{"en":"EPW","cn":"战俘","abbr":true,"full":"EPW (Enemy Prisoner of War)","speakWord":"Enemy Prisoner of War","phonetic":"/ˈɛnəmi ˈprɪzənər əv wɔːr/"},{"en":"proximity","cn":"靠近","abbr":false,"full":"proximity"},{"en":"QRF","cn":"快速反应部队","abbr":true,"full":"QRF (Quick Reaction Force)","speakWord":"Quick Reaction Force","phonetic":"/kwɪk riˈækʃən fɔːrs/"},{"en":"RPG","cn":"火箭弹","abbr":true,"full":"RPG (Rocket-Propelled Grenade)","speakWord":"Rocket-Propelled Grenade","phonetic":"/ˈrɒkɪt prəˈpɛld ɡrəˈneɪd/"},{"en":"scheme of maneuver","cn":"机动计划","abbr":false,"full":"scheme of maneuver"},{"en":"skirmisher","cn":"散兵;突击手","abbr":false,"full":"skirmisher"},{"en":"supply line","cn":"补给线","abbr":false,"full":"supply line"},{"en":"supporting effort","cn":"助攻行动","abbr":false,"full":"supporting effort"},{"en":"vicinity","cn":"周围地区；邻近地区","abbr":false,"full":"vicinity"},{"en":"warning order","cn":"警示命令","abbr":false,"full":"warning order"},{"en":"wedge","cn":"楔形队形","abbr":false,"full":"wedge"}],[{"en":"allergy","cn":"过敏；敏感","abbr":false,"full":"allergy"},{"en":"arterial","cn":"动脉的","abbr":false,"full":"arterial"},{"en":"automated external defibrillator","cn":"自动体外除颤器","abbr":false,"full":"automated external defibrillator"},{"en":"band","cn":"段；带，箍；带状物","abbr":false,"full":"band"},{"en":"bandage","cn":"绷带","abbr":false,"full":"bandage"},{"en":"blockage","cn":"堵塞，阻塞","abbr":false,"full":"blockage"},{"en":"cardiac arrest","cn":"心脏骤停","abbr":false,"full":"cardiac arrest"},{"en":"CPR","cn":"心肺复苏术","abbr":true,"full":"cardiopulmonary resuscitation（CPR）","speakWord":"cardiopulmonary resuscitation","phonetic":"/ˌkɑːrdioʊˈpʌlmənɛri rɪˌsʌsɪˈteɪʃən/"},{"en":"CASEVAC","cn":"伤病员后送","abbr":true,"full":"casualty evacuation (CASEVAC)","speakWord":"casualty evacuation","phonetic":"/ˈkæʒuəlti ɪˌvækjuˈeɪʃən/"},{"en":"chest seal","cn":"胸腔密封贴，胸封","abbr":false,"full":"chest seal"},{"en":"circulation","cn":"血液循环","abbr":false,"full":"circulation"},{"en":"clammy","cn":"湿粘的；湿冷的","abbr":false,"full":"clammy"},{"en":"clip","cn":"夹子","abbr":false,"full":"clip"},{"en":"coma","cn":"昏迷","abbr":false,"full":"coma"},{"en":"compression","cn":"胸部按压","abbr":false,"full":"compression"},{"en":"deprivation","cn":"贫困，匮乏，剥夺","abbr":false,"full":"deprivation"},{"en":"deterioration","cn":"恶化","abbr":false,"full":"deterioration"},{"en":"disposable","cn":"一次性的","abbr":false,"full":"disposable"},{"en":"distal pulse","cn":"远端脉搏","abbr":false,"full":"distal pulse"},{"en":"evacuate","cn":"撤离；疏散","abbr":false,"full":"evacuate"},{"en":"first aid","cn":"急救","abbr":false,"full":"first aid","phonetic":"/fɜːrst eɪd/"},{"en":"fracture","cn":"断裂；骨折","abbr":false,"full":"fracture"},{"en":"gauze","cn":"纱布；薄纱；","abbr":false,"full":"gauze"},{"en":"hoist","cn":"升降机；绞车","abbr":false,"full":"hoist"},{"en":"IR","cn":"红外线(IR)频闪灯","abbr":true,"full":"infrared (IR) strobes","speakWord":"infrared","phonetic":"/ˌɪnfrəˈrɛd/"},{"en":"kit","cn":"成套工具，成套设备；箱子","abbr":false,"full":"kit"},{"en":"MEDEVAC","cn":"医疗后送","abbr":true,"full":"medical evacuation (MEDEVAC)","speakWord":"medical evacuation","phonetic":"/ˈmɛdɪkəl ɪˌvækjuˈeɪʃən/"},{"en":"NPA","cn":"鼻咽导气管","abbr":true,"full":"nasopharyngeal airway (NPA)","speakWord":"nasopharyngeal airway","phonetic":"/ˌneɪzoʊfəˈrɪndʒiəl ˈɛərweɪ/"},{"en":"NBC","cn":"核生化污染","abbr":true,"full":"Nuclear, biological, and chemical (NBC) Contamination","speakWord":"Nuclear, biological, and chemical","phonetic":"/ˈnjuːkliər ˌbaɪəˈlɒdʒɪkəl ænd ˈkɛmɪkəl/"},{"en":"onset","cn":"（尤指某种坏事情的）开始；发作","abbr":false,"full":"onset"},{"en":"oral rehydration salts","cn":"口服补液盐","abbr":false,"full":"oral rehydration salts"},{"en":"rod","cn":"棒，杆","abbr":false,"full":"rod"},{"en":"shrapnel","cn":"弹片；榴霰弹","abbr":false,"full":"shrapnel"},{"en":"spasm","cn":"痉挛，抽搐","abbr":false,"full":"spasm"},{"en":"splint","cn":"（固定断骨的）夹板","abbr":false,"full":"splint"},{"en":"SOP","cn":"标准作战程序；标准作业程序","abbr":true,"full":"standard operating procedure (SOP)","speakWord":"standard operating procedure","phonetic":"/ˈstændərd ˈɒpəreɪtɪŋ prəˈsiːdʒər/"},{"en":"strap","cn":"带子；皮带","abbr":false,"full":"strap"},{"en":"surgical gloves","cn":"外科手套；手术手套；医用手套","abbr":false,"full":"surgical gloves"},{"en":"tourniquet","cn":"止血带","abbr":false,"full":"tourniquet"},{"en":"trauma","cn":"损伤；外伤；挫折","abbr":false,"full":"trauma"},{"en":"underbrush","cn":"矮树丛","abbr":false,"full":"underbrush"},{"en":"ventilator","cn":"人工呼吸器","abbr":false,"full":"ventilator"}],[{"en":"ammo pouch","cn":"弹药袋","abbr":false,"full":"ammo pouch"},{"en":"assault","cn":"攻击或袭击（敌方阵地）","abbr":false,"full":"assault"},{"en":"breakdown","cn":"（机器的）故障","abbr":false,"full":"breakdown"},{"en":"bunker","cn":"掩体；地堡；暗堡","abbr":false,"full":"bunker"},{"en":"canteen","cn":"水壶","abbr":false,"full":"canteen"},{"en":"compromise","cn":"失密；泄密；暴露","abbr":false,"full":"compromise"},{"en":"covert","cn":"隐密的","abbr":false,"full":"covert"},{"en":"dead reckoning","cn":"航位推算法","abbr":false,"full":"dead reckoning"},{"en":"detect","cn":"发现；探测","abbr":false,"full":"detect"},{"en":"discretion","cn":"谨慎；慎重","abbr":false,"full":"discretion"},{"en":"dispatch","cn":"派遣","abbr":false,"full":"dispatch"},{"en":"distress signal","cn":"遇险求救信号；遇难信号","abbr":false,"full":"distress signal"},{"en":"emplacement","cn":"炮火掩体；炮位（座）","abbr":false,"full":"emplacement"},{"en":"extract","cn":"撤出（作战区域）；撤离","abbr":false,"full":"extract"},{"en":"first aid kit","cn":"急救包","abbr":false,"full":"first aid kit"},{"en":"flak vest","cn":"防弹背心","abbr":false,"full":"flak vest"},{"en":"folding shovel","cn":"折叠锹","abbr":false,"full":"folding shovel"},{"en":"fortification","cn":"防御工事","abbr":false,"full":"fortification"},{"en":"harass","cn":"屡次袭扰（敌人）","abbr":false,"full":"harass"},{"en":"infiltration","cn":"渗透","abbr":false,"full":"infiltration"},{"en":"litter","cn":"担架","abbr":false,"full":"litter"},{"en":"man","cn":"保卫（防御工事）","abbr":false,"full":"man"},{"en":"neutralize","cn":"（在军事或秘密行动中）消除威胁；摧毁","abbr":false,"full":"neutralize"},{"en":"overrun","cn":"占领","abbr":false,"full":"overrun"},{"en":"oversee","cn":"监督；管理","abbr":false,"full":"oversee"},{"en":"patrol pack","cn":"巡逻背包","abbr":false,"full":"patrol pack"},{"en":"raid","cn":"突击","abbr":false,"full":"raid"},{"en":"ration","cn":"口粮；给养","abbr":false,"full":"ration"},{"en":"reinforce","cn":"增援","abbr":false,"full":"reinforce"},{"en":"rotate","cn":"轮流；轮换；轮岗","abbr":false,"full":"rotate"},{"en":"sustain","cn":"作战保障；战斗保障","abbr":false,"full":"sustain"},{"en":"synchronize","cn":"同步；协调","abbr":false,"full":"synchronize"},{"en":"vigilance","cn":"警戒；警惕","abbr":false,"full":"vigilance"},{"en":"webbing","cn":"背带；挂带","abbr":false,"full":"webbing"}],[{"en":"alert status","cn":"警备状态","abbr":false,"full":"alert status"},{"en":"alternative route","cn":"替代路线","abbr":false,"full":"alternative route"},{"en":"ambush","cn":"埋伏，伏击","abbr":false,"full":"ambush"},{"en":"APC","cn":"人员装甲运输车","abbr":true,"full":"APC (Armored Personnel Carrier)","speakWord":"Armored Personnel Carrier","phonetic":"/ˈɑːrmərd ˌpɜːrsəˈnɛl ˈkæriər/"},{"en":"armed","cn":"武装的","abbr":false,"full":"armed"},{"en":"armored","cn":"装甲的","abbr":false,"full":"armored","phonetic":"/ˈɑːrmərd/"},{"en":"breakdown","cn":"（汽车或机器的）故障，损坏","abbr":false,"full":"breakdown"},{"en":"CC","cn":"车队指挥官","abbr":true,"full":"CC (Convoy Commander)","speakWord":"Convoy Commander","phonetic":"/ˈkɒnvɔɪ kəˈmændər/"},{"en":"civilian","cn":"平民，百姓；平民的","abbr":false,"full":"civilian"},{"en":"contingency","cn":"突发事件","abbr":false,"full":"contingency"},{"en":"convoy","cn":"车队","abbr":false,"full":"convoy","phonetic":"/ˈkɒnvɔɪ/"},{"en":"checkpoint","cn":"检查站，关卡","abbr":false,"full":"CP (checkpoint)"},{"en":"crossroad","cn":"十字路口","abbr":false,"full":"crossroad"},{"en":"curve","cn":"弯道","abbr":false,"full":"curve"},{"en":"DC","cn":"副指挥官","abbr":true,"full":"DC (Deputy Commander)","speakWord":"Deputy Commander","phonetic":"/ˈdɛpjuti kəˈmændər/"},{"en":"debriefing","cn":"情况汇报；行动后讲评","abbr":false,"full":"debriefing"},{"en":"escort","cn":"护送，陪同；护航舰；护卫队；护送者","abbr":false,"full":"escort"},{"en":"ETA","cn":"预计到达时间","abbr":true,"full":"ETA (estimated time of arrival)","speakWord":"estimated time of arrival","phonetic":"/ˈɛstɪmeɪtɪd taɪm əv əˈraɪvəl/"},{"en":"ETD","cn":"预计出发时间","abbr":true,"full":"ETD (estimated time of departure)","speakWord":"estimated time of departure","phonetic":"/ˈɛstɪmeɪtɪd taɪm əv dɪˈpɑːrtʃər/"},{"en":"formation","cn":"编队","abbr":false,"full":"formation"},{"en":"halt","cn":"停止；立定","abbr":false,"full":"halt"},{"en":"hostile","cn":"敌对(的)，敌方的；怀敌意的","abbr":false,"full":"hostile"},{"en":"humanitarian aid","cn":"人道主义救援","abbr":false,"full":"humanitarian aid"},{"en":"invalid","cn":"无效的","abbr":false,"full":"invalid"},{"en":"junction","cn":"岔路口","abbr":false,"full":"junction"},{"en":"OP","cn":"监视哨，观察站，观察哨","abbr":true,"full":"OP (observation post)","speakWord":"observation post","phonetic":"/ˌɒbzərˈveɪʃən poʊst/"},{"en":"QRF","cn":"快速反应部队","abbr":true,"full":"QRF (Quick Reaction Force)","speakWord":"Quick Reaction Force","phonetic":"/kwɪk riˈækʃən fɔːrs/"},{"en":"recovery support","cn":"救援支援","abbr":false,"full":"recovery support"},{"en":"reporting point","cn":"报告点","abbr":false,"full":"reporting point"},{"en":"ROE","cn":"交战规则","abbr":true,"full":"ROE (Rules of Engagement)","speakWord":"Rules of Engagement","phonetic":"/ruːlz əv ɪnˈɡeɪdʒmənt/"},{"en":"roundabout","cn":"环岛","abbr":false,"full":"roundabout"},{"en":"RP","cn":"分进点","abbr":true,"full":"RP (release point)","speakWord":"release point","phonetic":"/rɪˈliːs pɔɪnt/"},{"en":"scout group/team","cn":"侦察组","abbr":false,"full":"scout group/team"},{"en":"shipment","cn":"运送","abbr":false,"full":"shipment"},{"en":"signpost","cn":"指示牌","abbr":false,"full":"signpost"},{"en":"SITREP","cn":"战况报告；形势报告","abbr":true,"full":"SITREP (situation report)","speakWord":"situation report"},{"en":"SP","cn":"出发点","abbr":true,"full":"SP (start point)","speakWord":"start point","phonetic":"/stɑːrt pɔɪnt/"},{"en":"strip map","cn":"带状图","abbr":false,"full":"strip map"},{"en":"tactic","cn":"策略，战术","abbr":false,"full":"tactic"}],[{"en":"amphibious exercise","cn":"两栖演习","abbr":false,"full":"amphibious exercise"},{"en":"anti-terrorism drill","cn":"反恐演习","abbr":false,"full":"anti-terrorism drill"},{"en":"Blue Sword-2023","cn":"蓝剑-2023","abbr":false,"full":"Blue Sword-2023"},{"en":"Cobra Gold-2024","cn":"金色眼镜蛇-2024","abbr":false,"full":"Cobra Gold-2024"},{"en":"catastrophe","cn":"灾难","abbr":false,"full":"catastrophe"},{"en":"Command Post Exercise","cn":"指挥所演习","abbr":false,"full":"Command Post Exercise"},{"en":"combined training exercise","cn":"多国合成训练演习","abbr":false,"full":"combined training exercise"},{"en":"Counter-Terrorism Field Training Exercise-2023","cn":"反恐实战演习-2023","abbr":false,"full":"Counter-Terrorism Field Training Exercise-2023"},{"en":"cyber exercise","cn":"网络演习","abbr":false,"full":"cyber exercise"},{"en":"Eagle Strike-2024","cn":"雄鹰突击-2024","abbr":false,"full":"Eagle Strike-2024"},{"en":"field training exercise","cn":"野战训练演习","abbr":false,"full":"field training exercise"},{"en":"fire coordination exercise","cn":"火力协调演习","abbr":false,"full":"fire coordination exercise"},{"en":"hedging strategy","cn":"对冲策略","abbr":false,"full":"hedging strategy"},{"en":"joint exercise","cn":"联合军演","abbr":false,"full":"joint exercise"},{"en":"logistics exercise","cn":"后勤演习","abbr":false,"full":"logistics exercise"},{"en":"map exercise","cn":"地图推演","abbr":false,"full":"map exercise"},{"en":"masquerade","cn":"掩饰","abbr":false,"full":"masquerade"},{"en":"mobilize","cn":"调动","abbr":false,"full":"mobilize"},{"en":"METT-T","cn":"作战任务、敌军、地形、军力、时间","abbr":true,"full":"Mission, Enemy, Troops, Terrain, and Time Available (METT-T)","speakWord":"Mission, Enemy, Troops, Terrain, and Time Available","phonetic":"/ˈmɪʃən ˈɛnəmi truːps təˈreɪn ænd taɪm əˈveɪləbəl/"},{"en":"Peace Angel-2023","cn":"和平天使-2023","abbr":false,"full":"Peace Angel-2023"},{"en":"prioritize","cn":"优先","abbr":false,"full":"prioritize"},{"en":"Pure Homeland-2023","cn":"净土-2023","abbr":false,"full":"Pure Homeland-2023"},{"en":"staff exercise","cn":"参谋人员演习","abbr":false,"full":"staff exercise"},{"en":"situational exercise","cn":"情景训练演习","abbr":false,"full":"situational exercise"},{"en":"synchronize","cn":"同步","abbr":false,"full":"synchronize"},{"en":"table top exercise","cn":"桌面推演","abbr":false,"full":"table top exercise"},{"en":"The 10th Mountain Division","cn":"第十山地师","abbr":false,"full":"The 10th Mountain Division"}],[{"en":"alleviate","cn":"减轻，缓和","abbr":false,"full":"alleviate"},{"en":"ambivalence","cn":"矛盾情绪；正反感情并存","abbr":false,"full":"ambivalence"},{"en":"armistice","cn":"(正式的)休战协议","abbr":false,"full":"armistice","phonetic":"/ˈɑːrmɪstɪs/"},{"en":"blemish","cn":"瑕疵","abbr":false,"full":"blemish"},{"en":"Blue Beret","cn":"蓝色贝雷帽；维和人员","abbr":false,"full":"Blue Beret"},{"en":"buffer zone","cn":"缓冲区：中立区","abbr":false,"full":"buffer zone"},{"en":"ceasefire","cn":"(较正式的)停火协议","abbr":false,"full":"ceasefire","phonetic":"/ˈsiːsˈfaɪər/"},{"en":"configuration","cn":"布局，构造；配置","abbr":false,"full":"configuration"},{"en":"consent","cn":"同意","abbr":false,"full":"consent"},{"en":"dearth","cn":"缺乏","abbr":false,"full":"dearth"},{"en":"demining","cn":"扫雷","abbr":false,"full":"demining"},{"en":"detachment","cn":"分遣队","abbr":false,"full":"detachment"},{"en":"disinformation","cn":"虚假信息","abbr":false,"full":"disinformation"},{"en":"disarmament","cn":"裁军；缴械","abbr":false,"full":"disarmament","phonetic":"/dɪsˈɑːrməmənt/"},{"en":"geopolitical","cn":"地缘政治","abbr":false,"full":"geopolitical"},{"en":"impartiality","cn":"公正","abbr":false,"full":"impartiality"},{"en":"inactivity","cn":"不作为","abbr":false,"full":"inactivity"},{"en":"interim","cn":"临时的，暂时的","abbr":false,"full":"interim"},{"en":"landmine","cn":"地雷","abbr":false,"full":"landmine"},{"en":"legitimacy","cn":"合法性，合理性","abbr":false,"full":"legitimacy"},{"en":"leverage","cn":"利用","abbr":false,"full":"leverage"},{"en":"mandate","cn":"授权，委托","abbr":false,"full":"mandate","phonetic":"/ˈmændeɪt/"},{"en":"mediation","cn":"调解，仲裁","abbr":false,"full":"mediation","phonetic":"/ˌmiːdiˈeɪʃən/"},{"en":"mine clearance","cn":"扫雷，排雷","abbr":false,"full":"mine clearance"},{"en":"multi-dimensional","cn":"多层面","abbr":false,"full":"multi-dimensional"},{"en":"neutrality","cn":"中立","abbr":false,"full":"neutrality"},{"en":"ordnance","cn":"军械；军火","abbr":false,"full":"ordnance","phonetic":"/ˈɔːrdnəns/"},{"en":"peacekeeping","cn":"维和","abbr":false,"full":"peacekeeping","phonetic":"/ˈpiːsˌkiːpɪŋ/"},{"en":"proportionate","cn":"成比例的；相称的；适当的","abbr":false,"full":"proportionate"},{"en":"reconciliation","cn":"和解；复交","abbr":false,"full":"reconciliation","phonetic":"/ˌrɛkənˌsɪliˈeɪʃən/"},{"en":"referendum","cn":"全民投票","abbr":false,"full":"referendum"},{"en":"refugee","cn":"难民，避难者","abbr":false,"full":"refugee","phonetic":"/ˌrɛfjuˈdʒiː/"},{"en":"Regime","cn":"政权","abbr":false,"full":"Regime"},{"en":"rehabilitation","cn":"复原；恢复；修复","abbr":false,"full":"rehabilitation","phonetic":"/ˌriːəˌbɪlɪˈteɪʃən/"},{"en":"ROE","cn":"交战规则","abbr":true,"full":"Rules of Engagement（ROE）","speakWord":"Rules of Engagement","phonetic":"/ruːlz əv ɪnˈɡeɪdʒmənt/"},{"en":"sideline","cn":"边线；副业","abbr":false,"full":"sideline"},{"en":"spill-over","cn":"溢出 ; 外溢","abbr":false,"full":"spill-over"},{"en":"supervise","cn":"监督","abbr":false,"full":"supervise"},{"en":"supervision","cn":"监督，管理","abbr":false,"full":"supervision"},{"en":"truce","cn":"(非正式的、短期的)停战（或停火）","abbr":false,"full":"truce","phonetic":"/truːs/"},{"en":"UN Charter","cn":"联合国宪章","abbr":true,"full":"UN Charter","speakWord":"United Nations Charter","phonetic":"/juˈnaɪtɪd ˈneɪʃənz ˈtʃɑːrtər/"},{"en":"UNPKO","cn":"联合国维和行动","abbr":true,"full":"United Nations Peacekeeping Operation (UNPKO)","speakWord":"United Nations Peacekeeping Operation","phonetic":"/juˈnaɪtɪd ˈneɪʃənz ˈpiːsˌkiːpɪŋ ˌɒpəˈreɪʃən/"},{"en":"withdrawal","cn":"撤退","abbr":false,"full":"withdrawal","phonetic":"/wɪðˈdrɔːəl/"}],[{"en":"accord","cn":"使受到，给予（某种待遇）","abbr":false,"full":"accord"},{"en":"animosity","cn":"仇恨，敌意","abbr":false,"full":"animosity"},{"en":"area of responsibility","cn":"责任区","abbr":false,"full":"area of responsibility"},{"en":"armed escort","cn":"武装护卫","abbr":false,"full":"armed escort"},{"en":"armistice","cn":"休战","abbr":false,"full":"armistice","phonetic":"/ˈɑːrmɪstɪs/"},{"en":"assessment","cn":"评估，评价，评定","abbr":false,"full":"assessment","phonetic":"/əˈsɛsmənt/"},{"en":"ceasefire","cn":"停火","abbr":false,"full":"ceasefire","phonetic":"/ˈsiːsˈfaɪər/"},{"en":"Code of Conduct","cn":"行为准则","abbr":false,"full":"Code of Conduct"},{"en":"compile","cn":"收集，搜集（信息，资料）","abbr":false,"full":"compile"},{"en":"contingent troop","cn":"维和分队","abbr":false,"full":"contingent troop"},{"en":"coordination","cn":"协调，配合","abbr":false,"full":"coordination","phonetic":"/koʊˌɔːrdɪˈneɪʃən/"},{"en":"demobilization","cn":"复员，遣散","abbr":false,"full":"demobilization","phonetic":"/diːˌmoʊbɪlɪˈzeɪʃən/"},{"en":"demonstration","cn":"示威","abbr":false,"full":"demonstration"},{"en":"disarmament","cn":"裁军，武装解除，缴械","abbr":false,"full":"disarmament","phonetic":"/dɪsˈɑːrməmənt/"},{"en":"discontent","cn":"不满","abbr":false,"full":"discontent"},{"en":"dispute","cn":"争论，纠纷，争夺","abbr":false,"full":"dispute"},{"en":"engagement","cn":"参加，从事","abbr":false,"full":"engagement","phonetic":"/ɪnˈɡeɪdʒmənt/"},{"en":"immunity","cn":"免除，豁免","abbr":false,"full":"immunity"},{"en":"impartiality","cn":"公正，公平，不偏不倚","abbr":false,"full":"impartiality"},{"en":"ingenuity","cn":"聪明才智，巧妙","abbr":false,"full":"ingenuity"},{"en":"intermediation","cn":"调解，仲裁，调停","abbr":false,"full":"intermediation"},{"en":"liaise","cn":"联络，沟通","abbr":false,"full":"liaise"},{"en":"mandate","cn":"授权，命令，指示","abbr":false,"full":"mandate","phonetic":"/ˈmændeɪt/"},{"en":"mediation","cn":"调解，仲裁","abbr":false,"full":"mediation","phonetic":"/ˌmiːdiˈeɪʃən/"},{"en":"MILOB","cn":"军事观察员","abbr":true,"full":"MILOB，military observer","speakWord":"military observer","phonetic":"/ˈmɪlɪtɛri əbˈzɜːrvər/"},{"en":"monitor","cn":"监督，监控，监视","abbr":false,"full":"monitor"},{"en":"negotiation","cn":"谈判，协商，","abbr":false,"full":"negotiation","phonetic":"/nɪˌɡoʊʃiˈeɪʃən/"},{"en":"outreach","cn":"外联","abbr":false,"full":"outreach"},{"en":"PPE","cn":"个人保护装备","abbr":true,"full":"PPE, personal protective equipment","speakWord":"personal protective equipment","phonetic":"/ˈpɜːrsənəl prəˈtɛktɪv ɪˈkwɪpmənt/"},{"en":"PX","cn":"军营超市","abbr":true,"full":"PX, Post Exchange","speakWord":"Post Exchange","phonetic":"/poʊst ɪksˈtʃeɪndʒ/"},{"en":"roadblock","cn":"路障，障碍物","abbr":false,"full":"roadblock"},{"en":"supervise","cn":"指导，监督","abbr":false,"full":"supervise"},{"en":"team site","cn":"观察员营地","abbr":false,"full":"team site"},{"en":"truce","cn":"休战","abbr":false,"full":"truce","phonetic":"/truːs/"},{"en":"verify","cn":"证实，证明，核实","abbr":false,"full":"verify"}]];
+var UNIT_NAMES = ["Arms and Services", "Military Ranks", "Military Uniform", "Military Organization", "Headquarters", "Military Writing", "Military Equipment", "Military Technology", "Military Education", "Military Training", "Military Map Reading", "Radio Communication", "Operation Orders", "CASEVAC", "Patrol", "Convoy", "Military Exercises", "Humanitarian Action", "UN Peacekeeping Operations", "Military Observers"];
+// U8 and U18 have no data. Data indices 0-17 -> U1-7, U9-17, U19-20
+var DATA_TO_UNIT = [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20];
+var ui=0,words=[],items=[];
 
-const CARDS = [
-// ===== 军种与兵种 =====
-{id:'1-1',cat:'services-arms',q:'Services（军种）与 Arms（兵种）的区别是什么？',
- a:'<strong>Services（军种）</strong>：武装力量的基本组成部分，如陆军、海军、空军等<br><strong>Arms（兵种）</strong>：各军种下属的分支，如步兵、炮兵等',
- cloze:'___（军种）指武装力量的基本组成部分；___（兵种）指各军种下属的分支',clozeAns:['Services','Arms']},
-{id:'1-2',cat:'services-arms',q:'中国（China）的军种有哪些？',
- a:'<span class="en">Army</span>（陆军）、<span class="en">Navy</span>（海军）、<span class="en">Air Force</span>（空军）、<span class="en">Rocket Force</span>（火箭军）',
- cloze:'中国的军种包括Army、Navy、Air Force和___（火箭军）',clozeAns:['Rocket Force']},
-{id:'1-3',cat:'services-arms',q:'美国（The U.S.）的军种有哪些？',
- a:'<span class="en">Army</span>（陆军）、<span class="en">Navy</span>（海军）、<span class="en">Air Force</span>（空军）、<span class="en">Marine Corps</span>（海军陆战队）、<span class="en">Space Force</span>（太空军）、<span class="en">Coast Guard</span>（海岸警卫队）',
- cloze:'美国有六大军种：Army、Navy、Air Force、___（海军陆战队）、___（太空军）和Coast Guard',clozeAns:['Marine Corps','Space Force']},
-{id:'1-4',cat:'services-arms',q:'俄罗斯（Russia）的军种有哪些？',
- a:'<span class="en">Land forces</span>（陆军）、<span class="en">Navy</span>（海军）、<span class="en">Aerospace forces</span>（空天部队）',
- cloze:'俄罗斯的军种包括Land forces、Navy和___（空天部队）',clozeAns:['Aerospace forces']},
-{id:'1-5',cat:'services-arms',q:'美军各军种人员称呼分别是什么？',
- a:'Army → <span class="en">Soldier</span>（士兵）<br>Navy → <span class="en">Sailor</span>（水兵/水手）<br>Air Force → <span class="en">Airman</span>（飞行员/空勤人员）<br>Marine Corps → <span class="en">Marine</span>（陆战队员）<br>Space Force → <span class="en">Guardian</span>（卫士）',
- cloze:'海军人员称___，空军人员称___，太空军人员称Guardian',clozeAns:['Sailor','Airman']},
-{id:'1-6',cat:'services-arms',q:'美国陆军成立于何时？前身是什么？',
- a:'成立于 <strong>1775年6月14日</strong>，前身为 <span class="en">Continental Army</span>（大陆军），起源于独立战争（<span class="en">Revolutionary War</span>）',
- cloze:'美国陆军成立于1775年6月14日，前身为___（大陆军）',clozeAns:['Continental Army']},
-{id:'1-7',cat:'services-arms',q:'美国陆军的地位如何？',
- a:'是美国 <strong>最古老（oldest）</strong>、<strong>规模最大（largest）</strong> 的军种',
- cloze:'美国陆军是美国___和___的军种',clozeAns:['oldest','largest']},
-{id:'1-8',cat:'services-arms',q:'美国陆军的任务（Mission）是什么？',
- a:'作为联合部队的一部分，通过提供持续的陆上主导权来部署、战斗并赢得国家战争<br><span class="en">primary function: deploy, fight and win nation\'s wars</span>',
- cloze:'美国陆军的primary function是___, ___ and ___ nation\'s wars',clozeAns:['deploy','fight','win']},
-{id:'1-9',cat:'services-arms',q:'美国陆军的组成（Composition）包括哪些？',
- a:'<span class="en">infantry</span>（步兵）、<span class="en">armor</span>（装甲兵）、<span class="en">field and air defense artillery</span>（野战及防空炮兵）、<span class="en">corps of engineers</span>（工程兵）等',
- cloze:'美国陆军组成包括infantry（步兵）、___（装甲兵）和corps of engineers（工程兵）等',clozeAns:['armor']},
-{id:'1-10',cat:'services-arms',q:'美国海军成立于何时？地位如何？',
- a:'成立于 <strong>1775年10月13日</strong>，目前是世界上规模最大的海军（<span class="en">by far the largest in the world</span>）',
- cloze:'美国海军成立于___年10月13日，是___的海军',clozeAns:['1775','the largest']},
-{id:'1-11',cat:'services-arms',q:'美国海军的任务（Mission）是什么？',
- a:'维持、训练并装备战备海军力量，以赢得战争、威慑侵略、维护海洋自由<br><span class="en">maintain, train and equip combat-ready naval forces</span>',
- cloze:'美国海军的任务是___, ___ and ___ combat-ready naval forces',clozeAns:['maintain','train','equip']},
-{id:'1-12',cat:'services-arms',q:'美国海军的组成（Compositions）包括哪些？',
- a:'<span class="en">Aviation</span>（航空兵）、<span class="en">surface warfare</span>（水面作战）、<span class="en">nuclear submarines</span>（核潜艇）、<span class="en">special forces</span>（特种部队）、<span class="en">support services</span>（支援服务）',
- cloze:'美国海军组成包括Aviation、___（水面作战）、nuclear submarines和special forces等',clozeAns:['surface warfare']},
-{id:'1-13',cat:'services-arms',q:'美国海军的座右铭（Motto）是什么？',
- a:'<span class="en">Honor, courage, commitment</span><br>荣誉、勇气、奉献',
- cloze:'美国海军座右铭是___, courage, commitment（荣誉、勇气、奉献）',clozeAns:['Honor']},
-{id:'1-14',cat:'services-arms',q:'英国皇家海军有哪些兵种（Branches）？',
- a:'<span class="en">Surface Fleet</span>（水面舰队）<br><span class="en">Submarine Service</span>（潜艇部队）<br><span class="en">Fleet Air Arm</span>（舰队航空兵）<br><span class="en">Royal Marines</span>（皇家海军陆战队）<br><span class="en">Royal Fleet Auxiliary</span>（皇家舰队辅助部队）',
- cloze:'英国皇家海军的兵种包括Surface Fleet、___（潜艇部队）和Royal Marines等',clozeAns:['Submarine Service']},
-{id:'1-15',cat:'services-arms',q:'英国皇家海军陆战队（Royal Marines）的特点？',
- a:'英国 <strong>精锐两栖作战部队</strong>',
- cloze:'___是英国精锐两栖作战部队',clozeAns:['Royal Marines']},
-{id:'1-16',cat:'services-arms',q:'美国空军成立于何时？',
- a:'成立于 <strong>1947年</strong>',
- cloze:'美国空军成立于___年',clozeAns:['1947']},
-{id:'1-17',cat:'services-arms',q:'美国空军的任务（Mission）是什么？',
- a:'通过控制和利用天空来保卫国家<br><span class="en">defend the nation through the control and exploitation of air</span>',
- cloze:'美国空军的任务是defend the nation through the ___ and ___ of air',clozeAns:['control','exploitation']},
-{id:'1-18',cat:'services-arms',q:'美国空军的核心价值观（Core Values）是什么？',
- a:'<span class="en">Integrity first</span>（诚实正直）<br><span class="en">Service before self</span>（服务优先）<br><span class="en">Excellence in all we do</span>（追求卓越）',
- cloze:'美国空军核心价值观：___ first, Service before self, Excellence in all we do',clozeAns:['Integrity']},
-{id:'1-19',cat:'services-arms',q:'中国火箭军的前身是什么？何时更名？',
- a:'前身为 <span class="en">Second Artillery Force</span>（第二炮兵），成立于1966年7月1日<br><strong>2015年12月31日</strong> 更名为火箭军（<span class="en">PLARF</span>）',
- cloze:'中国火箭军前身为___（第二炮兵），于2015年更名为PLARF',clozeAns:['Second Artillery Force']},
-{id:'1-20',cat:'services-arms',q:'中国火箭军的任务（Mission）是什么？',
- a:'① 提供核威慑和核反击能力<br>② 加强中远程精确打击力量<br>③ 增强战略制衡能力',
- cloze:'火箭军的任务包括提供核___和核___能力',clozeAns:['deterrence','counterattack']},
-{id:'1-21',cat:'services-arms',q:'已消失的兵种（Disappeared Branches）有哪些？',
- a:'<span class="en">Army motorcycle riders</span>（陆军摩托车兵）<br><span class="en">Pigeon Trainer</span>（驯鸽员/军鸽兵）<br><span class="en">Morse Interceptor</span>（莫尔斯电码截听员）<br><span class="en">Carpenter\'s Mate / Aviation Carpenter\'s Mate</span>（航空木工军士）',
- cloze:'已消失的兵种包括Army motorcycle riders、___（驯鸽员）和Morse Interceptor等',clozeAns:['Pigeon Trainer']},
-{id:'1-22',cat:'services-arms',q:'各国新成立的兵种有哪些？（举例4个以上）',
- a:'法国：<span class="en">Space Command</span>（太空司令部）<br>俄罗斯：<span class="en">Aerospace Forces</span>（空天军）<br>德国：<span class="en">Cyber and Information Domain Service</span>（网络与信息域部队）<br>英国：<span class="en">National Cyber Force</span>（国家网络部队）<br>日本：<span class="en">Space Operations Squadron</span>（太空作战中队）',
- cloze:'德国新成立了___（网络与信息域部队），日本新成立了Space Operations Squadron',clozeAns:['Cyber and Information Domain Service']},
-{id:'1-23',cat:'services-arms',q:'未来新兴兵种（Emerging Future Branches）有哪些？',
- a:'<span class="en">Space Force</span>（太空军）：保护和控制太空资产<br><span class="en">Cyber Command</span>（网络司令部）：计算机网络作战与防御<br><span class="en">Unmanned Combat Units</span>（无人作战部队）<br><span class="en">Biotech Command</span>（生物技术司令部）',
- cloze:'未来新兴兵种包括Space Force、___（网络司令部）和Unmanned Combat Units等',clozeAns:['Cyber Command']},
-{id:'1-24',cat:'services-arms',q:'未来战争技术有哪些？',
- a:'<span class="en">Hypersonic Weapons</span>（高超音速武器）<br><span class="en">Directed-Energy Weapons</span>（定向能武器）——如激光和微波武器<br><span class="en">Quantum Computing</span>（量子计算）<br><span class="en">Climate Engineering</span>（气候工程）<br><span class="en">Advanced Materials</span>（先进材料）——如外骨骼',
- cloze:'未来战争技术包括___ Weapons（高超音速武器）和___ Computing（量子计算）等',clozeAns:['Hypersonic','Quantum']},
+function getUnitNum(di){return DATA_TO_UNIT[di]||(di+1);}
 
-// ===== 军衔 =====
-{id:'2-1',cat:'ranks',q:'美军军衔分为哪三大类别？',
- a:'① <span class="en">Enlisted</span>（士兵/士官）：E-1 至 E-9<br>② <span class="en">Warrant Officer</span>（准尉）：W-1 至 W-5<br>③ <span class="en">Officer</span>（军官）：O-1 至 O-10',
- cloze:'美军军衔三类别：___（士兵E-1~E-9）、Warrant Officer（准尉W-1~W-5）和Officer（军官O-1~O-10）',clozeAns:['Enlisted']},
-{id:'2-2',cat:'ranks',q:'军衔等级字母缩写E、O、W分别代表什么？',
- a:'<strong>E</strong> = <span class="en">Enlisted</span>（士兵）<br><strong>O</strong> = <span class="en">Officer</span>（军官）<br><strong>W</strong> = <span class="en">Warrant</span>（准尉）<br><br>注：美国空军于1992年撤销了准尉项目',
- cloze:'军衔缩写中E代表___，O代表Officer，W代表Warrant',clozeAns:['Enlisted']},
-{id:'2-3',cat:'ranks',q:'军官（Commissioned Officers）与士官（NCOs）在任命方式上有何区别？',
- a:'<strong>军官</strong>：receive an official commission（正式委任状）<br><strong>士官</strong>：enlisted service member（入伍士兵）',
- cloze:'军官通过receive an official ___任命，士官是enlisted service member',clozeAns:['commission']},
-{id:'2-4',cat:'ranks',q:'军官与士官在晋升途径上有何区别？',
- a:'<strong>军官</strong>：lengthy, formalized training（长期正规培训后授予）<br><strong>士官</strong>：advance by experience（凭经验晋升）',
- cloze:'军官通过lengthy, formalized ___晋升，士官凭experience晋升',clozeAns:['training']},
-{id:'2-5',cat:'ranks',q:'军官与士官在职责上有何区别？',
- a:'<strong>军官</strong>：organization and strategy（组织与战略）<br><strong>士官</strong>：implementation of organization or strategy（组织与战略的执行）',
- cloze:'军官负责organization and ___，士官负责其执行',clozeAns:['strategy']},
-{id:'2-6',cat:'ranks',q:'军官军衔分为哪三个等级？',
- a:'<strong>O-1 ~ O-3</strong>：<span class="en">Company Grade Officers</span>（尉级军官）<br><strong>O-4 ~ O-6</strong>：<span class="en">Field Grade Officers</span>（校级军官）<br><strong>O-7 ~ O-10</strong>：<span class="en">General Grade Officers</span>（将官）',
- cloze:'军官军衔三等级：___ Grade（尉级O-1~O-3）、Field Grade（校级O-4~O-6）、General Grade（将官O-7~O-10）',clozeAns:['Company']},
-{id:'2-7',cat:'ranks',q:'O-1军衔在陆军和海军分别叫什么？',
- a:'陆军：<span class="en">Second Lieutenant</span>（少尉）<br>海军：<span class="en">Ensign</span>（少尉）',
- cloze:'O-1军衔：陆军称Second Lieutenant，海军称___',clozeAns:['Ensign']},
-{id:'2-8',cat:'ranks',q:'O-3军衔在陆军和海军分别叫什么？',
- a:'陆军：<span class="en">Captain</span>（上尉）<br>海军：<span class="en">Lieutenant</span>（上尉）<br><br>⚠注意：陆军Captain ≠ 海军Captain（海军Captain是O-6上校）',
- cloze:'O-3军衔：陆军称___，海军称Lieutenant',clozeAns:['Captain']},
-{id:'2-9',cat:'ranks',q:'O-4军衔在陆军和海军分别叫什么？',
- a:'陆军：<span class="en">Major</span>（少校）<br>海军：<span class="en">Lieutenant Commander</span>（少校）',
- cloze:'O-4军衔：陆军称Major，海军称Lieutenant ___',clozeAns:['Commander']},
-{id:'2-10',cat:'ranks',q:'O-6军衔在陆军和海军分别叫什么？',
- a:'陆军：<span class="en">Colonel</span>（上校）<br>海军：<span class="en">Captain</span>（上校）',
- cloze:'O-6军衔：陆军称Colonel，海军称___',clozeAns:['Captain']},
-{id:'2-11',cat:'ranks',q:'O-10军衔在陆军和海军分别叫什么？',
- a:'陆军：<span class="en">General</span>（上将）<br>海军：<span class="en">Admiral</span>（上将）',
- cloze:'O-10军衔：陆军称General，海军称___',clozeAns:['Admiral']},
-{id:'2-12',cat:'ranks',q:'五星上将（战时Special）在陆军、海军、空军分别叫什么？',
- a:'陆军：<span class="en">General of the Army</span> (GA)<br>海军：<span class="en">Fleet Admiral</span> (FADM)<br>空军：<span class="en">General of the Air Force</span> (GAF)',
- cloze:'五星上将：陆军称General of the ___，海军称Fleet Admiral',clozeAns:['Army']},
-{id:'2-13',cat:'ranks',q:'O-7和O-8在陆军和海军分别叫什么？',
- a:'<strong>O-7 准将</strong>：陆军 <span class="en">Brigadier General</span> / 海军 <span class="en">Rear Admiral (Lower Half)</span><br><strong>O-8 少将</strong>：陆军 <span class="en">Major General</span> / 海军 <span class="en">Rear Admiral (Upper Half)</span>',
- cloze:'O-7准将：陆军Brigadier General，海军Rear Admiral (___ Half)',clozeAns:['Lower']},
-{id:'2-14',cat:'ranks',q:'陆军士兵军衔分为哪三大类？',
- a:'① <span class="en">Junior Enlisted</span> 初级士兵（E-1 ~ E-4）<br>② <span class="en">NCOs</span> 士官（E-4 ~ E-6）<br>③ <span class="en">Senior NCOs</span> 高级士官（E-7 ~ E-9）',
- cloze:'陆军士兵军衔三类别：___ Enlisted（初级E-1~E-4）、NCOs（士官）、Senior NCOs（高级士官）',clozeAns:['Junior']},
-{id:'2-15',cat:'ranks',q:'初级士兵（Junior Enlisted, E-1~E-4）的军衔有哪些？',
- a:'E-1: <span class="en">Private</span> (PVT) 列兵<br>E-2: <span class="en">Private Second Class</span> (PV2) 二等兵<br>E-3: <span class="en">Private First Class</span> (PFC) 一等兵<br>E-4: <span class="en">Specialist</span> (SPC) 专业军士',
- cloze:'E-1列兵英文是___，E-3一等兵英文是Private First Class',clozeAns:['Private']},
-{id:'2-16',cat:'ranks',q:'士官（NCOs, E-4~E-6）的军衔有哪些？',
- a:'E-4: <span class="en">Corporal</span> (CPL) 下士<br>E-5: <span class="en">Sergeant</span> (SGT) 中士<br>E-6: <span class="en">Staff Sergeant</span> (SSG) 上士',
- cloze:'E-4下士英文是___，E-6上士英文是Staff Sergeant',clozeAns:['Corporal']},
-{id:'2-17',cat:'ranks',q:'E-4为什么有两个军衔？',
- a:'E-4有两个军衔：<span class="en">Specialist</span>（士兵）和 <span class="en">Corporal</span>（士官）<br><strong>Corporal</strong> 主要在作战部队，责任更大',
- cloze:'E-4有两个军衔：Specialist（士兵）和___（士官，主要在作战部队）',clozeAns:['Corporal']},
-{id:'2-18',cat:'ranks',q:'高级士官（Senior NCOs, E-7~E-9）的军衔有哪些？',
- a:'E-7: <span class="en">Sergeant First Class</span> (SFC) 上士/一级军士<br>E-8: <span class="en">Master Sergeant</span> (MSG) 军士长 / <span class="en">First Sergeant</span> (1SG) 一级军士长<br>E-9: <span class="en">Sergeant Major</span> (SGM) 军士长（营/旅级）<br>E-9: <span class="en">Command Sergeant Major</span> (CSM) 指挥军士长<br>E-9S: <span class="en">Sergeant Major of the Army</span> (SMA) 美国陆军首席军士长',
- cloze:'E-9军衔包括Sergeant Major、___ Sergeant Major和Sergeant Major of the Army',clozeAns:['Command']},
-{id:'2-19',cat:'ranks',q:'军事礼仪中敬礼（Salute）的定义和方式？',
- a:'<strong>定义</strong>：正式的军事致敬手势，下级对上级表示尊敬<br><strong>场合</strong>：问候、离开、报告及其他军事场合<br><strong>方式</strong>：立正姿势，右手抬至帽檐或右眉梢上方',
- cloze:'敬礼时立正姿势，右手抬至___或右眉梢上方',clozeAns:['帽檐']},
-{id:'2-20',cat:'ranks',q:'军事礼仪中的称呼方式（Modes of Address）规则是什么？',
- a:'<strong>下级对上级军官</strong>：<span class="en">Sir / Ma\'am</span>（先生/女士）<br><strong>上级对下级</strong>：<span class="en">Rank + 姓氏 / Rank</span>（军衔+姓氏/直接称呼军衔）<br><strong>下级士兵对军官/士官</strong>：<span class="en">Sir / Ma\'am</span>',
- cloze:'下级对上级军官称呼___，上级对下级称呼Rank + 姓氏',clozeAns:['Sir']},
+function speakText(text,cb){
+  if(!window.speechSynthesis){if(cb)cb();return;}
+  try{
+    window.speechSynthesis.cancel();
+  }catch(e){}
+  // Small delay to ensure cancel takes effect (helps mobile)
+  setTimeout(function(){
+    try{
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang="en-US";
+      u.rate=0.85;
+      u.pitch=1;
+      u.volume=1;
+      u.onend=function(){if(cb)cb();};
+      u.onerror=function(e){
+        // Retry once on mobile
+        if(e.error==="canceled"||e.error==="interrupted"){
+          setTimeout(function(){
+            try{
+              var u2=new SpeechSynthesisUtterance(text);
+              u2.lang="en-US";
+              u2.rate=0.85;
+              u2.pitch=1;
+              u2.volume=1;
+              u2.onend=function(){if(cb)cb();};
+              u2.onerror=function(){if(cb)cb();};
+              window.speechSynthesis.speak(u2);
+            }catch(e2){if(cb)cb();}
+          },300);
+        }else{if(cb)cb();}
+      };
+      window.speechSynthesis.speak(u);
+    }catch(e){if(cb)cb();}
+  },100);
+}
 
-// ===== 军装 =====
-{id:'3-1',cat:'uniforms',q:'军服的基本颜色（Base Colors）有哪些？',
- a:'<span class="en">Olive green</span> 橄榄绿<br><span class="en">White</span> 白色<br><span class="en">Dark Green</span> 深绿色<br><span class="en">Khaki</span> 卡其色<br><span class="en">Navy Blue</span> 海军蓝<br><span class="en">Air Force Blue</span> 空军蓝',
- cloze:'军服基本颜色包括Olive green（橄榄绿）和___（卡其色）等',clozeAns:['Khaki']},
-{id:'3-2',cat:'uniforms',q:'军服部件词汇——帽子类有哪些？',
- a:'<span class="en">Service Dress Cap</span> 军礼帽<br><span class="en">Flight Cap</span> 飞行帽<br><span class="en">Beret</span> 贝雷帽',
- cloze:'军礼帽英文是___，贝雷帽英文是Beret',clozeAns:['Service Dress Cap']},
-{id:'3-3',cat:'uniforms',q:'军服部件词汇——服装类有哪些？',
- a:'<span class="en">Tunic / Coat</span> 上衣/束腰军装<br><span class="en">Trousers / Skirt</span> 长裤/正装裙<br><span class="en">Black belt</span> 腰带<br><span class="en">Black leather shoes</span> 皮鞋<br><span class="en">Herringbone necktie</span> 人字纹领带',
- cloze:'上衣/束腰军装英文是___，人字纹领带英文是Herringbone necktie',clozeAns:['Tunic']},
-{id:'3-4',cat:'uniforms',q:'美国陆军绿色常服的徽章标识有哪些？',
- a:'<span class="en">Rank insignia</span> 军衔标识<br><span class="en">Combat and special skill badges</span> 战斗与专业技能徽章<br><span class="en">Name Plate</span> 姓名牌<br><span class="en">U.S. insignia</span> "U.S."标识<br><span class="en">Shoulder sleeve insignia</span> 肩袖标识<br><span class="en">Regimental distinctive insignia</span> 团队特殊徽章<br><span class="en">Unit awards</span> 单位奖励<br><span class="en">Campaign and service medal ribbons</span> 战役与服役勋表<br><span class="en">Identification badge</span> 身份识别徽章<br><span class="en">Overseas service bars</span> 海外服役条<br><span class="en">Service stripes</span> 服役条/军龄条',
- cloze:'军衔标识英文是___ insignia，姓名牌英文是Name Plate',clozeAns:['Rank']},
-{id:'3-5',cat:'uniforms',q:'美国空军常服（Air Force Dress Blues）的特点？',
- a:'三扣上衣（<span class="en">three-button coat</span>），银色纽扣，空军蓝（<span class="en">Air Force Blue / Shade 1620</span>）<br>内搭浅蓝色衬衫，人字纹领带<br>军官翻领有镜面银色"U.S."标识，士兵翻领无标识<br>女式常服增加裙子、长袜、女式飞行帽',
- cloze:'美国空军常服是___扣上衣，颜色为Air Force Blue',clozeAns:['three-button']},
-{id:'3-6',cat:'uniforms',q:'美国海军陆战队礼服蓝（Marine Corps Dress Blue）的标志特点？',
- a:'融合美国国旗三种颜色——<strong>红、白、蓝</strong><br>军礼帽：白色顶，黑色帽檐<br>深蓝色束腰上衣（<span class="en">dark-blue tunic</span>）：立领（<span class="en">stand collar</span>），红色镶边<br>白色腰带（<span class="en">white belt</span>）<br>浅蓝色裤子（<span class="en">light blue trousers</span>）<br>立领和军帽上有徽章<br>上衣袖口有服役条',
- cloze:'海军陆战队礼服蓝融合美国国旗三种颜色：红、___、蓝',clozeAns:['白']},
-{id:'3-7',cat:'uniforms',q:'军服描述的顺序是什么？',
- a:'从整体到细节：<br><strong>Colors</strong>（颜色）→ <strong>Clothing</strong>（服装）→ <strong>Insignia</strong>（标识徽章）',
- cloze:'军服描述顺序：___ → Clothing → Insignia',clozeAns:['Colors']},
+// Wake speech on first touch/click - critical for mobile
+document.addEventListener("click",function(){
+  try{
+    var w=new SpeechSynthesisUtterance("");
+    w.volume=0;
+    window.speechSynthesis.speak(w);
+    setTimeout(function(){try{window.speechSynthesis.cancel();}catch(e){}},200);
+  }catch(e){}
+},{once:true});
+document.addEventListener("touchstart",function(){
+  try{
+    var w=new SpeechSynthesisUtterance("");
+    w.volume=0;
+    window.speechSynthesis.speak(w);
+    setTimeout(function(){try{window.speechSynthesis.cancel();}catch(e){}},200);
+  }catch(e){}
+},{once:true});
 
-// ===== 常用表达 =====
-{id:'4-1',cat:'expressions',q:'描述军种历史的常用表达有哪些？',
- a:'<span class="en">... came into being in ...</span>（诞生于……）<br><span class="en">originally established as ... in ...</span>（最初作为……建立于……）<br><span class="en">with a history of ...</span>（有……的历史）<br><span class="en">be established on ...</span>（建立于……）<br><span class="en">be signed into law ...</span>（被签署成为法律）',
- cloze:'描述历史：___ into being in（诞生于），originally ___ as（最初建立为）',clozeAns:['came','established']},
-{id:'4-2',cat:'expressions',q:'描述军种地位的常用表达有哪些？',
- a:'<span class="en">is the main ground force of ...</span>（是……的主要地面力量）<br><span class="en">not only the oldest but also the largest ...</span>（不仅最古老而且最大）<br><span class="en">by far the largest in the world</span>（世界上规模最大的）<br><span class="en">a critical role in ...</span>（在……中起关键作用）',
- cloze:'描述地位：not only the ___ but also the largest（不仅最古老而且最大）',clozeAns:['oldest']},
-{id:'4-3',cat:'expressions',q:'描述军种任务的常用表达有哪些？',
- a:'<span class="en">the primary job is to ...</span>（首要任务是……）<br><span class="en">be tasked with ...</span>（被委以……任务）<br><span class="en">the main task of ... is ...</span>（……的主要任务是……）<br><span class="en">be charged with the responsibility to ...</span>（承担……的责任）<br><span class="en">... specialized in ...</span>（专攻……）<br><span class="en">organize, train, and equip ...</span>（组织、训练和装备……）',
- cloze:'描述任务：be ___ with（被委以任务），be ___ with the responsibility to（承担责任）',clozeAns:['tasked','charged']},
-{id:'4-4',cat:'expressions',q:'描述军种装备的常用表达有哪些？',
- a:'<span class="en">be equipped with ...</span>（装备有……）<br><span class="en">This is done by operating ...</span>（通过操作……来实现）<br><span class="en">... are deployed to areas where ...</span>（……被部署到……地区）<br><span class="en">... are used to facilitate ...</span>（……被用于促进……）<br><span class="en">the power is completed with ...</span>（力量由……完善）<br><span class="en">... uses ... to carry out their mandate</span>（使用……执行任务）',
- cloze:'描述装备：be ___ with（装备有），___ to areas where（被部署到）',clozeAns:['equipped','deployed']},
-{id:'4-5',cat:'expressions',q:'描述军种组成的常用表达有哪些？',
- a:'<span class="en">include, comprise, be composed of, consist of</span><br><span class="en">be made up of, be formed of, classify ...</span>',
- cloze:'描述组成可用：include, ___, be composed of, consist of',clozeAns:['comprise']},
-{id:'4-6',cat:'expressions',q:'描述军种人员的常用表达有哪些？',
- a:'<span class="en">more than ... active and enlisted members</span>（超过……现役和入伍成员）<br><span class="en">the number of commissioned officers actively serving is well over ...</span>（现役军官人数远超……）<br><span class="en">about ... enlisted members</span>（约……入伍成员）<br><span class="en">about ... officers on active duty</span>（约……现役军官）',
- cloze:'描述人员：more than ... ___ and enlisted members（超过……现役和入伍成员）',clozeAns:['active']},
-{id:'4-7',cat:'expressions',q:'海军发展历史的五个阶段（按时间顺序）是什么？',
- a:'① 古代：海军形成于古代文明，保护沿海地区和贸易利益（<span class="en">protect coastal areas and trade interests</span>）<br>② 大航海时代：海军成为全球力量，可远程投送力量<br>③ 技术进步：指南针和蒸汽机革新海战（<span class="en">compass and steam engine revolutionized naval warfare</span>）<br>④ 铁甲舰时代：使用铁甲舰、潜艇、航母，最终核动力舰船<br>⑤ 现代：网络战和精确导弹技术持续改变海军战略',
- cloze:'海军发展第三阶段：___和蒸汽机等技术进步革新了海战',clozeAns:['compass']},
-{id:'4-8',cat:'expressions',q:'陆军发展历史的关键节点有哪些？',
- a:'<strong>古代</strong>：保护和扩张的需要导致有组织的战斗力量形成（<span class="en">need for protection and expansion</span>）<br><strong>9世纪</strong>：火药的发明革新了战争（<span class="en">invention of gunpowder revolutionized warfare</span>）<br><strong>20世纪初</strong>：坦克的引入极大改变了战争性质<br><strong>现代</strong>：技术持续进步，军队需不断变化和适应',
- cloze:'陆军发展：9世纪___的发明革新了战争，20世纪初引入了坦克',clozeAns:['gunpowder']},
-{id:'4-9',cat:'expressions',q:'马歇尔（George Catlett Marshall）1901-1902年的关键事件？',
- a:'<strong>1901</strong>：毕业于弗吉尼亚军事学院（<span class="en">Virginia Military Institute</span>）<br><strong>1902</strong>：被授予少尉军衔（<span class="en">Commissioned a second lieutenant</span>），服役于菲律宾',
- cloze:'马歇尔1901年毕业于___，1902年被授予second lieutenant',clozeAns:['Virginia Military Institute']},
-{id:'4-10',cat:'expressions',q:'马歇尔1917-1920年的晋升经历？',
- a:'<strong>1917</strong>：晋升上尉（<span class="en">Promoted to captain</span>），随后临时少校<br><strong>1918</strong>：临时中校和临时上校<br><strong>1920</strong>：永久少校（<span class="en">Made a permanent major</span>）',
- cloze:'马歇尔1917年晋升为___，1920年成为permanent major',clozeAns:['captain']},
-{id:'4-11',cat:'expressions',q:'马歇尔1933-1939年的晋升经历？',
- a:'<strong>1933</strong>：晋升上校（<span class="en">Promoted to full colonel</span>）<br><strong>1936</strong>：晋升准将（<span class="en">Promoted to brigadier general</span>）<br><strong>1939</strong>：晋升少将（<span class="en">Promoted to major general</span>）',
- cloze:'马歇尔1936年晋升___，1939年晋升major general',clozeAns:['brigadier general']},
-{id:'4-12',cat:'expressions',q:'马歇尔1939-1945年的重要职务？',
- a:'<strong>1939-1945</strong>：担任陆军参谋长（<span class="en">Army Chief of Staff</span>）<br><strong>1944</strong>：临时五星上将（<span class="en">temporary General of the Army</span>），1946年永久化<br><strong>1945</strong>：退役（<span class="en">Retired from active service</span>）',
- cloze:'马歇尔1939-1945年担任___，1944年成为临时General of the Army',clozeAns:['Army Chief of Staff']},
+var picker=document.getElementById("pickers");
+for(var i=0;i<ALL_DATA.length;i++){
+  (function(idx){
+    var b=document.createElement("div");
+    b.className="pbtn";
+    b.textContent="U"+DATA_TO_UNIT[idx];
+    b.title=UNIT_NAMES[idx];
+    b.onclick=function(){loadUnit(idx)};
+    picker.appendChild(b);
+  })(i);
+}
 
-// ===== 军事通信与术语（补充） =====
-{id:'5-1',cat:'comms',q:'NATO音标字母表中A-E的代码词是什么？',
- a:'A → <span class="en">Alfa</span> (AL fah)<br>B → <span class="en">Bravo</span> (BRAH voh)<br>C → <span class="en">Charlie</span> (CHAR lee)<br>D → <span class="en">Delta</span> (DEL tah)<br>E → <span class="en">Echo</span> (EKK oh)<br><br>⚠注意：Alfa和Juliett为特定拼写',
- cloze:'NATO字母表中A是___，D是Delta',clozeAns:['Alfa']},
-{id:'5-2',cat:'comms',q:'NATO音标字母表中F-J的代码词是什么？',
- a:'F → <span class="en">Foxtrot</span> (FOKS trot)<br>G → <span class="en">Golf</span><br>H → <span class="en">Hotel</span> (HO tell)<br>I → <span class="en">India</span> (IN dee ah)<br>J → <span class="en">Juliett</span> (JEW lee ett)<br><br>⚠注意拼写为Juliett（双t）',
- cloze:'NATO字母表中F是___，J是Juliett（注意双t拼写）',clozeAns:['Foxtrot']},
-{id:'5-3',cat:'comms',q:'NATO音标字母表中K-O的代码词是什么？',
- a:'K → <span class="en">Kilo</span> (KEY loh)<br>L → <span class="en">Lima</span> (LEE mah)<br>M → <span class="en">Mike</span><br>N → <span class="en">November</span> (NOH vem ber)<br>O → <span class="en">Oscar</span> (OSS car)',
- cloze:'NATO字母表中K是___，O是Oscar',clozeAns:['Kilo']},
-{id:'5-4',cat:'comms',q:'NATO音标字母表中P-T的代码词是什么？',
- a:'P → <span class="en">Papa</span> (PAH pah)<br>Q → <span class="en">Quebec</span> (keh BECK)<br>R → <span class="en">Romeo</span> (ROW me oh)<br>S → <span class="en">Sierra</span> (see AIR ah)<br>T → <span class="en">Tango</span> (TANG go)',
- cloze:'NATO字母表中P是___，T是Tango',clozeAns:['Papa']},
-{id:'5-5',cat:'comms',q:'NATO音标字母表中U-Z的代码词是什么？',
- a:'U → <span class="en">Uniform</span> (YOU nee form)<br>V → <span class="en">Victor</span> (VIK ter)<br>W → <span class="en">Whiskey</span> (WISS key)<br>X → <span class="en">X-Ray</span> (EKS ray)<br>Y → <span class="en">Yankee</span> (YANG kee)<br>Z → <span class="en">Zulu</span> (ZOO loo)',
- cloze:'NATO字母表中U是___，Z是Zulu',clozeAns:['Uniform']},
-{id:'5-6',cat:'comms',q:'常用的NATO代码组合（组合代码词）有哪些？',
- a:'<span class="en">Bravo Zulu (BZ)</span> = 干得好（Good job）<br><span class="en">Charlie Mike (CM)</span> = 继续任务（Continue Mission）<br><span class="en">Oscar-Mike (OM)</span> = 正在移动（On the move）<br><span class="en">Lima Charlie (LC)</span> = 声音清楚（Loud and Clear）<br><span class="en">Tango Mike (TM)</span> = 多谢（Thanks much）',
- cloze:'BZ表示___，OM表示On the move（正在移动）',clozeAns:['干得好']},
-{id:'5-7',cat:'comms',q:'无线电通信中的标准程序词（Prowords）有哪些？',
- a:'<span class="en">Roger</span> 收到/明白<br><span class="en">Wilco</span> 收到，我将执行（Will Comply）<br><span class="en">Over</span> 结束，交给你<br><span class="en">Out</span> 完毕（对话结束）<br><span class="en">Copy / Copy that</span> 明白<br><span class="en">Say again</span> 请重复<br><span class="en">Break / Break Break</span> 中断/紧急中断<br><span class="en">Negative / Affirmative</span> 否/是',
- cloze:'___表示收到明白，___表示完毕（对话结束）',clozeAns:['Roger','Out']},
-{id:'5-8',cat:'comms',q:'无线电通信中"Over"和"Out"的区别？',
- a:'<span class="en">Over</span>：结束本次发射，交由对方回复（对话未结束）<br><span class="en">Out</span>：对话结束<br><br>⚠ 不能同时说"Over and Out"——两者含义矛盾',
- cloze:'___表示交由对方回复，___表示对话完全结束',clozeAns:['Over','Out']},
-{id:'5-9',cat:'comms',q:'无线电通信的ABC三原则是什么？',
- a:'<span class="en">A</span>ccuracy（准确）<br><span class="en">B</span>revity（简明）<br><span class="en">C</span>larity（清晰）<br><br>每次传输控制在30秒以内',
- cloze:'无线电通信ABC原则：___（准确）、Brevity（简明）、Clarity（清晰）',clozeAns:['Accuracy']},
-{id:'5-10',cat:'comms',q:'无线电检查（Radio check）的典型对话是什么？',
- a:'呼叫："C24, this is C23. Radio check. Over."<br>应答："C23, this is C24. You are loud and clear. Over."<br>确认："Roger. Out."<br><br>声音质量描述：<span class="en">loud and clear</span>（声音清楚）',
- cloze:'无线电检查应答：You are ___ and clear',clozeAns:['loud']},
-{id:'5-11',cat:'comms',q:'常见的军事单位从小到大的顺序是什么？',
- a:'<span class="en">Fire team</span> 作战小组（3-4人）<br><span class="en">Squad/Section</span> 班（8-12人）<br><span class="en">Platoon</span> 排（30-50人）<br><span class="en">Company</span> 连<br><span class="en">Battalion</span> 营<br><span class="en">Regiment</span> 团 / <span class="en">Brigade</span> 旅<br><span class="en">Division</span> 师<br><span class="en">Corps</span> 军<br><span class="en">Army</span> 集团军',
- cloze:'军事单位从大到小：Army → Corps → Division → Brigade → ___ → Company → Platoon → Squad → Fire team',clozeAns:['Battalion']},
-{id:'5-12',cat:'comms',q:'常见的军事缩略词有哪些？',
- a:'<span class="en">ROE</span> = Rules of Engagement 交战规则<br><span class="en">FOB</span> = Forward Operating Base 前进作战基地<br><span class="en">MEDEVAC</span> = Medical Evacuation 医疗撤离<br><span class="en">SAR</span> = Search and Rescue 搜索救援<br><span class="en">SITREP</span> = Situation Report 态势报告<br><span class="en">UAV</span> = Unmanned Aerial Vehicle 无人机<br><span class="en">APC</span> = Armored Personnel Carrier 装甲人员输送车<br><span class="en">IED</span> = Improvised Explosive Device 简易爆炸装置',
- cloze:'___表示交战规则，___表示前进作战基地',clozeAns:['ROE','FOB']},
-{id:'5-13',cat:'comms',q:'军事时间（24小时制）如何表达？',
- a:'1350 → "thirteen fifty"（不用"one three five zero"）<br>1530 → "fifteen thirty"<br>1030 → "ten thirty"<br><br>时间介词：in（上午/下午）、on（具体某天/周几上午）、at（具体时刻）',
- cloze:'军事时间1350读作___',clozeAns:['thirteen fifty']},
-{id:'5-14',cat:'comms',q:'"Watch your nine"是什么意思？',
- a:'<strong>注意后方！</strong><br>军事钟点方位法：9点方向 = 正左/后方<br>12点=前方，3点=右方，6点=后方，9点=左方',
- cloze:'"Watch your ___"表示注意后方（军事钟点方位法）',clozeAns:['nine']},
-{id:'5-15',cat:'comms',q:'直接指令口令有哪些？',
- a:'<span class="en">Move out!</span> 前进！<br><span class="en">Hold position!</span> 固守阵地！<br><span class="en">Fall back!</span> 后退！<br><span class="en">Take cover!</span> 隐蔽！<br><span class="en">Cease fire!</span> 停火！<br><span class="en">Cover me!</span> 掩护我！<br><span class="en">Engage the enemy!</span> 打击敌人！',
- cloze:'___!表示隐蔽，___!表示停火',clozeAns:['Take cover','Cease fire']},
-{id:'5-16',cat:'comms',q:'紧急情况用语有哪些？',
- a:'<span class="en">Contact!</span> 接触！（敌人出现）<br><span class="en">Incoming!</span> 敌方火力来袭！<br><span class="en">Man down!</span> 有伤员！<br><span class="en">We\'re pinned down!</span> 我们被压制了！<br><span class="en">Under fire</span> 在敌方火力下<br><span class="en">Heavy resistance</span> 强烈抵抗',
- cloze:'___!表示敌人出现，___!表示有伤员',clozeAns:['Contact','Man down']},
-{id:'5-17',cat:'comms',q:'交战规则（ROE）中的常用表达有哪些？',
- a:'<span class="en">Return fire only</span> 仅反击<br><span class="en">Minimum force</span> 最小武力<br><span class="en">Fire at will</span> 自由开火<br><span class="en">Hold fire</span> 停火<br><br>⚠ 避免使用"repeat"（重复），易与"再次开火"指令混淆',
- cloze:'___表示自由开火，___表示停火',clozeAns:['Fire at will','Hold fire']},
-{id:'5-18',cat:'comms',q:'五段式作战命令（OPORD）包括哪五个部分？',
- a:'① <span class="en">Situation</span> 态势<br>② <span class="en">Mission</span> 任务<br>③ <span class="en">Execution</span> 执行<br>④ <span class="en">Sustainment</span> 支援<br>⑤ <span class="en">Command</span> 指挥',
- cloze:'五段式作战命令OPORD：Situation → Mission → ___ → Sustainment → Command',clozeAns:['Execution']},
-];
+function loadUnit(idx){
+  ui=idx;
+  words=JSON.parse(JSON.stringify(ALL_DATA[idx]));
+  rb();
+  try{
+    var rd=localStorage.getItem("mer");
+    if(rd){
+      var dd=JSON.parse(rd);
+      if(dd.ms){
+        for(var ii=0;ii<items.length;ii++){
+          var kk=items[ii].en+"|"+items[ii].cn;
+          if(dd.ms[kk]){
+            items[ii].mastered=!!dd.ms[kk].m;
+            items[ii].revealed=!!dd.ms[kk].r;
+            items[ii].starred=!!dd.ms[kk].st;
+          }
+        }
+      }
+    }
+  }catch(e){}
+  render();se();
+  var bs=picker.querySelectorAll(".pbtn");
+  for(var i=0;i<bs.length;i++)bs[i].className="pbtn"+(i===ui?" cur":"");
+  sv();
+  for(var i=items.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=items[i];items[i]=items[j];items[j]=t;
+  }
+  render();
+}
 
-// ===================== STATE =====================
-let state = {
-  view:'home',
-  cardStats:{}, // {cardId: {status:'new'|'learning'|'mastered', interval:0, reps:0, ease:2.5, lastReview:0}}
-  streak:0,
-  lastStudyDate:null,
-  sessions:{}, // {mode: {filter:'all', index:0, queue:[]}}
-  activeFilters:{flashcard:'all',qa:'all',cloze:'all',quiz:'all',browse:'all'}
+function rb(){
+  var s={},u=[];
+  for(var i=0;i<words.length;i++){
+    var w=words[i],k=w.en+"|"+w.cn;
+    if(!s[k]){s[k]=1;u.push(w);}
+  }
+  words=u;items=[];
+  for(var i=0;i<u.length;i++){
+    items.push({id:i,en:u[i].en,cn:u[i].cn,abbr:!!u[i].abbr,full:u[i].full||u[i].en,phonetic:u[i].phonetic||"",speakWord:u[i].speakWord||"",revealed:false,mastered:false,starred:false});
+  }
+}
+
+function render(){
+  var g=document.getElementById("g"),fv=document.getElementById("fS").value;
+  var a=[];
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    if(fv==="abbr"&&!it.abbr)continue;
+    if(fv==="normal"&&it.abbr)continue;
+    if(fv==="m"&&!it.mastered)continue;
+    if(fv==="s"&&!it.starred)continue;
+    if(fv==="sa"&&!it.starred)continue;
+    if(fv==="u"&&it.mastered)continue;
+    a.push(it);
+  }
+  a.sort(function(x,y){return x.id-y.id});
+
+  if(fv==="sa"){
+    var allStarred=[];
+    var allUnits=JSON.parse(JSON.stringify(ALL_DATA));
+    for(var ui2=0;ui2<allUnits.length;ui2++){
+      var uw=allUnits[ui2];
+      for(var wi=0;wi<uw.length;wi++){
+        var wk=uw[wi].en+"|"+uw[wi].cn;
+        var saved=null;
+        try{var rd=localStorage.getItem("mer");if(rd){var dd=JSON.parse(rd);if(dd.ms)saved=dd.ms[wk];}}catch(e){}
+        if(!saved||!saved.st)continue;
+        allStarred.push({
+          en:uw[wi].en,cn:uw[wi].cn,abbr:!!uw[wi].abbr,full:uw[wi].full||uw[wi].en,speakWord:uw[wi].speakWord||"",
+          phonetic:uw[wi].phonetic||"",
+          revealed:false,mastered:saved?!!saved.m:false,starred:true
+        });
+      }
+    }
+    if(allStarred.length===0){
+      g.innerHTML="<div style='text-align:center;color:#475569;padding:2rem'>暂无重点单词</div>";
+    }else{
+      var h="<div style='font-size:.82rem;color:#94a3b8;margin-bottom:.5rem;grid-column:1/-1'>共 "+allStarred.length+" 个重点单词（全部单元）</div>";
+      for(var i=0;i<allStarred.length;i++){
+        var it=allStarred[i];
+        h+="<div class='cd"+(it.mastered?" m":"")+"' style='border-color:#f59e0b'>"+
+          "<span class='star s' style='display:none'>&#9733;</span>"+
+          "<span class='speaker' data-speak='"+esc(it.speakWord||it.en)+"'>&#128266;</span>"+
+          "<div class='en'>"+esc(it.en)+"</div>"+
+          "<div class='phonetic'>"+esc(it.phonetic||"")+"</div>"+
+          "<div class='cn r'>"+esc(it.cn)+"</div>"+
+          (it.abbr?"<div class='full r'>"+esc(it.full)+"</div>":"")+
+          "</div>";
+      }
+      g.innerHTML=h;
+      g.querySelectorAll(".speaker").forEach(function(sp){
+        sp.onclick=function(e){e.stopPropagation();var w=sp.getAttribute("data-speak")||sp.getAttribute("data-word");if(w)speakText(w);};
+      });
+    }
+    document.getElementById("st").textContent="-";
+    document.getElementById("sm").textContent="-";
+    document.getElementById("ss").textContent="-";
+    document.getElementById("sr").textContent="-";
+    return;
+  }
+
+  if(a.length===0){
+    g.innerHTML="<div style='text-align:center;color:#475569;padding:2rem'>暂无单词</div>";
+  }else{
+    var h="";
+    for(var i=0;i<a.length;i++){
+      var it=a[i];
+      h+="<div class='cd"+(it.mastered?" m":"")+"' data-id='"+it.id+"'>"+
+        "<span class='star "+(it.starred?"s":"ns")+"' data-sid='"+it.id+"'>"+(it.starred?"&#9733;":"&#9825;")+"</span>"+
+        "<span class='speaker' data-speak='"+esc(it.speakWord||it.en)+"'>&#128266;</span>"+
+        "<div class='en'>"+esc(it.en)+"</div>"+
+        "<div class='phonetic'>"+esc(it.phonetic||"")+"</div>"+
+        "<div class='cn "+(it.revealed?"r":"h")+"'>"+esc(it.cn)+"</div>"+
+        (it.abbr?"<div class='full "+(it.revealed?"r":"h")+"'>"+esc(it.full)+"</div>":"")+
+        "<span class='mb'>&#10004;&#65039; 已掌握</span></div>";
+    }
+    g.innerHTML=h;
+  }
+
+  var cards=g.querySelectorAll(".cd");
+  for(var i=0;i<cards.length;i++){
+    (function(c){
+      c.onclick=function(e){
+        if(e.target.classList.contains("star")||e.target.classList.contains("speaker"))return;
+        var id=parseInt(c.getAttribute("data-id"));
+        for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].revealed=!items[j].revealed;render();sv();return;}}
+      };
+      c.ondblclick=function(e){
+        e.stopPropagation();
+        var id=parseInt(c.getAttribute("data-id"));
+        for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].mastered=!items[j].mastered;render();sv();return;}}
+      };
+    })(cards[i]);
+  }
+
+  g.querySelectorAll(".star").forEach(function(s){
+    s.onclick=function(e){
+      e.stopPropagation();
+      var id=parseInt(s.getAttribute("data-sid"));
+      for(var j=0;j<items.length;j++){if(items[j].id===id){items[j].starred=!items[j].starred;render();sv();return;}}
+    };
+  });
+
+  g.querySelectorAll(".speaker").forEach(function(sp){
+    sp.onclick=function(e){
+      e.stopPropagation();
+      var w=sp.getAttribute("data-speak")||sp.getAttribute("data-word");
+      if(w)speakText(w);
+    };
+  });
+
+  var t=0,m=0,r=0,sn=0;
+  for(var i=0;i<items.length;i++){t++;if(items[i].mastered)m++;if(items[i].revealed)r++;if(items[i].starred)sn++;}
+  document.getElementById("st").textContent=t;
+  document.getElementById("sm").textContent=m;
+  document.getElementById("ss").textContent=sn;
+  document.getElementById("sr").textContent=r;
+}
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function sv(){
+  try{
+    var s={};
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      s[it.en+"|"+it.cn]={m:it.mastered,r:it.revealed,st:it.starred};
+    }
+    var allMs={};
+    try{
+      var old=localStorage.getItem("mer");
+      if(old){var od=JSON.parse(old);if(od.ms){allMs=od.ms;}}
+    }catch(e){}
+    for(var k in s){allMs[k]=s[k];}
+    localStorage.setItem("mer",JSON.stringify({u:ui,ms:allMs}));
+  }catch(e){}
+}
+
+var sms={};
+try{
+  var r=localStorage.getItem("mer");
+  if(r){var d=JSON.parse(r);if(typeof d.u==="number")ui=d.u;sms=d.ms||{};}
+}catch(e){}
+
+function se(){
+  var l=[];
+  for(var i=0;i<words.length;i++){
+    var w=words[i];
+    l.push(w.abbr?w.en+" | "+w.cn+" | abbr":w.en+" | "+w.cn);
+  }
+  document.getElementById("ta").value=l.join(String.fromCharCode(10));
+}
+
+function pw(t){
+  var r=[];
+  var lns=t.split(String.fromCharCode(10));
+  for(var i=0;i<lns.length;i++){
+    var l=lns[i].trim();if(!l)continue;
+    var p=l.split("|");
+    if(p.length<2)continue;
+    var e=p[0].trim(),c=p[1].trim();
+    if(!e||!c)continue;
+    r.push({en:e,cn:c,abbr:p.length>=3&&p[2].trim().toLowerCase()==="abbr",full:e});
+  }
+  return r;
+}
+
+document.getElementById("bSh").onclick=function(){
+  this.classList.toggle("cur");
+  for(var i=items.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=items[i];items[i]=items[j];items[j]=t;
+  }
+  for(var i=0;i<items.length;i++)items[i].id=i;
+  render();
 };
 
-// Load state
-function loadState(){
-  try{
-    const saved = localStorage.getItem('military-english-state');
-    if(saved){
-      const parsed = JSON.parse(saved);
-      state.cardStats = parsed.cardStats || {};
-      state.streak = parsed.streak || 0;
-      state.lastStudyDate = parsed.lastStudyDate || null;
-    }
-  }catch(e){console.warn('Load state failed',e)}
-  // Init card stats for new cards
-  CARDS.forEach(c=>{
-    if(!state.cardStats[c.id]) state.cardStats[c.id] = {status:'new',interval:0,reps:0,ease:2.5,lastReview:0};
-  });
-  updateStreak();
-}
-function saveState(){
-  try{localStorage.setItem('military-english-state',JSON.stringify({cardStats:state.cardStats,streak:state.streak,lastStudyDate:state.lastStudyDate}))}catch(e){}
-}
-function updateStreak(){
-  const today = new Date().toDateString();
-  if(state.lastStudyDate !== today){
-    const yesterday = new Date(Date.now()-86400000).toDateString();
-    if(state.lastStudyDate === yesterday) state.streak++;
-    else if(state.lastStudyDate === today) {/* already counted */}
-    else state.streak = 1;
-    state.lastStudyDate = today;
-    saveState();
+document.getElementById("bR").onclick=function(){
+  for(var i=0;i<items.length;i++){items[i].revealed=false;items[i].mastered=false;items[i].starred=false;}
+  render();sv();
+};
+
+document.getElementById("bH").onclick=function(){
+  for(var i=0;i<items.length;i++){items[i].revealed=false;}
+  render();
+};
+
+document.getElementById("fS").onchange=function(){render();};
+
+document.getElementById("bD").onclick=function(){
+  var nw=[];
+  for(var i=0;i<items.length;i++){if(!items[i].mastered)nw.push({en:items[i].en,cn:items[i].cn,abbr:items[i].abbr,full:items[i].full});}
+  words=nw;rb();sv();render();
+};
+
+document.getElementById("bSv").onclick=function(){
+  var p=pw(document.getElementById("ta").value);
+  if(!p.length){document.getElementById("sst").textContent="没有有效单词";return;}
+  words=p;rb();sv();render();
+  document.getElementById("tabP").click();
+  document.getElementById("sst").textContent="已保存"+words.length+"个单词";
+  document.getElementById("sst").className="sc";
+};
+
+document.getElementById("bDef").onclick=function(){
+  words=JSON.parse(JSON.stringify(ALL_DATA[ui]));rb();sv();render();se();
+  document.getElementById("sst").textContent="已恢复";
+  document.getElementById("sst").className="sc";
+};
+
+document.getElementById("bEx").onclick=function(){
+  var tx="";
+  for(var i=0;i<words.length;i++){
+    var w=words[i];
+    tx+=w.abbr?w.en+" | "+w.cn+" | abbr\n":w.en+" | "+w.cn+"\n";
+  }
+  var b=new Blob([tx],{type:"text/plain;charset=utf-8"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="U"+getUnitNum(ui)+".txt";a.click();
+};
+
+document.getElementById("bIm").onclick=function(){document.getElementById("fI").click();};
+
+document.getElementById("fI").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var raw=ev.target.result;
+    var lns=raw.split(String.fromCharCode(10)).map(function(s){return s.trim();}).filter(function(s){return s;});
+    var p=pw(lns.join(String.fromCharCode(10)));
+    if(!p.length){document.getElementById("sst").textContent="格式有误";return;}
+    words=p;rb();sv();render();se();
+    document.getElementById("sst").textContent="已导入"+words.length+"个单词";
+    document.getElementById("sst").className="sc";
+  };
+  reader.readAsText(f,"UTF-8");this.value="";
+};
+
+(function(){
+  var tabs=[document.getElementById("tabP"),document.getElementById("tabE")];
+  var panels=[document.getElementById("pnP"),document.getElementById("pnE")];
+  tabs[0].onclick=function(){
+    tabs[0].className="tbv cur";tabs[1].className="tbv";
+    panels[0].className="pn cur";panels[1].className="pn";
+  };
+  tabs[1].onclick=function(){
+    tabs[0].className="tbv";tabs[1].className="tbv cur";
+    panels[0].className="pn";panels[1].className="pn cur";
+    se();
+  };
+})();
+
+loadUnit(ui);
+if(sms){
+  for(var i=0;i<items.length;i++){
+    var k=items[i].en+"|"+items[i].cn;
+    if(sms[k]){items[i].mastered=!!sms[k].m;items[i].revealed=!!sms[k].r;items[i].starred=!!sms[k].st;}
   }
 }
-
-// ===================== HELPERS =====================
-function getCatName(catId){return CATEGORIES.find(c=>c.id===catId)?.name || catId}
-function getCatIcon(catId){return CATEGORIES.find(c=>c.id===catId)?.icon || ''}
-function getCardsByCat(catId){return CARDS.filter(c=>c.cat===catId)}
-function getFilteredCards(mode){
-  const filter = state.activeFilters[mode] || 'all';
-  return filter==='all' ? [...CARDS] : CARDS.filter(c=>c.cat===filter);
-}
-function getStats(){
-  let mastered=0,learning=0,newCount=0;
-  CARDS.forEach(c=>{
-    const s = state.cardStats[c.id];
-    if(s?.status==='mastered') mastered++;
-    else if(s?.status==='learning') learning++;
-    else newCount++;
-  });
-  return {total:CARDS.length,mastered,learning,new:newCount};
-}
-function getCatStats(catId){
-  const cards = getCardsByCat(catId);
-  let mastered=0,learning=0;
-  cards.forEach(c=>{
-    const s = state.cardStats[c.id];
-    if(s?.status==='mastered') mastered++;
-    else if(s?.status==='learning') learning++;
-  });
-  return {total:cards.length,mastered,learning,new:cards.length-mastered-learning};
-}
-function rateCard(cardId,quality){
-  // quality: 0=again,1=hard,2=good,3=easy
-  const s = state.cardStats[cardId];
-  if(!s) return;
-  if(quality===0){s.status='learning';s.reps=0;s.interval=0}
-  else if(quality===1){s.status='learning';s.interval=Math.max(1,s.interval)}
-  else if(quality===2){s.reps++;s.status=s.reps>=2?'mastered':'learning';s.interval=s.reps*2}
-  else if(quality===3){s.reps++;s.status=s.reps>=1?'mastered':'learning';s.interval=s.reps*4}
-  s.ease = Math.max(1.3, s.ease + (0.1-(5-quality)*(0.08+(5-quality)*0.02)));
-  s.lastReview = Date.now();
-  state.lastStudyDate = new Date().toDateString();
-  saveState();
-}
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-}
-
-// ===================== NAVIGATION =====================
-function switchView(viewName){
-  state.view = viewName;
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+viewName).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelector(`.nav-item[data-view="${viewName}"]`)?.classList.add('active');
-  // Sync mobile nav
-  document.querySelectorAll('.mn-item').forEach(n=>n.classList.remove('active'));
-  document.querySelector(`.mn-item[data-view="${viewName}"]`)?.classList.add('active');
-  // Scroll to top on view change (important for mobile)
-  window.scrollTo({top:0,behavior:'smooth'});
-  // Init view
-  if(viewName==='home') renderHome();
-  else if(viewName==='flashcard') initStudyMode('flashcard');
-  else if(viewName==='qa') initStudyMode('qa');
-  else if(viewName==='cloze') initStudyMode('cloze');
-  else if(viewName==='quiz') initStudyMode('quiz');
-  else if(viewName==='browse') renderBrowse();
-}
-
-// ===================== HOME =====================
-function renderHome(){
-  const stats = getStats();
-  document.getElementById('home-total').textContent = stats.total;
-  document.getElementById('home-mastered').textContent = stats.mastered;
-  document.getElementById('home-learning').textContent = stats.learning;
-  document.getElementById('home-new').textContent = stats.new;
-  const pct = stats.total ? Math.round(stats.mastered/stats.total*100) : 0;
-  document.getElementById('home-mastered-pct').textContent = pct+'% 掌握率';
-  document.getElementById('home-mastered-bar').style.width = pct+'%';
-  document.getElementById('home-learning-bar').style.width = (stats.total?Math.round(stats.learning/stats.total*100):0)+'%';
-  document.getElementById('home-new-bar').style.width = (stats.total?Math.round(stats.new/stats.total*100):0)+'%';
-  // Sidebar
-  document.getElementById('sb-total').textContent = stats.total;
-  document.getElementById('sb-mastered').textContent = stats.mastered;
-  document.getElementById('sb-learning').textContent = stats.learning;
-  document.getElementById('sb-streak').textContent = '🔥 '+state.streak;
-  document.getElementById('nav-fc-count').textContent = stats.new + stats.learning;
-
-  // Category grid
-  const grid = document.getElementById('cat-grid');
-  grid.innerHTML = CATEGORIES.map(cat=>{
-    const cs = getCatStats(cat.id);
-    const pct = cs.total ? Math.round(cs.mastered/cs.total*100) : 0;
-    return `<div class="cat-card" onclick="goToCategory('${cat.id}')">
-      <div class="cat-icon">${cat.icon}</div>
-      <div class="cat-name">${cat.name}</div>
-      <div class="cat-desc">${cat.desc}</div>
-      <div class="cat-progress-bar"><div class="cat-progress-fill" style="width:${pct}%"></div></div>
-      <div class="cat-stats"><span>${cs.total} 张卡片</span><span class="mastered">${cs.mastered}/${cs.total} 已掌握</span></div>
-    </div>`;
-  }).join('');
-}
-function goToCategory(catId){
-  state.activeFilters.flashcard = catId;
-  switchView('flashcard');
-}
-
-// ===================== FILTERS =====================
-function renderFilters(containerId, mode){
-  const container = document.getElementById(containerId);
-  let html = `<div class="filter-chip ${state.activeFilters[mode]==='all'?'active':''}" onclick="setFilter('${mode}','all')">全部 <span class="count">${CARDS.length}</span></div>`;
-  CATEGORIES.forEach(cat=>{
-    const count = getCardsByCat(cat.id).length;
-    html += `<div class="filter-chip ${state.activeFilters[mode]===cat.id?'active':''}" onclick="setFilter('${mode}','${cat.id}')">${cat.name} <span class="count">${count}</span></div>`;
-  });
-  container.innerHTML = html;
-}
-function setFilter(mode,catId){
-  state.activeFilters[mode] = catId;
-  initStudyMode(mode);
-}
-
-// ===================== FLASHCARD MODE =====================
-function initStudyMode(mode){
-  const filterIds = {flashcard:'fc-filters',qa:'qa-filters',cloze:'cl-filters',quiz:'qz-filters',browse:'br-filters'};
-  const contentIds = {flashcard:'fc-content',qa:'qa-content',cloze:'cl-content',quiz:'qz-content',browse:'br-content'};
-  renderFilters(filterIds[mode] || 'br-filters', mode);
-  const cards = getFilteredCards(mode);
-  if(cards.length===0){
-    document.getElementById(contentIds[mode] || 'qz-content').innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><div class="es-text">该模块暂无卡片</div></div>';
-    return;
-  }
-  // Prioritize new and learning cards
-  const priority = cards.sort((a,b)=>{
-    const sa = state.cardStats[a.id]?.status || 'new';
-    const sb = state.cardStats[b.id]?.status || 'new';
-    const order = {learning:0,new:1,mastered:2};
-    return (order[sa]||0) - (order[sb]||0);
-  });
-  state.sessions[mode] = {queue:priority.map(c=>c.id), index:0, shuffled:false};
-  if(mode==='flashcard') renderFlashcard();
-  else if(mode==='qa') renderQA();
-  else if(mode==='cloze') renderCloze();
-  else if(mode==='quiz') renderQuiz();
-}
-
-function renderFlashcard(){
-  const session = state.sessions.flashcard;
-  if(!session || session.index>=session.queue.length){
-    showCompletion('flashcard');
-    return;
-  }
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  const stats = state.cardStats[card.id];
-  const content = document.getElementById('fc-content');
-  content.innerHTML = `
-    <div class="flashcard-container">
-      <div class="flashcard" id="flashcard" onclick="flipCard()">
-        <div class="card-face card-front">
-          <div class="card-cat-tag">${getCatIcon(card.cat)} ${getCatName(card.cat)}</div>
-          <div class="card-question"><div class="card-inner">${card.q}</div></div>
-          <div class="card-hint card-flip-hint">▸ 点击翻转查看答案</div>
-          <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
-        </div>
-        <div class="card-face card-back">
-          <div class="card-cat-tag">✓ 答案</div>
-          <div class="card-answer"><div class="card-inner">${card.a}</div></div>
-          <div class="card-hint">▸ 下方评分继续</div>
-          <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
-        </div>
-      </div>
-      <div class="rating-bar" id="rating-bar" style="display:none">
-        <button class="rate-btn rate-again" onclick="rateAndNext('${card.id}',0)">不会<small class="key">[1]</small></button>
-        <button class="rate-btn rate-hard" onclick="rateAndNext('${card.id}',1)">模糊<small class="key">[2]</small></button>
-        <button class="rate-btn rate-good" onclick="rateAndNext('${card.id}',2)">熟悉<small class="key">[3]</small></button>
-        <button class="rate-btn rate-easy" onclick="rateAndNext('${card.id}',3)">掌握<small class="key">[4]</small></button>
-      </div>
-      <div class="study-nav">
-        <button class="nav-btn" onclick="prevCard('flashcard')" ${session.index===0?'disabled':''}>‹</button>
-        <span class="study-progress-text">进度: ${session.index+1}/${session.queue.length} · ${stats.status==='mastered'?'✓ 已掌握':stats.status==='learning'?'● 学习中':'○ 未学习'}</span>
-        <button class="nav-btn" onclick="nextCard('flashcard')">›</button>
-      </div>
-      <div class="kb-hints">
-        <div class="kb-hint"><span class="kb-key">Space</span> 翻转</div>
-        <div class="kb-hint"><span class="kb-key">1-4</span> 评分</div>
-        <div class="kb-hint"><span class="kb-key">←</span><span class="kb-key">→</span> 切换</div>
-      </div>
-    </div>`;
-}
-function flipCard(){
-  const card = document.getElementById('flashcard');
-  card.classList.toggle('flipped');
-  const bar = document.getElementById('rating-bar');
-  if(card.classList.contains('flipped')) bar.style.display='flex';
-}
-function rateAndNext(cardId,quality){
-  rateCard(cardId,quality);
-  nextCard('flashcard');
-}
-function nextCard(mode){
-  const session = state.sessions[mode];
-  if(!session) return;
-  session.index++;
-  if(mode==='flashcard') renderFlashcard();
-  else if(mode==='qa') renderQA();
-  else if(mode==='cloze') renderCloze();
-  else if(mode==='quiz') renderQuiz();
-}
-function prevCard(mode){
-  const session = state.sessions[mode];
-  if(!session || session.index===0) return;
-  session.index--;
-  if(mode==='flashcard') renderFlashcard();
-  else if(mode==='qa') renderQA();
-  else if(mode==='cloze') renderCloze();
-  else if(mode==='quiz') renderQuiz();
-}
-function showCompletion(mode){
-  const stats = getStats();
-  const contentId = mode==='flashcard'?'fc-content':mode==='qa'?'qa-content':mode==='cloze'?'cl-content':'qz-content';
-  document.getElementById(contentId).innerHTML = `
-    <div class="completion-screen">
-      <div class="cs-icon">🎖️</div>
-      <div class="cs-title">本轮复习完成！</div>
-      <div class="cs-desc">继续坚持，胜利就在前方</div>
-      <div class="completion-stats">
-        <div class="completion-stat"><div class="val">${stats.mastered}</div><div class="lbl">已掌握</div></div>
-        <div class="completion-stat"><div class="val">${stats.learning}</div><div class="lbl">学习中</div></div>
-        <div class="completion-stat"><div class="val">${stats.new}</div><div class="lbl">未开始</div></div>
-        <div class="completion-stat"><div class="val">${state.streak}</div><div class="lbl">连续天数</div></div>
-      </div>
-      <button class="btn btn-gold" onclick="resetSession('${mode}')">再来一轮</button>
-    </div>`;
-}
-function resetSession(mode){
-  initStudyMode(mode);
-}
-function shuffleQueue(mode){
-  const session = state.sessions[mode];
-  if(!session) return;
-  const current = session.queue[session.index];
-  session.queue = session.queue.sort(()=>Math.random()-0.5);
-  session.index = session.queue.indexOf(current);
-  if(session.index<0) session.index=0;
-  if(mode==='flashcard') renderFlashcard();
-  else if(mode==='qa') renderQA();
-  else if(mode==='cloze') renderCloze();
-  else if(mode==='quiz') renderQuiz();
-  showToast('已打乱顺序');
-}
-
-// ===================== Q&A MODE =====================
-function renderQA(){
-  const session = state.sessions.qa;
-  if(!session || session.index>=session.queue.length){
-    showCompletion('qa');
-    return;
-  }
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  const stats = state.cardStats[card.id];
-  const content = document.getElementById('qa-content');
-  content.innerHTML = `
-    <div class="flashcard-container">
-      <div class="qa-card">
-        <div class="card-cat-tag">${getCatIcon(card.cat)} ${getCatName(card.cat)}</div>
-        <div class="qa-question">${card.q}</div>
-        <div class="qa-answer-area" id="qa-answer-area">
-          <button class="qa-reveal-btn" onclick="revealQA()">▸ 显示答案</button>
-        </div>
-        <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
-      </div>
-      <div class="rating-bar" id="rating-bar" style="display:none">
-        <button class="rate-btn rate-again" onclick="rateAndNext('${card.id}',0)">不会<small class="key">[1]</small></button>
-        <button class="rate-btn rate-hard" onclick="rateAndNext('${card.id}',1)">模糊<small class="key">[2]</small></button>
-        <button class="rate-btn rate-good" onclick="rateAndNext('${card.id}',2)">熟悉<small class="key">[3]</small></button>
-        <button class="rate-btn rate-easy" onclick="rateAndNext('${card.id}',3)">掌握<small class="key">[4]</small></button>
-      </div>
-      <div class="study-nav">
-        <button class="nav-btn" onclick="prevCard('qa')" ${session.index===0?'disabled':''}>‹</button>
-        <span class="study-progress-text">进度: ${session.index+1}/${session.queue.length} · ${stats.status==='mastered'?'✓ 已掌握':stats.status==='learning'?'● 学习中':'○ 未学习'}</span>
-        <button class="nav-btn" onclick="nextCard('qa')">›</button>
-      </div>
-    </div>`;
-}
-function revealQA(){
-  const session = state.sessions.qa;
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  document.getElementById('qa-answer-area').innerHTML = `<div class="qa-answer">${card.a}</div>`;
-  document.getElementById('rating-bar').style.display='flex';
-}
-
-// ===================== CLOZE MODE =====================
-function renderCloze(){
-  const session = state.sessions.cloze;
-  if(!session || session.index>=session.queue.length){
-    showCompletion('cloze');
-    return;
-  }
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  if(!card.cloze){
-    // Skip cards without cloze
-    session.index++;
-    renderCloze();
-    return;
-  }
-  const stats = state.cardStats[card.id];
-  const content = document.getElementById('cl-content');
-  // Replace ___ with input blanks
-  const parts = card.cloze.split('___');
-  let clozeHtml = '';
-  for(let i=0;i<parts.length;i++){
-    clozeHtml += parts[i];
-    if(i<parts.length-1) clozeHtml += `<span class="cloze-blank" id="blank-${i}">?</span>`;
-  }
-  content.innerHTML = `
-    <div class="flashcard-container">
-      <div class="cloze-card">
-        <div class="card-cat-tag">${getCatIcon(card.cat)} ${getCatName(card.cat)}</div>
-        <div class="cloze-sentence">${clozeHtml}</div>
-        <div class="cloze-input">
-          <input type="text" id="cloze-input" placeholder="输入答案后按回车..." autocomplete="off" onkeydown="checkCloze(event,'${card.id}')">
-          <button class="btn btn-ghost btn-sm" onclick="revealCloze('${card.id}')">显示答案</button>
-        </div>
-        <div class="cloze-feedback" id="cloze-feedback"></div>
-        <div class="card-counter"><strong>${session.index+1}</strong> / ${session.queue.length}</div>
-      </div>
-      <div class="rating-bar" id="rating-bar" style="display:none">
-        <button class="rate-btn rate-again" onclick="rateAndNext('${card.id}',0)">不会<small class="key">[1]</small></button>
-        <button class="rate-btn rate-hard" onclick="rateAndNext('${card.id}',1)">模糊<small class="key">[2]</small></button>
-        <button class="rate-btn rate-good" onclick="rateAndNext('${card.id}',2)">熟悉<small class="key">[3]</small></button>
-        <button class="rate-btn rate-easy" onclick="rateAndNext('${card.id}',3)">掌握<small class="key">[4]</small></button>
-      </div>
-      <div class="study-nav">
-        <button class="nav-btn" onclick="prevCard('cloze')" ${session.index===0?'disabled':''}>‹</button>
-        <span class="study-progress-text">进度: ${session.index+1}/${session.queue.length}</span>
-        <button class="nav-btn" onclick="nextCard('cloze')">›</button>
-      </div>
-      <div class="kb-hints">
-        <div class="kb-hint"><span class="kb-key">Enter</span> 提交</div>
-        <div class="kb-hint"><span class="kb-key">1-4</span> 评分</div>
-      </div>
-    </div>`;
-  document.getElementById('cloze-input')?.focus();
-}
-function checkCloze(e,cardId){
-  if(e.key!=='Enter') return;
-  const card = CARDS.find(c=>c.id===cardId);
-  const input = document.getElementById('cloze-input').value.trim();
-  const answers = card.clozeAns;
-  const feedback = document.getElementById('cloze-feedback');
-  const correct = answers.some(a=>a.toLowerCase()===input.toLowerCase());
-  if(correct){
-    feedback.className='cloze-feedback show correct';
-    feedback.innerHTML = '✓ 正确！'+answers.map((a,i)=>`<span class="cloze-blank revealed">${a}</span>`).join(' ');
-    answers.forEach((ans,i)=>{
-      const blank = document.getElementById('blank-'+i);
-      if(blank){blank.textContent=ans;blank.classList.add('revealed')}
-    });
-    document.getElementById('rating-bar').style.display='flex';
-  }else{
-    feedback.className='cloze-feedback show wrong';
-    feedback.innerHTML = '✗ 不完全正确。正确答案：'+answers.map(a=>`<strong style="color:var(--green-bright)">${a}</strong>`).join(', ');
-    answers.forEach((ans,i)=>{
-      const blank = document.getElementById('blank-'+i);
-      if(blank){blank.textContent=ans;blank.classList.add('revealed')}
-    });
-    document.getElementById('rating-bar').style.display='flex';
-  }
-}
-function revealCloze(cardId){
-  const card = CARDS.find(c=>c.id===cardId);
-  const answers = card.clozeAns;
-  answers.forEach((ans,i)=>{
-    const blank = document.getElementById('blank-'+i);
-    if(blank){blank.textContent=ans;blank.classList.add('revealed')}
-  });
-  const feedback = document.getElementById('cloze-feedback');
-  feedback.className='cloze-feedback show';
-  feedback.style.background='rgba(201,162,39,.15)';
-  feedback.style.color='var(--gold)';
-  feedback.style.border='1px solid var(--gold)';
-  feedback.innerHTML = '答案：'+answers.map(a=>`<strong>${a}</strong>`).join(', ');
-  document.getElementById('rating-bar').style.display='flex';
-}
-
-// ===================== QUIZ MODE =====================
-let quizState = {answered:false,correct:0,total:0};
-function renderQuiz(){
-  const session = state.sessions.quiz;
-  if(!session || session.index>=session.queue.length){
-    showQuizResult();
-    return;
-  }
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  // Generate options: correct answer + 3 distractors from other cards
-  const otherCards = CARDS.filter(c=>c.id!==card.id && c.cat===card.cat);
-  const distractors = otherCards.sort(()=>Math.random()-0.5).slice(0,3);
-  const correctAnswer = extractText(card.a);
-  const options = [...distractors.map(d=>extractText(d.a)), correctAnswer];
-  options.sort(()=>Math.random()-0.5);
-  quizState = {answered:false,correct:quizState.correct,total:quizState.total};
-  const content = document.getElementById('qz-content');
-  content.innerHTML = `
-    <div class="flashcard-container">
-      <div class="quiz-score">
-        <span>得分: <span class="score-val">${quizState.correct}</span> / ${quizState.total}</span>
-        <span>·</span>
-        <span>进度: ${session.index+1}/${session.queue.length}</span>
-      </div>
-      <div class="quiz-card">
-        <div class="card-cat-tag">${getCatIcon(card.cat)} ${getCatName(card.cat)}</div>
-        <div class="quiz-question">${card.q}</div>
-        <div class="quiz-options" id="quiz-options">
-          ${options.map((opt,i)=>`
-            <button class="quiz-option" onclick="answerQuiz('${card.id}',${i})">
-              <span class="opt-letter">${String.fromCharCode(65+i)}</span>
-              <span>${opt}</span>
-            </button>
-          `).join('')}
-        </div>
-        <div class="quiz-result" id="quiz-result"></div>
-      </div>
-      <div class="study-nav">
-        <button class="nav-btn" onclick="prevCard('quiz')" ${session.index===0?'disabled':''}>‹</button>
-        <span class="study-progress-text">选择题 ${session.index+1}/${session.queue.length}</span>
-        <button class="nav-btn" onclick="nextCard('quiz')">跳过 ›</button>
-      </div>
-    </div>`;
-}
-function extractText(html){
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
-}
-function answerQuiz(cardId,optionIndex){
-  if(quizState.answered) return;
-  quizState.answered = true;
-  quizState.total++;
-  const session = state.sessions.quiz;
-  const card = CARDS.find(c=>c.id===session.queue[session.index]);
-  const correctAnswer = extractText(card.a);
-  const options = document.querySelectorAll('.quiz-option');
-  const result = document.getElementById('quiz-result');
-  options.forEach((opt,i)=>{
-    opt.classList.add('disabled');
-    const optText = opt.querySelector('span:last-child').textContent;
-    if(optText===correctAnswer) opt.classList.add('correct');
-    else if(i===optionIndex) opt.classList.add('wrong');
-  });
-  const selectedText = options[optionIndex].querySelector('span:last-child').textContent;
-  if(selectedText===correctAnswer){
-    quizState.correct++;
-    rateCard(cardId,3);
-    result.className='quiz-result show correct';
-    result.innerHTML='✓ 回答正确！';
-  }else{
-    rateCard(cardId,0);
-    result.className='quiz-result show wrong';
-    result.innerHTML=`✗ 正确答案：${correctAnswer}`;
-  }
-}
-function showQuizResult(){
-  const session = state.sessions.quiz;
-  const pct = quizState.total ? Math.round(quizState.correct/quizState.total*100) : 0;
-  document.getElementById('qz-content').innerHTML = `
-    <div class="completion-screen">
-      <div class="cs-icon">${pct>=80?'🎖️':pct>=60?'📋':'💪'}</div>
-      <div class="cs-title">测验完成！</div>
-      <div class="cs-desc">正确率 ${pct}%</div>
-      <div class="completion-stats">
-        <div class="completion-stat"><div class="val">${quizState.correct}</div><div class="lbl">答对</div></div>
-        <div class="completion-stat"><div class="val">${quizState.total-quizState.correct}</div><div class="lbl">答错</div></div>
-        <div class="completion-stat"><div class="val">${pct}%</div><div class="lbl">正确率</div></div>
-      </div>
-      <button class="btn btn-gold" onclick="quizState={answered:false,correct:0,total:0};resetSession('quiz')">再测一次</button>
-    </div>`;
-}
-
-// ===================== BROWSE MODE =====================
-function renderBrowse(){
-  renderFilters('br-filters','browse');
-  const filter = state.activeFilters.browse;
-  const searchTerm = document.getElementById('browse-search')?.value.toLowerCase() || '';
-  let cards = filter==='all' ? [...CARDS] : CARDS.filter(c=>c.cat===filter);
-  if(searchTerm){
-    cards = cards.filter(c=>{
-      const text = (c.q+' '+c.a+' '+getCatName(c.cat)).toLowerCase();
-      return text.includes(searchTerm);
-    });
-  }
-  const content = document.getElementById('br-content');
-  if(cards.length===0){
-    content.innerHTML = '<div class="empty-state"><div class="es-icon">🔍</div><div class="es-text">未找到匹配的知识点</div></div>';
-    return;
-  }
-  content.innerHTML = cards.map(card=>{
-    const stats = state.cardStats[card.id];
-    return `<div class="browse-card" onclick="this.classList.toggle('expanded')">
-      <div class="bc-cat">${getCatIcon(card.cat)} ${getCatName(card.cat)} <span class="bc-status ${stats?.status||'new'}"></span></div>
-      <div class="bc-q">${card.q}</div>
-      <div class="bc-a">${card.a}</div>
-    </div>`;
-  }).join('');
-}
-
-// ===================== EVENT LISTENERS =====================
-document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',()=>switchView(item.dataset.view));
-});
-// Mobile bottom nav
-document.querySelectorAll('.mn-item').forEach(item=>{
-  item.addEventListener('click',()=>switchView(item.dataset.view));
-});
-document.querySelectorAll('.mode-card').forEach(card=>{
-  card.addEventListener('click',()=>switchView(card.dataset.goto));
-});
-document.getElementById('browse-search')?.addEventListener('input',()=>renderBrowse());
-document.getElementById('fc-shuffle')?.addEventListener('click',()=>shuffleQueue('flashcard'));
-
-// ===================== TOUCH: removed swipe to prevent accidental card changes =====================
-// Card navigation is only via the left/right buttons below the card.
-// Tapping the card only flips it (handled by the card's onclick).
-
-// Keyboard shortcuts
-document.addEventListener('keydown',e=>{
-  if(state.view==='flashcard'){
-    if(e.code==='Space'){e.preventDefault();flipCard()}
-    else if(e.key>='1'&&e.key<='4'){
-      const session = state.sessions.flashcard;
-      if(session && session.index<session.queue.length){
-        const card = CARDS.find(c=>c.id===session.queue[session.index]);
-        const fc = document.getElementById('flashcard');
-        if(fc && fc.classList.contains('flipped')) rateAndNext(card.id,parseInt(e.key)-1);
-      }
-    }
-    else if(e.key==='ArrowLeft') prevCard('flashcard');
-    else if(e.key==='ArrowRight') nextCard('flashcard');
-  }else if(state.view==='qa'){
-    if(e.key>='1'&&e.key<='4'){
-      const session = state.sessions.qa;
-      if(session && session.index<session.queue.length){
-        const card = CARDS.find(c=>c.id===session.queue[session.index]);
-        const bar = document.getElementById('rating-bar');
-        if(bar && bar.style.display==='flex') rateAndNext(card.id,parseInt(e.key)-1);
-      }
-    }
-    else if(e.key==='ArrowLeft') prevCard('qa');
-    else if(e.key==='ArrowRight') nextCard('qa');
-  }else if(state.view==='cloze'){
-    if(e.key>='1'&&e.key<='4'){
-      const session = state.sessions.cloze;
-      if(session && session.index<session.queue.length){
-        const card = CARDS.find(c=>c.id===session.queue[session.index]);
-        const bar = document.getElementById('rating-bar');
-        if(bar && bar.style.display==='flex') rateAndNext(card.id,parseInt(e.key)-1);
-      }
-    }
-  }
-});
-
-// ===================== INIT =====================
-loadState();
-renderHome();
+render();se();
 </script>
 </body>
 </html>
