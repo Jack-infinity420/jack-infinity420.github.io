@@ -6,9 +6,9 @@ url: /blog/projects/
 comments: false
 ---
 
-当某事足够重要时，你就去做它，即使胜算不大。
+有时候，伟大的创新者就是与风险共舞的孩子，他们拒绝被规训。他们可能草率鲁莽，处事尴尬，有时甚至引发危机，但或许他们也很疯狂——疯狂到认为自己真的可以改变世界。
 
-> 如果事情没有失败，那说明你还不够创新。——埃隆·马斯克
+> When something is important enough, you do it even if the odds are not in your favour. ——Elon Musk
 
 <br>
 
