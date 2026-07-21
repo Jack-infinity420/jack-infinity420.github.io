@@ -32,7 +32,7 @@ i18n_dir: :lang
 # Raw HTML landing (Three.js cosmic intro) — copy through without template processing
 skip_render:
   - cosmic-intro/**
-  - projects/**
+  - projects/double-falcon/**
   - creative/gentle-cage/**
   - duan-daxue/computer-principles/**
   - duan-daxue/military-english/**
