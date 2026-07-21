@@ -23,3 +23,4 @@ comments: false
 - [军事英语刷词](/blog/duan-daxue/word-master/) —— 约81个单词 · 3个单元 · 翻转卡片+助记法（作者：爱睡觉的大雄zz）
 - [优良传统背记](/blog/duan-daxue/traditions/) —— 9大专题 · 41道大题 · 背诵+填空检查模式
 - [英语词汇复习](/blog/duan-daxue/english-vocab-review/) —— 约280个单词 · 16个单元 · 单击显隐中文 · 双击标记掌握 · 星标重点 · 发音朗读
+- [大学物理实验复习](/blog/duan-daxue/physics/) —— 期末复习全攻略 · 10个实验 · 简答题模板 · 公式速查 · 考前清单
