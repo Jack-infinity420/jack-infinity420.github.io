@@ -15,7 +15,7 @@ _multiconfig.yml
 debug.log
 public-deploy/
 .cursor/
-.trae/
+# .trae/ skills 和 rules 是 AI 助手的工作流指令，需要版本追踪（不含个人数据）
 .vscode/
 devshots/
 demos/
