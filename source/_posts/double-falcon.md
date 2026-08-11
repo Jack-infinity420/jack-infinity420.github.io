@@ -23,3 +23,5 @@ date: 2026-06-18 11:30:00
 点击在线演示查看详情
 
 https://lvjf.space/blog/projects/double-falcon/
+
+📄 **作品汇报 PPT 下载**：[双锋猎鹰_作品汇报.pptx](/blog/projects/double-falcon/双锋猎鹰_作品汇报.pptx)（面向低算力边缘平台的增强协同与轻量自主弹性目标检测系统）
