@@ -1,0 +1,3811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>温柔囚笼</title>
+<meta name="theme-color" content="#0A0A16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="温柔囚笼">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;display:flex;justify-content:center;align-items:center;touch-action:none;cursor:pointer}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+#start-overlay{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;background:transparent;cursor:pointer}
+#start-btn{padding:14px 48px;font-size:18px;color:rgba(220,200,255,.85);border:1px solid rgba(200,180,255,.35);border-radius:12px;background:rgba(255,255,255,.05);cursor:pointer;letter-spacing:6px;transition:all .3s;text-shadow:0 0 20px rgba(180,160,255,.3);margin-top:60px}
+#start-btn:hover,#start-btn:active{background:rgba(200,180,255,.12);color:#fff;border-color:rgba(200,180,255,.6);box-shadow:0 0 30px rgba(180,160,255,.15)}
+#continue-btn{padding:12px 40px;font-size:16px;color:rgba(200,230,200,.85);border:1px solid rgba(180,210,180,.35);border-radius:12px;background:rgba(255,255,255,.05);cursor:pointer;letter-spacing:4px;transition:all .3s;text-shadow:0 0 20px rgba(160,200,160,.3);margin-top:60px}
+#continue-btn:hover,#continue-btn:active{background:rgba(180,210,180,.12);color:#fff;border-color:rgba(180,210,180,.6);box-shadow:0 0 30px rgba(160,200,160,.15)}
+#newgame-btn{padding:10px 36px;font-size:14px;color:rgba(200,180,180,.6);border:1px solid rgba(180,150,150,.2);border-radius:12px;background:rgba(255,255,255,.03);cursor:pointer;letter-spacing:3px;transition:all .3s;margin-top:14px}
+#newgame-btn:hover,#newgame-btn:active{background:rgba(180,150,150,.08);color:rgba(220,200,200,.8);border-color:rgba(180,150,150,.4)}
+#achieve-btn{padding:9px 32px;font-size:13px;color:rgba(200,200,180,.6);border:1px solid rgba(180,180,150,.2);border-radius:12px;background:rgba(255,255,255,.03);cursor:pointer;letter-spacing:3px;transition:all .3s;margin-top:10px}
+#achieve-btn:hover,#achieve-btn:active{background:rgba(220,200,120,.1);color:rgba(240,220,180,.9);border-color:rgba(220,200,120,.4);box-shadow:0 0 20px rgba(220,200,120,.1)}
+#touch{display:flex;position:fixed;bottom:0;left:0;right:0;height:180px;pointer-events:none;z-index:200}
+.tb{pointer-events:auto;position:absolute;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.tb:active{background:rgba(255,255,255,.25)}
+#bu{left:70px;top:10px}
+#bd{left:70px;top:80px}
+#bl{left:15px;top:45px}
+#br{left:125px;top:45px}
+#ba{right:30px;top:50px;width:64px;height:64px;font-size:15px}
+#debug-panel{display:none;position:fixed;top:0;right:0;width:200px;height:100%;background:rgba(5,5,20,0.92);color:#0f0;font-family:'Courier New',monospace;font-size:12px;padding:8px;overflow-y:auto;z-index:999;border-left:1px solid #0f0;box-shadow:-4px 0 20px rgba(0,255,136,0.15)}
+#debug-panel h3{color:#0f0;margin:0 0 8px 0;font-size:13px;border-bottom:1px solid #0f0;padding-bottom:4px}
+#debug-panel .dbg-info{color:#8f8;font-size:11px;line-height:1.6;margin-bottom:8px}
+#debug-panel .dbg-btn{display:block;width:100%;margin:3px 0;padding:4px 6px;background:rgba(0,255,136,0.1);color:#0f0;border:1px solid #0f0;font-family:inherit;font-size:11px;cursor:pointer;text-align:left}
+#debug-panel .dbg-btn:active{background:rgba(0,255,136,0.3)}
+#debug-panel .dbg-sep{height:1px;background:#0f0;opacity:.3;margin:6px 0}
+#debug-panel .dbg-msg{color:#ff0;font-size:11px;margin-top:4px}
+</style>
+<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<script>
+(function(){
+  try{
+    var beacon=new BeaconAction({
+      appkey:'0WEB06U85YBSLJNL',
+      versionCode:'2.0.0',
+      channelID:'share',
+      delay:1000,
+      sessionDuration:30*60*1000,
+      isOversea:false,
+      needReportRqdEvent:false
+    });
+    beacon.onDirectUserAction('preview_page_view',{
+      'url':location.href,
+      'referrer':document.referrer,
+      'title':document.title,
+      'sandbox_id':'5e790aba049447acb9dec85f3e4eaaea'
+    });
+  }catch(e){}
+})();
+</script></head>
+<body>
+<canvas id="c" tabindex="0"></canvas>
+<div id="start-overlay">
+  <button id="start-btn">开 始 游 戏</button>
+  <button id="continue-btn" style="display:none">继 续 游 戏</button>
+  <button id="newgame-btn" style="display:none">开 始 新 游 戏</button>
+  <button id="achieve-btn" style="display:none">成 就</button>
+</div>
+<div id="debug-panel">
+  <h3>🎮 调试面板</h3>
+  <div class="dbg-info" id="dbg-info">加载中...</div>
+  <div class="dbg-sep"></div>
+  <button class="dbg-btn" onclick="debugAction('heal')">❤️ 回满 HP/MP</button>
+  <button class="dbg-btn" onclick="debugAction('fragments')">💎 获得全部碎片</button>
+  <button class="dbg-btn" onclick="debugAction('fragchoice')">🔄 触发碎片选择</button>
+  <button class="dbg-btn" onclick="debugAction('ch1')">📍 跳到 CH1</button>
+  <button class="dbg-btn" onclick="debugAction('ch2')">📍 跳到 CH2</button>
+  <button class="dbg-btn" onclick="debugAction('ch3')">📍 跳到 CH3</button>
+  <button class="dbg-btn" onclick="debugAction('ch4')">📍 跳到 CH4</button>
+  <button class="dbg-btn" onclick="debugAction('ngplus')">🔄 二周目模式</button>
+  <button class="dbg-btn" onclick="debugAction('achieve')">🏆 解锁全部成就</button>
+  <button class="dbg-btn" onclick="debugAction('levelup')">⬆️ 升到满级</button>
+  <button class="dbg-btn" onclick="debugAction('reset')">🗑️ 重置游戏</button>
+  <div class="dbg-sep"></div>
+  <div class="dbg-msg" id="dbg-msg"></div>
+</div>
+<div id="touch">
+<div class="tb" id="bu" ontouchstart="event.preventDefault();tIn('u')" ontouchend="event.preventDefault();kd['ArrowUp']=false;jk=''">&#9650;</div>
+<div class="tb" id="bd" ontouchstart="event.preventDefault();tIn('d')" ontouchend="event.preventDefault();kd['ArrowDown']=false;jk=''">&#9660;</div>
+<div class="tb" id="bl" ontouchstart="event.preventDefault();tIn('l')" ontouchend="event.preventDefault();kd['ArrowLeft']=false;jk=''">&#9664;</div>
+<div class="tb" id="br" ontouchstart="event.preventDefault();tIn('r')" ontouchend="event.preventDefault();kd['ArrowRight']=false;jk=''">&#9654;</div>
+<div class="tb" id="ba" ontouchstart="event.preventDefault();tIn('a')" ontouchend="event.preventDefault();kd['Enter']=false">确认</div>
+</div>
+<script>
+'use strict';
+// ===== CANVAS =====
+const C=document.getElementById('c'),X=C.getContext('2d');
+const W=640,H=540,T=32,MW=W/T|0,MH=(H-60)/T|0,MAP_H=480;
+C.width=W;C.height=H;
+function resize(){const s=Math.min(innerWidth/W,innerHeight/H);C.style.width=W*s+'px';C.style.height=H*s+'px'}
+addEventListener('resize',resize);resize();
+
+// ===== INPUT =====
+let jk='',kd={};
+const overlay=document.getElementById('start-overlay');
+const startBtn=document.getElementById('start-btn');
+const continueBtn=document.getElementById('continue-btn');
+const newgameBtn=document.getElementById('newgame-btn');
+const achieveBtn=document.getElementById('achieve-btn');
+function hideOverlay(){overlay.style.display='none'}
+function showTitleButtons(){
+  const pt=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+  if(pt>=1){
+    startBtn.style.display='none';
+    continueBtn.style.display='block';
+    newgameBtn.style.display='block';
+  }else{
+    startBtn.style.display='block';
+    continueBtn.style.display='none';
+    newgameBtn.style.display='none';
+  }
+  achieveBtn.style.display='block';
+}
+showTitleButtons();
+startBtn.addEventListener('click',e=>{e.stopPropagation();initAudio();hideOverlay();startGame()});
+startBtn.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();initAudio();hideOverlay();startGame()});
+continueBtn.addEventListener('click',e=>{e.stopPropagation();initAudio();hideOverlay();continueGame()});
+continueBtn.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();initAudio();hideOverlay();continueGame()});
+newgameBtn.addEventListener('click',e=>{e.stopPropagation();initAudio();hideOverlay();startNewGame()});
+newgameBtn.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();initAudio();hideOverlay();startNewGame()});
+achieveBtn.addEventListener('click',e=>{e.stopPropagation();openAchievements()});
+achieveBtn.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();openAchievements()});
+overlay.addEventListener('click',e=>{
+  const pt=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+  const frags=JSON.parse(localStorage.getItem('gc_fragments')||'[]');
+  // 二周目+集齐6碎片：检测是否点击了"囚笼"
+  if(pt>=1 && frags.length>=6){
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.clientX-rect.left)*sx, my=(e.clientY-rect.top)*sy;
+    if(mx>=titleQLLeft && mx<=titleQLRight && my>=titleQLTop && my<=titleQLBottom){
+      initAudio();hideOverlay();enterSecretEnding();
+      return;
+    }
+  }
+  if(pt>=1){initAudio();hideOverlay();continueGame();}
+  else{initAudio();hideOverlay();startGame();}
+});
+overlay.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const pt=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+  const frags=JSON.parse(localStorage.getItem('gc_fragments')||'[]');
+  // 二周目+集齐6碎片：检测是否触摸了"囚笼"
+  if(pt>=1 && frags.length>=6){
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.changedTouches[0].clientX-rect.left)*sx, my=(e.changedTouches[0].clientY-rect.top)*sy;
+    if(mx>=titleQLLeft && mx<=titleQLRight && my>=titleQLTop && my<=titleQLBottom){
+      initAudio();hideOverlay();enterSecretEnding();
+      return;
+    }
+  }
+  if(pt>=1){initAudio();hideOverlay();continueGame();}
+  else{initAudio();hideOverlay();startGame();}
+});
+C.tabIndex=0;
+window.addEventListener('keydown',e=>{
+  const k=e.key;
+  // Map WASD to Arrow keys
+  const km={'w':'ArrowUp','s':'ArrowDown','a':'ArrowLeft','d':'ArrowRight','W':'ArrowUp','S':'ArrowDown','A':'ArrowLeft','D':'ArrowRight'};
+  const mk=km[k]||k;
+  if(mk==='ArrowUp'||mk==='ArrowDown'||mk==='ArrowLeft'||mk==='ArrowRight'||mk==='Enter'||mk===' '){
+    if(!kd[mk])jk=mk;kd[mk]=true;
+    try{e.preventDefault()}catch(ex){}
+  }
+  // Cheat: Ctrl+D toggles debug mode (reliable on all browsers)
+  if(k==='d'&&e.ctrlKey){e.preventDefault();debugMode=!debugMode;debugMsg=debugMode?'🎮 调试模式已开启':'调试模式已关闭';debugMsgT=3;cheatInput='';if(debugMode){P.hp=P.mhp;P.mp=P.mmp;addLog('调试：HP/MP已回满')}toggleDebugPanel();return}
+  // Cheat code detection: type "debug" anywhere (fallback)
+  if(k.length===1&&k.match(/[a-zA-Z]/)&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
+    cheatInput+=k.toLowerCase();
+    if(cheatInput.length>CHEAT_SEQ.length)cheatInput=cheatInput.slice(-CHEAT_SEQ.length);
+    if(cheatInput===CHEAT_SEQ){
+      debugMode=!debugMode;
+      debugMsg=debugMode?'🎮 调试模式已开启':'调试模式已关闭';
+      debugMsgT=3;
+      cheatInput='';
+      if(debugMode){P.hp=P.mhp;P.mp=P.mmp;addLog('调试：HP/MP已回满')}
+      toggleDebugPanel();
+    }
+  }
+  // Debug panel toggle: F12
+  if(k==='F12'){toggleDebugPanel();try{e.preventDefault()}catch(ex){}}
+  if(GS==='TITLE'){
+    const pt=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+    if(pt>=1){initAudio();hideOverlay();continueGame();}
+    else{initAudio();hideOverlay();startGame();}
+    try{e.preventDefault()}catch(ex){}
+  }
+});
+window.addEventListener('keyup',e=>{
+  const km={'w':'ArrowUp','s':'ArrowDown','a':'ArrowLeft','d':'ArrowRight','W':'ArrowUp','S':'ArrowDown','A':'ArrowLeft','D':'ArrowRight'};
+  kd[km[e.key]||e.key]=false;
+});
+C.addEventListener('click',e=>{
+  C.focus();
+  if(GS==='CREDITS'){
+    C.focus();return; // click just focuses canvas, Enter handled in update
+  }
+  if(GS==='SCROLL_HINT'){
+    if(scrollHintPhase===2)jk='Enter';
+    return;
+  }
+  if(GS==='TITLE'){
+    // check if clicked on "囚笼" for secret ending
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.clientX-rect.left)*sx, my=(e.clientY-rect.top)*sy;
+    if(playthroughCount>=1 && mx>=titleQLLeft && mx<=titleQLRight && my>=titleQLTop && my<=titleQLBottom){
+      enterSecretEnding();
+      return;
+    }
+    jk='Enter';
+  }else if(GS==='MAP'){
+    // 检测是否点击了房子按钮
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.clientX-rect.left)*sx, my=(e.clientY-rect.top)*sy;
+    if(mx>=homeBtn.x&&mx<=homeBtn.x+homeBtn.w&&my>=homeBtn.y&&my<=homeBtn.y+homeBtn.h){
+      returnToTitle();
+      return;
+    }
+    // 检测钥匙按钮（重新查看提示）
+    if(mx>=scrollHintBtn.x&&mx<=scrollHintBtn.x+scrollHintBtn.w&&my>=scrollHintBtn.y&&my<=scrollHintBtn.y+scrollHintBtn.h){
+      if(collectedFragments.length>=FRAG_DATA.length){
+        scrollHintText=revengePath?'想要复仇吗？给你一个机会。\n在下一段旅途的某张地图中，去寻找你的终极武器吧。':'你打不过它的，试着去打破「囚笼」吧。\n等等……「囚笼」……在哪里？';
+        scrollHintPhase=1;scrollHintT=0;GS='SCROLL_HINT';sfxFrag();
+      }
+      return;
+    }
+    jk='Enter';
+  }else if(GS!=='BATTLE'){
+    jk='Enter';
+  }
+});
+C.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(GS==='CREDITS'){
+    C.focus();return; // click just focuses canvas, Enter handled in update
+  }
+  if(GS==='SCROLL_HINT'){
+    if(scrollHintPhase===2)jk='Enter';
+    return;
+  }
+  if(GS==='TITLE'){
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.touches[0].clientX-rect.left)*sx, my=(e.touches[0].clientY-rect.top)*sy;
+    if(playthroughCount>=1 && mx>=titleQLLeft && mx<=titleQLRight && my>=titleQLTop && my<=titleQLBottom){
+      enterSecretEnding();
+      return;
+    }
+  }
+  if(GS==='MAP'){
+    const rect=C.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const mx=(e.touches[0].clientX-rect.left)*sx, my=(e.touches[0].clientY-rect.top)*sy;
+    if(mx>=homeBtn.x&&mx<=homeBtn.x+homeBtn.w&&my>=homeBtn.y&&my<=homeBtn.y+homeBtn.h){
+      returnToTitle();
+      return;
+    }
+    if(mx>=scrollHintBtn.x&&mx<=scrollHintBtn.x+scrollHintBtn.w&&my>=scrollHintBtn.y&&my<=scrollHintBtn.y+scrollHintBtn.h){
+      if(collectedFragments.length>=FRAG_DATA.length){
+        scrollHintText=revengePath?'想要复仇吗？给你一个机会。\n在下一段旅途的某张地图中，去寻找你的终极武器吧。':'你打不过它的，试着去打破「囚笼」吧。\n等等……「囚笼」……在哪里？';
+        scrollHintPhase=1;scrollHintT=0;GS='SCROLL_HINT';sfxFrag();
+      }
+      return;
+    }
+  }
+  if(GS!=='BATTLE')jk='Enter';
+},{passive:false});
+function tIn(d){const k=d==='u'?'ArrowUp':d==='d'?'ArrowDown':d==='l'?'ArrowLeft':d==='r'?'ArrowRight':'Enter';if(!kd[k])jk=k;kd[k]=true}
+function eat(){const k=jk;jk='';return k}
+
+// ===== AUDIO =====
+let audioCtx=null;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function playTone(freq,dur,type='sine',vol=.08){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;
+  g.gain.setValueAtTime(vol,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start();o.stop(audioCtx.currentTime+dur);
+}
+function sfxHit(){playTone(200,.15,'sawtooth',.1)}
+function sfxHurt(){playTone(150,.2,'square',.08)}
+function sfxHeal(){playTone(600,.3,'sine',.06);setTimeout(()=>playTone(800,.2,'sine',.05),150)}
+function sfxWin(){playTone(500,.2,'sine',.06);setTimeout(()=>playTone(600,.2,'sine',.06),150);setTimeout(()=>playTone(800,.3,'sine',.06),300)}
+function sfxText(){playTone(1200,.02,'sine',.03)}
+function sfxDark(){playTone(80,.8,'sawtooth',.1);setTimeout(()=>playTone(60,1,'sawtooth',.08),400)}
+function sfxFrag(){playTone(900,.15,'sine',.06);setTimeout(()=>playTone(1200,.2,'sine',.05),100);setTimeout(()=>playTone(1500,.25,'sine',.04),200)}
+function sfxCage(){playTone(300,.3,'triangle',.08);setTimeout(()=>playTone(500,.2,'triangle',.06),200)}
+function sfxMemory(){playTone(400,.4,'sine',.04);setTimeout(()=>playTone(600,.4,'sine',.04),300);setTimeout(()=>playTone(800,.5,'sine',.04),600)}
+function sfxTransform(){playTone(60,1.5,'sawtooth',.15);setTimeout(()=>playTone(40,2,'sawtooth',.12),800)}
+function sfxCredits(){playTone(400,.6,'sine',.05);setTimeout(()=>playTone(600,.5,'sine',.04),400);setTimeout(()=>playTone(800,.8,'sine',.05),800)}
+
+// ===== BGM SYSTEM =====
+const BGM_THEMES={
+  prologue:   {notes:[262,330,392,523,392,330],dur:[.6,.5,.5,.6,.4,.5],type:'sine',vol:.04,tempo:900,drone:[131,165]},
+  forest:     {notes:[220,262,294,330,262,220,196],dur:[.5,.5,.6,.5,.5,.6,.5],type:'triangle',vol:.04,tempo:850,drone:[110,147]},
+  lake:       {notes:[294,330,349,392,349,330,294,262],dur:[.7,.5,.6,.7,.5,.6,.5],type:'sine',vol:.035,tempo:950,drone:[147,196]},
+  boundary:   {notes:[196,220,262,294,330,294,262,220],dur:[.4,.4,.5,.4,.6,.4,.5,.4],type:'sawtooth',vol:.025,tempo:750,drone:[98,130]},
+  graveyard:  {notes:[165,131,110,98,110,131],dur:[.8,.6,.7,.8,.6,1],type:'sawtooth',vol:.03,tempo:1100,drone:[82,55]},
+  cage_room:  {notes:[330,392,440,523,440,392,330,294],dur:[.3,.3,.4,.5,.3,.3,.4,.5],type:'triangle',vol:.04,tempo:600,drone:[165,220]},
+};
+const BATTLE_PERC={notes:[196,220,262,294,330,392],dur:[.15,.15,.15,.15,.2,.3],type:'square',vol:.03,tempo:400,drone:[98,131]};
+
+function startBgm(theme){
+  if(!audioCtx)return;
+  stopBgm();
+  bgmTheme=theme;bgmActive=true;bgmSeqIdx=0;
+  bgmGain=audioCtx.createGain();bgmGain.gain.value=.5;bgmGain.connect(audioCtx.destination);
+  // drone
+  const cfg=BGM_THEMES[theme]||BGM_THEMES.prologue;
+  if(cfg.drone){
+    for(let f of cfg.drone){
+      const o=audioCtx.createOscillator();o.type='sine';o.frequency.value=f;
+      const g=audioCtx.createGain();g.gain.value=cfg.vol*.3;
+      o.connect(g);g.connect(bgmGain);o.start();bgmOSC.push({o,g});
+    }
+  }
+  bgmNext();
+}
+
+function bgmNext(){
+  if(!bgmActive||!audioCtx)return;
+  const battle=battleMusic;
+  const cfg=battle?BATTLE_PERC:(BGM_THEMES[bgmTheme]||BGM_THEMES.prologue);
+  const n=cfg.notes[bgmSeqIdx%cfg.notes.length];
+  const d=cfg.dur[bgmSeqIdx%cfg.dur.length];
+  bgmSeqIdx++;
+  if(!battle||bgmSeqIdx%3===0){ // melody note (battle plays only every 3rd as accent)
+    const o=audioCtx.createOscillator();o.type=battle?'square':cfg.type;
+    o.frequency.value=battle?n*1.5:n;
+    const g=audioCtx.createGain();
+    const vol=battle?cfg.vol*1.3:cfg.vol;
+    g.gain.setValueAtTime(vol,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d*.6);
+    o.connect(g);g.connect(bgmGain||audioCtx.destination);
+    o.start();o.stop(audioCtx.currentTime+d*.7);
+  }
+  // percussion on battle
+  if(battle&&bgmSeqIdx%2===0){
+    const n=audioCtx.createBufferSource();
+    const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*.04,audioCtx.sampleRate);
+    const d2=buf.getChannelData(0);
+    for(let i=0;i<d2.length;i++)d2[i]=(Math.random()*2-1)*Math.exp(-i/(audioCtx.sampleRate*.01));
+    n.buffer=buf;const gn=audioCtx.createGain();gn.gain.value=.04;
+    n.connect(gn);gn.connect(bgmGain||audioCtx.destination);n.start();
+  }
+  bgmTimer=setTimeout(bgmNext,cfg.tempo);
+}
+
+function stopBgm(){
+  bgmActive=false;battleMusic=false;
+  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
+  for(let x of bgmOSC){try{x.o.stop()}catch(e){}}
+  bgmOSC=[];
+  try{bgmGain&&bgmGain.disconnect()}catch(e){};bgmGain=null;
+}
+
+function startBattleMusic(){
+  if(battleMusic||!audioCtx)return;
+  battleMusic=true;
+  if(bgmTimer){clearTimeout(bgmTimer)};bgmSeqIdx=0;bgmNext();
+}
+
+function endBattleMusic(){
+  if(!battleMusic)return;
+  battleMusic=false;
+  if(bgmTimer){clearTimeout(bgmTimer)};bgmSeqIdx=0;bgmNext();
+}
+
+// ===== FADE =====
+let fadeA=0,fadeD=0,fadeCB=null;
+function fadeOut(cb){fadeA=0;fadeD=1;fadeCB=cb}
+function fadeIn(){fadeA=1;fadeD=-1}
+function fadeClear(){fadeA=0;fadeD=0}
+
+// ===== SCREEN SHAKE =====
+let shakeT=0,shakeX=0,shakeY=0;
+
+// ===== FLASH =====
+let flashT=0,flashCol='rgba(80,60,50,0.25)';
+
+// ===== PARTICLES =====
+let particles=[];
+function spawnParticle(x,y,vx,vy,life,color,size){
+  particles.push({x,y,vx,vy,life,maxLife:life,color,size:size||2})
+}
+function updateParticles(dt){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    p.life-=dt;
+    if(p.life<=0)particles.splice(i,1);
+  }
+}
+function drawParticles(){
+  for(const p of particles){
+    const a=Math.max(0,p.life/p.maxLife);
+    X.globalAlpha=a;
+    X.fillStyle=p.color;
+    X.beginPath();X.arc(p.x,p.y,p.size*a,0,Math.PI*2);X.fill();
+  }
+  X.globalAlpha=1;
+}
+function spawnBurst(x,y,count,color,speed){
+  for(let i=0;i<count;i++){
+    const ang=Math.random()*Math.PI*2;
+    const spd=Math.random()*speed;
+    spawnParticle(x,y,Math.cos(ang)*spd,Math.sin(ang)*spd,.6+Math.random()*.6,color,1.5+Math.random()*2);
+  }
+}
+
+// ===== DRAW HELPERS =====
+function rrect(x,y,w,h,r){
+  X.beginPath();
+  X.moveTo(x+r,y);X.lineTo(x+w-r,y);X.quadraticCurveTo(x+w,y,x+w,y+r);
+  X.lineTo(x+w,y+h-r);X.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  X.lineTo(x+r,y+h);X.quadraticCurveTo(x,y+h,x,y+h-r);
+  X.lineTo(x,y+r);X.quadraticCurveTo(x,y,x+r,y);
+  X.closePath();
+}
+function wrapText(text,maxW,fontSize){
+  X.font=`${fontSize}px sans-serif`;
+  const words=text.split('');
+  const lines=[];let cur='';
+  for(let i=0;i<words.length;i++){
+    const test=cur+words[i];
+    if(X.measureText(test).width>maxW&&cur.length>0){lines.push(cur);cur=words[i]}
+    else cur=test;
+  }
+  if(cur)lines.push(cur);
+  return lines;
+}
+function drawBar(x,y,w,h,pct,col1,col2){
+  rrect(x,y,w,h,h/2);
+  X.fillStyle='rgba(0,0,0,0.6)';X.fill();
+  if(pct>0){
+    const bw=Math.max(h,(w-2)*Math.min(1,pct));
+    rrect(x+1,y+1,bw,h-2,(h-2)/2);
+    const g=X.createLinearGradient(x,y,x,y+h);
+    g.addColorStop(0,col1);g.addColorStop(1,col2);
+    X.fillStyle=g;X.fill();
+  }
+}
+function drawVignette(){
+  const g=X.createRadialGradient(W/2,H/2,W*.25,W/2,H/2,W*.75);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0.4)');
+  X.fillStyle=g;X.fillRect(0,0,W,H);
+}
+
+// ===== FRAGMENT DATA (updated: monsters = previous selves) =====
+const FRAG_DATA=[
+  {fuzzy:'……不要……再杀了……',full:'不要再杀了……那些怪物，是曾经的你。'},
+  {fuzzy:'……轮回……又一轮……',full:'每一次轮回，你都会死在这里。然后变成怪物，去救下一个自己。'},
+  {fuzzy:'……名字……你的名字……',full:'你还记得自己的名字吗？还是说，你已经忘了你是谁？'},
+  {fuzzy:'……是我……我也是你……',full:'我也是你。上一个你。我回来想告诉你真相，但你杀了我。'},
+  {fuzzy:'……门后……墓地……',full:'第三章的出口后面……有一座墓园。那里埋着所有死去的你。'},
+  {fuzzy:'……温柔……是牢笼……',full:'温柔本身不是牢笼。但你用温柔包裹自己的方式，是。'},
+];
+const STELE_TEXT={
+  fuzzy:'石碑上的文字模糊不清，似乎每一块碑上都刻着同一个名字……',
+  clear:'「这里埋葬着每一个选择逃避的自己。」\n「而你，是这条路上唯一仍然活着的人。」'
+};
+const GUARDIAN_HINTS={
+  normal:{
+    ch1:['外界的喧嚣不值得看见。','那些人总想带你离开这里，很自私。','……你有没有觉得，你本来就很快乐？'],
+    ch2:['你的记忆有些模糊，不过没关系。','有人一直在试图闯入净土，真讨厌。','你不需要知道太多，只要安心就好。'],
+    ch3:['最后的屏障守住就好了。不要回头看。','……快一点结束吧。我有点累了。']
+  },
+  ngPlus:{
+    ch1:['外界的喧嚣不值得看见。','那些人总想带你离开这里，很自私。','……你有没有觉得，你本来就很快乐？','你杀死的怪物……仔细看过它们的脸吗？'],
+    ch2:['你的记忆有些模糊，不过没关系。','有人一直在试图闯入净土，真讨厌。','上一批来访者也是这样问的……后来他们安静了。','你对"怪物"这个词，没有一点疑问吗？'],
+    ch3:['最后的屏障守住就好了。','……快一点结束吧。我有点累了。','你其实一直都知道答案，对吗？','再杀最后几个就好了。然后我们永远在一起。','听说有人在标题画面发现了什么……但怎么可能呢？']
+  }
+};
+
+// ===== PLAYER =====
+const P={x:0,y:0,dir:0,hp:100,mhp:100,mp:30,mmp:30,atk:12,def:6,lv:1,exp:0,pot:3,rev:false,moveCD:0,_walkT:0,shield:0,vuln:0,weak:0};
+function lvUp(){
+  P.lv++;P.mhp+=20;P.mmp+=5;P.atk+=2;P.def+=1;P.hp=P.mhp;P.mp=P.mmp;
+  bLog.unshift(`【等级提升】 LV${P.lv}！`);
+}
+function gainExp(n){P.exp+=n;const th=[0,40,100,180,300];while(P.lv<5&&P.exp>=th[P.lv])lvUp()}
+
+// ===== BATTLE LOGIC (unchanged) =====
+function calcDmg(atk,def){return Math.max(1,atk-def+Math.floor(Math.random()*6)-2)}
+function calcFinalDmg(rawDmg,attacker,target){
+  let d=rawDmg;
+  // Debug mode: player insta-kill
+  if(debugMode&&attacker===P)return 9999;
+  // Revenge path: player one-shots everything
+  if(revengeActive&&attacker===P)return 9999;
+  if(attacker===P&&P.weak>0)d=Math.floor(d*.75);
+  if(attacker===bEnemy&&bEnemy.weak>0)d=Math.floor(d*.75);
+  if(target===P&&P.vuln>0)d=Math.floor(d*1.5);
+  if(target===bEnemy&&bEnemy.vuln>0)d=Math.floor(d*1.5);
+  return Math.max(1,d);
+}
+function pickEnemyIntent(){
+  const pool=MT[bEnemy.mt||'w'].intents||['attack'];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function intentText(intent){
+  if(intent==='attack')return{t:'[攻击]',c:'#FF8888'};
+  if(intent==='strong')return{t:'[猛攻]',c:'#FF4444'};
+  if(intent==='defend')return{t:'[防御]',c:'#88BBFF'};
+  if(intent==='debuff')return{t:'[诅咒]',c:'#CC88FF'};
+  return{t:'?',c:'#aaa'};
+}
+function startBattle(entity){
+  GS='BATTLE';
+  startBattleMusic();
+  const mt=MT[entity.mt]||MT.w;
+  bEnemy={name:mt.name,hp:mt.hp,mhp:mt.hp,atk:mt.atk,def:mt.def,exp:mt.exp,color:mt.color,glow:mt.glow,whisper:entity.whisper||null,mt:entity.mt,shield:0,vuln:0,weak:0,intent:'attack',isGraveBoss:entity.mt==='graveBoss'};
+  bEnemy.intent=pickEnemyIntent();
+  bLog=[`遭遇了 ${bEnemy.name}！`];
+  bState='START';bSel=0;bT=0;bAnimT=0;
+  P.shield=0;P.vuln=0;P.weak=0;
+  bMenuItems=['攻击','净化斩 (5MP)','守护之光 (12MP)','药草 (x'+P.pot+')','防御'];
+}
+function playerAct(){
+  const sel=bSel;
+  // Validation first — fail BEFORE any turn-based effects apply
+  if(sel===1&&P.mp<5){bLog.push('MP不足！');bState='PLAYER_MENU';return}
+  if(sel===2&&P.mp<12){bLog.push('MP不足！');bState='PLAYER_MENU';return}
+  if(sel===3&&P.pot<=0){bLog.push('没有药草了！');bState='PLAYER_MENU';return}
+  // Turn-based effects: only trigger on valid action
+  bState='PLAYER_ACT';bAnimT=0;
+  P.mp=Math.min(P.mmp,P.mp+(P.weak>0?1:2));
+  if(P.shield>0)P.shield=0;
+  if(P.vuln>0)P.vuln--;
+  if(P.weak>0)P.weak--;
+  if(sel===0){
+    const raw=calcDmg(P.atk,bEnemy.def);
+    const dmg=calcFinalDmg(raw,P,bEnemy);
+    bEnemy.hp=Math.max(0,bEnemy.hp-dmg);
+    bLog.push(`攻击！造成 ${dmg} 点伤害。`);
+    sfxHit();dmgPopups.push({x:W/2,y:120,text:'-'+dmg,color:'#FFD080',size:20,life:1,maxLife:1});
+  }else if(sel===1){
+    P.mp-=5;
+    const raw=calcDmg(Math.floor(P.atk*1.5),bEnemy.def);
+    const dmg=calcFinalDmg(raw,P,bEnemy);
+    bEnemy.hp=Math.max(0,bEnemy.hp-dmg);
+    bLog.push(`净化斩！消耗5MP，造成 ${dmg} 点伤害。`);
+    sfxHit();dmgPopups.push({x:W/2,y:120,text:'-'+dmg,color:'#FF88FF',size:22,life:1,maxLife:1});
+  }else if(sel===2){
+    P.mp-=12;
+    const raw=calcDmg(Math.floor(P.atk*2),bEnemy.def);
+    const dmg=calcFinalDmg(raw,P,bEnemy);
+    bEnemy.hp=Math.max(0,bEnemy.hp-dmg);
+    bEnemy.vuln=2;
+    bLog.push(`守护之光！消耗12MP，造成 ${dmg} 点伤害。敌人陷入易伤！`);
+    sfxHit();dmgPopups.push({x:W/2,y:120,text:'-'+dmg,color:'#88DDFF',size:22,life:1,maxLife:1});
+    shakeT=.2;
+  }else if(sel===3){
+    P.pot--;
+    bMenuItems[3]='药草 (x'+P.pot+')';
+    const heal=20+Math.floor(Math.random()*10);
+    P.hp=Math.min(P.mhp,P.hp+heal);
+    bLog.push(`使用药草，恢复了 ${heal} 点生命。`);
+    sfxHeal();dmgPopups.push({x:W/2,y:360,text:'+'+heal,color:'#88FF88',size:18,life:1,maxLife:1});
+  }else if(sel===4){
+    P.shield=5+Math.floor(P.def/2);
+    bLog.push(`防御！获得 ${P.shield} 点护盾。`);
+  }
+  if(bLog.length>20)bLog=bLog.slice(-12);
+}
+function enemyAct(){
+  bState='ENEMY_ACT';bAnimT=0;
+  if(bEnemy.vuln>0)bEnemy.vuln--;
+  if(bEnemy.weak>0)bEnemy.weak--;
+  const intent=bEnemy.intent;
+  if(intent==='attack'){
+    const raw=calcDmg(bEnemy.atk,P.def);
+    const dmg=calcFinalDmg(raw,bEnemy,P);
+    applyDamageToPlayer(dmg);
+    bLog.push(`${bEnemy.name} 攻击了你，造成 ${dmg} 点伤害。`);
+    sfxHurt();
+  }else if(intent==='strong'){
+    const raw=calcDmg(Math.floor(bEnemy.atk*1.6),P.def);
+    const dmg=calcFinalDmg(raw,bEnemy,P);
+    applyDamageToPlayer(dmg);
+    bLog.push(`${bEnemy.name} 猛烈攻击！造成 ${dmg} 点伤害！`);
+    sfxHurt();shakeT=.15;
+  }else if(intent==='defend'){
+    bEnemy.shield=5+Math.floor(bEnemy.def/2);
+    bLog.push(`${bEnemy.name} 采取了防御姿态。`);
+  }else if(intent==='debuff'){
+    P.weak=2;
+    bLog.push(`${bEnemy.name} 释放了诅咒！你陷入虚弱！`);
+    dmgPopups.push({x:W/2,y:360,text:'虚弱',color:'#CC88FF',size:16,life:1.2,maxLife:1.2});
+  }
+  bEnemy.intent=pickEnemyIntent();
+  if(bLog.length>20)bLog=bLog.slice(-12);
+}
+function applyDamageToPlayer(dmg){
+  if(P.shield>0){
+    if(P.shield>=dmg){P.shield-=dmg;dmg=0}
+    else{dmg-=P.shield;P.shield=0}
+  }
+  P.hp=Math.max(0,P.hp-dmg);
+  dmgPopups.push({x:W/2,y:360,text:'-'+dmg,color:'#FF6666',size:20,life:1,maxLife:1});
+}
+
+// ===== MONSTER TEMPLATES =====
+const MT={
+  w:{name:'畸变体',hp:35,atk:8,def:3,exp:20,color:'#6B3FA0',glow:'#9B5FD0',intents:['attack','attack','defend']},
+  m:{name:'畸变体·深',hp:55,atk:13,def:5,exp:30,color:'#4A2080',glow:'#7A40B0',intents:['attack','strong','defend','debuff']},
+  s:{name:'畸变体·渊',hp:75,atk:16,def:7,exp:40,color:'#3A1060',glow:'#6A3090',intents:['strong','strong','debuff','attack']},
+  boss:{name:'最后的救赎者',hp:250,atk:22,def:10,exp:0,color:'#8B1A3A',glow:'#CC2266',intents:['attack','strong','debuff','strong','defend']},
+  graveBoss:{name:'执念·真我',hp:9999,atk:99,def:99,exp:0,color:'#1A0A2E',glow:'#8844FF',intents:['strong','strong','debuff','attack','strong']}
+};
+
+// ===== DIALOGUE (updated for new lore) =====
+let dlLines=[],dlIdx=0,dlChar=0,dlT=0,dlDone=false,dlCB=null,dlAutoT=0;
+function startDlg(lines,cb){dlLines=lines;dlIdx=0;dlChar=0;dlT=0;dlDone=false;dlAutoT=0;dlCB=cb;GS='DLG';fadeA=0;fadeD=0}
+const DLGS={
+  prologue:[
+    {sp:'???',t:'……你醒了。'},
+    {sp:'???',t:'别急着站起来，慢慢来。这里很安全。'},
+    {sp:'???',t:'你可能什么都不记得了……没关系，那不重要。'},
+    {sp:'守护者',t:'我叫「守护者」。欢迎来到「安乐净土」。'},
+    {sp:'守护者',t:'这里是世间最后一片净土。外面的世界……早已毁灭了。'},
+    {sp:'守护者',t:'灾厄、怪物、荒芜……一切都化为灰烬。只有这里，还保留着最后的安宁。'},
+    {sp:'旅人',t:'……我该做什么？'},
+    {sp:'守护者',t:'你什么都不需要做。只是……最近净土的边缘出现了「畸变怪物」。'},
+    {sp:'守护者',t:'它们会侵蚀这片安宁的土地。如果你愿意的话……能不能帮我们去清理它们？'},
+    {sp:'旅人',t:'我……好的，我试试。'},
+    {sp:'守护者',t:'谢谢你。你很善良。'},
+    {sp:'守护者',t:'每个区域的入口我都会等你。去吧，勇敢的旅人。'},
+  ],
+  ch1_intro:[
+    {sp:'守护者',t:'这里就是「静谧之森」。最近出现了少量畸变体。'},
+    {sp:'守护者',t:'地上偶尔会看到一些发光的碎片……不用在意，可能是怪物留下的残渣。'},
+    {sp:'守护者',t:'它们不很强，小心应对就好。我在森林的另一头等你。'},
+  ],
+  ch1_clear:[
+    {sp:'守护者',t:'太好了，林间的怪物都被清理干净了。'},
+    {sp:'守护者',t:'多亏了你，大家才能继续安稳地生活。'},
+  ],
+  ch2_intro:[
+    {sp:'守护者',t:'湖畔的畸变比森林更多了一些……你要多加小心。'},
+    {sp:'守护者',t:'如果听到什么奇怪的声音……不要理会，那只是怪物的蛊惑。'},
+  ],
+  ch2_clear:[
+    {sp:'守护者',t:'你做得很好，湖畔也恢复了平静。'},
+    {sp:'守护者',t:'但……最后的「边界屏障」那里，情况不太乐观。'},
+    {sp:'守护者',t:'大量畸变体正在集中攻击屏障。如果屏障被打破……净土就完了。'},
+    {sp:'旅人',t:'我去。我会守住它。'},
+    {sp:'守护者',t:'……谢谢你。拜托你了。'},
+  ],
+  ch3_intro:[
+    {sp:'守护者',t:'这里就是净土的最后屏障。'},
+    {sp:'守护者',t:'穿过这片区域，消灭所有的畸变体……净土就彻底安全了。'},
+    {sp:'守护者',t:'这可能是最艰难的一战。但我知道……你一定能做到的。'},
+  ],
+  ch3_clear:[
+    {sp:'守护者',t:'太好了……你做到了。'},
+    {sp:'守护者',t:'所有畸变体都被清理干净了。净土真的安全了。'},
+    {sp:'守护者',t:'屏障后面有一扇门。我从没见过它打开。'},
+    {sp:'守护者',t:'走过去看看吧。我在这里等你。'},
+  ],
+  twist:[
+    {sp:'系统',t:'……'},
+    {sp:'系统',t:'所有怪物消失。'},
+    {sp:'系统',t:'天空的永恒晴天，碎裂了。',mood:'cold'},
+    {sp:'守护者',t:'……'},
+    {sp:'守护者',t:'恭喜你。',mood:'cold'},
+    {sp:'守护者',t:'你做到了。所有的「怪物」都被清理干净了。',mood:'cold'},
+    {sp:'守护者',t:'从今以后，再也没有人会来打扰你。',mood:'cold'},
+    {sp:'守护者',t:'再也没有人会来「救」你了。',mood:'cold'},
+    {sp:'守护者',t:'……你好像不太明白？',mood:'cold'},
+    {sp:'守护者',t:'那些怪物——它们死前说的话，你有没有想过……也许是真话呢？',mood:'cold'},
+    {sp:'守护者',t:'那些畸变体……每一个，都是曾经的你。',mood:'cold'},
+    {sp:'守护者',t:'你在这片净土中死去了无数次。每一次死亡，你都会变成怪物。',mood:'cold'},
+    {sp:'守护者',t:'而下一个轮回的你，又会把上一个自己当作怪物杀死。',mood:'cold'},
+    {sp:'守护者',t:'一遍。又一遍。',mood:'cold'},
+    {sp:'守护者',t:'他们每一次都想来救你。告诉你真相。',mood:'cold'},
+    {sp:'守护者',t:'但每一次，都被你亲手杀掉。',mood:'cold'},
+    {sp:'守护者',t:'……你知道吗？这个轮回里，你是唯一一个还活着的人类。',mood:'cold'},
+    {sp:'守护者',t:'屏障后面……有一扇门。',mood:'cold'},
+    {sp:'守护者',t:'想去看看吗？',mood:'cold'},
+    {sp:'守护者',t:'去看看那些因你而死的人。',mood:'cold'},
+    {sp:'守护者',t:'去看看……你自己。',mood:'cold'},
+  ],
+  ch4_enter:[
+    {sp:'',t:'你推开了那扇门。',mood:'cold'},
+    {sp:'',t:'眼前是一片无边的墓园。',mood:'cold'},
+    {sp:'',t:'灰色的天空，灰色的土地。',mood:'cold'},
+    {sp:'',t:'每一块墓碑上，都刻着同一个名字——',mood:'cold'},
+    {sp:'',t:'……你的名字。',mood:'cold'},
+  ],
+  grave_reveal:[
+    {sp:'守护者',t:'看到了吗？',mood:'cold'},
+    {sp:'守护者',t:'这些坟墓里躺着的，全是你。',mood:'cold'},
+    {sp:'守护者',t:'每一个你，都以为自己在「拯救净土」。',mood:'cold'},
+    {sp:'守护者',t:'但真相是——你一直在杀死自己。',mood:'cold'},
+    {sp:'守护者',t:'一遍又一遍。永无止境。',mood:'cold'},
+    {sp:'守护者',t:'而现在……这个轮回的你，也快到终点了。',mood:'cold'},
+    {sp:'守护者',t:'……',mood:'cold'},
+    {sp:'守护者',t:'你真没用。',mood:'cold'},
+    {sp:'守护者',t:'你以为你是拯救者？你只是一个连自己都拯救不了的废物。',mood:'cold'},
+    {sp:'守护者',t:'不过没关系。我会亲手结束这个轮回。',mood:'cold'},
+    {sp:'守护者',t:'变成怪物吧。和所有死去的你一样。',mood:'cold'},
+  ],
+  grave_reveal_ng:[
+    {sp:'守护者',t:'你又来了？',mood:'cold'},
+    {sp:'守护者',t:'一切都是徒劳。',mood:'cold'},
+    {sp:'守护者',t:'我会一次次杀死你。',mood:'cold'},
+    {sp:'守护者',t:'就像杀死之前的每一个你。',mood:'cold'},
+    {sp:'守护者',t:'……',mood:'cold'},
+    {sp:'守护者',t:'变成怪物吧。再一次。',mood:'cold'},
+  ],
+  grave_reveal_revenge:[
+    {sp:'执念·真我',t:'你来了……我认得你的气息。',mood:'cold'},
+    {sp:'执念·真我',t:'你选择了复仇。你觉得你比之前的每一个自己都更强大？',mood:'cold'},
+    {sp:'执念·真我',t:'你不过是在用另一种方式重复同样的命运。',mood:'cold'},
+    {sp:'执念·真我',t:'……但好吧。让我看看你的决心。',mood:'cold'},
+    {sp:'执念·真我',t:'我会亲手结束你。然后我会找到下一个旅人。',mood:'cold'},
+  ],
+  // 复仇路线：守护者谴责对话
+  revenge_g_ch1:[
+    {sp:'守护者',t:'你到底在干什么……',mood:'cold'},
+    {sp:'守护者',t:'你怎么变成这个样子了？',mood:'cold'},
+    {sp:'守护者',t:'你身上全是血……你杀了它们。',mood:'cold'},
+  ],
+  revenge_g_ch2:[
+    {sp:'守护者',t:'你是屠夫吗？',mood:'cold'},
+    {sp:'守护者',t:'你杀死那些怪物时在笑……',mood:'cold'},
+    {sp:'守护者',t:'你在享受杀戮。',mood:'cold'},
+  ],
+  revenge_g_ch3:[
+    {sp:'守护者',t:'继续在这个温柔乡里呆着不好吗？',mood:'cold'},
+    {sp:'守护者',t:'你已经走了这么远……',mood:'cold'},
+    {sp:'守护者',t:'回头吧。你会后悔的。',mood:'cold'},
+  ],
+  // 复仇路线：真我战后倒地对话
+  revenge_final_dlg:[
+    {sp:'真我',t:'别这样……',mood:'cold'},
+    {sp:'真我',t:'你会后悔的。',mood:'cold'},
+    {sp:'真我',t:'我一直在等你……等你明白。',mood:'cold'},
+    {sp:'真我',t:'可是你……选择了最黑暗的路。',mood:'cold'},
+  ],
+  ending_final:[
+    {sp:'',t:'永恒的晴天。永恒的安宁。永恒的孤独。',mood:'end'},
+  ],
+  ending_death:[
+    {sp:'',t:'你倒在地上，动弹不得。',mood:'end'},
+    {sp:'',t:'守护者的手按在你的额头上。',mood:'end'},
+    {sp:'',t:'你感觉到自己的身体正在扭曲、变形……',mood:'end'},
+    {sp:'',t:'你变成了怪物。',mood:'end'},
+    {sp:'',t:'和所有死去的你一样。',mood:'end'},
+  ],
+  // SECRET ENDING: memory reveals
+  memory_1:[
+    {sp:'',t:'第一击落下。',mood:'end'},
+    {sp:'',t:'你看到了一张模糊的脸。',mood:'end'},
+    {sp:'',t:'那是你的亲人。你曾经以为失去的人。',mood:'end'},
+    {sp:'',t:'他们从未离开。是你把自己关了起来。',mood:'end'},
+  ],
+  memory_2:[
+    {sp:'',t:'第二击落下。',mood:'end'},
+    {sp:'',t:'你看到了朋友。围着桌子笑着。',mood:'end'},
+    {sp:'',t:'他们的笑声那么真实。那么近。',mood:'end'},
+    {sp:'',t:'是你拒绝了他们的手。',mood:'end'},
+  ],
+  memory_3:[
+    {sp:'',t:'第三击落下。',mood:'end'},
+    {sp:'',t:'你记起了自己的名字。',mood:'end'},
+    {sp:'',t:'原来你有一个名字。一个真实的、属于人的名字。',mood:'end'},
+    {sp:'',t:'你曾经是某个人的孩子。某个人的朋友。某个人。',mood:'end'},
+  ],
+  memory_4:[
+    {sp:'',t:'第四击落下。',mood:'end'},
+    {sp:'',t:'你想起来了。',mood:'end'},
+    {sp:'',t:'你来到这里，是因为你不想面对。',mood:'end'},
+    {sp:'',t:'生活的困难、成长的痛苦、世界的不完美……',mood:'end'},
+    {sp:'',t:'你选择闭上眼，躲进这个温柔的世界。',mood:'end'},
+    {sp:'',t:'你亲手为自己打造了这座牢笼。',mood:'end'},
+  ],
+  memory_5:[
+    {sp:'',t:'第五击落下。铁笼碎裂。',mood:'end'},
+    {sp:'',t:'你终于看到了真相——',mood:'end'},
+    {sp:'',t:'守护者的脸。和你的脸。一模一样。',mood:'end'},
+    {sp:'',t:'守护者就是你。',mood:'end'},
+    {sp:'',t:'是你自己，一直在阻止自己离开。',mood:'end'},
+    {sp:'',t:'是你自己，一直在给自己编织谎言。',mood:'end'},
+    {sp:'',t:'是你自己，选择一次次困在这里。',mood:'end'},
+    {sp:'',t:'……但现在，你醒了。',mood:'end'},
+  ],
+  true_ending:[
+    {sp:'',t:'笼子里的你睁开了眼睛。',mood:'end'},
+    {sp:'',t:'你伸出手，拉住了自己。',mood:'end'},
+    {sp:'',t:'两个身影合为一体。',mood:'end'},
+  ],
+};
+
+// ===== MAP DATA =====
+const MAPS={
+  prologue:{
+    map:[
+      '....................',
+      '..**..**..**..**..*. ',
+      '.*..................*. ',
+      '....................** ',
+      '**..**..**..**..**.. ',
+      '.................... ',
+      '.*..**..**..**..**.. ',
+      '.................... ',
+      '**..**..**..**..**.. ',
+      '....................E',
+      '.*..**..**..**..**.. ',
+      '.................... ',
+      '**..**..**..**..**.. ',
+      '....................',
+      '.*..**..**..**..**..',
+    ],
+    theme:'prologue',start:{x:2,y:7},
+    entities:[{t:'g',x:12,y:7}],
+    exit:{x:19,y:9},bAuto:false,
+  },
+  ch1:{
+    map:[
+      '####################',
+      '#........#.........#',
+      '#.####...#...####..#',
+      '#.##..........##...#',
+      '#..........#......#',
+      '##.####....##..###.#',
+      '#........#.........#',
+      '#.##.....#..###....#',
+      '#....##..........#.#',
+      '#.##.....##....#...#',
+      '#.........##.......#',
+      '#....####.........##',
+      '#...........##.##..#',
+      '#..##..............#',
+      '####################',
+    ],
+    theme:'forest',start:{x:1,y:7},
+    entities:[
+      {t:'e',x:9,y:3,mt:'w',whisper:'……不要……'},
+      {t:'e',x:15,y:11,mt:'w',whisper:'……是我……'},
+      {t:'f',x:5,y:5,fid:0},
+      {t:'f',x:17,y:9,fid:3,ngOnly:true},
+      {t:'g',x:17,y:7},
+    ],
+    exit:{x:18,y:7},bAuto:true,
+  },
+  ch2:{
+    map:[
+      '~~~~~~~~~~~~~~~~~~~~',
+      '~~~~~....~~~~.~~~~~~',
+      '~~~~......~~~~..~~~~',
+      '~~~..........~~.~~~~',
+      '~~....~~~~......~~~~',
+      '~.....~~....~~~~.~~~',
+      '~..........~~......~',
+      '~~....~~~~.........~',
+      '~.....~~......~~~~~~',
+      '~...........~~.....~',
+      '~~..~~~~.........~~.',
+      '~...........~~.....~',
+      '~~...~~~~..........~',
+      '~..........~~....~~~',
+      '~~~~~~~~~~~~~~~~~~~~',
+    ],
+    theme:'lake',start:{x:4,y:7},
+    entities:[
+      {t:'e',x:8,y:5,mt:'m',whisper:'……别杀……是我……'},
+      {t:'e',x:14,y:3,mt:'m',whisper:'……上一个是……'},
+      {t:'e',x:10,y:11,mt:'m',whisper:'……回去……醒来……'},
+      {t:'f',x:3,y:3,fid:1},
+      {t:'f',x:16,y:11,fid:4,ngOnly:true},
+      {t:'g',x:16,y:7},
+    ],
+    exit:{x:18,y:13},bAuto:true,
+  },
+  ch3:{
+    map:[
+      '--------------------',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................-',
+      '-..................E',
+      '--------------------',
+    ],
+    theme:'boundary',start:{x:1,y:7},
+    entities:[
+      {t:'e',x:5,y:4,mt:'s',whisper:'……下一轮……醒来……'},
+      {t:'e',x:5,y:9,mt:'s',whisper:'……我是你……上一个你……'},
+      {t:'e',x:17,y:12,mt:'boss',whisper:'……你……为什么……总是……'},
+      {t:'f',x:10,y:2,fid:2},
+      {t:'f',x:14,y:13,fid:5,ngOnly:true},
+      {t:'g',x:17,y:7},
+    ],
+    exit:null,bAuto:true,
+    doorPos:{x:19,y:13},
+  },
+  ch4:{
+    map:[
+      '░░░░░░░░░░░░░░░░░░░░',
+      '░░................░░',
+      '░░................░░',
+      '░░..█...........█.░░',
+      '░░................░░',
+      '░░................░░',
+      '░░.....█.....█....░░',
+      '░░................░░',
+      '░░................░░',
+      '░░..█...........█.░░',
+      '░░................░░',
+      '░░................░░',
+      '░░.....█.....█....░░',
+      '░░................░░',
+      '░░░░░░░░░░░░░░░░░░░░',
+    ],
+    theme:'graveyard',start:{x:2,y:7},
+    entities:[
+      {t:'g',x:16,y:12,isGraveGuardian:true},
+    ],
+    exit:null,bAuto:false,
+  },
+  secret_cage:{
+    map:[
+      '                    ',
+      '                    ',
+      '                    ',
+      '      █████████      ',
+      '      █       █      ',
+      '      █  囚   █      ',
+      '      █  笼   █      ',
+      '      █       █      ',
+      '      █████████      ',
+      '                    ',
+      '                    ',
+      '                    ',
+      '                    ',
+      '                    ',
+      '                    ',
+    ],
+    theme:'cage_room',start:{x:10,y:13},
+    entities:[],
+    exit:null,bAuto:false,
+  }
+};
+
+const CAGE_POS={x:6,y:3,w:7,h:6}; // cage position on secret_cage map (7x6 tiles)
+
+// ===== THEMES =====
+const TH={
+  prologue:{floor:'#7FB069',floorAlt:'#6DA05B',wall:'#5A8A4A',wallTop:'#6E9E5E',water:'#5BB8D4',flowers:'#F2A7B3',void:'#2A2A35',exit:'#FFD700',fog:'rgba(180,220,255,0.04)',ambient:'rgba(255,230,180,0.08)'},
+  forest:{floor:'#4A6E30',floorAlt:'#3D5E28',wall:'#2A4018',wallTop:'#3A5525',water:'#3A7090',flowers:'#D4889E',void:'#151520',exit:'#FFD700',fog:'rgba(60,100,60,0.06)',ambient:'rgba(100,160,80,0.05)'},
+  lake:{floor:'#5A7E48',floorAlt:'#4D6E3C',wall:'#3A5A30',wallTop:'#4A6A3A',water:'#2868A0',flowers:'#C888A8',void:'#101020',exit:'#FFD700',fog:'rgba(80,140,200,0.06)',ambient:'rgba(100,180,240,0.06)'},
+  boundary:{floor:'#22223A',floorAlt:'#1C1C32',wall:'#14142A',wallTop:'#1E1E38',water:'#10102A',flowers:'#3A2A4A',void:'#08080F',exit:'#FF4455',fog:'rgba(80,40,100,0.04)',ambient:'rgba(60,20,80,0.06)'},
+  graveyard:{floor:'#2A2A28',floorAlt:'#222220',wall:'#1A1A18',wallTop:'#2E2E2A',water:'#1A1A18',flowers:'#4A4A44',void:'#0A0A08',exit:'#FFD700',fog:'rgba(40,40,38,0.08)',ambient:'rgba(60,60,55,0.05)'},
+  cage_room:{floor:'#151518',floorAlt:'#121215',wall:'#0A0A0E',wallTop:'#1A1A20',water:'#0A0A0E',flowers:'#1A1A20',void:'#050508',exit:'#FFFFFF',fog:'rgba(20,20,25,0.06)',ambient:'rgba(30,30,40,0.04)'},
+};
+
+// ===== SKILL DESCRIPTIONS =====
+const SKILL_DESCS=[
+  {effect:'造成基本伤害（ATK - DEF）',lore:'旅人随身携带的短剑，虽不锋利但足以防身。每一次挥砍，都是求生的本能。',flavor:'「对着空气挥剑也要力气的，还好你这次砍中了。」',color:'#FFD080'},
+  {effect:'消耗5MP，造成1.5倍伤害',lore:'将纯粹的魔力注入剑刃，以太之光撕裂黑暗。净化之力对污秽之物尤为有效。',flavor:'「光污染也是污染，但这束光……真的要命。」',color:'#FF88FF'},
+  {effect:'消耗12MP，造成2倍伤害并附加2回合易伤',lore:'呼唤远古守护者的祝福，天降圣光贯穿敌人。被击中的敌人将陷入短暂的脆弱状态。',flavor:'「这个技能用完，敌人很痛……你的MP也很痛。」',color:'#88DDFF'},
+  {effect:'恢复20~29点生命值',lore:'在旷野中采集的药草，嚼起来又苦又涩，但总比死掉强。冒险者的老朋友。',flavor:'「包治百病的路边野草，具体成分：未知。」',color:'#88FF88'},
+  {effect:'获得（5 + DEF/2）点护盾，持续至下次行动',lore:'架起防御姿态，以静制动。护盾可以完全吸收下一次受到的伤害。',flavor:'「缩头乌龟？不，这叫『战术性等待』。」',color:'#AAC8FF'},
+];
+// ===== GAME STATE =====
+let GS='TITLE';
+let curMap=null,mapEntities=[];
+let bEnemy=null,bState='IDLE',bSel=0,bMenuItems=[],bLog=[],bT=0,bAnimT=0;
+let dlgMood='normal';
+let endPhase=0,endT=0;
+let mapDefeated=0,mapTotal=0,mapCleared=false;
+let titleT=0;
+let dmgPopups=[];
+let gameCompleted=false;
+let collectedFragments=[];
+let killCount=0;
+let playthroughCount=0; // 0=一周目, 1=二周目, ...
+let cageHits=0; // hits on the cage in secret ending
+let cageMemoryShown=false;
+let graveBossDefeated=false; // track if grave boss has been defeated (always loses)
+let graveRevealStarted=false; // prevent repeat grave reveal dialog
+let graveBossTurns=0; // turns survived in grave boss fight
+let graveDeathPhase=0; // phase of grave death cutscene
+let graveDeathT=0;
+let trueEndPhase=0; // phase of true ending cutscene
+let trueEndT=0;
+let scrollHintShown=false; // 碎片集齐后是否已展示卷轴
+let scrollHintText=''; // 卷轴提示文字
+let scrollHintPhase=0; // 卷轴动画阶段 0=隐藏, 1=展示中
+let scrollHintT=0; // 卷轴动画计时
+
+// achievements & alternate endings
+let achievements=[]; // unlocked achievements: 'redemption','assassin','revenge'
+let revengePath=false; // player chose 复仇 at fragment collection
+let revengeActive=false; // revenge buff active (one-hit kill + red-black appearance)
+let revengeBossKilled=false; // grave boss killed via revenge
+let revengeFinalPhase=0; // 0=inactive,1=dyingG,2=dlg,3=choice,4=killAnim,5=halo,6=memory,7=end
+let revengeFinalT=0; // timer for final revenge sequence
+let fragmentChoiceShown=false; // prevent re-showing fragment choice
+let achieveT=0; // achievement panel animation timer
+let guardianChoiceTarget=null; // guardian being targeted for choice
+let guardianChoiceIdx=0; // 0=对话, 1=杀死
+let guardianKilledCount=0; // how many guardians killed in assassin path
+let fragmentChoiceActive=false; // showing fragment end choice
+let fragmentChoiceIdx=0; // 0=释怀, 1=复仇
+
+// ===== CHEAT / DEBUG MODE =====
+let cheatInput=''; // tracks typed characters for cheat code
+let debugMode=false; // debug mode activated?
+const CHEAT_SEQ='debug'; // cheat code: type "debug"
+let debugPanelOpen=false; // debug panel visible?
+let debugMsg=''; // temporary debug message
+let debugMsgT=0; // message timer
+
+// credits
+let creditsPhase=0,creditsT=0;
+const CREDITS_LINES=[
+  '牢笼的故事，到这里就结束了',
+  '你把三个结局都看完了——',
+  '要么你很有耐心，要么你真的很闲',
+  '说实话，连我自己都分不清哪个结局更好',
+  'bug 估计也不少，但是……',
+  '画面烂，音乐烂——算了你玩都玩了',
+  '我很认真地做了',
+  '所以......谢谢你，真的。',
+  '真的',
+  '作者：很酷不说话'
+];
+
+// bgm system
+let bgmActive=false,bgmTheme='',bgmGain=null,bgmOSC=[],bgmTimer=null,bgmSeqIdx=0;
+let battleMusic=false;
+
+// title screen "囚笼" click region
+let titleQLLeft=0,titleQLRight=0,titleQLTop=0,titleQLBottom=0;
+
+function getTheme(){return TH[curMap.theme]}
+
+// ===== DRAWING: TILES =====
+function drawTile(px,py,ch){
+  const th=getTheme();
+  const seed=(px*7+py*13)&0xFF;
+  const isAlt=seed%3===0;
+  switch(ch){
+    case'#':{
+      X.fillStyle=th.wall;X.fillRect(px,py,T,T);
+      X.fillStyle=th.wallTop;X.fillRect(px,py,T,6);
+      X.fillStyle='rgba(0,0,0,0.12)';
+      X.fillRect(px,py+10,T,1);X.fillRect(px,py+22,T,1);
+      X.fillRect(px+T/2,py,1,10);X.fillRect(px+T/4,py+10,1,12);X.fillRect(px+T*3/4,py+22,1,10);
+      break;
+    }
+    case'~':{
+      const wt=Date.now()/1000;
+      const wb=Math.sin(wt+px*.05+py*.03)*.15;
+      const r=parseInt(th.water.slice(1,3),16),g=parseInt(th.water.slice(3,5),16),b=parseInt(th.water.slice(5,7),16);
+      const dr=Math.min(255,Math.floor(r*(1+wb))),dg=Math.min(255,Math.floor(g*(1+wb*.5)));
+      X.fillStyle=`rgb(${dr},${dg},${b})`;X.fillRect(px,py,T,T);
+      X.strokeStyle='rgba(255,255,255,0.15)';X.lineWidth=1;
+      X.beginPath();
+      const wy1=py+10+Math.sin(wt*2+px*.08)*3;
+      X.moveTo(px,wy1);X.quadraticCurveTo(px+8,wy1-3,px+16,wy1);
+      X.quadraticCurveTo(px+24,wy1+3,px+T,wy1);X.stroke();
+      X.beginPath();
+      const wy2=py+22+Math.sin(wt*2+px*.08+2)*3;
+      X.moveTo(px,wy2);X.quadraticCurveTo(px+10,wy2-2,px+20,wy2);
+      X.quadraticCurveTo(px+26,wy2+2,px+T,wy2);X.stroke();
+      break;
+    }
+    case'*':{
+      X.fillStyle=isAlt?th.floorAlt:th.floor;X.fillRect(px,py,T,T);
+      X.fillStyle='rgba(80,140,50,0.3)';
+      X.fillRect(px+4,py+T-6,1,6);X.fillRect(px+12,py+T-8,1,8);X.fillRect(px+22,py+T-5,1,5);
+      const fcol=th.flowers;
+      X.fillStyle=fcol;
+      X.beginPath();X.arc(px+16,py+12,4,0,Math.PI*2);X.fill();
+      X.fillStyle='rgba(255,220,200,0.8)';
+      X.beginPath();X.arc(px+16,py+12,2,0,Math.PI*2);X.fill();
+      X.fillStyle=fcol;X.globalAlpha=.5;
+      X.beginPath();X.arc(px+6,py+22,2.5,0,Math.PI*2);X.fill();
+      X.beginPath();X.arc(px+24,py+20,2,0,Math.PI*2);X.fill();
+      X.globalAlpha=1;
+      break;
+    }
+    case'-':{
+      X.fillStyle=th.void;X.fillRect(px,py,T,T);
+      X.fillStyle='rgba(255,255,255,0.03)';
+      X.fillRect(px,py+T/2,T,1);X.fillRect(px+T/2,py,1,T);
+      break;
+    }
+    case'░':{
+      // graveyard wall - dark stone
+      X.fillStyle=th.wall;X.fillRect(px,py,T,T);
+      X.fillStyle=th.wallTop;X.fillRect(px,py,T,4);
+      X.fillStyle='rgba(255,255,255,0.03)';
+      X.fillRect(px+8,py+6,1,18);X.fillRect(px+22,py+8,1,16);
+      X.fillRect(px+4,py+18,8,1);X.fillRect(px+18,py+22,8,1);
+      break;
+    }
+    case'█':{
+      // gravestone tile
+      X.fillStyle=isAlt?th.floorAlt:th.floor;X.fillRect(px,py,T,T);
+      // grave mound
+      X.fillStyle='rgba(0,0,0,0.2)';
+      X.beginPath();X.ellipse(px+T/2,py+T-2,14,6,0,0,Math.PI*2);X.fill();
+      // headstone
+      X.fillStyle='#4A4A48';X.fillRect(px+10,py+2,12,16);
+      X.fillStyle='#555553';X.fillRect(px+11,py+2,10,14);
+      // rounded top
+      X.fillStyle='#555553';
+      X.beginPath();X.arc(px+T/2,py+2,6,Math.PI,0);X.fill();
+      // name on stone
+      X.fillStyle='rgba(200,180,150,0.5)';X.font='7px sans-serif';X.textAlign='center';
+      X.fillText('...',px+T/2,py+14);X.textAlign='left';
+      break;
+    }
+    case'E':{
+      X.fillStyle=isAlt?th.floorAlt:th.floor;X.fillRect(px,py,T,T);
+      const pulse=.6+Math.sin(Date.now()/400)*.35;
+      const eg=X.createRadialGradient(px+T/2,py+T/2,2,px+T/2,py+T/2,16);
+      eg.addColorStop(0,`rgba(255,220,80,${pulse})`);eg.addColorStop(.6,`rgba(255,180,40,${pulse*.4})`);eg.addColorStop(1,'rgba(255,180,40,0)');
+      X.fillStyle=eg;X.fillRect(px-4,py-4,T+8,T+8);
+      X.fillStyle=`rgba(255,255,200,${pulse*.8})`;X.font='bold 10px sans-serif';X.textAlign='center';
+      X.fillText('EXIT',px+T/2,py+T/2+4);X.textAlign='left';
+      break;
+    }
+    default:{
+      X.fillStyle=isAlt?th.floorAlt:th.floor;X.fillRect(px,py,T,T);
+      if(seed%5===0){
+        X.fillStyle='rgba(255,255,255,0.04)';
+        X.fillRect(px+seed%10,py+seed%12,2,1);
+      }
+    }
+  }
+}
+
+// ===== DRAWING: CAGE TILE (for secret map) =====
+function drawCageTile(px,py,ch){
+  if(ch==='╔'||ch==='╗'||ch==='╚'||ch==='╝'||ch==='║'||ch==='═'){
+    // cage bars
+    X.fillStyle='#3A3A42';X.fillRect(px,py,T,T);
+    X.strokeStyle='#888899';X.lineWidth=2;
+    // horizontal bars
+    X.beginPath();X.moveTo(px+2,py+4);X.lineTo(px+T-2,py+4);X.stroke();
+    X.beginPath();X.moveTo(px+2,py+T-4);X.lineTo(px+T-2,py+T-4);X.stroke();
+    // vertical bars
+    for(let bx=px+6;bx<px+T;bx+=8){
+      X.beginPath();X.moveTo(bx,py+2);X.lineTo(bx,py+T-2);X.stroke();
+    }
+  }else if(ch==='囚'||ch==='笼'){
+    // cage interior
+    X.fillStyle='#1A1A22';X.fillRect(px,py,T,T);
+    // faint glow inside
+    const g=X.createRadialGradient(px+T/2,py+T/2,2,px+T/2,py+T/2,14);
+    g.addColorStop(0,'rgba(60,60,100,0.15)');g.addColorStop(1,'rgba(60,60,100,0)');
+    X.fillStyle=g;X.fillRect(px,py,T,T);
+    // small figure inside
+    X.fillStyle='rgba(200,200,220,0.3)';
+    X.beginPath();X.arc(px+T/2,py+T/2,5,0,Math.PI*2);X.fill();
+    X.fillRect(px+T/2-2,py+T/2+5,4,5);
+  }
+}
+
+// ===== DRAWING: PLAYER (unchanged) =====
+function drawPlayer(px,py,dir){
+  const cx=px+T/2,cy=py+T/2;
+  const bob=P._walkT>0?Math.sin(P._walkT*12)*2:0;
+  const by=cy+bob;
+  X.fillStyle='rgba(0,0,0,0.3)';
+  X.beginPath();X.ellipse(cx,cy+14,10,3,0,0,Math.PI*2);X.fill();
+  const cg=X.createLinearGradient(cx-8,by-6,cx+8,by+12);
+  if(revengeActive){
+    cg.addColorStop(0,'#8B2020');cg.addColorStop(1,'#3A1010');
+  }else{
+    cg.addColorStop(0,'#5B8EC9');cg.addColorStop(1,'#2E5A8A');
+  }
+  X.fillStyle=cg;
+  X.beginPath();
+  X.moveTo(cx-8,by-4);
+  X.quadraticCurveTo(cx-10,by+6,cx-9,by+12);
+  X.lineTo(cx+9,by+12);
+  X.quadraticCurveTo(cx+10,by+6,cx+8,by-4);
+  X.quadraticCurveTo(cx,by-6,cx-8,by-4);
+  X.fill();
+  X.fillStyle='#3A6A9F';
+  X.beginPath();
+  X.moveTo(cx-8,by-4);
+  X.quadraticCurveTo(cx,by-7,cx+8,by-4);
+  X.quadraticCurveTo(cx+6,by-8,cx,by-12);
+  X.quadraticCurveTo(cx-6,by-8,cx-8,by-4);
+  X.fill();
+  X.fillStyle='#8B7355';X.fillRect(cx-8,by+3,16,2);
+  X.fillStyle='#DAA520';X.fillRect(cx-1,by+2,2,4);
+  X.fillStyle='#F5D6B8';
+  X.beginPath();X.arc(cx,by-6,5,0,Math.PI*2);X.fill();
+  X.fillStyle='#4A3020';
+  X.beginPath();X.arc(cx,by-8,5,Math.PI*.9,Math.PI*2.1);X.fill();
+  X.fillRect(cx-5,by-9,10,2);
+  if(dir!==1){
+    X.fillStyle='#2A2A3A';
+    const ex=dir===2?-1.5:dir===3?1.5:0;
+    X.beginPath();X.arc(cx-2.5+ex,by-6,1.2,0,Math.PI*2);X.fill();
+    X.beginPath();X.arc(cx+2.5+ex,by-6,1.2,0,Math.PI*2);X.fill();
+  }
+  const swordSide=dir===2?-1:1;
+  const sx=cx+swordSide*10;
+  X.fillStyle='#A0A8B0';X.fillRect(sx-1,by-8,2,12);
+  X.fillStyle='#C8CDD4';X.fillRect(sx-.5,by-8,1,10);
+  X.fillStyle='#6B5A3E';X.fillRect(sx-2,by+3,4,3);
+  if(P.shield>0&&GS==='BATTLE'){
+    X.strokeStyle='rgba(100,180,255,0.5)';X.lineWidth=1.5;
+    X.beginPath();X.arc(cx,by,14,0,Math.PI*2);X.stroke();
+  }
+  if(revengeActive){
+    const rt=Date.now()/600;
+    const rg=X.createRadialGradient(cx,by,2,cx,by,18);
+    rg.addColorStop(0,`rgba(200,30,30,${.15+Math.sin(rt)*.08})`);
+    rg.addColorStop(1,'rgba(200,30,30,0)');
+    X.fillStyle=rg;X.beginPath();X.arc(cx,by,18,0,Math.PI*2);X.fill();
+  }
+}
+
+// ===== DRAWING: GUARDIAN (unchanged) =====
+function drawGuardian(px,py,cold){
+  const cx=px+T/2,cy=py+T/2;
+  const t=Date.now()/1000;
+  const baseCol=cold?'#5555AA':'#FFD700';
+  const bodyCol=cold?'#3A3A5A':'#D4AA40';
+  const headCol=cold?'#BBBBDD':'#FFFDE8';
+  for(let i=0;i<6;i++){
+    const a=t*.3+i*Math.PI/3;
+    const len=22+Math.sin(t*2+i)*6;
+    X.strokeStyle=cold?`rgba(80,80,140,${.06+Math.sin(t+i)*.03})`:`rgba(255,215,0,${.06+Math.sin(t+i)*.03})`;
+    X.lineWidth=1;
+    X.beginPath();X.moveTo(cx,cy-8);X.lineTo(cx+Math.cos(a)*len,cy-8+Math.sin(a)*len);X.stroke();
+  }
+  for(let i=0;i<5;i++){
+    const a=t*1.5+i*1.26;
+    const r=14+Math.sin(t+i)*3;
+    const gx=cx+Math.cos(a)*r,gy=cy+Math.sin(a)*r-4;
+    X.fillStyle=cold?`rgba(100,100,180,${.2+Math.sin(t*2+i)*.1})`:`rgba(255,215,0,${.2+Math.sin(t*2+i)*.1})`;
+    X.beginPath();X.arc(gx,gy,1.5,0,Math.PI*2);X.fill();
+  }
+  const g=X.createRadialGradient(cx,cy,2,cx,cy,30);
+  g.addColorStop(0,cold?'rgba(80,80,140,0.25)':'rgba(255,215,0,0.25)');
+  g.addColorStop(1,cold?'rgba(80,80,140,0)':'rgba(255,215,0,0)');
+  X.fillStyle=g;X.beginPath();X.arc(cx,cy,30,0,Math.PI*2);X.fill();
+  X.fillStyle='rgba(0,0,0,0.15)';X.beginPath();X.ellipse(cx,cy+15,10,3,0,0,Math.PI*2);X.fill();
+  const rg=X.createLinearGradient(cx-10,cy-4,cx+10,cy+15);
+  rg.addColorStop(0,bodyCol);rg.addColorStop(1,cold?'#2A2A3A':'#B08820');
+  X.fillStyle=rg;
+  X.beginPath();X.moveTo(cx-7,cy-3);X.lineTo(cx+7,cy-3);
+  X.quadraticCurveTo(cx+11,cy+7,cx+10,cy+15);
+  X.lineTo(cx-10,cy+15);
+  X.quadraticCurveTo(cx-11,cy+7,cx-7,cy-3);
+  X.fill();
+  X.fillStyle=headCol;X.beginPath();X.arc(cx,cy-8,7,0,Math.PI*2);X.fill();
+  X.strokeStyle=baseCol;X.lineWidth=1.5;X.globalAlpha=.5+Math.sin(t*2)*.2;
+  X.beginPath();X.ellipse(cx,cy-17,9,3,0,0,Math.PI*2);X.stroke();
+  X.globalAlpha=1;
+  if(!cold){
+    X.fillStyle='#444';X.beginPath();X.arc(cx-3.5,cy-8,1.5,0,Math.PI*2);X.fill();
+    X.beginPath();X.arc(cx+3.5,cy-8,1.5,0,Math.PI*2);X.fill();
+    X.strokeStyle='#888';X.lineWidth=1;
+    X.beginPath();X.arc(cx,cy-5,2.5,0.2,Math.PI-.2);X.stroke();
+  }else{
+    X.fillStyle='#446';X.fillRect(cx-4,cy-8.5,2.5,1.5);X.fillRect(cx+1.5,cy-8.5,2.5,1.5);
+    X.strokeStyle='#667';X.lineWidth=1;X.beginPath();X.moveTo(cx-2,cy-4.5);X.lineTo(cx+2,cy-4.5);X.stroke();
+  }
+}
+
+// ===== DRAWING: DYING GUARDIAN (复仇路线) =====
+function drawDyingGuardian(px,py,t){
+  const cx=px+T/2,cy=py+T/2;
+  // blood pool
+  const bp=X.createRadialGradient(cx,cy+8,4,cx,cy+14,28);
+  bp.addColorStop(0,'rgba(180,20,20,0.7)');
+  bp.addColorStop(0.3,'rgba(140,15,15,0.35)');
+  bp.addColorStop(1,'rgba(140,15,15,0)');
+  X.fillStyle=bp;X.beginPath();X.ellipse(cx,cy+14,28+Math.sin(t)*4,10,0,0,Math.PI*2);X.fill();
+  // guardian body lying down
+  X.save();X.translate(cx,cy+6);X.rotate(-0.6);
+  X.fillStyle='rgba(200,180,150,0.3)';X.fillRect(-12,-4,24,8);
+  X.fillStyle='rgba(220,200,160,0.3)';X.beginPath();X.arc(-2,0,6,0,Math.PI*2);X.fill();
+  const ha=0.1+Math.sin(t*2)*0.05;
+  X.strokeStyle=`rgba(255,200,100,${ha})`;X.lineWidth=1;
+  X.beginPath();X.ellipse(-2,-8,7,2,0,0,Math.PI*2);X.stroke();
+  X.restore();
+  for(let i=0;i<4;i++){
+    const a=t*1.5+i*Math.PI/2,r=16+Math.sin(t+i)*4;
+    X.fillStyle=`rgba(255,200,100,${0.05+Math.sin(t*3+i)*0.03})`;
+    X.beginPath();X.arc(cx+Math.cos(a)*r,cy+6+Math.sin(a)*r*0.4,1,0,Math.PI*2);X.fill();
+  }
+}
+
+// ===== DRAWING: KILL SEQUENCE =====
+function drawKillSequence(playerX,playerY,guardianX,guardianY,t){
+  const t2=Math.min(t,2.5);
+  const phase=t2<0.5?0:t2<1.0?1:t2<1.8?2:3;
+  const progress=t2<0.5?t2/0.5:t2<1.0?(t2-0.5)/0.5:t2<1.8?(t2-1.0)/0.8:1;
+  const gcx=guardianX+T/2,gcy=guardianY+T/2;
+  drawDyingGuardian(guardianX,guardianY,t2);
+  if(phase<3){
+    let px,py;
+    if(phase<2){px=playerX*T+(gcx-playerX*T)*progress;py=playerY*T+(gcy-playerY*T-10)*progress}
+    else{px=gcx;py=gcy-10}
+    drawPlayer(px-T/2,py-T/2,P.dir);
+    if(phase===2){
+      X.strokeStyle=`rgba(255,255,255,${0.8-progress*0.5})`;X.lineWidth=3;
+      X.beginPath();X.moveTo(px,py-5);X.quadraticCurveTo(gcx,gcy-20,gcx+10,gcy-5);X.stroke();
+      for(let i=0;i<8;i++){
+        const sa=progress*Math.PI/3+i*0.2,sr=15+progress*20;
+        X.fillStyle=`rgba(255,220,220,${0.6-progress*0.5})`;
+        X.beginPath();X.arc(px+Math.cos(sa)*sr,py-5+Math.sin(sa)*sr,2-progress*1.5,0,Math.PI*2);X.fill();
+      }
+    }
+  }
+  if(phase===3){
+    for(let i=0;i<15;i++){
+      const ba=i*Math.PI*2/15,br=8+progress*25+Math.sin(i*3)*5;
+      X.fillStyle=`rgba(180,20,20,${0.5-progress*0.4})`;
+      X.beginPath();X.arc(gcx+Math.cos(ba)*br,gcy+Math.sin(ba)*br*0.5,2-progress,0,Math.PI*2);X.fill();
+    }
+    X.fillStyle=`rgba(255,255,255,${0.3-progress*0.25})`;X.fillRect(0,0,W,MAP_H);
+  }
+}
+
+// ===== DRAWING: TRANSFORM SEQUENCE =====
+function drawTransformSequence(px,py,t){
+  const cx=px+T/2,cy=py+T/2;
+  if(t<2){ // pick up halo
+    drawPlayer(px,py,P.dir);
+    const ha=Math.min(1,t/1.5);
+    X.strokeStyle=`rgba(255,215,0,${ha*0.6})`;X.lineWidth=2;
+    X.beginPath();X.ellipse(cx,cy-20,8,3,0,0,Math.PI*2);X.stroke();
+    if(t>1){X.strokeStyle=`rgba(255,215,0,${(t-1)*0.8})`;X.beginPath();X.ellipse(cx,cy-15+(t-1)*5,8,3,0,0,Math.PI*2);X.stroke()}
+    const hg=X.createRadialGradient(cx,cy-20,3,cx,cy-20,20);
+    hg.addColorStop(0,'rgba(255,215,0,0.4)');hg.addColorStop(1,'rgba(255,215,0,0)');
+    X.fillStyle=hg;X.beginPath();X.arc(cx,cy-20,20,0,Math.PI*2);X.fill();
+    return;
+  }
+  if(t<5){ // transformation
+    const tp=(t-2)/3,a1=1-tp,a2=tp;
+    X.globalAlpha=a1;drawPlayer(px,py,P.dir);
+    X.globalAlpha=a2*0.7;drawGuardian(px,py,false);X.globalAlpha=1;
+    for(let i=0;i<20;i++){
+      const a=t*2+i*Math.PI*2/20,r=15+tp*25+Math.sin(t*3+i)*8;
+      X.fillStyle=`rgba(255,215,0,${0.3-tp*0.2})`;
+      X.beginPath();X.arc(cx+Math.cos(a)*r,cy-10+Math.sin(a)*r*0.5,2-tp,0,Math.PI*2);X.fill();
+    }
+    const gg=X.createRadialGradient(cx,cy,5,cx,cy,40+tp*20);
+    gg.addColorStop(0,`rgba(255,215,0,${0.15+tp*0.1})`);gg.addColorStop(1,'rgba(255,215,0,0)');
+    X.fillStyle=gg;X.beginPath();X.arc(cx,cy,40+tp*20,0,Math.PI*2);X.fill();
+    return;
+  }
+  drawGuardian(px,py,false);
+  const fg=X.createRadialGradient(cx,cy,5,cx,cy,50);
+  fg.addColorStop(0,'rgba(255,215,0,0.2)');fg.addColorStop(1,'rgba(255,215,0,0)');
+  X.fillStyle=fg;X.beginPath();X.arc(cx,cy,50,0,Math.PI*2);X.fill();
+}
+
+// ===== DRAWING: TOMBSTONE ENTITY =====
+function drawTombstoneEntity(e){
+  const px=e.x*T,py=e.y*T;
+  const d=e.deathData;
+  X.fillStyle='rgba(0,0,0,0.25)';X.beginPath();X.ellipse(px+T/2,py+T-2,14,6,0,0,Math.PI*2);X.fill();
+  // headstone — slightly different color for player tombstones
+  const stoneCol='#5A5A55';
+  X.fillStyle='#3A3A38';X.fillRect(px+10,py+2,12,16);
+  X.fillStyle=stoneCol;X.fillRect(px+11,py+2,10,14);
+  X.fillStyle=stoneCol;X.beginPath();X.arc(px+T/2,py+2,6,Math.PI,0);X.fill();
+  // faint glow for player tombstones
+  if(d){
+    const t=Date.now()/1500;
+    const glow=X.createRadialGradient(px+T/2,py+T/2,4,px+T/2,py+T/2,22);
+    glow.addColorStop(0,`rgba(180,160,220,${.08+Math.sin(t)*.04})`);
+    glow.addColorStop(1,'rgba(180,160,220,0)');
+    X.fillStyle=glow;X.fillRect(px-6,py-6,T+12,T+12);
+  }
+  // text on stone
+  if(d){
+    const dt=new Date(d.time);
+    const dateStr=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    X.fillStyle='rgba(200,180,150,0.6)';X.font='6px sans-serif';X.textAlign='center';
+    X.fillText(dateStr,px+T/2,py+14);X.textAlign='left';
+  }else{
+    X.fillStyle='rgba(200,180,150,0.5)';X.font='7px sans-serif';X.textAlign='center';
+    X.fillText('...',px+T/2,py+14);X.textAlign='left';
+  }
+  // hover highlight when player adjacent
+  const dist=Math.abs(P.x-e.x)+Math.abs(P.y-e.y);
+  if(dist===1){
+    const t2=Date.now()/600;
+    const hs=X.createRadialGradient(px+T/2,py+5,2,px+T/2,py+5,18);
+    hs.addColorStop(0,`rgba(200,180,230,${.15+Math.sin(t2)*.08})`);
+    hs.addColorStop(1,'rgba(200,180,230,0)');
+    X.fillStyle=hs;X.fillRect(px-4,py-4,T+8,T+8);
+  }
+}
+
+// ===== DRAWING: REVENGE ALTAR =====
+function drawRevengeAltar(e){
+  const cx=e.x*T+T/2, cy=e.y*T+T/2;
+  const t=Date.now()/1000;
+  // dark red glow
+  const g=X.createRadialGradient(cx,cy,2,cx,cy,20);
+  g.addColorStop(0,`rgba(200,30,30,${.15+Math.sin(t*2.5)*.08})`);
+  g.addColorStop(0.5,`rgba(120,15,15,${.08+Math.sin(t*2)*.04})`);
+  g.addColorStop(1,'rgba(80,10,10,0)');
+  X.fillStyle=g;X.fillRect(e.x*T-4,e.y*T-4,T+8,T+8);
+  // altar stone
+  X.fillStyle='#1A0A0A';
+  X.fillRect(e.x*T+6,e.y*T+8,T-12,T-10);
+  X.fillStyle='#2A1010';
+  X.fillRect(e.x*T+7,e.y*T+9,T-14,T-12);
+  // blood-red rune
+  const pulse=.5+Math.sin(t*3)*.3;
+  X.fillStyle=`rgba(200,30,30,${pulse*.7})`;
+  X.font='bold 14px sans-serif';X.textAlign='center';
+  X.fillText('†',cx,cy+5);
+  // flickering particles
+  for(let i=0;i<4;i++){
+    const sa=t*2+i*Math.PI/2;
+    const sr=8+Math.sin(t*3+i)*3;
+    const sx=cx+Math.cos(sa)*sr, sy=cy+Math.sin(sa)*sr*.5+5;
+    X.fillStyle=`rgba(200,40,40,${.2+Math.sin(t*2+i)*.15})`;
+    X.beginPath();X.arc(sx,sy,1,0,Math.PI*2);X.fill();
+  }
+  X.textAlign='left';
+}
+
+// ===== DRAWING: HOUSE (safe return to title) =====
+function drawHouse(px,py){
+  const cx=px+T/2,cy=py+T/2;
+  // warm glow
+  const g=X.createRadialGradient(cx,cy-2,2,cx,cy,16);
+  g.addColorStop(0,'rgba(255,220,180,0.2)');g.addColorStop(1,'rgba(255,220,180,0)');
+  X.fillStyle=g;X.beginPath();X.arc(cx,cy,16,0,Math.PI*2);X.fill();
+  // roof
+  X.fillStyle='#8B5E3C';
+  X.beginPath();X.moveTo(cx-12,cy-2);X.lineTo(cx,cy-14);X.lineTo(cx+12,cy-2);X.closePath();X.fill();
+  X.fillStyle='#A0724A';
+  X.beginPath();X.moveTo(cx-10,cy-2);X.lineTo(cx,cy-12);X.lineTo(cx+10,cy-2);X.closePath();X.fill();
+  // walls
+  X.fillStyle='#C8A882';
+  X.fillRect(cx-9,cy-2,18,14);
+  X.fillStyle='#D4B896';
+  X.fillRect(cx-8,cy-2,16,13);
+  // door
+  X.fillStyle='#6B4226';
+  X.fillRect(cx-3,cy+3,6,9);
+  X.fillStyle='#FFD700';
+  X.fillRect(cx-1,cy+7,2,1);
+  // window
+  X.fillStyle='rgba(255,220,150,0.4)';
+  X.fillRect(cx-7,cy+1,4,4);
+  X.fillRect(cx+3,cy+1,4,4);
+  // chimney smoke
+  const t=Date.now()/1000;
+  X.fillStyle='rgba(200,200,200,0.15)';
+  for(let i=0;i<3;i++){
+    const sx=cx+8+Math.sin(t*1.5+i)*2;
+    const sy=cy-12-i*5+Math.sin(t*2+i)*1;
+    X.beginPath();X.arc(sx,sy,2+i,0,Math.PI*2);X.fill();
+  }
+}
+
+// ===== HOME BUTTON (右上角) =====
+const homeBtn={x:W-48,y:8,w:40,h:40};
+function drawHomeButton(){
+  const bx=homeBtn.x,by=homeBtn.y,bw=homeBtn.w,bh=homeBtn.h;
+  // 半透明背景
+  X.fillStyle='rgba(0,0,0,0.45)';X.strokeStyle='rgba(255,220,180,0.25)';X.lineWidth=1;
+  rrect(bx,by,bw,bh,8);X.fill();X.stroke();
+  const cx=bx+bw/2,cy=by+bh/2;
+  // 小房子图标
+  X.fillStyle='rgba(200,160,120,0.8)';
+  // 屋顶
+  X.beginPath();X.moveTo(cx-9,cy-2);X.lineTo(cx,cy-12);X.lineTo(cx+9,cy-2);X.closePath();X.fill();
+  // 墙壁
+  X.fillStyle='rgba(220,190,150,0.7)';
+  X.fillRect(cx-7,cy-2,14,10);
+  // 门
+  X.fillStyle='rgba(140,100,60,0.7)';
+  X.fillRect(cx-2,cy+2,4,6);
+  // 文字
+  X.fillStyle='rgba(220,200,180,0.6)';X.font='8px sans-serif';X.textAlign='center';
+  X.fillText('主页',cx,by+bh+12);X.textAlign='left';
+}
+
+// 卷轴提示按钮（钥匙图标 - 在房子按钮左边）
+const scrollHintBtn={x:W-104,y:8,w:40,h:40};
+function drawScrollHintBtn(){
+  // 只有集齐6碎片后才显示
+  if(collectedFragments.length<FRAG_DATA.length)return;
+  const bx=scrollHintBtn.x,by=scrollHintBtn.y,bw=scrollHintBtn.w,bh=scrollHintBtn.h;
+  // 金色光晕背景
+  const glow=.5+Math.sin(Date.now()/800)*.3;
+  X.fillStyle=`rgba(40,30,10,${.4+glow*.2})`;
+  X.strokeStyle=`rgba(255,200,80,${.3+glow*.3})`;X.lineWidth=1;
+  rrect(bx,by,bw,bh,8);X.fill();X.stroke();
+  const cx=bx+bw/2,cy=by+bh/2;
+  // 钥匙图标
+  X.fillStyle=`rgba(255,210,80,${.7+glow*.3})`;
+  // 钥匙柄（圆形）
+  X.beginPath();X.arc(cx,cy-5,5,0,Math.PI*2);X.stroke();
+  X.beginPath();X.arc(cx,cy-5,2.5,0,Math.PI*2);X.fill();
+  // 钥匙杆
+  X.fillRect(cx-1,cy,2,8);
+  // 钥匙齿
+  X.fillRect(cx+1,cy+4,3,1.5);
+  X.fillRect(cx+1,cy+6.5,2.5,1.5);
+  // 文字
+  X.fillStyle=`rgba(255,210,100,${.5+glow*.3})`;X.font='8px sans-serif';X.textAlign='center';
+  X.fillText('提示',cx,by+bh+12);X.textAlign='left';
+}
+
+// 闪光卷轴提示
+function showScrollHint(){
+  if(scrollHintShown)return;
+  scrollHintShown=true;
+  scrollHintPhase=1;scrollHintT=0;
+  scrollHintText='你打不过它的，试着去打破「囚笼」吧。\n等等……「囚笼」……在哪里？';
+  localStorage.setItem('gc_scroll_hint_type','normal');
+  GS='SCROLL_HINT';
+  sfxFrag();
+}
+
+function showScrollHintRevenge(){
+  scrollHintShown=true;
+  scrollHintPhase=1;scrollHintT=0;
+  scrollHintText='想要复仇吗？给你一个机会。\n在下一段旅途的某张地图中，去寻找你的终极武器吧。';
+  localStorage.setItem('gc_scroll_hint_type','revenge');
+  GS='SCROLL_HINT';
+  sfxDark();
+}
+
+// 卷轴overlay绘制（闪光特效，区别于普通对话框）
+function drawScrollHintOverlay(){
+  // 暗背景
+  X.fillStyle='rgba(0,0,0,0.7)';X.fillRect(0,0,W,H);
+  const t=Date.now()/1000;
+  // 闪光粒子
+  for(let i=0;i<20;i++){
+    const sx=((t*40+i*173)%(W+100))-50;
+    const sy=((t*30+i*211)%(H+100))-50;
+    const sa=Math.sin(t*3+i)*.5+.5;
+    X.fillStyle=`rgba(255,220,100,${sa*.3})`;
+    X.beginPath();X.arc(sx,sy,1.5+sa,0,Math.PI*2);X.fill();
+  }
+  // 卷轴背景
+  const sx=60,sy=H/2-120,sw=W-120,sh=180;
+  // 卷轴阴影/光晕
+  const glowPulse=.4+Math.sin(t*2)*.2;
+  X.shadowColor=`rgba(255,200,80,${glowPulse})`;X.shadowBlur=30;
+  // 卷轴主体
+  const grad=X.createLinearGradient(sx,sy,sx,sy+sh);
+  grad.addColorStop(0,'#3a3220');grad.addColorStop(0.15,'#4a4030');
+  grad.addColorStop(0.5,'#5a4a35');grad.addColorStop(0.85,'#4a4030');
+  grad.addColorStop(1,'#3a3220');
+  X.fillStyle=grad;
+  rrect(sx,sy,sw,sh,16);X.fill();
+  X.shadowBlur=0;
+  // 卷轴边框
+  X.strokeStyle=`rgba(200,160,80,${.5+glowPulse})`;X.lineWidth=2;
+  rrect(sx,sy,sw,sh,16);X.stroke();
+  // 卷轴上下轴
+  X.fillStyle='#6a5030';
+  X.fillRect(sx,sy-8,sw,12);rrect(sx,sy-8,sw,12,6);X.fill();
+  X.fillRect(sx,sy+sh-4,sw,12);rrect(sx,sy+sh-4,sw,12,6);X.fill();
+  // 轴的两端装饰
+  X.fillStyle='#8a6a40';
+  X.beginPath();X.arc(sx+10,sy-2,10,0,Math.PI*2);X.fill();
+  X.beginPath();X.arc(sx+sw-10,sy-2,10,0,Math.PI*2);X.fill();
+  X.beginPath();X.arc(sx+10,sy+sh+2,10,0,Math.PI*2);X.fill();
+  X.beginPath();X.arc(sx+sw-10,sy+sh+2,10,0,Math.PI*2);X.fill();
+  // 卷轴内发光
+  X.strokeStyle=`rgba(255,200,80,${.15+glowPulse*.1})`;X.lineWidth=1;
+  rrect(sx+8,sy+8,sw-16,sh-16,8);X.stroke();
+  // 文字
+  X.fillStyle=`rgba(240,220,180,${scrollHintPhase===1?Math.min(1,scrollHintT*3):1})`;
+  X.font='bold 16px sans-serif';X.textAlign='center';
+  const lines=scrollHintText.split('\n');
+  const lineH=28;
+  const startY=sy+sh/2-(lines.length-1)*lineH/2;
+  for(let i=0;i<lines.length;i++){
+    X.fillText(lines[i],W/2,startY+i*lineH);
+  }
+  // 底部提示
+  if(scrollHintPhase===2){
+    const bpulse=.5+Math.sin(t*3)*.3;
+    X.fillStyle=`rgba(255,200,100,${bpulse})`;X.font='12px sans-serif';
+    X.fillText('按 Enter 继续',W/2,sy+sh-18);
+  }
+  X.textAlign='left';
+}
+
+// ===== DRAWING: ENEMY MAP (unchanged) =====
+function drawEnemy(x,y,mt){
+  const cx=x+T/2,cy=y+T/2;
+  const t=Date.now()/1000;
+  const m=MT[mt];const isBoss=mt==='boss';
+  const sz=isBoss?1.3:mt==='s'?1.15:1;
+  for(let i=0;i<3;i++){
+    X.fillStyle='rgba(80,40,120,0.15)';
+    X.beginPath();
+    X.ellipse(cx-8+i*8,cy+4+Math.sin(t+i)*2,3*sz,6+i*2,-.1+i*.1,0,Math.PI*2);X.fill();
+  }
+  const bg=X.createRadialGradient(cx,cy,2,cx,cy,14*sz);
+  bg.addColorStop(0,m.glow+'44');bg.addColorStop(1,m.glow+'00');
+  X.fillStyle=bg;X.beginPath();X.arc(cx,cy,14*sz,0,Math.PI*2);X.fill();
+  const bob=Math.sin(t*3)*2;
+  X.fillStyle=m.color;
+  X.beginPath();X.ellipse(cx,cy+bob,10*sz,12*sz,0,0,Math.PI*2);X.fill();
+  X.fillStyle='rgba(0,0,0,0.35)';
+  X.beginPath();X.ellipse(cx,cy+2+bob,6*sz,8*sz,0,0,Math.PI*2);X.fill();
+  X.fillStyle='rgba(255,255,255,0.04)';
+  X.beginPath();X.ellipse(cx,cy-3+bob,8*sz,5*sz,0,0,Math.PI*2);X.fill();
+  const eGlow=.5+Math.sin(t*4)*.3;
+  X.fillStyle=`rgba(255,50,50,${eGlow})`;
+  X.beginPath();X.arc(cx-4*sz,cy-4+bob,3*sz,0,Math.PI*2);X.fill();
+  X.beginPath();X.arc(cx+4*sz,cy-4+bob,3*sz,0,Math.PI*2);X.fill();
+  X.fillStyle='#FF3333';
+  const es=Math.max(1,2*sz);
+  X.fillRect(cx-5*sz,cy-5*bob*.3-4,es,es);
+  X.fillRect(cx+3*sz,cy-5*bob*.3-4,es,es);
+  if(isBoss){
+    X.fillStyle='#FFD700';X.globalAlpha=.5+Math.sin(t)*.2;
+    for(let i=0;i<5;i++){
+      X.beginPath();
+      X.moveTo(cx-12+i*6,cy-14+bob);X.lineTo(cx-9+i*6,cy-20+bob);X.lineTo(cx-6+i*6,cy-14+bob);X.fill();
+    }
+    X.globalAlpha=1;
+  }
+  if(mt==='m'||mt==='s'){
+    X.strokeStyle=m.glow+'55';X.lineWidth=1.5;
+    for(let i=0;i<4;i++){
+      const ta=t*1.5+i*1.5;
+      const tx=cx+Math.cos(ta)*12*sz;
+      const ty=cy+Math.sin(ta)*8*sz+bob;
+      X.beginPath();X.moveTo(cx+Math.cos(ta)*6*sz,cy+Math.sin(ta)*4*sz+bob);
+      X.quadraticCurveTo(tx-2,ty-3,tx,ty);X.stroke();
+    }
+  }
+}
+
+// ===== DRAWING: FRAGMENT (unchanged) =====
+function drawFragment(e){
+  const cx=e.x*T+T/2,cy=e.y*T+T/2;
+  const t=Date.now()/1000;
+  const bob=Math.sin(t*2)*2;
+  const g=X.createRadialGradient(cx,cy+bob,2,cx,cy+bob,14);
+  g.addColorStop(0,'rgba(200,180,255,0.3)');g.addColorStop(1,'rgba(200,180,255,0)');
+  X.fillStyle=g;X.beginPath();X.arc(cx,cy+bob,14,0,Math.PI*2);X.fill();
+  X.fillStyle='#C8B8FF';
+  X.beginPath();
+  X.moveTo(cx,cy-6+bob);X.lineTo(cx+4,cy+bob);X.lineTo(cx+2,cy+6+bob);
+  X.lineTo(cx-2,cy+6+bob);X.lineTo(cx-4,cy+bob);
+  X.closePath();X.fill();
+  X.fillStyle='#E8DDFF';
+  X.beginPath();
+  X.moveTo(cx,cy-3+bob);X.lineTo(cx+2,cy+bob);X.lineTo(cx,cy+3+bob);X.lineTo(cx-2,cy+bob);
+  X.closePath();X.fill();
+  for(let i=0;i<3;i++){
+    const sa=t*3+i*2.1;
+    const sr=6+Math.sin(t*2+i)*2;
+    X.fillStyle=`rgba(200,180,255,${.2+Math.sin(t*2+i)*.15})`;
+    X.beginPath();X.arc(cx+Math.cos(sa)*sr,cy+bob+Math.sin(sa)*sr*.5,1,0,Math.PI*2);X.fill();
+  }
+}
+
+function drawGuradianChoiceOverlay(){
+  const t=Date.now()/1000;
+  // dim background
+  X.fillStyle='rgba(0,0,0,0.55)';X.fillRect(0,0,W,MAP_H);
+  // choice box
+  const bx=W/2-150,by=MAP_H/2-85,bw=300,bh=170;
+  X.fillStyle='rgba(20,15,30,0.92)';X.fillRect(bx,by,bw,bh);
+  X.strokeStyle='rgba(180,160,220,0.4)';X.lineWidth=2;X.strokeRect(bx,by,bw,bh);
+  // title
+  X.textAlign='center';
+  X.fillStyle='rgba(200,180,220,0.9)';X.font='bold 15px sans-serif';
+  X.fillText('守护者静静地注视着你……',W/2,by+30);
+  X.fillStyle='rgba(150,150,180,0.6)';X.font='12px sans-serif';
+  X.fillText('你想要……',W/2,by+52);
+  // options (vertical layout)
+  const opts=[{label:'对话',col:'#C8D8E8'},{label:'刺杀',col:'#E88880'}];
+  for(let i=0;i<2;i++){
+    const optY=by+82+i*44,ox=W/2;
+    const sel=guardianChoiceIdx===i;
+    if(sel){
+      const sg=X.createRadialGradient(ox,optY,2,ox,optY,60);
+      sg.addColorStop(0,`rgba(200,180,255,${.12+Math.sin(t*3)*.06})`);
+      sg.addColorStop(1,'rgba(0,0,0,0)');
+      X.fillStyle=sg;X.fillRect(ox-90,optY-22,180,44);
+    }
+    X.fillStyle=sel?`rgba(200,180,220,${.15+Math.sin(t*3)*.05})`:'rgba(0,0,0,0.3)';
+    X.fillRect(ox-70,optY-14,140,28);
+    if(sel){
+      X.strokeStyle=`rgba(220,200,255,${.4+Math.sin(t*3)*.2})`;X.lineWidth=1.5;
+      X.strokeRect(ox-70,optY-14,140,28);
+    }
+    X.fillStyle=opts[i].col;X.font='bold 14px sans-serif';
+    X.fillText(opts[i].label,ox,optY+5);
+  }
+  X.textAlign='left';
+}
+
+function drawFragmentChoiceOverlay(){
+  const t=Date.now()/1000;
+  // dim background
+  X.fillStyle='rgba(0,0,0,0.6)';X.fillRect(0,0,W,MAP_H);
+  // central glow
+  const tg=X.createRadialGradient(W/2,MAP_H/2-20,30,W/2,MAP_H/2,180);
+  tg.addColorStop(0,'rgba(40,20,60,0.3)');tg.addColorStop(1,'rgba(0,0,0,0)');
+  X.fillStyle=tg;X.fillRect(0,0,W,MAP_H);
+  // Choice box
+  const bw=300,bh=170,bx=W/2-bw/2,by=MAP_H/2-85;
+  X.fillStyle='rgba(10,8,20,0.9)';X.fillRect(bx,by,bw,bh);
+  X.strokeStyle='rgba(150,120,200,0.35)';X.lineWidth=2;X.strokeRect(bx,by,bw,bh);
+  // Title
+  X.textAlign='center';
+  X.fillStyle='rgba(200,180,220,0.9)';X.font='bold 16px sans-serif';
+  X.fillText('你听到了六个碎片最后的低语……',W/2,by+28);
+  X.fillStyle='rgba(150,150,180,0.6)';X.font='12px sans-serif';
+  X.fillText('你选择如何回应？',W/2,by+50);
+  // Options (vertical layout)
+  const opts=[{label:'释怀',col:'#FFD700',desc:'打破囚笼，获得自由'},{label:'复仇',col:'#E85050',desc:'索取代价，以眼还眼'}];
+  for(let i=0;i<2;i++){
+    const oy=by+82+i*50,ox=W/2;
+    const sel=fragmentChoiceIdx===i;
+    // glow for selected
+    if(sel){
+      const sg=X.createRadialGradient(ox,oy,2,ox,oy,70);
+      sg.addColorStop(0,`rgba(${i===0?'255,200,100':'200,60,60'},${.12+Math.sin(t*3)*.06})`);
+      sg.addColorStop(1,'rgba(0,0,0,0)');
+      X.fillStyle=sg;X.fillRect(ox-80,oy-22,160,44);
+    }
+    X.fillStyle=sel?`rgba(${i===0?'255,200,100':'200,60,60'},.15)`:'rgba(0,0,0,0.3)';
+    X.fillRect(ox-65,oy-16,130,32);
+    if(sel){
+      X.strokeStyle=opts[i].col;X.lineWidth=1.5;
+      X.globalAlpha=.4+Math.sin(t*3)*.3;
+      X.strokeRect(ox-65,oy-16,130,32);X.globalAlpha=1;
+    }
+    X.fillStyle=opts[i].col;X.font='bold 16px sans-serif';
+    X.fillText(opts[i].label,ox,oy);
+    X.fillStyle='rgba(180,160,180,0.5)';X.font='10px sans-serif';
+    X.fillText(opts[i].desc,ox,oy+16);
+  }
+  X.textAlign='left';
+}
+// ===== DRAWING: KILL CHOICE OVERLAY =====
+function drawKillChoiceOverlay(){
+  const t=Date.now()/1000;
+  X.fillStyle='rgba(0,0,0,0.55)';X.fillRect(0,0,W,MAP_H);
+  const bw=280,bh=140,bx=W/2-bw/2,by=MAP_H/2-bh/2;
+  X.fillStyle='rgba(20,10,10,0.92)';X.fillRect(bx,by,bw,bh);
+  X.strokeStyle='rgba(200,60,60,0.5)';X.lineWidth=2;X.strokeRect(bx,by,bw,bh);
+  X.textAlign='center';
+  X.fillStyle='rgba(220,180,180,0.9)';X.font='bold 15px sans-serif';
+  X.fillText('守护者倒在地上，奄奄一息……',W/2,by+35);
+  X.fillStyle='rgba(180,150,150,0.6)';X.font='12px sans-serif';
+  X.fillText('他的血染红了土地。',W/2,by+58);
+  // Single option: 杀死
+  const ox=W/2,oy=by+100;
+  const sg=X.createRadialGradient(ox,oy,2,ox,oy,60);
+  sg.addColorStop(0,`rgba(200,60,60,${.12+Math.sin(t*3)*.06})`);
+  sg.addColorStop(1,'rgba(0,0,0,0)');
+  X.fillStyle=sg;X.fillRect(ox-80,oy-20,160,40);
+  X.fillStyle='rgba(200,60,60,0.15)';X.fillRect(ox-60,oy-15,120,30);
+  X.strokeStyle=`rgba(200,60,60,${.4+Math.sin(t*3)*.2})`;X.lineWidth=1.5;
+  X.strokeRect(ox-60,oy-15,120,30);
+  X.fillStyle='#E85050';X.font='bold 16px sans-serif';
+  X.fillText('杀死',ox,oy+6);
+  X.textAlign='left';
+}
+
+// ===== DRAWING: MAP =====
+function drawMap(){
+  if(!curMap)return;
+  const th=getTheme();
+  X.fillStyle=th.floor;X.fillRect(0,0,W,H);
+  for(let r=0;r<MH;r++){
+    for(let c=0;c<MW;c++){
+      let ch=r<curMap.map.length&&c<curMap.map[r].length?curMap.map[r][c]:'.';
+      // ch3 door hidden until guardian dialog
+      if(curMap===MAPS.ch3&&ch==='E'&&!ch3DoorOpen)ch='.';
+      drawTile(c*T,r*T,ch);
+    }
+  }
+  // graveyard fog/mist
+  if(curMap.theme==='graveyard'){
+    const mt=Date.now()/1000;
+    for(let i=0;i<5;i++){
+      const fx=((mt*15+i*150)%(W+200))-100;
+      X.fillStyle='rgba(40,40,38,0.08)';
+      X.fillRect(fx,0,W*.4,H);
+    }
+  }
+  // cage room atmosphere
+  if(curMap.theme==='cage_room'){
+    X.fillStyle='rgba(0,0,0,0.15)';X.fillRect(0,0,W,H);
+  }
+  // entities sorted by Y
+  const ents=[];
+  const graveG=curMap===MAPS.ch4?mapEntities.find(e=>e.t==='g'&&e.isGraveGuardian):null;
+  for(const e of mapEntities){
+    // Skip grave guardian in revenge final phase (drawn separately)
+    if(revengeBossKilled&&revengeFinalPhase>=1&&e===graveG)continue;
+    if(e.alive===false)continue;
+    if(e.t==='f'){ents.push(e);drawFragment(e)}
+    else ents.push(e);
+  }
+  ents.push({t:'p',x:P.x,y:P.y});
+  ents.sort((a,b)=>(a.y||0)-(b.y||0));
+  for(const e of ents){
+    if(e.t==='p'){
+      if(revengeFinalPhase>=6)continue; // skip player during transform (phase 6 = transform)
+      drawPlayer(e.x*T,e.y*T,P.dir);
+    }else if(e.t==='g')drawGuardian(e.x*T,e.y*T,dlgMood==='cold'||(revengePath&&playthroughCount>=2));
+    else if(e.t==='e'&&e.alive!==false)drawEnemy(e.x*T,e.y*T,e.mt);
+    else if(e.t==='t')drawTombstoneEntity(e);
+    else if(e.t==='revengeAltar')drawRevengeAltar(e);
+  }
+  // Revenge final: draw dying guardian on map
+  if(revengeBossKilled&&revengeFinalPhase>=1&&revengeFinalPhase<4&&graveG){
+    drawDyingGuardian(graveG.x*T,graveG.y*T,revengeFinalT);
+  }
+  // Revenge final: kill sequence (overrides everything)
+  if(revengeFinalPhase===4&&graveG){
+    drawKillSequence(P.x*T,P.y*T,graveG.x*T,graveG.y*T,revengeFinalT);
+  }
+  // Revenge final: transformation sequence
+  if(revengeFinalPhase===6&&graveG){
+    drawTransformSequence(graveG.x*T,graveG.y*T,revengeFinalT);
+  }
+  // Draw cage on secret map
+  if(curMap===MAPS.secret_cage){
+    drawCageOnMap();
+  }
+  drawVignette();
+  // Skip HUD during revenge kill/transform animations
+  if(revengeFinalPhase>=4)return;
+  // HUD background bar at bottom (below map area)
+  X.fillStyle='rgba(0,0,0,0.8)';X.fillRect(0,MAP_H,W,H-MAP_H);
+  X.strokeStyle='rgba(255,255,255,0.12)';X.lineWidth=1;
+  X.beginPath();X.moveTo(0,MAP_H);X.lineTo(W,MAP_H);X.stroke();
+  X.fillStyle='rgba(220,200,255,0.9)';X.font='bold 12px sans-serif';
+  X.fillText(`旅人  LV${P.lv}`,16,MAP_H+20);
+  // XP bar
+  if(P.lv<5){const xpTh=[0,40,100,180,300];const curXP=P.exp-xpTh[P.lv-1];const needXP=xpTh[P.lv]-xpTh[P.lv-1];
+    drawBar(16,MAP_H+28,90,8,curXP/needXP,'#CCAA55','#887722');
+    X.fillStyle='#fff';X.font='bold 7px sans-serif';X.textAlign='center';
+    X.fillText(`${curXP}/${needXP}`,16+45,MAP_H+35);X.textAlign='left';}
+  drawBar(110,MAP_H+10,110,10,P.hp/P.mhp,'#44CC55','#228833');
+  X.fillStyle='#ddd';X.font='9px sans-serif';X.fillText(`HP ${P.hp}/${P.mhp}`,115,MAP_H+18);
+  drawBar(110,MAP_H+24,110,10,P.mp/P.mmp,'#5599DD','#3366AA');
+  X.fillStyle='#ccc';X.font='9px sans-serif';X.fillText(`MP ${P.mp}/${P.mmp}`,115,MAP_H+32);
+  X.fillStyle='#88DDAA';X.font='11px sans-serif';X.fillText(`药草 x${P.pot}`,230,MAP_H+26);
+  X.fillStyle='#C8B8FF';X.font='11px sans-serif';
+  X.fillText(`碎片 ${collectedFragments.length}/${FRAG_DATA.length}`,230,MAP_H+38);
+  if(playthroughCount>=1)X.fillStyle='#FF8888',X.fillText(` [${playthroughCount+1}周目]`,340,MAP_H+38);
+  const sceneNames={prologue:'花海',ch1:'静谧之森',ch2:'静谧湖泊',ch3:'净土边界',ch4:'无名墓园',secret_cage:'？？？'};
+  X.fillStyle='rgba(200,200,220,0.6)';X.font='12px sans-serif';X.textAlign='right';
+  X.fillText(sceneNames[curMap===MAPS.prologue?'prologue':curMap===MAPS.ch1?'ch1':curMap===MAPS.ch2?'ch2':curMap===MAPS.ch3?'ch3':curMap===MAPS.ch4?'ch4':'secret_cage'],W-20,MAP_H+20);X.textAlign='left';
+  // home button (右上角房子图标)
+  drawHomeButton();
+  // scroll hint button (钥匙图标 - 在房子按钮旁边)
+  drawScrollHintBtn();
+  // guardian hint
+  for(const e of mapEntities){
+    if(e.alive===false||e.t!=='g')continue;
+    const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+    if(dist<=1){
+      const pulse=.5+Math.sin(Date.now()/400)*.3;
+      X.fillStyle=`rgba(255,215,0,${pulse})`;X.font='bold 11px sans-serif';X.textAlign='center';
+      X.fillText('按 Enter 与守护者对话',W/2,MAP_H-2);X.textAlign='left';
+      break;
+    }
+  }
+  // ch3 door hint
+  if(curMap===MAPS.ch3&&ch3DoorOpen&&curMap.doorPos){
+    const dd=Math.abs(P.x-curMap.doorPos.x)+Math.abs(P.y-curMap.doorPos.y);
+    if(dd<=1){
+      const pulse=.5+Math.sin(Date.now()/400)*.3;
+      X.fillStyle=`rgba(255,100,80,${pulse})`;X.font='bold 11px sans-serif';X.textAlign='center';
+      X.fillText('按 Enter 进入门后',W/2,MAP_H-2);X.textAlign='left';
+    }
+  }
+  // fragment hint
+  for(const e of mapEntities){
+    if(e.alive===false||e.t!=='f')continue;
+    const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+    if(dist<=1){
+      const pulse=.4+Math.sin(Date.now()/500)*.3;
+      X.fillStyle=`rgba(200,180,255,${pulse})`;X.font='11px sans-serif';X.textAlign='center';
+      X.fillText('走近拾取残响碎片',W/2,MAP_H-2);X.textAlign='left';
+      break;
+    }
+  }
+  // cage hint on secret map
+  if(curMap===MAPS.secret_cage&&isAdjacentToCage(P.x,P.y)){
+    const pulse=.5+Math.sin(Date.now()/300)*.3;
+    X.fillStyle=`rgba(200,180,255,${pulse})`;X.font='bold 11px sans-serif';X.textAlign='center';
+    X.fillText('按 Enter 攻击囚笼',W/2,MAP_H-2);X.textAlign='left';
+  }
+  X.fillStyle='rgba(255,255,255,0.25)';X.font='10px sans-serif';
+  if(curMap===MAPS.secret_cage){
+    X.fillText('方向键移动 | 靠近囚笼按 Enter 攻击',16,MAP_H+50);
+  }else{
+    X.fillText('方向键移动 | 碰触怪物战斗 | 拾取碎片 | 到达出口推进',16,MAP_H+50);
+  }
+  drawParticles();
+}
+
+function drawCageOnMap(){
+  const t=Date.now()/1000;
+  const pulse=.3+Math.sin(t*1.5)*.15;
+  const cx=CAGE_POS.x*T, cy=CAGE_POS.y*T;
+  const cw=CAGE_POS.w*T, ch=CAGE_POS.h*T;
+  const broken=cageHits>=5;
+  // outer glow
+  const g=X.createRadialGradient(cx+cw/2,cy+ch/2,5,cx+cw/2,cy+ch/2,cw*1.2);
+  g.addColorStop(0,`rgba(100,80,200,${pulse})`);g.addColorStop(1,'rgba(100,80,200,0)');
+  X.fillStyle=g;X.fillRect(cx-cw*.3,cy-ch*.2,cw*1.6,ch*1.4);
+  // cage frame — thick metal
+  const barColor=broken?'rgba(200,180,255,0.8)':`rgba(140,130,170,${0.5+pulse})`;
+  X.strokeStyle=barColor;X.lineWidth=4;
+  X.strokeRect(cx-2,cy-2,cw+4,ch+4);
+  // inner frame highlight
+  X.strokeStyle=broken?'rgba(220,200,255,0.5)':`rgba(160,150,190,${0.3+pulse})`;
+  X.lineWidth=1;
+  X.strokeRect(cx+4,cy+4,cw-8,ch-8);
+  // floor
+  X.fillStyle='rgba(20,18,25,0.7)';
+  X.fillRect(cx+2,cy+2,cw-4,ch-4);
+  // 5 vertical bars — each hit removes one from left to right
+  const totalBars=5;
+  const remainingBars=totalBars-cageHits;
+  const barGap=cw/(totalBars+1);
+  for(let i=cageHits;i<totalBars;i++){
+    const bx=cx+barGap*(i+1);
+    const barAlpha=broken?0.3:(0.6+pulse*0.3);
+    X.strokeStyle=`rgba(180,160,200,${barAlpha})`;X.lineWidth=3;
+    X.beginPath();X.moveTo(bx,cy+4);X.lineTo(bx,cy+ch-4);X.stroke();
+    // bar highlights
+    X.strokeStyle=`rgba(220,200,255,${barAlpha*0.4})`;X.lineWidth=1;
+    X.beginPath();X.moveTo(bx-1,cy+6);X.lineTo(bx-1,cy+ch-6);X.stroke();
+  }
+  // horizontal rings — top, middle, bottom
+  const ringAlpha=broken?0.4:(0.5+pulse*0.2);
+  for(let j of [0.25,0.5,0.75]){
+    const by=cy+ch*j;
+    X.strokeStyle=`rgba(160,140,180,${ringAlpha})`;X.lineWidth=2.5;
+    X.beginPath();X.moveTo(cx+3,by);X.lineTo(cx+cw-3,by);X.stroke();
+  }
+  // figure inside cage
+  const fx=cx+cw/2, fy=cy+ch/2-8;
+  if(!broken){
+    // imprisoned figure — faint
+    X.fillStyle='rgba(180,180,210,0.15)';
+    X.beginPath();X.arc(fx,fy,10,0,Math.PI*2);X.fill();
+    X.fillStyle='rgba(180,180,210,0.1)';
+    X.fillRect(fx-5,fy+10,10,16);
+  }else{
+    // broken — glowing figure
+    const glowAlpha=.4+Math.sin(t*2)*.2;
+    X.fillStyle=`rgba(255,255,255,${glowAlpha})`;
+    X.beginPath();X.arc(fx,fy,14,0,Math.PI*2);X.fill();
+    X.fillStyle=`rgba(200,180,255,${glowAlpha*0.8})`;
+    X.fillRect(fx-6,fy+14,12,22);
+    // sparkles
+    for(let i=0;i<8;i++){
+      const sx=fx+Math.sin(t*3+i*1.7)*22;
+      const sy=fy+Math.cos(t*2.5+i*1.3)*28;
+      const sa=Math.sin(t*4+i)*.5+.5;
+      X.fillStyle=`rgba(255,220,100,${sa*.4})`;
+      X.beginPath();X.arc(sx,sy,1+sa*1.5,0,Math.PI*2);X.fill();
+    }
+  }
+}
+
+// ===== DRAWING: DIALOGUE =====
+function drawDlg(){
+  if(curMap)drawMap();
+  X.fillStyle='rgba(0,0,0,0.3)';X.fillRect(0,0,W,H);
+  const bx=24,by=H/2-90,bw=W-48,bh=175;
+  rrect(bx,by,bw,bh,10);
+  X.fillStyle=dlgMood==='cold'?'rgba(15,15,35,0.92)':'rgba(12,15,25,0.92)';X.fill();
+  const gg=X.createLinearGradient(bx,by,bx,by+30);
+  gg.addColorStop(0,'rgba(255,255,255,0.06)');gg.addColorStop(1,'rgba(255,255,255,0)');
+  rrect(bx,by,bw,30,10);X.fillStyle=gg;X.fill();
+  rrect(bx,by,bw,bh,10);
+  X.strokeStyle=dlgMood==='cold'?'rgba(80,80,120,0.5)':'rgba(100,140,180,0.4)';
+  X.lineWidth=1.5;X.stroke();
+  if(dlgMood==='cold'){
+    rrect(bx,by,bw,bh,10);X.fillStyle='rgba(40,30,80,0.15)';X.fill();
+  }
+  const line=dlLines[dlIdx];
+  if(!line){GS='MAP';return}
+  if(line.sp){
+    X.fillStyle=dlgMood==='cold'?'#8888BB':'#FFD080';
+    X.font='bold 13px sans-serif';
+    X.fillText(line.sp,bx+18,by+24);
+    const sw=X.measureText(line.sp).width;
+    X.fillStyle=dlgMood==='cold'?'rgba(100,100,160,0.3)':'rgba(255,200,80,0.2)';
+    X.fillRect(bx+18,by+27,sw,1);
+  }
+  const fullT=line.t;
+  const shown=dlDone?fullT:fullT.substring(0,dlChar);
+  X.fillStyle=dlgMood==='cold'?'#BBBBDD':'#E8E8F0';
+  X.font='14px sans-serif';
+  const maxW=bw-40;
+  const chars=shown.split('');
+  let lineY=by+50,lineX=bx+18,currentLine='';
+  for(const ch of chars){
+    currentLine+=ch;
+    if(X.measureText(currentLine).width>maxW){
+      X.fillText(currentLine.slice(0,-1),lineX,lineY);
+      lineY+=22;currentLine=ch;
+    }
+  }
+  X.fillText(currentLine,lineX,lineY);
+  if(dlDone){
+    const pulse=.4+Math.sin(Date.now()/350)*.4;
+    X.fillStyle=`rgba(180,180,200,${pulse})`;X.font='14px sans-serif';
+    X.fillText('\u25BC',W-55,by+bh-14);
+  }
+  drawParticles();
+  } // end of drawDlg function
+
+// Guardian choice overlay - placed outside drawDlg so it renders regardless of game state
+function drawGuardianChoiceOverlayWrapper(){
+  if(guardianChoiceTarget)drawGuradianChoiceOverlay();
+  if(fragmentChoiceActive)drawFragmentChoiceOverlay();
+  if(revengeFinalPhase===3)drawKillChoiceOverlay();
+}
+
+// ===== DRAWING: BATTLE (mostly unchanged, grave boss has special dark bg) =====
+function drawBattle(){
+  const isDark=bEnemy.color===MT.boss.color||bEnemy.isGraveBoss;
+  if(isDark){
+    const bg=X.createLinearGradient(0,0,0,H);
+    if(bEnemy.isGraveBoss){
+      bg.addColorStop(0,'#0A0515');bg.addColorStop(0.5,'#12081E');bg.addColorStop(1,'#050210');
+    }else{
+      bg.addColorStop(0,'#120818');bg.addColorStop(0.5,'#1A0A20');bg.addColorStop(1,'#0A0510');
+    }
+    X.fillStyle=bg;X.fillRect(0,0,W,H);
+    for(let i=0;i<15;i++){
+      const vx=(Math.sin(Date.now()/2000+i*3.7)*300+W/2)%W;
+      const vy=(Math.cos(Date.now()/3000+i*2.3)*120+60)%200;
+      X.fillStyle=`rgba(${80+Math.sin(i)*30},0,${40+Math.cos(i)*20},${.06+Math.sin(Date.now()/500+i)*.04})`;
+      X.beginPath();X.arc(vx,vy,2+Math.sin(i)*1.5,0,Math.PI*2);X.fill();
+    }
+  }else{
+    const th=curMap?getTheme():TH.prologue;
+    const bg=X.createLinearGradient(0,0,0,220);
+    bg.addColorStop(0,th.wall);bg.addColorStop(1,th.floor);
+    X.fillStyle=bg;X.fillRect(0,0,W,220);
+    X.fillStyle='rgba(0,0,0,0.08)';
+    for(let i=0;i<4;i++){X.beginPath();X.arc(100+i*150,190,25+i*5,0,Math.PI*2);X.fill()}
+  }
+  X.fillStyle=isDark?'rgba(100,50,80,0.15)':'rgba(0,0,0,0.1)';
+  X.fillRect(0,195,W,25);
+  // Enemy
+  const t=Date.now()/1000;
+  const eBob=Math.sin(t*2)*3;
+  const isBoss=bEnemy.name===MT.boss.name||bEnemy.isGraveBoss;
+  X.fillStyle='rgba(0,0,0,0.3)';X.beginPath();X.ellipse(W/2,185,isBoss?55:40,isBoss?12:8,0,0,Math.PI*2);X.fill();
+  const eg=X.createRadialGradient(W/2,130+eBob,5,W/2,130+eBob,isBoss?60:40);
+  eg.addColorStop(0,bEnemy.glow+'33');eg.addColorStop(1,bEnemy.glow+'00');
+  X.fillStyle=eg;X.beginPath();X.arc(W/2,130+eBob,isBoss?60:40,0,Math.PI*2);X.fill();
+  X.fillStyle=bEnemy.color;
+  X.beginPath();X.ellipse(W/2,130+eBob,isBoss?38:28,isBoss?48:38,0,0,Math.PI*2);X.fill();
+  X.fillStyle='rgba(0,0,0,0.25)';
+  X.beginPath();X.ellipse(W/2,138+eBob,isBoss?28:18,isBoss?35:25,0,0,Math.PI*2);X.fill();
+  X.fillStyle='rgba(255,255,255,0.05)';
+  X.beginPath();X.ellipse(W/2,120+eBob,isBoss?20:14,isBoss?12:8,0,0,Math.PI*2);X.fill();
+  const ePulse=.5+Math.sin(t*3)*.3;
+  // grave boss has purple eyes
+  const eyeColor=bEnemy.isGraveBoss?'rgba(180,80,255':`rgba(255,50,50`;
+  X.fillStyle=`${eyeColor},${ePulse})`;
+  X.beginPath();X.arc(W/2-12,118+eBob,isBoss?8:5,0,Math.PI*2);X.fill();
+  X.beginPath();X.arc(W/2+12,118+eBob,isBoss?8:5,0,Math.PI*2);X.fill();
+  X.fillStyle=bEnemy.isGraveBoss?'#AA44FF':'#FF3333';
+  X.fillRect(W/2-16,114+eBob,isBoss?8:4,isBoss?8:4);
+  X.fillRect(W/2+8,114+eBob,isBoss?8:4,isBoss?8:4);
+  if(isBoss){
+    X.fillStyle=bEnemy.isGraveBoss?'#8888FF':'#FFD700';X.globalAlpha=.5+Math.sin(t)*.2;
+    for(let i=0;i<5;i++){
+      X.beginPath();X.moveTo(W/2-12+i*6,95+eBob);X.lineTo(W/2-9+i*6,80+eBob);X.lineTo(W/2-6+i*6,95+eBob);X.fill();
+    }
+    X.globalAlpha=1;
+  }
+  for(let i=0;i<5;i++){
+    const wx=W/2-50+i*25,wy=75+Math.sin(t*1.5+i)*10+eBob;
+    X.fillStyle=`rgba(${bEnemy.isGraveBoss?'80,40,160':'100,50,150'},${.12+Math.sin(t+i)*.06})`;
+    X.beginPath();X.ellipse(wx,wy,6,14,-.15+i*.08,0,Math.PI*2);X.fill();
+  }
+  // Enemy HP bar (show ??? for grave boss)
+  rrect(W/2-110,18,220,22,6);X.fillStyle='rgba(0,0,0,0.7)';X.fill();
+  const hpPct=(bEnemy.isGraveBoss&&!revengeActive)?0.999:bEnemy.hp/bEnemy.mhp;
+  if(hpPct>0){
+    rrect(W/2-108,20,216*hpPct,18,4);
+    const hg=X.createLinearGradient(0,20,0,38);
+    hg.addColorStop(0,bEnemy.isGraveBoss?'#8844CC':'#DD3344');
+    hg.addColorStop(1,bEnemy.isGraveBoss?'#6622AA':'#AA2233');
+    X.fillStyle=hg;X.fill();
+  }
+  if(bEnemy.shield>0){
+    X.fillStyle='rgba(100,180,255,0.6)';X.font='bold 10px sans-serif';X.textAlign='center';
+    X.fillText(`护盾 ${bEnemy.shield}`,W/2,15);X.textAlign='left';
+  }
+  X.fillStyle='#fff';X.font='bold 11px sans-serif';X.textAlign='center';
+  X.fillText(`${bEnemy.name}  ${(bEnemy.isGraveBoss&&!revengeActive)?'???/?':bEnemy.hp+'/'+bEnemy.mhp}`,W/2,33);X.textAlign='left';
+  // enemy status effects
+  let statusY=55;
+  if(bEnemy.vuln>0){X.fillStyle='#FF8866';X.font='10px sans-serif';X.textAlign='center';X.fillText(`易伤(${bEnemy.vuln})`,W/2,statusY);statusY+=14;X.textAlign='left'}
+  if(bEnemy.weak>0){X.fillStyle='#CC88FF';X.font='10px sans-serif';X.textAlign='center';X.fillText(`虚弱(${bEnemy.weak})`,W/2,statusY);X.textAlign='left'}
+  // enemy intent display
+  if(bState==='PLAYER_MENU'||bState==='PLAYER_ACT'){
+    const it=intentText(bEnemy.intent);
+    X.fillStyle=it.c;X.font='bold 13px sans-serif';X.textAlign='center';
+    X.fillText(`意图: ${it.t}`,W/2,68);X.textAlign='left';
+  }
+  // Bottom panel
+  rrect(0,220,W,260,0);
+  const pg=X.createLinearGradient(0,220,0,260);
+  pg.addColorStop(0,'rgba(8,10,20,0.95)');pg.addColorStop(1,'rgba(15,18,30,0.95)');
+  X.fillStyle=pg;X.fillRect(0,220,W,H-220);
+  X.strokeStyle='rgba(100,120,160,0.2)';X.lineWidth=1;
+  X.beginPath();X.moveTo(0,220);X.lineTo(W,220);X.stroke();
+  // Player stats
+  X.fillStyle='rgba(200,210,230,0.9)';X.font='bold 13px sans-serif';
+  X.fillText(`旅人  LV${P.lv}`,16,248);
+  // XP bar
+  if(P.lv<5){const xpTh=[0,40,100,180,300];const curXP=P.exp-xpTh[P.lv-1];const needXP=xpTh[P.lv]-xpTh[P.lv-1];
+    drawBar(16,256,90,8,curXP/needXP,'#CCAA55','#887722');
+    X.fillStyle='#fff';X.font='bold 7px sans-serif';X.textAlign='center';
+    X.fillText(`${curXP}/${needXP}`,16+45,263);X.textAlign='left';}
+  // HP bar — moved down a bit for XP bar
+  drawBar(16,270,150,12,P.hp/P.mhp,'#55CC66','#2A8838');
+  X.fillStyle='#eee';X.font='9px sans-serif';X.fillText(`HP ${P.hp}/${P.mhp}`,20,280);
+  drawBar(16,286,150,12,P.mp/P.mmp,'#6699DD','#3355AA');
+  X.fillStyle='#dde';X.font='9px sans-serif';X.fillText(`MP ${P.mp}/${P.mmp}`,20,296);
+  if(P.shield>0){drawBar(170,270,60,12,Math.min(1,P.shield/20),'#55AAFF','#3366AA');X.fillStyle='#88CCFF';X.font='9px sans-serif';X.fillText(`盾${P.shield}`,175,280)}
+  let pStatusY=296;
+  if(P.vuln>0){X.fillStyle='#FF8866';X.font='9px sans-serif';X.fillText(`易伤(${P.vuln})`,170,pStatusY);pStatusY+=12}
+  if(P.weak>0){X.fillStyle='#CC88FF';X.font='9px sans-serif';X.fillText(`虚弱(${P.weak})`,170,pStatusY)}
+  // Skill description panel — beside HP/MP bars
+  if(bState==='PLAYER_MENU'){
+    const sd=SKILL_DESCS[bSel];
+    const spx=180, spy=237, spw=436, sph=100;
+    rrect(spx,spy,spw,sph,6);
+    X.fillStyle='rgba(10,8,22,0.88)';X.fill();
+    rrect(spx,spy,spw,sph,6);X.strokeStyle=sd.color+'44';X.lineWidth=1;X.stroke();
+    // header bar
+    rrect(spx,spy,spw,22,6);X.fillStyle=sd.color+'15';X.fill();
+    X.fillStyle=sd.color;X.font='bold 12px sans-serif';X.textAlign='center';
+    X.fillText(`✦ ${bMenuItems[bSel].replace(/\(.+\)/,'').trim()}`,spx+spw/2,spy+16);
+    // effect
+    X.fillStyle='#CCCCDD';X.font='11px sans-serif';X.textAlign='left';
+    X.fillText(`【效果】${sd.effect}`,spx+12,spy+40);
+    // lore
+    X.fillStyle='rgba(160,160,190,0.75)';X.font='italic 10px sans-serif';
+    X.fillText(sd.lore,spx+12,spy+60);
+    // flavor
+    X.fillStyle=sd.color+'99';X.font='10px sans-serif';
+    X.fillText(sd.flavor,spx+12,spy+82);
+    X.textAlign='left';
+  }
+  // Battle log
+  X.fillStyle='rgba(200,200,220,0.7)';X.font='12px sans-serif';
+  const logStart=Math.max(0,bLog.length-4);
+  for(let i=logStart;i<bLog.length;i++){
+    X.fillText(bLog[i],16,314+(i-logStart)*18);
+  }
+  // Menu
+  const MENU_W=360;
+  if(bState==='PLAYER_MENU'){
+    // 墓地boss提示
+    if(bEnemy.isGraveBoss){
+      X.fillStyle='rgba(180,140,255,0.4)';X.font='10px sans-serif';X.textAlign='center';
+      X.fillText(revengeActive?'复仇之力在手中闪耀——用尽全力的一击！':'……这场战斗无法获胜。坚持住……',W/2,370);X.textAlign='left';
+    }
+    for(let i=0;i<bMenuItems.length;i++){
+      const y=386+i*22;
+      rrect(12,y-4,W-24,20,4);
+      X.fillStyle=i===bSel?'rgba(255,215,0,0.1)':'rgba(255,255,255,0.03)';X.fill();
+      if(i===bSel){rrect(12,y-4,W-24,20,4);X.strokeStyle='rgba(255,215,0,0.25)';X.lineWidth=1;X.stroke()}
+      X.fillStyle=i===bSel?'#FFD080':'rgba(200,200,210,0.7)';X.font='13px sans-serif';
+      X.fillText((i===bSel?'\u25B6 ':'   ')+bMenuItems[i],22,y+10);
+    }
+  }
+  if(bState==='START'){
+    X.fillStyle='rgba(255,255,255,0.9)';X.font='bold 20px sans-serif';X.textAlign='center';
+    X.fillText(`遭遇了 ${bEnemy.name}！`,W/2,350);X.textAlign='left';
+    const sp=.5+Math.sin(Date.now()/400)*.3;
+    X.fillStyle=`rgba(180,180,200,${sp})`;X.font='12px sans-serif';X.textAlign='center';
+    X.fillText('按 Enter 开始战斗',W/2,380);X.textAlign='left';
+  }
+  if(bState==='WHISPER'&&bEnemy.whisper){
+    rrect(50,290,W-100,65,8);X.fillStyle='rgba(20,10,35,0.92)';X.fill();
+    rrect(50,290,W-100,65,8);X.strokeStyle='rgba(100,70,160,0.4)';X.lineWidth=1;X.stroke();
+    X.fillStyle='#CC99FF';X.font='italic 15px sans-serif';X.textAlign='center';
+    X.fillText(`\u300C${bEnemy.whisper}\u300D`,W/2,328);X.textAlign='left';
+    X.fillStyle='rgba(150,150,170,0.5)';X.font='11px sans-serif';X.textAlign='center';
+    X.fillText('按 Enter 继续',W/2,365);X.textAlign='left';
+  }
+  if(bState==='WIN'){
+    X.fillStyle='rgba(255,230,180,0.9)';X.font='bold 18px sans-serif';X.textAlign='center';
+    X.fillText(`${bEnemy.name} 被击败了！`,W/2,350);
+    if(!bEnemy.isGraveBoss){X.fillStyle='#FFD080';X.font='14px sans-serif';X.fillText(`获得 ${bEnemy.exp} 经验值`,W/2,375)}
+    X.textAlign='left';
+  }
+  if(bState==='REWARD'){
+    X.textAlign='center';
+    if(bEnemy.whisper&&!bEnemy.isGraveBoss){
+      X.fillStyle='rgba(150,150,170,0.6)';X.font='italic 13px sans-serif';
+      X.fillText('……奇怪的声音。不去想它。',W/2,350);
+    }
+    X.fillStyle='rgba(150,150,170,0.4)';X.font='11px sans-serif';
+    X.fillText('按 Enter 继续',W/2,385);X.textAlign='left';
+  }
+  if(bState==='GRAVE_DEATH'){
+    // player death cutscene (being turned into monster)
+    const gd=graveDeathT;
+    X.fillStyle='rgba(0,0,0,0.85)';X.fillRect(0,0,W,H);
+    // player on ground
+    const pcy=H/2+30;
+    if(gd<3){
+      drawPlayer(W/2-T/2,pcy-T/2,0);
+      X.fillStyle='rgba(255,0,0,0.2)';X.beginPath();X.ellipse(W/2,pcy+5,20,5,0,0,Math.PI*2);X.fill();
+    }
+    // guardian casting spell
+    if(gd>1){
+      const ga=Math.min(1,(gd-1)/1.5);
+      X.globalAlpha=ga;
+      drawGuardian(W/2-T/2-60,pcy-T/2-20,true);
+      X.globalAlpha=1;
+      // spell effect
+      if(gd>2){
+        const sc=Math.min(1,(gd-2)/2);
+        const sg=X.createRadialGradient(W/2,pcy,5,W/2,pcy,80);
+        sg.addColorStop(0,`rgba(180,100,255,${sc*.4})`);sg.addColorStop(1,`rgba(180,100,255,0)`);
+        X.fillStyle=sg;X.beginPath();X.arc(W/2,pcy,80,0,Math.PI*2);X.fill();
+        // distorting particles
+        for(let i=0;i<20;i++){
+          const ang=Math.random()*Math.PI*2;
+          const dist=20+Math.random()*40;
+          X.fillStyle=`rgba(150,80,200,${sc*.3})`;
+          X.beginPath();X.arc(W/2+Math.cos(ang)*dist,pcy+Math.sin(ang)*dist,2,0,Math.PI*2);X.fill();
+        }
+      }
+    }
+    // text
+    if(gd>4){
+      const ta=Math.min(1,(gd-4)/1.5);
+      X.fillStyle=`rgba(200,180,220,${ta})`;X.font='italic 16px sans-serif';X.textAlign='center';
+      X.fillText('「变成怪物吧。」',W/2,H-120);
+      X.fillText('「和所有死去的你一样。」',W/2,H-95);
+      X.textAlign='left';
+    }
+    // flash white at the end
+    if(gd>7){
+      const fa=Math.min(1,(gd-7)/.8);
+      X.fillStyle=`rgba(255,255,255,${fa})`;X.fillRect(0,0,W,H);
+    }
+    if(gd>8&&eat()==='Enter'){
+      graveDeathPhase=0;graveDeathT=0;
+      // record death tombstone for this playthrough
+      try{
+        const deaths=JSON.parse(localStorage.getItem('gc_deaths')||'[]');
+        deaths.push({pt:playthroughCount,time:new Date().toISOString()});
+        localStorage.setItem('gc_deaths',JSON.stringify(deaths));
+      }catch(e){}
+      // increment playthrough and return to title
+      playthroughCount++;
+      localStorage.setItem('gc_playthrough',playthroughCount.toString());
+      P.rev=false;P.hp=P.mhp;
+      showTitleButtons();
+      GS='TITLE';gameCompleted=true;overlay.style.display='flex';
+    }
+  }
+  drawParticles();
+  for(let i=dmgPopups.length-1;i>=0;i--){
+    const d=dmgPopups[i];
+    d.y-=dt*40;d.life-=dt;
+    if(d.life<=0){dmgPopups.splice(i,1);continue}
+    X.globalAlpha=d.life/d.maxLife;
+    X.fillStyle=d.color;X.font=`bold ${d.size}px sans-serif`;X.textAlign='center';
+    X.fillText(d.text,d.x,d.y);X.textAlign='left';
+    X.globalAlpha=1;
+  }
+}
+
+// ===== DRAWING: TRUE ENDING =====
+function drawTrueEnding(){
+  const tt=trueEndT;
+  const phase=trueEndPhase;
+  X.fillStyle='#0A0810';X.fillRect(0,0,W,H);
+  if(phase===0){
+    // cage shattering
+    for(let i=0;i<30;i++){
+      const px=W/2+(Math.sin(i*2.3)*80),py=H/2-40+(Math.cos(i*1.7)*60);
+      X.fillStyle=`rgba(200,180,255,${.3+Math.sin(tt*2+i)*.2})`;
+      X.beginPath();X.arc(px,py,1.5+Math.random()*1.5,0,Math.PI*2);X.fill();
+    }
+    // two figures merging
+    const a=Math.min(1,tt/2);
+    X.globalAlpha=a;
+    drawPlayer(W/2-T/2-30,H/2-T/2,3);
+    drawPlayer(W/2-T/2+20,H/2-T/2,2);
+    X.globalAlpha=1;
+    if(tt>3){
+      const ma=Math.min(1,(tt-3)/2);
+      X.fillStyle=`rgba(255,255,255,${ma*.6})`;
+      X.beginPath();X.arc(W/2-T/2+4,H/2,20,0,Math.PI*2);X.fill();
+    }
+    if(tt>6){trueEndPhase=1;trueEndT=0}
+  }else if(phase===1){
+    // player grows big and speaks to the REAL player
+    const ga=Math.min(1,tt/3);
+    // giant player figure
+    const gcx=W/2,gcy=H/2-20;
+    X.globalAlpha=ga;
+    const scale=2.5+Math.sin(tt*.3)*.2;
+    X.save();X.translate(gcx,gcy);X.scale(scale,scale);
+    drawPlayer(-T/2,-T/2,0);
+    X.restore();
+    X.globalAlpha=1;
+    // subtitle
+    if(tt>2){
+      const ta=Math.min(1,(tt-2)/2);
+      X.fillStyle=`rgba(255,255,255,${ta*.9})`;X.font='bold 18px sans-serif';X.textAlign='center';
+      X.fillText('「朋友，你现在，还在牢笼中吗。」',W/2,H/2+80);X.textAlign='left';
+    }
+    if(tt>5){
+      const pa=.6+Math.sin(Date.now()/600)*.1;
+      X.fillStyle=`rgba(255,215,0,${pa})`;X.font='bold 16px sans-serif';X.textAlign='center';
+      X.fillText('救赎成就达成',W/2,H/2+120);X.textAlign='left';
+    }
+    // Enter handled in update()
+  }
+  drawVignette();
+}
+
+// ===== DRAWING: CREDITS (simple line-by-line) =====
+function drawCredits(){
+  const t=creditsT,ph=creditsPhase;
+  // Background
+  X.fillStyle='#050510';X.fillRect(0,0,W,H);
+  // Ambient particles
+  for(let i=0;i<15;i++){
+    const sx=((Date.now()/40+i*173)%(W+80))-40;
+    const sy=((Date.now()/50+i*211)%(H+80))-40;
+    X.fillStyle=`rgba(150,150,200,${.08+Math.sin(Date.now()/2000+i)*.04})`;
+    X.beginPath();X.arc(sx,sy,1,0,Math.PI*2);X.fill();
+  }
+  if(ph<CREDITS_LINES.length){
+    // Show current line fading in at center
+    const curLine=CREDITS_LINES[ph];
+    const a=Math.min(1,t/1.5);
+    X.fillStyle=`rgba(220,210,240,${a})`;X.font='bold 16px sans-serif';X.textAlign='center';
+    X.fillText(curLine,W/2,H/2);X.textAlign='left';
+  }else{
+    // All lines done
+    if(t>1){
+      const gl=.2+Math.sin(Date.now()/300)*.15;
+      X.fillStyle=`rgba(200,180,220,${gl})`;X.font='11px sans-serif';X.textAlign='center';
+      X.fillText('按 Enter 返回标题',W/2,H/2+20);X.textAlign='left';
+    }
+  }
+}
+
+// ===== DRAWING: ENDING (original) =====
+function drawEnding(){
+  const t=endT;
+  const desat=Math.min(1,t/5);
+  if(desat<.6){
+    const eg=X.createLinearGradient(0,0,0,H);
+    const r=Math.floor(127*(1-desat)+20*desat),g=Math.floor(176*(1-desat)+15*desat),b=Math.floor(105*(1-desat)+25*desat);
+    eg.addColorStop(0,`rgb(${r},${g},${b})`);eg.addColorStop(1,`rgb(${Math.floor(r*.7)},${Math.floor(g*.7)},${Math.floor(b*.7)})`);
+    X.fillStyle=eg;X.fillRect(0,0,W,H);
+  }else{X.fillStyle='#0A0810';X.fillRect(0,0,W,H)}
+  if(endPhase===0){
+    if(t>1&&t<8){
+      const alpha=Math.max(0,1-t/8);
+      for(let i=0;i<20;i++){
+        const fx=(i*97+t*15)%W,fy=(i*53+t*8)%(H-80);
+        X.fillStyle=`rgba(242,167,179,${alpha*.2})`;
+        X.beginPath();X.arc(fx,fy,3+Math.sin(t+i)*1.5,0,Math.PI*2);X.fill();
+      }
+    }
+    for(let i=0;i<8;i++){
+      const wx=(t*30+i*80)%W,wy=H/2-40+Math.sin(t+i*2)*60;
+      X.fillStyle=`rgba(150,150,180,${.1+Math.sin(t*2+i)*.05})`;
+      X.beginPath();X.arc(wx,wy,1.5,0,Math.PI*2);X.fill();
+    }
+    drawPlayer(W/2-T/2,H/2-T/2+30,0);
+    if(t>3){
+      const ga=Math.min(1,(t-3)/2.5);
+      X.globalAlpha=ga;
+      drawGuardian(W/2-T/2-55,H/2-T/2+10,true);
+      X.globalAlpha=1;
+    }
+    if(t>6){
+      rrect(40,H-130,W-80,105,8);X.fillStyle='rgba(0,0,0,0.75)';X.fill();
+      X.fillStyle='#7888AA';X.font='15px sans-serif';X.textAlign='center';
+      X.fillText('\u300C永恒的晴天。永恒的安宁。永恒的孤独。\u300D',W/2,H-72);X.textAlign='left';
+    }
+  }
+  if(endPhase===1){
+    X.fillStyle='rgba(5,5,10,0.96)';X.fillRect(0,0,W,H);
+    for(let i=0;i<12;i++){
+      const cx2=(Math.sin(t*.3+i*2)*280+W/2)%W;
+      const cy2=(Math.cos(t*.2+i*1.5)*200+H/2)%H;
+      X.fillStyle=`rgba(150,160,200,${.03+Math.sin(t+i)*.02})`;
+      X.beginPath();X.arc(cx2,cy2,2,0,Math.PI*2);X.fill();
+    }
+    X.textAlign='center';
+    const credits=['温柔囚笼','','一场关于逃避与禁锢的故事','','所有怪物，都是曾经的你。','所有温柔，都可能是牢笼。','',
+      `残响碎片: ${collectedFragments.length}/${FRAG_DATA.length}`,'','—— 完 ——'];
+    for(let i=0;i<credits.length;i++){
+      const cy=120+i*28;
+      const alpha=Math.min(1,Math.max(0,(t-1.5-i*.5)/1.2));
+      if(alpha<=0)continue;
+      X.fillStyle=`rgba(${140+i*5},${150+i*5},${170+i*5},${alpha})`;
+      if(i===0||i===credits.length-1)X.font='bold 22px sans-serif';
+      else if(i===2||i===4||i===5)X.font='italic 14px sans-serif';
+      else X.font='14px sans-serif';
+      X.fillText(credits[i],W/2,cy);
+    }
+    X.textAlign='left';
+    if(t>8){X.fillStyle='rgba(100,100,120,0.5)';X.font='11px sans-serif';X.textAlign='center';X.fillText('按 Enter 返回标题',W/2,H-35);X.textAlign='left'}
+  }
+  drawVignette();
+}
+
+// ===== DRAWING: ASSASSIN ENDING =====
+function drawAssassinEnding(){
+  const t=assassinT;
+  // dark background
+  X.fillStyle='#000';X.fillRect(0,0,W,H);
+  // blood-like particles
+  for(let i=0;i<8;i++){
+    const px=(Math.sin(i*7.3+t*.3)*200+W/2+W)%W;
+    const py=((H-t*20-i*50)%(H+200))-100;
+    X.fillStyle=`rgba(120,20,20,${.03+Math.sin(t*2+i)*.02})`;
+    X.beginPath();X.arc(px,py,3+Math.sin(i)*2,0,Math.PI*2);X.fill();
+  }
+  X.textAlign='center';
+  // "刺杀" title fades in
+  const titleAlpha=Math.min(1,t*1.2);
+  X.fillStyle=`rgba(200,60,60,${titleAlpha*.8})`;
+  X.font='bold 36px sans-serif';
+  X.shadowColor=`rgba(200,40,40,${titleAlpha*.5})`;X.shadowBlur=30;
+  X.fillText('刺 杀',W/2,H/2-30);
+  X.shadowBlur=0;
+  // subtitle
+  if(t>2){
+    const subAlpha=Math.min(1,(t-2)*.5);
+    X.fillStyle=`rgba(180,150,150,${subAlpha*.7})`;
+    X.font='14px sans-serif';
+    X.fillText('你选择了终结守护者的生命',W/2,H/2+10);
+  }
+  // author credit
+  if(t>4){
+    const credAlpha=Math.min(1,(t-4)*.5);
+    X.fillStyle=`rgba(200,180,160,${credAlpha*.8})`;
+    X.font='16px sans-serif';
+    X.fillText('作者：很酷不说话',W/2,H/2+50);
+  }
+  if(t>6){
+    const hintAlpha=.4+Math.sin(t*2)*.3;
+    X.fillStyle=`rgba(150,150,150,${hintAlpha})`;
+    X.font='12px sans-serif';
+    X.fillText('按 Enter 返回标题',W/2,H-30);
+  }
+  X.textAlign='left';
+}
+
+// ===== DRAWING: REVENGE ENDING =====
+function drawRevengeEnding(){
+  const t=revengeEndT,ph=revengeEndPhase;
+  X.fillStyle='#020108';X.fillRect(0,0,W,H);
+  if(ph===0){
+    // Phase 0: Light envelops the player, transformation
+    const a=Math.min(1,t/2);
+    // player figure in center
+    if(t<4){
+      const bob=Math.sin(t*3)*3;
+      X.globalAlpha=a;
+      drawPlayer(W/2-T/2,H/2-T/2+10,0);
+      X.globalAlpha=1;
+      // red-black glow intensifying
+      const glow=X.createRadialGradient(W/2,H/2,5,W/2,H/2,80+t*15);
+      glow.addColorStop(0,`rgba(200,20,20,${.15+t*.05})`);
+      glow.addColorStop(.4,`rgba(80,10,10,${.1+t*.03})`);
+      glow.addColorStop(1,'rgba(0,0,0,0)');
+      X.fillStyle=glow;X.fillRect(0,0,W,H);
+    }
+    // particles swirling
+    for(let i=0;i<30;i++){
+      const ang=t*1.5+i*Math.PI*2/30;
+      const rad=40+Math.sin(t*3+i)*20+t*5;
+      const px=W/2+Math.cos(ang)*rad, py=H/2+Math.sin(ang)*rad*.6;
+      const pa=.3+Math.sin(t*2+i)*.2;
+      X.fillStyle=`rgba(200,40,40,${pa*.5})`;
+      X.beginPath();X.arc(px,py,1+Math.sin(i)*1,0,Math.PI*2);X.fill();
+    }
+    // player starting to distort (flickering between forms)
+    if(t>2.5&&t<6){
+      const transAlpha=Math.min(1,(t-2.5)/2);
+      // Player flickering out
+      X.globalAlpha=1-transAlpha*.8;
+      drawPlayer(W/2-T/2,H/2-T/2+10,0);
+      // Guardian flickering in
+      X.globalAlpha=transAlpha*.8;
+      const gx=W/2-T/2,gy=H/2-T/2+10;
+      drawPlayer(gx,gy,0); // player body as base
+      X.globalAlpha=transAlpha*.6;
+      // guardian overlay
+      X.fillStyle=`rgba(80,40,100,${transAlpha*.5})`;
+      X.beginPath();X.arc(W/2,gy+T/2,14,0,Math.PI*2);X.fill();
+      X.globalAlpha=1;
+    }
+    // fully transformed to guardian
+    if(t>=6){
+      const sta=Math.min(1,(t-6)/1.5);
+      X.globalAlpha=sta;
+      drawGuardian(W/2-T/2,H/2-T/2,true);
+      X.globalAlpha=1;
+      // dark aura around new guardian
+      const ga=X.createRadialGradient(W/2,H/2-20,8,W/2,H/2-20,50);
+      ga.addColorStop(0,`rgba(180,80,255,${.15+Math.sin(t*2)*.05})`);
+      ga.addColorStop(1,'rgba(180,80,255,0)');
+      X.fillStyle=ga;X.beginPath();X.arc(W/2,H/2-20,50,0,Math.PI*2);X.fill();
+    }
+    // ambient blood particles drifting upward
+    for(let i=0;i<20;i++){
+      const by=((Date.now()/40+i*120)%(H+60))-30;
+      const bx=W/2+Math.sin(i*2.7+t*.5)*100;
+      X.fillStyle=`rgba(150,30,30,${.05+Math.sin(i)*.03})`;
+      X.beginPath();X.arc(bx,by,1.5+Math.random()*1,0,Math.PI*2);X.fill();
+    }
+  }else if(ph===1){
+    // Phase 1: The truth
+    const a=Math.min(1,t/2);
+    // dark, cold background
+    X.fillStyle='#010106';X.fillRect(0,0,W,H);
+    // faint particles
+    for(let i=0;i<12;i++){
+      const sx=(Math.sin(i*6.3+t*.3)*200+W/2)%W;
+      const sy=(Math.cos(i*4.1+t*.2)*150+H/2)%H;
+      X.fillStyle=`rgba(100,60,150,${.06+Math.sin(t+i)*.04})`;
+      X.beginPath();X.arc(sx,sy,1,0,Math.PI*2);X.fill();
+    }
+    // guardian figure at center — now cold/transformed
+    X.globalAlpha=a;
+    drawGuardian(W/2-T/2,H/2-T/2-20,true);
+    X.globalAlpha=1;
+    // text
+    X.textAlign='center';
+    if(t>1){
+      const ta=Math.min(1,(t-1)/2);
+      X.fillStyle=`rgba(200,180,220,${ta*.9})`;
+      X.font='bold italic 18px sans-serif';
+      X.fillText('「这是复仇的代价。」',W/2,H/2+70);
+    }
+    if(t>2.5){
+      const ta2=Math.min(1,(t-2.5)/1.5);
+      X.fillStyle=`rgba(180,160,200,${ta2*.8})`;
+      X.font='15px sans-serif';
+      X.fillText('你亲手终结了旧日的守护者。',W/2,H/2+100);
+    }
+    if(t>3.5){
+      const ta3=Math.min(1,(t-3.5)/1.5);
+      X.fillStyle=`rgba(160,140,180,${ta3*.7})`;
+      X.font='italic 14px sans-serif';
+      X.fillText('现在，轮到你等在这里。',W/2,H/2+125);
+      X.fillText('等待下一个……旅人。',W/2,H/2+148);
+    }
+    if(t>5){
+      const pa=.3+Math.sin(Date.now()/500)*.2;
+      X.fillStyle=`rgba(150,150,170,${pa})`;
+      X.font='12px sans-serif';
+      X.fillText('—— 复 仇 ——',W/2,H/2+185);
+    }
+    X.textAlign='left';
+  }
+  drawVignette();
+}
+
+// ===== DEBUG / CHEAT ACTIONS =====
+function updateDebugInfo(){
+  const el=document.getElementById('dbg-info');
+  if(!el)return;
+  const ch=['?','CH1','CH2','CH3','CH4'][chapterPhase||0];
+  el.innerHTML='GS='+GS+'<br>章节='+ch+'<br>HP='+P.hp+'/'+P.mhp+'<br>MP='+P.mp+'/'+P.mmp
+    +'<br>碎片='+collectedFragments.length+'/6 (ids:'+collectedFragments.join(',')+')'
+    +'<br>周目='+(playthroughCount+1)+' 选='+(fragmentChoiceShown?'T':'F')+' act='+(fragmentChoiceActive?'T':'F')
+    +'<br>debug='+(debugMode?'ON':'OFF')+'<br>复仇='+(revengePath?'ON':'OFF');
+}
+function debugAction(act){
+  const msgEl=document.getElementById('dbg-msg');
+  let msg='';
+  try{
+    switch(act){
+      case'heal':P.hp=P.mhp;P.mp=P.mmp;msg='HP/MP已回满';break;
+      case'fragments':
+        collectedFragments=[0,1,2,3,4,5];
+        localStorage.setItem('gc_fragments',JSON.stringify(collectedFragments));
+        msg='已获得全部6个碎片';break;
+      case'fragchoice':
+        fragmentChoiceActive=true;fragmentChoiceIdx=0;fragmentChoiceShown=false;
+        localStorage.removeItem('gc_fragment_choice');
+        if(GS==='DLG')GS='MAP';msg='已触发碎片选择';break;
+      case'ch1':chapterPhase=1;loadMap('ch1');GS='MAP';fadeIn();msg='已跳到CH1';break;
+      case'ch2':chapterPhase=2;loadMap('ch2');GS='MAP';fadeIn();msg='已跳到CH2';break;
+      case'ch3':chapterPhase=3;loadMap('ch3');GS='MAP';fadeIn();msg='已跳到CH3';break;
+      case'ch4':chapterPhase=4;loadMap('ch4');GS='MAP';fadeIn();msg='已跳到CH4';break;
+      case'ngplus':playthroughCount=1;localStorage.setItem('gc_playthrough','1');msg='已设为二周目';break;
+      case'achieve':
+        achievements=['redemption','assassin','revenge'];
+        localStorage.setItem('gc_achievements',JSON.stringify(achievements));
+        // 如果当前在成就页，自动跳转到 Credits
+        if(GS==='ACHIEVE'){
+          GS='CREDITS';creditsPhase=0;creditsT=0;
+        }
+        msg='全部成就已解锁'+(GS==='CREDITS'?' → Credits演出':'');break;
+      case'levelup':P.lv=5;P.exp=999;P.atk=50;P.def=30;P.mhp=200;P.mmp=80;P.hp=P.mhp;P.mp=P.mmp;msg='已升到满级';break;
+      case'reset':
+        localStorage.clear();playthroughCount=0;collectedFragments=[];achievements=[];
+        debugMode=false;debugPanelOpen=false;
+        document.getElementById('debug-panel').style.display='none';
+        msg='游戏已重置';break;
+    }
+  }catch(e){msg='错误:'+e.message}
+  if(msgEl)msgEl.textContent=msg;
+  debugMsg=msg;debugMsgT=2;
+  updateDebugInfo();
+}
+function toggleDebugPanel(){
+  const panel=document.getElementById('debug-panel');
+  if(!panel)return;
+  debugPanelOpen=!debugPanelOpen;
+  panel.style.display=debugPanelOpen?'block':'none';
+  if(debugPanelOpen)updateDebugInfo();
+  C.focus(); // keep canvas focus
+}
+
+// ===== DRAWING: ACHIEVEMENTS =====
+function drawAchieve(){
+  const t=achieveT;
+  // Background
+  const bg=X.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0A0A16');bg.addColorStop(0.5,'#101020');bg.addColorStop(1,'#0A0A16');
+  X.fillStyle=bg;X.fillRect(0,0,W,H);
+  // stars
+  for(let i=0;i<40;i++){
+    const sx=(Math.sin(i*7.3)*300+W/2)%W, sy=(Math.cos(i*5.1)*200+H/2)%H;
+    X.fillStyle=`rgba(200,200,240,${.2+Math.sin(t*1.5+i*3)*.15})`;
+    X.beginPath();X.arc(sx,sy,.6,0,Math.PI*2);X.fill();
+  }
+  // Title
+  X.textAlign='center';
+  X.fillStyle='#D8D0E8';X.font='bold 28px sans-serif';
+  X.shadowColor='rgba(180,160,220,.3)';X.shadowBlur=20;
+  X.fillText('成 就',W/2,70);
+  X.shadowBlur=0;
+
+  const achDefs=[
+    {id:'redemption', name:'救赎', desc:'打破囚笼，获得真正的自由', icon:'\u{1F54A}\uFE0F'},
+    {id:'assassin', name:'刺杀', desc:'在守护者不注意时杀死他', icon:'\u{1F5E1}\uFE0F'},
+    {id:'revenge', name:'复仇', desc:'走向复仇之路，成为新的守护者', icon:'\u{1F525}'},
+  ];
+
+  for(let i=0;i<3;i++){
+    const ay=130+i*110;
+    const unlocked=achievements.includes(achDefs[i].id);
+    const alpha=Math.min(1,t*2-i*.3);
+    if(alpha<=0)continue;
+    // trophy glow
+    if(unlocked){
+      const g=X.createRadialGradient(W/2,ay+20,5,W/2,ay+20,50);
+      g.addColorStop(0,`rgba(255,215,0,${.08+Math.sin(t*2+i)*.03})`);
+      g.addColorStop(1,'rgba(255,215,0,0)');
+      X.fillStyle=g;X.fillRect(W/2-60,ay-25,120,70);
+    }
+    // trophy icon
+    X.globalAlpha=unlocked?1:.35;
+    X.font='36px sans-serif';
+    X.fillStyle=unlocked?'#FFD700':'#555';
+    X.shadowColor=unlocked?'rgba(255,215,0,.4)':'rgba(0,0,0,0)';
+    X.shadowBlur=unlocked?15:0;
+    X.fillText(achDefs[i].icon,W/2-70,ay+16);
+    // name
+    X.font='bold 18px sans-serif';
+    X.fillStyle=unlocked?'#FFD700':'#666';
+    X.fillText(achDefs[i].name,W/2+10,ay+6);
+    // desc
+    X.font='11px sans-serif';
+    X.fillStyle=unlocked?'rgba(220,200,160,.6)':'#444';
+    X.shadowBlur=0;
+    X.fillText(unlocked?achDefs[i].desc:'???',W/2+10,ay+24);
+    X.globalAlpha=1;
+  }
+
+  // Exit hint
+  if(t>1){
+    const achDefs2=['redemption','assassin','revenge'];
+    const allUnlocked2=achDefs2.every(a=>achievements.includes(a));
+    X.fillStyle=`rgba(150,150,150,${.4+Math.sin(t*2)*.2})`;
+    X.font='12px sans-serif';
+    X.fillText(allUnlocked2?'按 Enter 观看致谢演出':'按 Enter 或 Esc 返回',W/2,H-20);
+    if(allUnlocked2){
+      X.fillStyle='rgba(255,215,0,0.3)';X.font='10px sans-serif';
+      X.fillText('全成就达成',W/2,H-40);
+    }
+  }
+  X.textAlign='left';
+}
+
+// ===== DRAWING: TITLE =====
+function drawTitle(){
+  const t=titleT;
+  const bg=X.createLinearGradient(0,0,W*.3,H);
+  bg.addColorStop(0,'#0E0E1E');bg.addColorStop(0.4,'#161628');bg.addColorStop(0.7,'#121220');bg.addColorStop(1,'#0A0A16');
+  X.fillStyle=bg;X.fillRect(0,0,W,H);
+  const rg=X.createRadialGradient(W/2,H/2-40,10,W/2,H/2,300);
+  rg.addColorStop(0,'rgba(80,60,120,0.12)');rg.addColorStop(0.5,'rgba(40,30,80,0.05)');rg.addColorStop(1,'rgba(0,0,0,0)');
+  X.fillStyle=rg;X.fillRect(0,0,W,H);
+  for(let i=0;i<60;i++){
+    const sx=(Math.sin(i*7.3)*300+W/2)%W;
+    const sy=(Math.cos(i*5.1)*200+H/2)%H;
+    const sb=.3+Math.sin(t*1.5+i*3)*.25;
+    X.fillStyle=`rgba(200,200,240,${sb})`;
+    X.beginPath();X.arc(sx,sy,0.8+Math.sin(i)*.4,0,Math.PI*2);X.fill();
+  }
+  for(let i=0;i<15;i++){
+    const px=((Math.sin(t*.4+i*2.1)*220+W/2)%W+W)%W;
+    const py=((Math.cos(t*.25+i*1.7)*180+H/2+50)%H+H)%H;
+    const rot=t+i;
+    X.save();X.translate(px,py);X.rotate(rot);
+    X.fillStyle=`rgba(242,167,179,${.08+Math.sin(t+i)*.04})`;
+    X.beginPath();X.ellipse(0,0,3,6,0,0,Math.PI*2);X.fill();
+    X.restore();
+  }
+  for(let i=0;i<10;i++){
+    const fx=40+i*60,fy=H-40+Math.sin(t*.5+i)*3;
+    X.fillStyle='rgba(60,40,80,0.15)';X.beginPath();X.arc(fx,fy,5+Math.sin(i)*2,0,Math.PI*2);X.fill();
+    X.fillStyle='rgba(242,167,179,0.08)';X.beginPath();X.arc(fx,fy-3,2,0,Math.PI*2);X.fill();
+  }
+  const cageAlpha=.03+Math.sin(t*.8)*.01;
+  X.strokeStyle=`rgba(180,160,220,${cageAlpha})`;X.lineWidth=1.5;
+  for(let i=0;i<6;i++){
+    const lx=W/2-60+i*24;
+    X.beginPath();X.moveTo(lx,H/2-100);X.lineTo(lx,H/2+60);X.stroke();
+  }
+  X.beginPath();X.ellipse(W/2,H/2-100,60,15,0,Math.PI,0);X.stroke();
+  X.textAlign='center';
+  X.shadowColor='rgba(180,160,220,0.3)';X.shadowBlur=30;
+  X.fillStyle='#D8D0E8';X.font='bold 40px sans-serif';
+  const titleText='温 柔 囚 笼';
+  const fullW=X.measureText(titleText).width;
+  const prefixText='温 柔 ';
+  const prefixW=X.measureText(prefixText).width;
+  const qiulongText='囚 笼';
+  const qiulongW=X.measureText(qiulongText).width;
+  const titleX=W/2-fullW/2;
+  const titleY=H/2-55;
+  // Store click region for "囚笼"
+  titleQLLeft=titleX+prefixW-10;
+  titleQLRight=titleX+fullW+10;
+  titleQLTop=titleY-55;
+  titleQLBottom=titleY+10;
+  // Draw "温 柔 " in normal color
+  X.fillText(prefixText,titleX+prefixW/2,titleY);
+  // Draw "囚 笼" - highlight if player can click (2周目+6碎片)
+  const canClickCage=playthroughCount>=1&&collectedFragments.length>=FRAG_DATA.length&&!revengePath;
+  if(canClickCage){
+    // glowing highlight
+    const glow=.6+Math.sin(Date.now()/600)*.4;
+    X.fillStyle=`rgba(255,200,100,${.7+glow*.3})`;
+    X.shadowColor=`rgba(255,180,60,${glow})`;X.shadowBlur=40;
+  }else{
+    X.fillStyle='#D8D0E8';
+  }
+  X.fillText(qiulongText,titleX+prefixW+qiulongW/2,titleY);
+  X.shadowBlur=0;
+  if(playthroughCount>=1){
+    X.fillStyle='rgba(200,150,150,0.5)';X.font='12px sans-serif';X.textAlign='left';
+    X.fillText(`[ ${playthroughCount+1}周目 ]`,18,30);
+  }
+  X.textAlign='left';
+}
+
+// ===== UPDATE =====
+let dt=0,lastFrame=0;
+
+function update(delta){
+  dt=delta;
+  titleT+=delta;
+  P._walkT=P.moveCD>0?P._walkT+delta:0;
+  updateParticles(delta);
+  if(flashT>0)flashT-=delta;
+  if(fadeD!==0){
+    fadeA+=fadeD*delta*2;
+    if(fadeA>=1&&fadeD===1){fadeA=1;fadeD=0;if(fadeCB){const cb=fadeCB;fadeCB=null;fadeA=0;cb()}}
+    if(fadeA<=0&&fadeD===-1){fadeA=0;fadeD=0}
+  }
+  if(shakeT>0){shakeT-=delta;shakeX=(Math.random()-.5)*6;shakeY=(Math.random()-.5)*6}
+  else{shakeX=0;shakeY=0}
+  // Debug message timer
+  if(debugMsgT>0)debugMsgT-=delta;
+  // Achievement toast timer
+  if(achieveToastTimer>0)achieveToastTimer-=delta;
+  // Periodically update debug panel info
+  if(debugPanelOpen&&Math.random()<delta*4)updateDebugInfo();
+
+  // DIALOGUE
+  if(GS==='DLG'){
+    if(!dlDone){
+      dlT+=delta;
+      if(dlT>.03){dlT=0;dlChar++;if(dlChar%3===0)sfxText();if(dlChar>=dlLines[dlIdx].t.length)dlDone=true}
+    }
+    const k=eat();
+    if(k==='Enter'||k===' '){
+      // Single tap: instant action
+      if(!dlDone){dlDone=true;dlChar=dlLines[dlIdx].t.length}
+      else{
+        dlAutoT=0;
+        dlIdx++;
+        if(dlIdx>=dlLines.length){if(dlCB){const cb=dlCB;dlCB=null;cb()}}
+        else{dlChar=0;dlDone=false;dlT=0;if(dlLines[dlIdx].mood)dlgMood=dlLines[dlIdx].mood}
+      }
+    }else if(kd['Enter']||kd[' ']){
+      // Hold (no new tap detected): complete typing instantly, then auto-advance every ~0.08s
+      if(!dlDone){dlDone=true;dlChar=dlLines[dlIdx].t.length}
+      else{
+        dlAutoT+=delta;
+        if(dlAutoT<.08)return;
+        dlAutoT=0;
+        dlIdx++;
+        if(dlIdx>=dlLines.length){if(dlCB){const cb=dlCB;dlCB=null;cb()}}
+        else{dlChar=0;dlDone=false;dlT=0;if(dlLines[dlIdx].mood)dlgMood=dlLines[dlIdx].mood}
+      }
+    }else{
+      dlAutoT=0; // reset hold timer
+    }
+  }
+
+  // MAP
+  if(GS==='MAP'){
+    // Guardian choice overlay (NG+)
+    if(guardianChoiceTarget){
+      const k=eat();
+      if(k==='ArrowUp'||k==='ArrowDown'){guardianChoiceIdx=guardianChoiceIdx===0?1:0}
+      else if(k==='Enter'){
+        if(guardianChoiceIdx===0){
+          // Talk — normal guardian interaction
+          const g=guardianChoiceTarget;guardianChoiceTarget=null;
+          interactGuardian(g);
+        }else{
+          // Kill — trigger assassin ending
+          killGuardian();
+        }
+      }
+    }
+    // Fragment end choice (NG+)
+    else if(fragmentChoiceActive){
+      const k=eat();
+      if(k==='ArrowUp'||k==='ArrowDown'){fragmentChoiceIdx=fragmentChoiceIdx===0?1:0}
+      else if(k==='Enter'){
+        if(fragmentChoiceIdx===0){
+          // 释怀 — normal path
+          fragmentChoiceActive=false;fragmentChoiceShown=true;
+          localStorage.setItem('gc_fragment_choice','1');
+          setTimeout(()=>showScrollHint(),400);
+        }else{
+          // 复仇 — revenge path
+          fragmentChoiceActive=false;fragmentChoiceShown=true;
+          localStorage.setItem('gc_fragment_choice','1');
+          revengePath=true;
+          localStorage.setItem('gc_revenge_path','1');
+          sfxDark();
+          startDlg([
+            {sp:'残响碎片',t:'想要复仇吗……给你一个机会。',mood:'cold'},
+            {sp:'碎片低语',t:'在下一段旅途中，去寻找你的终极武器吧。',mood:'cold'},
+            {sp:'碎片低语',t:'在某张地图的某个角落……权力的代价，由你亲手偿还。',mood:'cold'},
+          ],()=>{GS='MAP';showScrollHintRevenge();});
+        }
+      }
+    }
+    // Revenge kill choice (must be before movement to avoid eat() consuming Enter)
+    else if(revengeFinalPhase===3){
+      const k=eat();
+      if(k==='Enter'){
+        revengeFinalPhase=4;revengeFinalT=0;sfxDark();
+      }
+    }
+    else{
+    P.moveCD-=delta;
+    if(P.moveCD<=0){
+      let dirKey=null;
+      if(kd['ArrowUp'])dirKey='ArrowUp';
+      else if(kd['ArrowDown'])dirKey='ArrowDown';
+      else if(kd['ArrowLeft'])dirKey='ArrowLeft';
+      else if(kd['ArrowRight'])dirKey='ArrowRight';
+      const tap=eat();
+      if(tap==='ArrowUp'||tap==='ArrowDown'||tap==='ArrowLeft'||tap==='ArrowRight')dirKey=tap;
+      let dx=0,dy=0,nd=P.dir;
+      if(dirKey==='ArrowUp'){dy=-1;nd=1}
+      else if(dirKey==='ArrowDown'){dy=1;nd=0}
+      else if(dirKey==='ArrowLeft'){dx=-1;nd=2}
+      else if(dirKey==='ArrowRight'){dx=1;nd=3}
+      if(dx||dy){
+        P.dir=nd;
+        const nx=P.x+dx,ny=P.y+dy;
+        if(canWalk(nx,ny)){
+          P.x=nx;P.y=ny;P.moveCD=.15;
+          // fragment pickup
+          for(const e of mapEntities){
+            if(e.alive===false||e.t!=='f')continue;
+            if(e.x===P.x&&e.y===P.y){
+              e.alive=false;
+              if(!collectedFragments.includes(e.fid))collectedFragments.push(e.fid);
+              const fd=FRAG_DATA[e.fid];
+              const txt=playthroughCount>=1?fd.full:fd.fuzzy;
+              sfxFrag();
+              spawnBurst(e.x*T+T/2,e.y*T+T/2,12,'#C8B8FF',40);
+              // Check if all fragments collected - reveal secret hint
+              if(collectedFragments.length>=FRAG_DATA.length){
+                if(playthroughCount>=1&&!fragmentChoiceShown){
+                  // NG+: show choice before revealing hint
+                  startDlg([{sp:'残响碎片',t:txt}],()=>{
+                    fragmentChoiceActive=true;fragmentChoiceIdx=0;GS='MAP';
+                  });
+                  return;
+                }
+                // 先展示碎片内容，然后弹出闪光卷轴
+                startDlg([{sp:'残响碎片',t:txt}],()=>{
+                  GS='MAP';
+                  // 延迟一点再弹出卷轴，让玩家注意到
+                  setTimeout(()=>showScrollHint(),400);
+                });
+              }else{
+                startDlg([{sp:'残响碎片',t:txt}],()=>{GS='MAP'});
+              }
+              return;
+            }
+          }
+          // Revenge altar — step on to gain power
+          for(const e of mapEntities){
+            if(e.alive===false||e.t!=='revengeAltar')continue;
+            if(e.x===P.x&&e.y===P.y){
+              e.alive=false;
+              revengeActive=true;
+              sfxTransform();sfxDark();
+              spawnBurst(e.x*T+T/2,e.y*T+T/2,20,'#FF2020',60);
+              flashT=0.5;flashCol='rgba(200,20,20,0.3)';
+              startDlg([
+                {sp:'???',t:'你触碰了那块血腥的祭坛……',mood:'cold'},
+                {sp:'???',t:'纯粹的复仇之力涌入你的身体。',mood:'cold'},
+                {sp:'???',t:'你感觉不到疼痛。你感觉不到任何东西。',mood:'cold'},
+                {sp:'???',t:'只有愤怒。只有想要毁灭一切的愤怒。',mood:'cold'},
+                {sp:'',t:'你的身体变成了黑红色。',mood:'cold'},
+              ],()=>{GS='MAP'});
+              return;
+            }
+          }
+          // cage collision on secret map — block entire cage area
+          if(curMap===MAPS.secret_cage){
+            const cx=CAGE_POS.x,cy=CAGE_POS.y,cw=CAGE_POS.w,ch=CAGE_POS.h;
+            if(P.x>=cx&&P.x<cx+cw&&P.y>=cy&&P.y<cy+ch){
+              P.x-=dx;P.y-=dy;
+            }
+          }
+          if(curMap.exit&&P.x===curMap.exit.x&&P.y===curMap.exit.y){handleExit()}
+          if(curMap.doorPos&&ch3DoorOpen&&P.x===curMap.doorPos.x&&P.y===curMap.doorPos.y){handleExit()}
+        }else{
+          // blocked — player stays in place
+        }
+      }
+      // Enter on map
+      if((tap==='Enter'||kd['Enter'])&&!cageMemoryShown){
+        // Cage attack on secret map — any adjacent direction
+        if(curMap===MAPS.secret_cage&&cageHits<5&&isAdjacentToCage(P.x,P.y)){
+          attackCage();
+        }
+        // Enemy interaction — adjacent Enter only
+        for(const e of mapEntities){
+          if(e.alive===false||e.t!=='e')continue;
+          const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+          if(dist===1){startBattle(e);e.alive=false;mapDefeated++;killCount++;return}
+        }
+        // Guardian interaction
+        const allCleared=mapEntities.filter(e=>e.t==='e'&&e.alive).length===0;
+        if(allCleared&&curMap!==MAPS.secret_cage){
+          for(const e of mapEntities){
+            if(e.alive===false||e.t!=='g')continue;
+            const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+            if(dist<=1){
+              // NG+: show choice between talk and kill — only on NG+ ch1
+              if(playthroughCount===1&&curMap===MAPS.ch1&&!e.isGraveGuardian){
+                guardianChoiceTarget=e;guardianChoiceIdx=0;
+              }else{interactGuardian(e)}
+              break;
+            }
+          }
+        }
+        // Graveyard guardian (always available)
+        if(curMap===MAPS.ch4){
+          for(const e of mapEntities){
+            if(e.alive===false||e.t!=='g')continue;
+            const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+            if(dist<=1&&!graveBossDefeated){interactGuardian(e);break}
+            // Revenge final: approach dying guardian
+            if(dist<=1&&revengeBossKilled&&revengeFinalPhase===1){
+              revengeFinalPhase=2;revengeFinalT=0;
+              dlgMood='cold';sfxDark();
+              startDlg(DLGS.revenge_final_dlg,()=>{
+                revengeFinalPhase=3;revengeFinalT=0;GS='MAP';
+              });
+              break;
+            }
+          }
+        }
+        // Tombstone interaction — read past deaths
+        for(const e of mapEntities){
+          if(e.alive===false||e.t!=='t'||!e.deathData)continue;
+          const dist=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+          if(dist===1){
+            eat();
+            const d=e.deathData;
+            const dt=new Date(d.time);
+            const pad=n=>String(n).padStart(2,'0');
+            const timeStr=`${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日 ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+            const ptLabel=d.pt===0?'初次旅程':`第${d.pt+1}次轮回`;
+            startDlg([{sp:'残破的墓碑',t:`${ptLabel}\n殁于：${timeStr}`}],()=>{GS='MAP'});
+            return;
+          }
+        }
+        // ch3 door Enter
+        if(curMap===MAPS.ch3&&ch3DoorOpen&&curMap.doorPos){
+          const dd=Math.abs(P.x-curMap.doorPos.x)+Math.abs(P.y-curMap.doorPos.y);
+          if(dd<=1)handleExit();
+        }
+      }
+    }
+    } // end guardian choice else
+    // Revenge final phases (kill sequence + memory dlg + transformation)
+    // phase 4=kill seq, 5=memory dlg, 6=transform, 7=done
+    if(revengeFinalPhase>=4){
+      // Increment timer during kill sequence (phase 4) and transformation (phase 6), not during dialog (phase 5)
+      if(revengeFinalPhase===4||revengeFinalPhase===6)revengeFinalT+=delta;
+      if(revengeFinalPhase===4&&revengeFinalT>3){
+        // Kill sequence complete → memory confusion dlg FIRST
+        revengeFinalPhase=5;revengeFinalT=0;
+        startDlg([
+          {sp:'',t:'这个光环到底是什么……',mood:'cold'},
+          {sp:'',t:'这个混蛋一直戴在头顶。',mood:'cold'},
+          {sp:'',t:'我也试试看呢。',mood:'cold'},
+          {sp:'',t:'（你伸手触碰了光环……）',mood:'cold'},
+          {sp:'',t:'记忆像洪水般涌入脑海。',mood:'cold'},
+          {sp:'',t:'无数旅人的面孔。无数被杀死的身影。',mood:'cold'},
+          {sp:'???',t:'我……我是守护者。',mood:'end'},
+          {sp:'???',t:'我要去迎接下一个旅人了。',mood:'end'},
+          {sp:'???',t:'然后……杀死他。',mood:'end'},
+        ],()=>{
+          // Dlg done → start transformation sequence
+          revengeFinalPhase=6;revengeFinalT=0;sfxTransform();
+        });
+      }
+      if(revengeFinalPhase===6&&revengeFinalT>7){
+        // Transformation complete → play revenge ending sequence
+        revengeFinalPhase=7;revengeFinalT=0;
+        stopBgm();sfxDark();
+        GS='REVENGE_ENDING';revengeEndT=0;revengeEndPhase=0;
+      }
+    }
+  }
+
+  // BATTLE
+  if(GS==='BATTLE'){
+    bT+=delta;
+    if(bState==='START'){if(jk==='Enter'){eat();bState='PLAYER_MENU'}}
+    else if(bState==='PLAYER_MENU'){
+      const k=eat();
+      if(k==='ArrowUp'&&bSel>0)bSel--;
+      else if(k==='ArrowDown'&&bSel<bMenuItems.length-1)bSel++;
+      else if(k==='Enter')playerAct();
+    }
+    else if(bState==='PLAYER_ACT'){
+      bAnimT+=delta;
+      if(bAnimT>.8){
+        // Grave boss is unbeatable - set hp back (but revenge boss is killable)
+        if(bEnemy.isGraveBoss&&!revengeActive)bEnemy.hp=bEnemy.mhp;
+        if(bEnemy.hp<=0&&(!bEnemy.isGraveBoss||revengeActive)){bState='WIN';sfxWin();spawnBurst(W/2,130,20,'#FFD700',80)}
+        else if(bEnemy.hp<=0&&bEnemy.isGraveBoss){bState='WIN';sfxWin()}
+        else{enemyAct()}
+      }
+    }
+    else if(bState==='ENEMY_ACT'){
+      bAnimT+=delta;
+      if(bAnimT>.8){
+        if(P.hp<=0){
+          if(bEnemy.isGraveBoss && !revengeActive){
+            // Grave boss: always triggers death cutscene
+            bState='GRAVE_DEATH';graveDeathPhase=0;graveDeathT=0;sfxTransform();
+          }else if(!P.rev){
+            P.rev=true;P.hp=Math.floor(P.mhp*.5);
+            bLog.push('守护者的光芒将你扶起……恢复了一半生命。');
+            bState='PLAYER_MENU';
+            spawnBurst(W/2,350,15,'#FFD700',50);
+          }else{
+            // Second death: back to title
+            P.hp=0;
+            setTimeout(()=>{
+              P.hp=P.mhp;P.rev=false;
+              stopBgm();
+              showTitleButtons();
+              GS='TITLE';overlay.style.display='flex';
+            },1000);
+            bState='IDLE';
+          }
+        }else{
+          // Grave boss: count turns, auto-trigger death at 3 turns
+          if(bEnemy.isGraveBoss && !revengeActive){
+            graveBossTurns++;
+            if(graveBossTurns>=3){
+              bState='GRAVE_DEATH';graveDeathPhase=0;graveDeathT=0;sfxTransform();
+              return;
+            }
+          }
+          bState='PLAYER_MENU';
+        }
+      }
+    }
+    else if(bState==='WIN'){
+      if(flashT<=0){flashT=0.15;flashCol='rgba(80,60,50,0.2)'}
+      if(eat()==='Enter'){
+        if(bEnemy.isGraveBoss && !revengeActive){
+          // grave boss "win" is fake - goes to death anyway
+          bState='GRAVE_DEATH';graveDeathPhase=0;graveDeathT=0;sfxTransform();
+        }else if(revengeActive&&bEnemy.name===MT.graveBoss.name){
+          // revenge path: truly killed the boss → back to MAP for final scene
+          revengeBossKilled=true;
+          revengeFinalPhase=1;revengeFinalT=0;
+          endBattleMusic();
+          GS='MAP';
+        }else if(bEnemy.whisper){bState='WHISPER'}
+        else{gainExp(bEnemy.exp);bState='REWARD'}
+      }
+    }
+    else if(bState==='WHISPER'){if(eat()==='Enter'){gainExp(bEnemy.exp);bState='REWARD'}}
+    else if(bState==='REWARD'){
+      if(eat()==='Enter'){
+        endBattleMusic();
+        GS='MAP';
+        const total=mapEntities.filter(e=>e.t==='e').length;
+        if(mapDefeated>=total&&!mapCleared){mapCleared=true;handleMapClear()}
+      }
+    }
+    else if(bState==='GRAVE_DEATH'){
+      graveDeathT+=delta;
+      // auto-advance
+      if(graveDeathT>8&&eat()==='Enter'){
+        graveDeathPhase=0;graveDeathT=0;
+        playthroughCount++;
+        localStorage.setItem('gc_playthrough',playthroughCount.toString());
+        P.rev=false;P.hp=P.mhp;
+        stopBgm();
+        showTitleButtons();
+        GS='TITLE';gameCompleted=true;overlay.style.display='flex';
+      }
+    }
+    else if(bState==='LOSE'){
+      // shouldn't reach here anymore, but safe fallback
+      if(eat()==='Enter'){
+        P.hp=Math.floor(P.mhp*.5);P.rev=false;GS='MAP';
+        P.x=curMap.start.x;P.y=curMap.start.y;
+      }
+    }
+  }
+
+  // ENDING
+  if(GS==='ENDING'){
+    endT+=delta;
+    if(endPhase===0&&endT>12){endPhase=1;endT=0}
+    if(endPhase===1&&eat()==='Enter'){stopBgm();GS='TITLE';endPhase=0;endT=0;showTitleButtons();overlay.style.display='flex'}
+  }
+
+  // TRUE ENDING
+  if(GS==='TRUE_ENDING'){
+    trueEndT+=delta;
+    // auto-advance handled in draw
+    if(trueEndPhase===1&&trueEndT>5.5&&eat()==='Enter'){
+      trueEndPhase=0;trueEndT=0;
+      // 只有三个成就全部解锁时才显示作者 Credits
+      const achDefs=['redemption','assassin','revenge'];
+      const allUnlocked=achDefs.every(a=>achievements.includes(a));
+      if(allUnlocked){
+        GS='CREDITS';creditsPhase=0;creditsT=0;
+      }else{
+        stopBgm();GS='TITLE';overlay.style.display='flex';showTitleButtons();
+      }
+    }
+  }
+
+  // SCROLL HINT overlay
+  if(GS==='SCROLL_HINT'){
+    scrollHintT+=delta;
+    if(scrollHintPhase===1&&scrollHintT>0.8){scrollHintPhase=2;scrollHintT=0}
+    if((scrollHintPhase===2&&eat()==='Enter')||scrollHintPhase===2&&scrollHintT>10){
+      GS='MAP';scrollHintPhase=0;scrollHintT=0;
+    }
+  }
+
+  // ACHIEVEMENTS
+  if(GS==='ACHIEVE'){
+    achieveT+=delta;
+    if(eat()==='Enter'||eat()==='Escape'||achieveT>12){
+      // 三个成就全部解锁 → 进入 Credits 演出
+      const achDefs=['redemption','assassin','revenge'];
+      const allUnlocked=achDefs.every(a=>achievements.includes(a));
+      if(allUnlocked){
+        GS='CREDITS';creditsPhase=0;creditsT=0;
+      }else{
+        GS='TITLE';overlay.style.display='flex';showTitleButtons();
+      }
+      achieveT=0;
+    }
+  }
+
+  // ASSASSIN ENDING
+  if(GS==='ASSASSIN_ENDING'){
+    assassinT+=delta;
+    if(assassinT>6&&eat()==='Enter'){
+      GS='TITLE';overlay.style.display='flex';showTitleButtons();assassinT=0;
+    }
+  }
+
+  // REVENGE ENDING
+  if(GS==='REVENGE_ENDING'){
+    revengeEndT+=delta;
+    if(revengeEndPhase===0&&revengeEndT>8){revengeEndPhase=1;revengeEndT=0}
+    if(revengeEndPhase===1&&revengeEndT>4&&eat()==='Enter'){
+      unlockAchievement('revenge');
+      GS='TITLE';gameCompleted=true;overlay.style.display='flex';showTitleButtons();revengeEndPhase=0;revengeEndT=0;
+    }
+  }
+
+  // CREDITS (simple: one line at a time, Enter to advance)
+  if(GS==='CREDITS'){
+    creditsT+=delta;
+    if(creditsPhase>=CREDITS_LINES.length){
+      // All lines done, wait for Enter
+      if(creditsT>1&&eat()==='Enter'){
+        stopBgm();showTitleButtons();GS='TITLE';overlay.style.display='flex';
+        creditsPhase=0;creditsT=0;
+      }
+    }else if(creditsT>1.5&&eat()==='Enter'){
+      // Advance to next line
+      creditsPhase++;creditsT=0;
+    }
+  }
+}
+
+function isAdjacentToCage(px,py){
+  const cx=CAGE_POS.x,cy=CAGE_POS.y,cw=CAGE_POS.w,ch=CAGE_POS.h;
+  if(py===cy-1&&px>=cx&&px<cx+cw)return true;
+  if(py===cy+ch&&px>=cx&&px<cx+cw)return true;
+  if(px===cx-1&&py>=cy&&py<cy+ch)return true;
+  if(px===cx+cw&&py>=cy&&py<cy+ch)return true;
+  return false;
+}
+
+function canWalk(x,y){
+  if(x<0||x>=MW||y<0||y>=MH)return false;
+  const ch=curMap.map[y]&&curMap.map[y][x]?curMap.map[y][x]:'#';
+  if(ch==='#'||ch==='~'||ch==='-'||ch==='░')return false;
+  // secret cage map: can't walk into cage area
+  if(curMap===MAPS.secret_cage){
+    const cx=CAGE_POS.x,cy=CAGE_POS.y,cw=CAGE_POS.w,ch=CAGE_POS.h;
+    if(x>=cx&&x<cx+cw&&y>=cy&&y<cy+ch)return false;
+  }
+  for(const e of mapEntities){
+    if(e.alive===false)continue;
+    if((e.t==='e'||e.t==='g'||e.t==='t')&&e.x===x&&e.y===y)return false;
+  }
+  return true;
+}
+
+// ===== SCENE FLOW =====
+let chapterPhase=0;
+let ch3DoorOpen=false; // chapter 3 door appears after guardian dialog
+
+function startNewGame(){
+  // Clear all progress
+  localStorage.removeItem('gc_playthrough');
+  localStorage.removeItem('gc_chapter');
+  localStorage.removeItem('gc_fragments');
+  localStorage.removeItem('gc_completed');
+  localStorage.removeItem('gc_deaths');
+  localStorage.removeItem('gc_revenge_path');
+  localStorage.removeItem('gc_fragment_choice');
+  startGame();
+}
+
+function openAchievements(){
+  try{achievements=JSON.parse(localStorage.getItem('gc_achievements')||'[]')}catch(e){achievements=[]}
+  console.log('[achievement] loaded:',JSON.stringify(achievements));
+  GS='ACHIEVE';overlay.style.display='none';
+  achieveT=0;
+}
+
+function unlockAchievement(id){
+  try{achievements=JSON.parse(localStorage.getItem('gc_achievements')||'[]')}catch(e){achievements=[]}
+  console.log('[achievement] unlocking:',id,'already have:',JSON.stringify(achievements));
+  if(!achievements.includes(id)){achievements.push(id);localStorage.setItem('gc_achievements',JSON.stringify(achievements));console.log('[achievement] newly unlocked:',id);achieveToastTimer=3;achieveToastId=id;}
+  // 达成成就后回到一周目
+  playthroughCount=0;localStorage.setItem('gc_playthrough','0');
+  localStorage.removeItem('gc_revenge_path');
+  localStorage.removeItem('gc_fragment_choice');
+}
+
+function startGame(){
+  if(GS!=='TITLE')return;
+  GS='INIT';
+  initAudio();
+  playthroughCount=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+  gameCompleted=playthroughCount>=1;
+  // 碎片：只在二周目加载历史碎片(用于凑齐6个触发选择)，三周目+重置为全新收集
+  collectedFragments=(playthroughCount===1)?JSON.parse(localStorage.getItem('gc_fragments')||'[]'):[];
+  chapterPhase=0;killCount=0;cageHits=0;cageMemoryShown=false;graveBossDefeated=false;graveRevealStarted=false;
+  graveDeathPhase=0;graveDeathT=0;trueEndPhase=0;trueEndT=0;
+  scrollHintShown=false;scrollHintPhase=0;scrollHintT=0;
+  // 恢复卷轴提示文字（跨页面刷新生效）
+  const savedHintType=localStorage.getItem('gc_scroll_hint_type');
+  if(savedHintType==='revenge'){
+    scrollHintText='想要复仇吗？给你一个机会。\n在下一段旅途的某张地图中，去寻找你的终极武器吧。';
+  }else if(savedHintType==='normal'){
+    scrollHintText='你打不过它的，试着去打破「囚笼」吧。\n等等……「囚笼」……在哪里？';
+  }
+  ch3DoorOpen=false;
+  // load achievements (persistent, never cleared)
+  try{achievements=JSON.parse(localStorage.getItem('gc_achievements')||'[]')}catch(e){achievements=[]}
+  console.log('[achievement] init load:',JSON.stringify(achievements));
+  // load revenge path
+  revengePath=localStorage.getItem('gc_revenge_path')==='1';
+  revengeActive=false;revengeBossKilled=false;revengeFinalPhase=0;revengeFinalT=0;
+  // load fragment choice state
+  fragmentChoiceShown=false; // 每次新游戏重置，二周目需重新选择
+  P.hp=P.mhp=100;P.mp=P.mmp=30;P.atk=12;P.def=6;P.lv=1;P.exp=0;P.pot=3;P.rev=false;P.shield=0;P.vuln=0;P.weak=0;
+  fadeOut(()=>{
+    const prologueLines=[...DLGS.prologue];
+    if(playthroughCount>=1){
+      prologueLines.splice(2,0,{sp:'???',t:'……欢迎回来。'});
+    }
+    startDlg(prologueLines,()=>{
+      startDlg(DLGS.ch1_intro,()=>{
+        P.pot+=2;
+        chapterPhase=1;loadMap('ch1');dlgMood='normal';fadeIn();
+      });
+    });
+  });
+}
+
+function continueGame(){
+  if(GS!=='TITLE')return;
+  GS='INIT';
+  initAudio();
+  playthroughCount=parseInt(localStorage.getItem('gc_playthrough')||'0')||0;
+  gameCompleted=playthroughCount>=1;
+  try{collectedFragments=JSON.parse(localStorage.getItem('gc_fragments')||'[]')}catch(e){collectedFragments=[]}
+  // 二周目始终从ch1重新开始，不恢复旧进度
+  chapterPhase=playthroughCount>=1?1:parseFloat(localStorage.getItem('gc_chapter')||'1')||1;
+  killCount=0;cageHits=0;cageMemoryShown=false;graveBossDefeated=false;graveRevealStarted=false;
+  graveDeathPhase=0;graveDeathT=0;trueEndPhase=0;trueEndT=0;
+  scrollHintShown=false;scrollHintPhase=0;scrollHintT=0;
+  // 恢复卷轴提示文字（跨页面刷新生效）
+  const savedHintType=localStorage.getItem('gc_scroll_hint_type');
+  if(savedHintType==='revenge'){
+    scrollHintText='想要复仇吗？给你一个机会。\n在下一段旅途的某张地图中，去寻找你的终极武器吧。';
+  }else if(savedHintType==='normal'){
+    scrollHintText='你打不过它的，试着去打破「囚笼」吧。\n等等……「囚笼」……在哪里？';
+  }
+  ch3DoorOpen=false;
+  // load achievements
+  try{achievements=JSON.parse(localStorage.getItem('gc_achievements')||'[]')}catch(e){achievements=[]}
+  console.log('[achievement] continue load:',JSON.stringify(achievements));
+  revengePath=localStorage.getItem('gc_revenge_path')==='1';
+  revengeActive=false;revengeBossKilled=false;revengeFinalPhase=0;revengeFinalT=0;
+  fragmentChoiceShown=false; // 每次继续游戏重置，二周目需重新选择
+  P.hp=P.mhp=100;P.mp=P.mmp=30;P.atk=12;P.def=6;P.lv=1;P.exp=0;P.pot=3;P.rev=false;P.shield=0;P.vuln=0;P.weak=0;
+  const mapId=chapterPhase===1?'ch1':chapterPhase===2?'ch2':chapterPhase===3?'ch3':chapterPhase===4?'ch4':'ch1';
+  fadeOut(()=>{
+    loadMap(mapId);dlgMood='normal';fadeIn();
+  });
+}
+
+function randomizeEntityPositions(map,entities){
+  // Scan walkable tiles
+  const tiles=[];
+  for(let r=0;r<MH;r++){
+    for(let c=0;c<MW;c++){
+      const ch=map.map[r]&&map.map[r][c]?map.map[r][c]:'#';
+      if(ch==='.'||ch==='*'){
+        if(map.start&&c===map.start.x&&r===map.start.y)continue;
+        if(map.exit&&c===map.exit.x&&r===map.exit.y)continue;
+        tiles.push({x:c,y:r});
+      }
+    }
+  }
+  // Fisher-Yates shuffle
+  for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}
+  // Helper: check if tile is walkable (including start/exit)
+  const isWalkable=(x,y)=>{
+    if(x<0||x>=MW||y<0||y>=MH)return false;
+    const ch=map.map[y]&&map.map[y][x]?map.map[y][x]:'#';
+    if(ch!=='.'&&ch!=='*')return false;
+    if(map.start&&x===map.start.x&&y===map.start.y)return true;
+    if(map.exit&&x===map.exit.x&&y===map.exit.y)return true;
+    // Must not be occupied by another entity
+    if(used.some(u=>u.x===x&&u.y===y))return false;
+    return true;
+  };
+  // Assign to entities
+  let used=[];
+  for(const e of entities){
+    let found=null;
+    for(let i=0;i<tiles.length&&!found;i++){
+      const t=tiles[i];
+      if(!used.some(u=>u.x===t.x&&u.y===t.y)){
+        // Avoid spawning adjacent to start (gap of 1 tile)
+        if(map.start&&Math.abs(t.x-map.start.x)<=1&&Math.abs(t.y-map.start.y)<=1)continue;
+        // Must have at least one adjacent walkable tile for player interaction
+        const adj=[
+          {x:t.x,y:t.y-1},{x:t.x,y:t.y+1},
+          {x:t.x-1,y:t.y},{x:t.x+1,y:t.y},
+        ];
+        const hasAccess=adj.some(a=>isWalkable(a.x,a.y));
+        if(!hasAccess)continue;
+        found=t;used.push(t);
+      }
+    }
+    if(found){e.x=found.x;e.y=found.y}
+  }
+}
+function loadMap(id){
+  curMap=MAPS[id];
+  mapEntities=curMap.entities
+    .filter(e=>{
+      // 碎片：一周目显示非ngOnly，二周目显示ngOnly，三周目+不显示
+      if(e.t==='f')return playthroughCount===0?!e.ngOnly:playthroughCount===1?!!e.ngOnly:false;
+      // 其他实体
+      if(e.ngOnly)return playthroughCount>=1;
+      return true;
+    })
+    .filter(e=>e.t!=='h') // 房子改为UI按钮，不再作为地图实体
+    .map(e=>({...e,alive:e.t==='e'||e.t==='f'||e.t==='t'||(e.t==='g'&&id==='ch4')})); // g(ch4直接可见，ch1-3由handleMapClear激活), t(墓碑始终可见)
+  randomizeEntityPositions(curMap,mapEntities);
+  // ch4: add dynamic tombstones from past deaths (after randomization)
+  if(id==='ch4'){
+    try{
+      const deaths=JSON.parse(localStorage.getItem('gc_deaths')||'[]');
+      const reserved=new Set();
+      for(const e of mapEntities)reserved.add(e.x+','+e.y);
+      for(let y=0;y<curMap.map.length;y++){
+        const row=curMap.map[y];
+        for(let x=0;x<row.length;x++){
+          if(row[x]==='█')reserved.add(x+','+y);
+        }
+      }
+      const candidates=[];
+      for(let y=1;y<MH-1;y++){
+        for(let x=1;x<MW-1;x++){
+          const ch=curMap.map[y]&&curMap.map[y][x];
+          if(ch==='.'&&!reserved.has(x+','+y))candidates.push({x,y});
+        }
+      }
+      for(let i=candidates.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]]}
+      for(let i=0;i<deaths.length&&i<candidates.length;i++){
+        const d=deaths[i];
+        const pos=candidates[i];
+        mapEntities.push({t:'t',x:pos.x,y:pos.y,alive:true,deathData:d,idx:i});
+      }
+    }catch(e){}
+  }
+  // Revenge path: add power-up tile on ch1 NG++
+  if(id==='ch1'&&revengePath&&playthroughCount>=2&&!revengeActive){
+    const reserved=new Set();
+    for(const e of mapEntities)reserved.add(e.x+','+e.y);
+    // find walkable tile not too close to start
+    const candidates=[];
+    for(let y=1;y<MH-1;y++){
+      for(let x=1;x<MW-1;x++){
+        const ch=curMap.map[y]&&curMap.map[y][x];
+        if(ch==='.'&&!reserved.has(x+','+y)&&(Math.abs(x-P.x)+Math.abs(y-P.y))>=5)candidates.push({x,y});
+      }
+    }
+    if(candidates.length>0){
+      const pos=candidates[Math.floor(Math.random()*candidates.length)];
+      mapEntities.push({t:'revengeAltar',x:pos.x,y:pos.y,alive:true});
+    }
+  }
+  P.x=curMap.start.x;P.y=curMap.start.y;P.dir=0;
+  mapDefeated=0;mapTotal=mapEntities.filter(e=>e.t==='e').length;mapCleared=false;
+  if(id==='ch3')ch3DoorOpen=false;
+  GS='MAP';
+  const themeMap={prologue:'prologue',ch1:'forest',ch2:'lake',ch3:'boundary',ch4:'graveyard',secret_cage:'cage_room'};
+  startBgm(themeMap[id]||'prologue');
+}
+
+function getGuardianHint(chapter){
+  if(revengeActive){
+    const revengeHints={
+      ch1:['你真的要走到这一步吗……','你的双手已经染满了鲜血。','回头还来得及，旅人。','我能感受到你体内的杀意……'],
+      ch2:['你变得越来越不像你了。','看看你自己，你变成了什么？','那股力量……在吞噬你。','我会记住你原本的样子。'],
+      ch3:['快了……你就快要见到它了。','那个在墓园等你的人……他不会宽恕你的。','这是最后的机会。放下仇恨吧。','你终将为此付出代价。']
+    };
+    const pool=revengeHints[chapter]||revengeHints.ch1;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  const pool=playthroughCount>=1?GUARDIAN_HINTS.ngPlus[chapter]:GUARDIAN_HINTS.normal[chapter];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function interactGuardian(g){
+  // Grave guardian
+  if(g.isGraveGuardian){
+    if(graveRevealStarted)return; // 防止重复触发对话
+    graveRevealStarted=true;
+    dlgMood='cold';sfxDark();
+    const graveDlg=revengeActive?DLGS.grave_reveal_revenge:(playthroughCount>=1?DLGS.grave_reveal_ng:DLGS.grave_reveal);
+    startDlg(graveDlg,()=>{
+      // start unbeatable boss fight - directly, no async fade
+      graveBossDefeated=true;
+      if(revengeActive){
+        bEnemy={name:MT.graveBoss.name,hp:999,mhp:999,atk:25,def:12,exp:0,color:MT.graveBoss.color,glow:MT.graveBoss.glow,whisper:null,mt:'graveBoss',shield:0,vuln:0,weak:0,intent:'attack',isGraveBoss:true};
+        bLog=[`${bEnemy.name} 站在你面前……`,'复仇之力在你体内燃烧。这一次，你不再无力。'];
+      }else{
+        bEnemy={name:MT.graveBoss.name,hp:MT.graveBoss.hp,mhp:MT.graveBoss.hp,atk:MT.graveBoss.atk,def:MT.graveBoss.def,exp:0,color:MT.graveBoss.color,glow:MT.graveBoss.glow,whisper:null,mt:'graveBoss',shield:0,vuln:0,weak:0,intent:'attack',isGraveBoss:true};
+        bLog=[`${bEnemy.name} 站在你面前……`,'你感觉到压倒性的力量。你不可能赢。'];
+      }
+      bState='START';bSel=0;bT=0;bAnimT=0;bMenuItems=['攻击','净化斩 (5MP)','守护之光 (12MP)','药草 (x'+P.pot+')','防御'];
+      P.shield=0;P.vuln=0;P.weak=0;
+      GS='BATTLE';startBattleMusic();
+    });
+    return;
+  }
+  // Revenge path: 三周目+ non-grave guardians have accusatory dialogue
+  if(revengePath && playthroughCount>=2 && !g.isGraveGuardian && chapterPhase<3.5){
+    dlgMood='cold';sfxDark();
+    const revengeDlg = chapterPhase===1 ? DLGS.revenge_g_ch1 :
+                       chapterPhase===2 ? DLGS.revenge_g_ch2 : DLGS.revenge_g_ch3;
+    startDlg(revengeDlg,()=>{
+      if(chapterPhase===1){
+        startDlg([{sp:'守护者',t:'……去吧。我不想再看到你了。',mood:'cold'}],()=>{
+          chapterPhase=2;loadMap('ch2');dlgMood='cold';fadeIn();
+          saveProgress();GS='MAP';
+        });
+      }else if(chapterPhase===2){
+        startDlg([{sp:'守护者',t:'下一个守护者也不会原谅你的。',mood:'cold'}],()=>{
+          chapterPhase=3;loadMap('ch3');dlgMood='cold';fadeIn();
+          saveProgress();GS='MAP';
+        });
+      }else if(chapterPhase===3){
+        startDlg([{sp:'守护者',t:'你终究会走到那扇门前……',mood:'cold'}],()=>{
+          chapterPhase=3.5;ch3DoorOpen=true;
+          saveProgress();GS='MAP';
+        });
+      }else{GS='MAP'}
+    });
+    return;
+  }
+  if(chapterPhase===1){
+    const hint=getGuardianHint('ch1');
+    const lines=[...DLGS.ch1_clear,{sp:'守护者',t:hint}];
+    if(playthroughCount>=1)lines.push({sp:'守护者',t:'给你准备了一些药草，路上小心。'});
+    startDlg(lines,()=>{
+      P.pot+=2;
+      chapterPhase=2;loadMap('ch2');dlgMood='normal';fadeIn();
+      saveProgress();
+    });
+  }else if(chapterPhase===2){
+    const hint=getGuardianHint('ch2');
+    const lines=[...DLGS.ch2_clear,{sp:'守护者',t:hint}];
+    startDlg(lines,()=>{
+      P.pot+=2;
+      chapterPhase=3;loadMap('ch3');dlgMood='normal';fadeIn();
+      saveProgress();
+      setTimeout(()=>startDlg(DLGS.ch3_intro,()=>{GS='MAP'}),800);
+    });
+  }else if(chapterPhase===3){
+    // Chapter 3 guardian - praise only, guide to door
+    startDlg(DLGS.ch3_clear,()=>{
+      chapterPhase=3.5;ch3DoorOpen=true;
+      saveProgress();
+      GS='MAP';
+    });
+  }
+}
+
+function saveProgress(){
+  localStorage.setItem('gc_playthrough',playthroughCount.toString());
+  localStorage.setItem('gc_chapter',chapterPhase.toString());
+  localStorage.setItem('gc_fragments',JSON.stringify(collectedFragments));
+  if(revengePath)localStorage.setItem('gc_revenge_path','1');
+  if(fragmentChoiceShown)localStorage.setItem('gc_fragment_choice','1');
+}
+
+function returnToTitle(){
+  stopBgm();
+  localStorage.setItem('gc_playthrough',playthroughCount.toString());
+  localStorage.setItem('gc_chapter',chapterPhase.toString());
+  localStorage.setItem('gc_fragments',JSON.stringify(collectedFragments));
+  showTitleButtons();
+  GS='TITLE';overlay.style.display='flex';
+}
+
+function killGuardian(){
+  const g=guardianChoiceTarget;guardianChoiceTarget=null;
+  g.alive=false;guardianKilledCount++;dlgMood='cold';sfxDark();
+  const dyingLines=[
+    {sp:'守护者',t:'你……为什么……',mood:'cold'},
+    {sp:'守护者',t:'我一直在帮你们……每一个你……',mood:'cold'},
+    {sp:'守护者',t:'你宁愿死，也不愿被帮助吗？',mood:'cold'},
+    {sp:'',t:'守护者的光芒逐渐熄灭……',mood:'cold'},
+    {sp:'',t:'但牢笼依然存在。',mood:'cold'},
+    {sp:'',t:'你选择了杀死唯一的引导者，而囚笼安静地继续运转。',mood:'cold'},
+  ];
+  startDlg(dyingLines,()=>{
+    // Trigger assassin ending
+    assassinEnding();
+  });
+}
+
+function assassinEnding(){
+  GS='ASSASSIN_ENDING';assassinT=0;
+  unlockAchievement('assassin');
+  stopBgm();sfxTransform();
+}
+
+let assassinT=0;
+let revengeEndPhase=0,revengeEndT=0;
+let achieveToastTimer=0,achieveToastId=''; // achievement unlock toast
+const ACHIEVE_NAMES={redemption:'救赎结局',assassin:'刺杀结局',revenge:'复仇结局'};
+
+function handleExit(){
+  if(curMap===MAPS.prologue){
+    startDlg(DLGS.ch1_intro,()=>{
+      P.pot+=2;
+      chapterPhase=1;loadMap('ch1');dlgMood='normal';fadeIn();
+    });
+  }else if(curMap===MAPS.ch3&&ch3DoorOpen){
+    dlgMood='cold';sfxDark();
+    localStorage.setItem('gc_completed','1');
+    gameCompleted=true;
+    GS='MAP'; // keep map state during fade
+    fadeOut(()=>{
+      chapterPhase=4;loadMap('ch4');dlgMood='cold';fadeIn();
+      saveProgress();
+      if(!revengePath)setTimeout(()=>startDlg(DLGS.ch4_enter,()=>{GS='MAP'}),600);
+    });
+  }
+}
+
+function handleMapClear(){
+  for(const e of mapEntities){if(e.t==='g'&&!e.isGraveGuardian)e.alive=true}
+  if(chapterPhase===1){
+    const hint=getGuardianHint('ch1');
+    startDlg([{sp:'系统',t:'林间的怪物已被全部清除。去找守护者报告吧。'},{sp:'守护者',t:hint}],()=>{GS='MAP'});
+  }else if(chapterPhase===2){
+    const hint=getGuardianHint('ch2');
+    startDlg([{sp:'系统',t:'湖畔的怪物已被全部清除。去找守护者报告吧。'},{sp:'守护者',t:hint}],()=>{GS='MAP'});
+  }else if(chapterPhase===3){
+    startDlg([{sp:'系统',t:'屏障区域的所有怪物都已被清理。去找守护者报告吧。'}],()=>{GS='MAP'});
+  }
+}
+
+// ===== SECRET ENDING =====
+function enterSecretEnding(){
+  if(playthroughCount<1||collectedFragments.length<FRAG_DATA.length)return;
+  initAudio();hideOverlay();
+  P.hp=P.mhp=100;P.mp=P.mmp=30;P.atk=12;P.def=6;P.lv=1;P.exp=0;P.pot=3;P.rev=false;P.shield=0;P.vuln=0;P.weak=0;
+  cageHits=0;cageMemoryShown=false;
+  fadeOut(()=>{
+    curMap=MAPS.secret_cage;
+    mapEntities=[];
+    P.x=curMap.start.x;P.y=curMap.start.y;P.dir=0;
+    GS='MAP';startBgm('cage_room');
+    fadeIn();
+  });
+}
+
+function attackCage(){
+  if(cageHits>=5||cageMemoryShown)return;
+  cageHits++;cageMemoryShown=true;
+  sfxCage();
+  spawnBurst(CAGE_POS.x*T+CAGE_POS.w*T/2,CAGE_POS.y*T+CAGE_POS.h*T/2,15,'#C8B8FF',50);
+  shakeT=.3;
+  const memoryDlgs=[DLGS.memory_1,DLGS.memory_2,DLGS.memory_3,DLGS.memory_4,DLGS.memory_5];
+  const memIdx=cageHits-1;
+  startDlg(memoryDlgs[memIdx],()=>{
+    if(cageHits>=5){
+      // Cage broken - go to true ending
+      sfxMemory();
+      startDlg(DLGS.true_ending,()=>{
+        GS='TRUE_ENDING';trueEndPhase=0;trueEndT=0;
+        // unlock redemption achievement
+        unlockAchievement('redemption');
+      });
+    }else{
+      cageMemoryShown=false;GS='MAP';
+    }
+  });
+}
+
+// ===== RENDER =====
+function render(){
+  X.save();
+  if(shakeT>0)X.translate(shakeX,shakeY);
+  if(GS==='TITLE'||GS==='INIT')drawTitle();
+  else if(GS==='DLG')drawDlg();
+  else if(GS==='MAP')drawMap();
+  else if(GS==='BATTLE')drawBattle();
+  else if(GS==='ENDING')drawEnding();
+  else if(GS==='TRUE_ENDING')drawTrueEnding();
+  else if(GS==='CREDITS')drawCredits();
+  else if(GS==='SCROLL_HINT')drawScrollHintOverlay();
+  else if(GS==='ACHIEVE')drawAchieve();
+  else if(GS==='ASSASSIN_ENDING')drawAssassinEnding();
+  else if(GS==='REVENGE_ENDING')drawRevengeEnding();
+  // Guardian/fragment choice overlays (render on top of any state)
+  drawGuardianChoiceOverlayWrapper();
+  X.restore();
+  if(fadeA>0){X.fillStyle=`rgba(0,0,0,${fadeA})`;X.fillRect(0,0,W,H)}
+  if(flashT>0){X.fillStyle=flashCol;X.fillRect(0,0,W,H)}
+  // Debug message
+  if(debugMsg&&debugMsgT>0){
+    X.save();
+    X.fillStyle='rgba(0,0,0,0.7)';X.fillRect(W/2-140,H/2-20,280,40);
+    X.fillStyle='#00FF88';X.font='bold 16px sans-serif';X.textAlign='center';
+    X.fillText(debugMsg,W/2,H/2+5);
+    X.textAlign='left';X.restore();
+  }
+  // Achievement unlock toast (on top of everything)
+  if(achieveToastTimer>0&&ACHIEVE_NAMES[achieveToastId]){
+    const a=Math.min(1,achieveToastTimer);
+    X.save();
+    X.fillStyle=`rgba(0,0,0,${.85*a})`;
+    X.fillRect(W/2-120,H/2-25,240,50);
+    X.strokeStyle=`rgba(255,215,0,${.8*a})`;X.lineWidth=2;
+    X.strokeRect(W/2-120,H/2-25,240,50);
+    X.fillStyle=`rgba(255,215,0,${a})`;
+    X.font='bold 14px sans-serif';X.textAlign='center';
+    X.fillText('成就达成！',W/2,H/2-5);
+    X.font='12px sans-serif';
+    X.fillText(ACHIEVE_NAMES[achieveToastId],W/2,H/2+12);
+    X.textAlign='left';X.restore();
+  }
+  // Debug panel (HTML-only, no canvas drawing needed)
+}
+
+// ===== GAME LOOP =====
+function loop(ts){
+  const d=(ts-lastFrame)/1000;lastFrame=ts;
+  if(d>.1)requestAnimationFrame(loop);
+  else{update(d);render();requestAnimationFrame(loop)}
+}
+requestAnimationFrame(loop);
+setTimeout(()=>C.focus(),100);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
+</html>

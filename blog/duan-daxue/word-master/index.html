@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Master - 军事英语刷词</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #f5f5f0;
+  --card-bg: #ffffff;
+  --primary: #2d8c4a;
+  --primary-light: #e8f5e9;
+  --accent: #f5a623;
+  --danger: #e74c3c;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --border: #e0e0e0;
+  --shadow: 0 4px 20px rgba(0,0,0,.08);
+  --radius: 16px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Header */
+.header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,.04);
+}
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+.logo span { color: var(--accent); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+  font-weight: 500;
+}
+.btn-outline {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #237a3d; }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: #e09615; }
+
+/* Unit Tabs */
+.unit-tabs {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+}
+.unit-tab {
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.unit-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.unit-tab:hover { color: var(--primary); }
+
+/* Category Bar */
+.cat-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  background: var(--bg);
+  scrollbar-width: none;
+}
+.cat-bar::-webkit-scrollbar { display:none; }
+.cat-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--text-light);
+  transition: all .2s;
+  font-family: inherit;
+}
+.cat-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.cat-chip:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+/* Main Layout */
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Progress Bar */
+.progress-wrap {
+  margin-bottom: 20px;
+}
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.progress-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #4caf50);
+  border-radius: 3px;
+  transition: width .3s;
+}
+
+/* Card */
+.card-container {
+  position: relative;
+  margin-bottom: 24px;
+  perspective: 1200px;
+}
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 32px 32px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .3s, box-shadow .3s;
+  position: relative;
+  user-select: none;
+}
+.card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+.card-num {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+.card-cat {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 11px;
+  color: #fff;
+  background: var(--primary);
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.card-emoji {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 14px;
+  user-select: none;
+}
+.card-swatch-wrap {
+  margin-bottom: 8px;
+}
+.card-swatch {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 2px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  vertical-align: middle;
+}
+.card-word {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+.card-phonetic {
+  font-size: 18px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+.card-meaning {
+  font-size: 22px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.card-example {
+  font-size: 14px;
+  color: #999;
+  margin-top: 8px;
+  font-style: italic;
+  max-width: 500px;
+  line-height: 1.5;
+}
+.card-back {
+  display: none;
+  width: 100%;
+}
+.card.flipped .card-front { display: none; }
+.card.flipped .card-back { display: flex; flex-direction:column; align-items:center; }
+.card-mnemonic-title {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.card-mnemonic {
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.6;
+  max-width: 500px;
+}
+.card-dgroup {
+  margin-top: 16px;
+}
+.card-dgroup-btn {
+  padding: 8px 20px;
+  border: 1.5px solid var(--accent);
+  background: #fff;
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.card-dgroup-btn:hover { background: var(--accent); color: #fff; }
+
+/* Card Actions */
+.card-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.action-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: inherit;
+}
+.action-btn .icon { font-size: 22px; }
+.action-btn .label { font-size: 10px; }
+.btn-know { background: #e8f5e9; color: var(--primary); }
+.btn-know:hover { background: #c8e6c9; transform: scale(1.05); }
+.btn-dunno { background: #fce4ec; color: var(--danger); }
+.btn-dunno:hover { background: #f8bbd0; transform: scale(1.05); }
+.btn-flip {
+  background: #fff3e0;
+  color: var(--accent);
+  font-size: 13px;
+  width: auto;
+  padding: 0 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  flex-direction: row;
+  gap: 6px;
+  height: 48px;
+}
+.btn-flip:hover { background: #ffe0b2; }
+
+/* Nav Arrows */
+.nav-area {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-area.left { left: max(10px, calc((100vw - 860px)/2 - 70px)); }
+.nav-area.right { right: max(10px, calc((100vw - 860px)/2 - 70px)); }
+.nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--text-light);
+}
+.nav-btn:hover { background: var(--primary); color: #fff; box-shadow: 0 4px 16px rgba(45,140,74,.3); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  max-width: 650px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 32px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f5;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.modal-close:hover { background: #e0e0e0; }
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.modal-type {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 2px 10px;
+  background: #fff3e0;
+  display: inline-block;
+  border-radius: 12px;
+}
+.modal-note {
+  background: #f0f7ff;
+  border-left: 4px solid #4a90d9;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+.modal-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.modal-compare-table th {
+  background: var(--primary-light);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.modal-compare-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  vertical-align: top;
+}
+.modal-compare-table tr:hover td { background: #fafafa; }
+
+/* Disc rows branch color */
+.modal-disc-row-navy td:first-child {
+  border-left: 4px solid #1a3a5c;
+  padding-left: 12px;
+}
+.modal-disc-row-army td:first-child {
+  border-left: 4px solid #4a7c3f;
+  padding-left: 12px;
+}
+
+/* Rank Comparison */
+.rank-compare-btn {
+  background: linear-gradient(135deg, #1a3a5c, #2c5f8a);
+  color: #fff;
+  border: none;
+}
+.rank-compare-btn:hover {
+  background: linear-gradient(135deg, #2c5f8a, #3a7fba);
+  box-shadow: 0 2px 12px rgba(44,95,138,.4);
+}
+.import-btn {
+  background: linear-gradient(135deg, #7b2d8e, #9b59b6);
+  color: #fff;
+  border: none;
+}
+.import-btn:hover {
+  background: linear-gradient(135deg, #9b59b6, #b07cc6);
+  box-shadow: 0 2px 12px rgba(155,89,182,.4);
+}
+.rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.rank-table th {
+  background: #1a3a5c;
+  color: #fff;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rank-table th.col-navy { background: #1a3a5c; }
+.rank-table th.col-other { background: #4a7c3f; }
+.rank-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+  vertical-align: middle;
+}
+.rank-table tr:hover td { background: #f8f9fa; }
+.rank-table .pg-col {
+  font-weight: 700;
+  color: #888;
+  font-size: 11px;
+  background: #f5f5f5;
+  width: 52px;
+}
+.rank-table .rank-abbr {
+  font-weight: 700;
+  font-size: 14px;
+  color: #2c3e50;
+}
+.rank-table .rank-cn {
+  font-size: 12px;
+  color: #666;
+}
+.rank-highlight td {
+  background: #fff8e1 !important;
+}
+.rank-highlight .rank-abbr { color: #e67e22; }
+.rank-highlight .rank-cn { color: #e67e22; }
+.rank-critical td {
+  background: #fce4ec !important;
+}
+.rank-critical .rank-abbr { color: #e74c3c; }
+.rank-critical .rank-cn { color: #e74c3c; }
+.rank-badge {
+  display: inline-block;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 4px;
+  font-weight: 700;
+}
+.rank-badge.warn {
+  background: #e67e22;
+}
+.rank-summary {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f0f7ff;
+  border-left: 4px solid #1a3a5c;
+  border-radius: 0 8px 8px 0;
+}
+.rank-summary h4 {
+  font-size: 15px;
+  color: #1a3a5c;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.rank-summary ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.8;
+}
+.rank-summary ol li strong { color: #e74c3c; }
+
+/* Stats */
+.stats-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.stat-box {
+  flex: 1;
+  min-width: 90px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  text-align: center;
+}
+.stat-num { font-size: 28px; font-weight: 800; color: var(--primary); }
+.stat-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+/* Keyboard hints */
+.keyboard-hints {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.key-hint {
+  font-size: 11px;
+  color: #bbb;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+.key-hint kbd {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: inherit;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card-word { font-size: 24px; }
+  .card-phonetic { font-size: 14px; }
+  .card-meaning { font-size: 17px; }
+  .card { padding: 24px 16px 20px; min-height: 300px; }
+  .nav-area { display: none; }
+  .main { padding: 10px; }
+  .header { padding: 10px 14px; }
+  .unit-tabs { padding: 0 8px; }
+  .unit-tab { padding: 10px 14px; font-size: 13px; }
+  .cat-bar { padding: 10px 8px; }
+  .modal { padding: 20px; }
+  .card-mnemonic { font-size: 15px; }
+  .stats-row { gap: 6px; }
+  .stat-box { padding: 10px 8px; }
+  .stat-num { font-size: 22px; }
+  .keyboard-hints { display: none; }
+}
+
+/* Tap hint */
+.tap-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #bbb;
+}
+.card.flipped .tap-hint { display: none; }
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.status-badge.known { color: var(--primary); }
+.status-badge.new { color: #bbb; }
+
+/* Import Modal */
+.import-tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:20px; }
+.import-tab {
+  flex:1; padding:10px 0; text-align:center; font-weight:600; font-size:14px;
+  cursor:pointer; border:none; background:none; color:var(--text-light);
+  border-bottom:3px solid transparent; transition:all .2s; font-family:inherit;
+}
+.import-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+.import-tab:hover { color:var(--primary); }
+.import-panel { display:none; }
+.import-panel.active { display:block; }
+.import-dropzone {
+  border:2px dashed #ccc; border-radius:12px; padding:40px 20px; text-align:center;
+  cursor:pointer; transition:all .2s; color:var(--text-light); font-size:14px;
+  margin-bottom:12px;
+}
+.import-dropzone:hover, .import-dropzone.drag-over {
+  border-color:var(--primary); background:#f0faf3; color:var(--primary);
+}
+.import-dropzone .dz-icon { font-size:36px; margin-bottom:8px; display:block; }
+.import-dropzone .dz-tip { font-size:12px; color:#aaa; margin-top:4px; }
+.import-file-info { font-size:13px; color:var(--primary); margin-bottom:8px; text-align:center; display:none; }
+.import-textarea {
+  width:100%; min-height:180px; border:2px solid var(--border); border-radius:12px;
+  padding:14px; font-size:13px; font-family:"Consolas","Monaco",monospace;
+  resize:vertical; outline:none; transition:border-color .2s;
+}
+.import-textarea:focus { border-color:var(--primary); }
+.import-config { margin:16px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.import-config label { font-size:13px; color:var(--text-light); font-weight:600; }
+.import-config select, .import-config input {
+  padding:7px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px;
+  font-family:inherit; outline:none;
+}
+.import-config select:focus, .import-config input:focus { border-color:var(--primary); }
+.import-config input { width:140px; }
+.import-preview-wrap { max-height:300px; overflow-y:auto; margin:16px 0; border:1px solid var(--border); border-radius:8px; }
+.import-preview-table { width:100%; border-collapse:collapse; font-size:12px; }
+.import-preview-table th {
+  background:#f5f5f5; padding:6px 8px; text-align:left; font-weight:700; font-size:11px;
+  position:sticky; top:0; z-index:1;
+}
+.import-preview-table td {
+  padding:5px 8px; border-bottom:1px solid #f0f0f0;
+}
+.import-preview-table td input {
+  width:100%; border:1px solid transparent; padding:3px 4px; font-size:12px; font-family:inherit;
+  border-radius:3px; outline:none; box-sizing:border-box;
+}
+.import-preview-table td input:focus { border-color:var(--primary); background:#fefefe; }
+.import-preview-table tr:hover td { background:#fafafa; }
+.import-stats { font-size:13px; color:var(--text); margin:8px 0; }
+.import-stats strong { color:var(--primary); }
+.import-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+.import-btn-cancel { background:#f5f5f5; color:#888; }
+.import-btn-cancel:hover { background:#e0e0e0; }
+.import-status { font-size:13px; text-align:center; padding:8px; border-radius:8px; margin-top:10px; display:none; }
+.import-status.success { background:#e8f5e9; color:#2d8c4a; display:block; }
+.import-status.error { background:#fce4ec; color:#e74c3c; display:block; }
+
+/* Toast */
+.toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999;
+  padding:12px 28px; border-radius:10px; font-size:14px; font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,.15); animation:toastIn .3s ease;
+  pointer-events:none;
+}
+.toast.success { background:#e8f5e9; color:#2d8c4a; }
+.toast.error { background:#fce4ec; color:#e74c3c; }
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(-10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Word<span>Master</span></div>
+  <div class="header-actions">
+    <button class="btn import-btn" onclick="showImportModal()" title="导入单词扩充词库">导入单词</button>
+    <button class="btn rank-compare-btn" onclick="showRankCompare()" title="海军 vs 其他军种军衔对照">军衔对照</button>
+    <button class="btn btn-outline" onclick="resetProgress()" title="重置所有学习进度">重置进度</button>
+  </div>
+</div>
+
+<div class="unit-tabs" id="unitTabs"></div>
+<div class="cat-bar" id="catBar"></div>
+
+<div class="main">
+  <div class="stats-row" id="statsRow"></div>
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="progressText">已学 0 / 52</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card-container" id="cardContainer">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="card-num" id="cardNum">1 / 52</div>
+      <div class="card-cat" id="cardCat">军种与分支</div>
+      <div class="card-front" id="cardFront">
+        <div class="card-emoji" id="cardEmoji"></div>
+        <div class="card-swatch-wrap" id="cardSwatch"></div>
+        <div class="card-word" id="cardWord">active service</div>
+        <div class="card-phonetic" id="cardPhonetic">/ˈæktɪv ˈsɜːrvɪs/</div>
+        <div class="card-meaning" id="cardMeaning">现役</div>
+        <div class="card-example" id="cardExample"></div>
+      </div>
+      <div class="card-back" id="cardBack">
+        <div class="card-mnemonic-title">助记方法</div>
+        <div class="card-mnemonic" id="cardMnemonic"></div>
+        <div class="card-dgroup" id="cardDgroup"></div>
+      </div>
+      <div class="tap-hint">点击卡片翻转 · 看助记法</div>
+    </div>
+  </div>
+
+  <div class="card-actions">
+    <button class="action-btn btn-dunno" onclick="markWord(false)" title="不认识">
+      <span class="icon">✕</span><span class="label">不认识</span>
+    </button>
+    <button class="action-btn btn-flip" onclick="flipCard(event)" title="翻转查看助记">
+      <span>翻转卡片</span>
+    </button>
+    <button class="action-btn btn-know" onclick="markWord(true)" title="认识">
+      <span class="icon">✓</span><span class="label">认识</span>
+    </button>
+  </div>
+
+  <div class="keyboard-hints">
+    <span class="key-hint"><kbd>←</kbd> <kbd>→</kbd> 翻页</span>
+    <span class="key-hint"><kbd>空格</kbd> 翻转</span>
+    <span class="key-hint"><kbd>Enter</kbd> 认识</span>
+    <span class="key-hint"><kbd>Esc</kbd> 关闭弹窗</span>
+  </div>
+</div>
+
+<div class="nav-area left"><button class="nav-btn" onclick="prevWord()">◀</button></div>
+<div class="nav-area right"><button class="nav-btn" onclick="nextWord()">▶</button></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importOverlay" onclick="closeImportModal(event)">
+  <div class="modal" id="importModal" onclick="event.stopPropagation()" style="max-width:700px;">
+    <button class="modal-close" onclick="closeImportModal()">✕</button>
+    <h3 style="margin:0 0 8px;font-size:18px;">导入单词</h3>
+    <div class="import-tabs">
+      <button class="import-tab active" onclick="switchImportTab('file')" id="importTabFile">上传 DOCX 文件</button>
+      <button class="import-tab" onclick="switchImportTab('text')" id="importTabText">粘贴文本</button>
+    </div>
+    <!-- Tab: File Upload -->
+    <div class="import-panel active" id="importPanelFile">
+      <div class="import-dropzone" id="importDropzone" onclick="document.getElementById('importFileInput').click()">
+        <span class="dz-icon">📄</span>
+        拖拽 .docx 文件到此处，或点击选择文件
+        <div class="dz-tip">仅支持 .docx 格式，使用 mammoth.js 解析</div>
+      </div>
+      <input type="file" id="importFileInput" accept=".docx" style="display:none" onchange="handleImportFile(this.files[0])">
+      <div class="import-file-info" id="importFileInfo"></div>
+    </div>
+    <!-- Tab: Text Paste -->
+    <div class="import-panel" id="importPanelText">
+      <textarea class="import-textarea" id="importTextarea" placeholder="每行一个单词，用 | 或 Tab 分隔字段&#10;示例格式：&#10;单词|音标|释义|例句&#10;或简单格式：&#10;英文单词  中文释义"></textarea>
+      <div class="import-config">
+        <div class="import-actions" style="margin-top:0;flex:1;">
+          <button class="btn btn-primary" onclick="parseImportText()">解析文本</button>
+        </div>
+      </div>
+    </div>
+    <!-- Config -->
+    <div class="import-config" id="importConfig" style="display:none;">
+      <label>导入到</label>
+      <select id="importTargetUnit">
+        <option value="new">新建单元</option>
+      </select>
+      <input type="text" id="importNewUnitName" placeholder="新单元名称" style="display:none;">
+      <label style="margin-left:8px;">分类</label>
+      <input type="text" id="importCatName" placeholder="单词分类" value="">
+    </div>
+    <!-- Preview -->
+    <div id="importPreviewArea" style="display:none;">
+      <div class="import-stats" id="importStats"></div>
+      <div class="import-preview-wrap">
+        <table class="import-preview-table">
+          <thead><tr><th style="width:20px;">#</th><th>英文(w)</th><th>音标(p)</th><th>释义(m)</th><th>例句(ex)</th></tr></thead>
+          <tbody id="importPreviewBody"></tbody>
+        </table>
+      </div>
+      <div class="import-actions">
+        <button class="btn import-btn-cancel" onclick="closeImportModal()">取消</button>
+        <button class="btn btn-primary" id="importConfirmBtn" onclick="confirmImport()">确认导入</button>
+      </div>
+    </div>
+    <div class="import-status" id="importStatus"></div>
+  </div>
+</div>
+
+<script>
+// ====== DATA ======
+let UNIT_DATA = {"U1": {"title": "Unit 1 - 军兵种与编制", "words": [{"w": "active service", "p": "/ˈæktɪv ˈsɜːrvɪs/", "m": "现役", "c": "军种与分支", "dg": "", "mn": "active(活跃的)+service(服役)->正在服役中", "ex": "He has been on active service for three years."}, {"w": "air defense", "p": "/er dɪˈfens/", "m": "防空", "c": "军种与分支", "dg": "", "mn": "air(空中)+defense(防御)->防御空中攻击", "ex": "The city has a strong air defense system."}, {"w": "Air Force", "p": "/er fɔːrs/", "m": "空军", "c": "军种与分支", "dg": "military_branches", "mn": "air(空中)+force(力量)->空中力量=空军", "ex": "He joined the Air Force after college."}, {"w": "Army", "p": "/ˈɑːrmi/", "m": "陆军；军队；集团军", "c": "军种与分支", "dg": "military_branches", "mn": "arm(武器)+y->拿武器的队伍", "ex": "The Army is the largest branch of the military."}, {"w": "Army National Guard", "p": "/ˈɑːrmi ˈnæʃənəl ɡɑːrd/", "m": "(美)陆军国民警卫队", "c": "军种与分支", "dg": "", "mn": "National Guard是各州预备役部队，归陆军管辖", "ex": "The Army National Guard responds to domestic emergencies."}, {"w": "Army Reserve", "p": "/ˈɑːrmi rɪˈzɜːrv/", "m": "(美)陆军预备役", "c": "军种与分支", "dg": "", "mn": "reserve=储备->储备的陆军力量", "ex": "He serves in the Army Reserve on weekends."}, {"w": "Coast Guard", "p": "/koʊst ɡɑːrd/", "m": "海岸警卫队", "c": "军种与分支", "dg": "military_branches", "mn": "coast(海岸)+guard(守卫)->守卫海岸", "ex": "The Coast Guard rescued the sailors from the storm."}, {"w": "Marine Corps", "p": "/məˈriːn kɔːr/", "m": "海军陆战队", "c": "军种与分支", "dg": "military_branches", "mn": "marine(海上的)+corps(军团)->海上登陆军团", "ex": "The Marine Corps is known for its tough training."}, {"w": "Navy", "p": "/ˈneɪvi/", "m": "海军", "c": "军种与分支", "dg": "military_branches", "mn": "nav-=船/航海->海上军队", "ex": "The Navy operates hundreds of ships worldwide."}, {"w": "Space Force", "p": "/speɪs fɔːrs/", "m": "(美)太空军", "c": "军种与分支", "dg": "military_branches", "mn": "space(太空)+force(部队)->太空部队", "ex": "The Space Force was established in 2019."}, {"w": "special forces", "p": "/ˈspeʃəl ˈfɔːrsɪz/", "m": "特种部队", "c": "军种与分支", "dg": "", "mn": "special(特殊的)+forces(部队)->精英部队", "ex": "The special forces carried out a night raid."}, {"w": "joint force", "p": "/dʒɔɪnt fɔːrs/", "m": "联合部队", "c": "军种与分支", "dg": "", "mn": "joint(联合的)+force(部队)->多军种联合", "ex": "The joint force includes Army, Navy, and Air Force units."}, {"w": "Department of Defense (DoD)", "p": "/dɪˈpɑːrtmənt əv dɪˈfens/", "m": "(美)国防部", "c": "军种与分支", "dg": "", "mn": "defense=国防->管理国防的部门", "ex": "The DoD is headquartered at the Pentagon."}, {"w": "Department of the Air Force (DAF)", "p": "/dɪˈpɑːrtmənt əv ðə er fɔːrs/", "m": "(美)空军部", "c": "军种与分支", "dg": "", "mn": "DAF管辖空军和太空军", "ex": "DAF oversees both the Air Force and Space Force."}, {"w": "Space Command (SPC)", "p": "/speɪs kəˈmænd/", "m": "(美)太空司令部", "c": "军种与分支", "dg": "", "mn": "command=指挥部->太空作战指挥部", "ex": "SPC coordinates all space operations."}, {"w": "airman", "p": "/ˈermæn/", "m": "空军士兵；飞行员", "c": "人员角色", "dg": "personnel_air", "mn": "air(空中)+man(人)->在空中作战的人", "ex": "The airman climbed into the cockpit."}, {"w": "guardian", "p": "/ˈɡɑːrdiən/", "m": "(美)太空军士兵", "c": "人员角色", "dg": "personnel_air", "mn": "guard(守卫)+ian(人)->守卫太空的人", "ex": "Guardians protect U.S. interests in space."}, {"w": "marine", "p": "/məˈriːn/", "m": "海军陆战队员；海上的", "c": "人员角色", "dg": "marine_vs", "mn": "源自拉丁语mare(海)->海上作战", "ex": "The marine stormed the beach at dawn."}, {"w": "sailor", "p": "/ˈseɪlər/", "m": "海军士兵；水兵", "c": "人员角色", "dg": "personnel_navy", "mn": "sail(航行)+or(人)->航行的人", "ex": "The sailor stood watch on the deck."}, {"w": "engineer", "p": "/ˌendʒɪˈnɪr/", "m": "工兵", "c": "人员角色", "dg": "", "mn": "engine(机械)+eer(人)->操作机械的兵种", "ex": "The engineers built a bridge across the river."}, {"w": "cavalry", "p": "/ˈkævəlri/", "m": "骑兵；高度机动的地面部队", "c": "人员角色", "dg": "", "mn": "caval-=马->骑马作战->机动部队", "ex": "The cavalry moved swiftly to outflank the enemy."}, {"w": "aircraft carrier", "p": "/ˈerkræft ˈkæriər/", "m": "航空母舰", "c": "武器装备", "dg": "naval_vessels", "mn": "aircraft(飞机)+carrier(载体)->运载飞机的巨舰", "ex": "The aircraft carrier can carry over 70 planes."}, {"w": "bomber", "p": "/ˈbɑːmər/", "m": "轰炸机", "c": "武器装备", "dg": "aircraft_types", "mn": "bomb(炸弹)+er(工具)->投炸弹的飞机", "ex": "The B-2 bomber is nearly invisible to radar."}, {"w": "drone", "p": "/droʊn/", "m": "无人机", "c": "武器装备", "dg": "aircraft_types", "mn": "嗡嗡声(拟声词)->无人机飞行声", "ex": "The drone conducted surveillance over the area."}, {"w": "helicopter", "p": "/ˈhelɪkɑːptər/", "m": "直升机", "c": "武器装备", "dg": "aircraft_types", "mn": "helico-(螺旋)+pter(翼)->螺旋翼飞行器", "ex": "The helicopter hovered above the landing zone."}, {"w": "submarine", "p": "/ˌsʌbməˈriːn/", "m": "潜艇", "c": "武器装备", "dg": "naval_vessels", "mn": "sub-(下)+marine(海的)->在海下的船", "ex": "The submarine dove to 500 meters."}, {"w": "artillery", "p": "/ɑːrˈtɪləri/", "m": "炮兵；火炮", "c": "武器装备", "dg": "", "mn": "art(艺术)+illery->火炮是战争中的远程艺术", "ex": "The artillery pounded the enemy positions."}, {"w": "armor", "p": "/ˈɑːrmər/", "m": "装甲兵", "c": "武器装备", "dg": "arm_vs_armor", "mn": "arm(武器)+or->披着装甲的兵种", "ex": "The armor division led the advance."}, {"w": "fleet", "p": "/fliːt/", "m": "舰队；(飞机的)机队", "c": "武器装备", "dg": "naval_vessels", "mn": "fleet=快速的->快速航行的舰队", "ex": "The Pacific Fleet is based in Hawaii."}, {"w": "squadron", "p": "/ˈskwɑːdrən/", "m": "中队", "c": "武器装备", "dg": "", "mn": "squad(小队)+ron->比小队大的编制", "ex": "The fighter squadron scrambled to intercept."}, {"w": "ordnance", "p": "/ˈɔːrdnəns/", "m": "军械", "c": "武器装备", "dg": "ordnance_vs", "mn": "ord-=命令/安排->军事装备总称", "ex": "The ordnance depot stored thousands of shells."}, {"w": "arsenal", "p": "/ˈɑːrsənəl/", "m": "武器库；军火库；兵工厂", "c": "武器装备", "dg": "arsenal_vs", "mn": "源自威尼斯造船厂Arsenale->武器制造地", "ex": "The country has one of the world's largest arsenals."}, {"w": "stealth", "p": "/stelθ/", "m": "隐形", "c": "武器装备", "dg": "", "mn": "steal(偷)+th->偷偷摸摸不被发现", "ex": "Stealth technology makes aircraft hard to detect."}, {"w": "sensor", "p": "/ˈsensər/", "m": "传感器", "c": "武器装备", "dg": "", "mn": "sense(感知)+or(工具)->感知装置", "ex": "The sensor detected movement in the dark."}, {"w": "propulsion", "p": "/prəˈpʌlʃən/", "m": "推进", "c": "武器装备", "dg": "", "mn": "pro-(向前)+puls(推)+ion->向前推进", "ex": "The missile uses solid-fuel propulsion."}, {"w": "corps", "p": "/kɔːr/", "m": "军；军团；特殊兵种", "c": "军事编制", "dg": "corps_vs", "mn": "源自拉丁corpus(身体)->军队的身体", "ex": "The Marine Corps is a separate branch."}, {"w": "arm", "p": "/ɑːrm/", "m": "兵种", "c": "军事编制", "dg": "arm_vs_armor", "mn": "arm原意手臂->引申为军队分支", "ex": "The infantry is the oldest combat arm."}, {"w": "combat arms", "p": "/ˈkɑːmbæt ɑːrmz/", "m": "作战部队", "c": "军事编制", "dg": "", "mn": "combat(战斗)+arms(兵种)->直接战斗", "ex": "Infantry and armor are combat arms."}, {"w": "combat arms support", "p": "/ˈkɑːmbæt ɑːrmz səˈpɔːrt/", "m": "作战支援部队", "c": "军事编制", "dg": "", "mn": "support(支援)->支援作战部队", "ex": "Artillery provides combat arms support."}, {"w": "combat service support", "p": "/ˈkɑːmbæt ˈsɜːrvɪs səˈpɔːrt/", "m": "作战支援保障部队", "c": "军事编制", "dg": "", "mn": "service support->后勤保障部队", "ex": "Logistics falls under combat service support."}, {"w": "airlift", "p": "/ˈerlɪft/", "m": "空运", "c": "作战概念", "dg": "air_series", "mn": "air(空中)+lift(运送)->用飞机运送", "ex": "The wounded were evacuated by airlift."}, {"w": "amphibious", "p": "/æmˈfɪbiəs/", "m": "两栖作战的；水陆两用的", "c": "作战概念", "dg": "", "mn": "amphi-(两边)+bio(生命)->水陆两栖", "ex": "The amphibious assault began at dawn."}, {"w": "aviation", "p": "/ˌeɪviˈeɪʃən/", "m": "航空兵", "c": "作战概念", "dg": "air_series", "mn": "avi-=鸟->像鸟一样飞行", "ex": "Naval aviation includes carrier-based aircraft."}, {"w": "intelligence", "p": "/ɪnˈtelɪdʒəns/", "m": "情报", "c": "作战概念", "dg": "", "mn": "intel-(之间)+lig(选择)->筛选信息=情报", "ex": "Intelligence reports confirmed the enemy movements."}, {"w": "joint operation(s)", "p": "/dʒɔɪnt ˌɑːpəˈreɪʃən/", "m": "联合作战", "c": "作战概念", "dg": "", "mn": "joint(联合)+operation(行动)->多军种联合", "ex": "The joint operation involved all five services."}, {"w": "logistics", "p": "/ləˈdʒɪstɪks/", "m": "后勤；后勤学", "c": "作战概念", "dg": "", "mn": "log-=计算/安排->安排物资供应", "ex": "Logistics is crucial for any military campaign."}, {"w": "quartermaster", "p": "/ˈkwɔːrtərˌmæstər/", "m": "军需", "c": "作战概念", "dg": "", "mn": "quarter(驻扎)+master(主管)->管物资", "ex": "The quartermaster issued new uniforms."}, {"w": "reconnaissance", "p": "/rɪˈkɑːnɪsəns/", "m": "侦察", "c": "作战概念", "dg": "recon_surv", "mn": "re-(再)+cogn(认知)+ance->再次认知敌情", "ex": "The drone flew a reconnaissance mission."}, {"w": "surveillance", "p": "/sɜːrˈveɪləns/", "m": "监视", "c": "作战概念", "dg": "recon_surv", "mn": "sur-(上)+veillance(看)->从上方看=监视", "ex": "Satellites provide constant surveillance."}, {"w": "signal", "p": "/ˈsɪɡnəl/", "m": "通信兵", "c": "作战概念", "dg": "", "mn": "signal=信号->传递信号的兵种", "ex": "The signal corps maintained communications."}, {"w": "service", "p": "/ˈsɜːrvɪs/", "m": "军种；服役", "c": "作战概念", "dg": "service_vs", "mn": "serve(服务)+ice->为国家服务=服役", "ex": "He completed 20 years of military service."}]}, "U2": {"title": "Unit 2 - 军衔与等级", "words": [{"w": "second lieutenant (2LT)", "p": "/ˈsekənd luːˈtenənt/", "m": "(陆空海陆)少尉", "c": "陆空海陆军官", "dg": "officer_army", "mn": "second=第二->最低级军官", "ex": "A second lieutenant leads a platoon."}, {"w": "lieutenant (LT)", "p": "/luːˈtenənt/", "m": "(陆空海陆)中尉；(海军)上尉", "c": "陆空海陆军官", "dg": "officer_army,lieutenant_compare", "mn": "法语lieu(位置)+tenant(持有)->代替上级", "ex": "The lieutenant briefed the squad before the mission."}, {"w": "captain (CPT)", "p": "/ˈkæptɪn/", "m": "(陆空海陆)上尉；(海军)上校", "c": "陆空海陆军官", "dg": "officer_army,captain_compare", "mn": "capt-=头->领导连队的头", "ex": "The captain commands a company of soldiers."}, {"w": "major (MAJ)", "p": "/ˈmeɪdʒər/", "m": "(陆空海陆)少校", "c": "陆空海陆军官", "dg": "officer_army", "mn": "major=较大的->比上尉更大", "ex": "The major served as battalion executive officer."}, {"w": "lieutenant colonel (LTC)", "p": "/luːˈtenənt ˈkɜːrnəl/", "m": "(陆空海陆)中校", "c": "陆空海陆军官", "dg": "officer_army", "mn": "lieutenant(副)+colonel(上校)->副上校=中校", "ex": "The lieutenant colonel commanded the battalion."}, {"w": "colonel (COL)", "p": "/ˈkɜːrnəl/", "m": "(陆空海陆)上校", "c": "陆空海陆军官", "dg": "officer_army", "mn": "注意发音!拼写colo-nel,读作ker-nel", "ex": "The colonel was in charge of the entire regiment."}, {"w": "brigadier general (BG)", "p": "/ˌbrɪɡəˈdɪr ˈdʒenərəl/", "m": "(陆空海陆)准将", "c": "陆空海陆军官", "dg": "officer_army,general_ranks", "mn": "brigade(旅)+ier->指挥旅的将军", "ex": "The brigadier general commanded the brigade."}, {"w": "major general (MG)", "p": "/ˈmeɪdʒər ˈdʒenərəl/", "m": "(陆空海陆)少将", "c": "陆空海陆军官", "dg": "officer_army,general_ranks", "mn": "major=较大的->比准将更大", "ex": "The major general oversaw the entire division."}, {"w": "lieutenant general (LG)", "p": "/luːˈtenənt ˈdʒenərəl/", "m": "(陆空海陆)中将", "c": "陆空海陆军官", "dg": "officer_army,general_ranks", "mn": "lieutenant这里表示副->副上将级别", "ex": "The lieutenant general commanded the corps."}, {"w": "general (GEN)", "p": "/ˈdʒenərəl/", "m": "(陆空海陆)上将", "c": "陆空海陆军官", "dg": "officer_army,general_ranks", "mn": "general=总/全面的->最高级军官", "ex": "The general planned the entire campaign."}, {"w": "ensign (ENS)", "p": "/ˈensən/", "m": "(海军)少尉", "c": "海军军官", "dg": "officer_navy", "mn": "ensign=旗帜->舰上最低级军官", "ex": "The ensign stood watch on the bridge."}, {"w": "lieutenant junior grade (LTJG)", "p": "/luːˈtenənt ˈdʒuːniər ɡreɪd/", "m": "(海军)中尉", "c": "海军军官", "dg": "officer_navy,lieutenant_compare", "mn": "junior grade=初级->初级中尉", "ex": "The LTJG assisted in navigation duties."}, {"w": "lieutenant commander (LTCR)", "p": "/luːˈtenənt kəˈmændər/", "m": "(海军)少校", "c": "海军军官", "dg": "officer_navy", "mn": "commander带lieutenant前缀->副指挥官级", "ex": "The lieutenant commander served as executive officer."}, {"w": "commander (CDR)", "p": "/kəˈmændər/", "m": "(海军)中校", "c": "海军军官", "dg": "officer_navy", "mn": "command(指挥)+er->指挥者", "ex": "The commander was captain of the destroyer."}, {"w": "rear admiral lower half (RDML)", "p": "/rɪr ˈædmərəl ˈloʊər hæf/", "m": "(海军)准将", "c": "海军军官", "dg": "officer_navy,admiral_ranks", "mn": "rear=后方+admiral=海军将官->低级将官", "ex": "RDML is the first flag officer rank in the Navy."}, {"w": "rear admiral upper half (RADM)", "p": "/rɪr ˈædmərəl ˈʌpər hæf/", "m": "(海军)少将", "c": "海军军官", "dg": "officer_navy,admiral_ranks", "mn": "upper half->比lower half高一级", "ex": "The RADM commanded the carrier strike group."}, {"w": "vice admiral (VADM)", "p": "/vaɪs ˈædmərəl/", "m": "(海军)中将", "c": "海军军官", "dg": "officer_navy,admiral_ranks", "mn": "vice-=副->副上将级别", "ex": "The vice admiral commanded the entire fleet."}, {"w": "admiral (ADM)", "p": "/ˈædmərəl/", "m": "(海军)上将", "c": "海军军官", "dg": "officer_navy,admiral_ranks", "mn": "源自阿拉伯语amir-al(海上指挥官)", "ex": "The admiral is the highest rank in the Navy."}, {"w": "Commissioned Officer (CO)", "p": "/kəˈmɪʃənd ˈɔːfɪsər/", "m": "委任军官", "c": "分类总称", "dg": "officer_vs_enlisted", "mn": "commissioned=被委任的->总统委任", "ex": "All generals are commissioned officers."}, {"w": "Non-Commissioned Officer (NCO)", "p": "/nɑːn kəˈmɪʃənd ˈɔːfɪsər/", "m": "士官", "c": "分类总称", "dg": "officer_vs_enlisted", "mn": "non-=非->非总统委任=士官", "ex": "Sergeants are non-commissioned officers."}, {"w": "warrant officer", "p": "/ˈwɔːrənt ˈɔːfɪsər/", "m": "准尉", "c": "分类总称", "dg": "officer_vs_enlisted", "mn": "warrant=授权书->持授权书的技术专家", "ex": "Warrant officers are technical specialists."}, {"w": "enlisted", "p": "/ɪnˈlɪstɪd/", "m": "士兵", "c": "分类总称", "dg": "officer_vs_enlisted", "mn": "enlist=入伍->已入伍的人=士兵", "ex": "Enlisted personnel form the backbone of the military."}, {"w": "private (PVT)", "p": "/ˈpraɪvɪt/", "m": "列兵", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "private=最低的->最低级士兵", "ex": "The private just finished basic training."}, {"w": "private first class (PV1)", "p": "/ˈpraɪvɪt fɜːrst klæs/", "m": "上等兵", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "first class=一级->比列兵高一级", "ex": "PV1 is the second lowest enlisted rank."}, {"w": "specialist (SPC)", "p": "/ˈspeʃəlɪst/", "m": "专业兵；专业军士", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "special(专门)+ist(人)->有专业技能", "ex": "The specialist maintained the radio equipment."}, {"w": "corporal (CPL)", "p": "/ˈkɔːrpərəl/", "m": "下士", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "corp-=身体/团体->带领小团队", "ex": "The corporal led a fire team of four soldiers."}, {"w": "sergeant (SGT)", "p": "/ˈsɑːrdʒənt/", "m": "军士；(美陆军海军陆战队)中士", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "源自拉丁serviens=服务者->服务士兵的领导者", "ex": "The sergeant barked orders at the recruits."}, {"w": "staff sergeant (SSG)", "p": "/stæf ˈsɑːrdʒənt/", "m": "(美陆军海军陆战队)上士；(美空军)中士", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "staff=参谋->有参谋职责的军士", "ex": "The staff sergeant supervised the squad."}, {"w": "sergeant first class (SFC)", "p": "/ˈsɑːrdʒənt fɜːrst klæs/", "m": "(美陆军)三级军士长", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "first class=一级军士->高级军士", "ex": "The SFC had 15 years of experience."}, {"w": "master sergeant (MSG)", "p": "/ˈmæstər ˈsɑːrdʒənt/", "m": "(美陆军)二级军士长", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "master=大师级->资深军士", "ex": "The master sergeant was the backbone of the company."}, {"w": "first sergeant (1SG)", "p": "/fɜːrst ˈsɑːrdʒənt/", "m": "(美陆军)一等军士长", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "first=第一->连队最高级军士", "ex": "The first sergeant handled all personnel matters."}, {"w": "sergeant major (SGM)", "p": "/ˈsɑːrdʒənt ˈmeɪdʒər/", "m": "(美陆军)一级军士长", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "major级别的sergeant->士官中的将军", "ex": "The sergeant major advised the battalion commander."}, {"w": "sergeant major of the army (SMA)", "p": "/ˈsɑːrdʒənt ˈmeɪdʒər əv ðə ˈɑːrmi/", "m": "(美陆军)总军士长", "c": "士兵等级", "dg": "enlisted_ranks", "mn": "全军唯一最高级士官->士兵代表", "ex": "The SMA is the highest enlisted rank in the Army."}, {"w": "etiquette", "p": "/ˈetɪket/", "m": "礼节", "c": "军事礼仪", "dg": "", "mn": "法语etiquette=标签->行为规范", "ex": "Military etiquette requires saluting officers."}, {"w": "address", "p": "/əˈdres/", "m": "称呼", "c": "军事礼仪", "dg": "address_vs", "mn": "ad-(向)+dress(整理)->向某人整理言辞", "ex": "You should address a colonel as 'Colonel' or 'Sir'."}, {"w": "salute", "p": "/səˈluːt/", "m": "敬礼", "c": "军事礼仪", "dg": "address_vs", "mn": "sal-=健康->祝健康=敬礼", "ex": "The soldier snapped a crisp salute."}, {"w": "superior", "p": "/səˈpɪriər/", "m": "上级；长官", "c": "军事礼仪", "dg": "superior_sub", "mn": "super-=上->在上位的人", "ex": "Always follow the orders of your superior."}, {"w": "subordinate", "p": "/səˈbɔːrdɪnət/", "m": "下级；下属", "c": "军事礼仪", "dg": "superior_sub", "mn": "sub-(下)+ordin(顺序)+ate->在下位", "ex": "A good leader takes care of their subordinates."}, {"w": "promote", "p": "/prəˈmoʊt/", "m": "晋升", "c": "军事礼仪", "dg": "", "mn": "pro-(向前)+mote(移动)->向前移动=晋升", "ex": "He was promoted to sergeant after three years."}, {"w": "serve", "p": "/sɜːrv/", "m": "服役", "c": "军事礼仪", "dg": "service_vs", "mn": "serve=服务->为国家服务=服役", "ex": "She served in the Navy for eight years."}]}, "U3": {"title": "Unit 3 - 军服与装备", "words": [{"w": "combat uniform", "p": "/ˈkɑːmbæt ˈjuːnɪfɔːrm/", "m": "作训服", "c": "军服类型", "dg": "uniform_types", "mn": "combat(战斗)+uniform(制服)->战斗时穿", "ex": "Soldiers wear combat uniforms in the field."}, {"w": "dress uniform", "p": "/dres ˈjuːnɪfɔːrm/", "m": "礼服", "c": "军服类型", "dg": "uniform_types", "mn": "dress=正式的->正式场合穿的军服", "ex": "He wore his dress uniform to the ceremony."}, {"w": "service uniform", "p": "/ˈsɜːrvɪs ˈjuːnɪfɔːrm/", "m": "常服", "c": "军服类型", "dg": "uniform_types", "mn": "service=日常服役->日常工作穿的", "ex": "The service uniform is worn in the office."}, {"w": "physical training uniform", "p": "/ˈfɪzɪkəl ˈtreɪnɪŋ ˈjuːnɪfɔːrm/", "m": "体能服", "c": "军服类型", "dg": "uniform_types", "mn": "physical training=体能训练->训练穿", "ex": "PT uniform is required for morning exercises."}, {"w": "lapel", "p": "/ləˈpel/", "m": "翻领", "c": "服装部件", "dg": "", "mn": "lap(折叠)+el->折叠的部分=翻领", "ex": "The insignia was pinned on the lapel."}, {"w": "pleat", "p": "/pliːt/", "m": "褶皱；裤褶", "c": "服装部件", "dg": "", "mn": "pleat=折叠->衣服上的折痕", "ex": "The trousers have sharp pleats."}, {"w": "pants", "p": "/pænts/", "m": "裤子", "c": "服装部件", "dg": "", "mn": "pants=裤子(美式英语)", "ex": "The uniform pants are made of polyester."}, {"w": "long-sleeve", "p": "/lɔːŋ sliːv/", "m": "长袖", "c": "服装部件", "dg": "sleeve_types", "mn": "long+sleeve=长袖子", "ex": "Long-sleeve shirts are part of the service uniform."}, {"w": "short-sleeve", "p": "/ʃɔːrt sliːv/", "m": "短袖", "c": "服装部件", "dg": "sleeve_types", "mn": "short+sleeve=短袖子", "ex": "Short-sleeve shirts are worn in summer."}, {"w": "insignia", "p": "/ɪnˈsɪɡniə/", "m": "勋章；佩章；徽章；标记", "c": "配饰标识", "dg": "badge_items", "mn": "in-(上)+sign(标记)+ia->标记身份", "ex": "His insignia showed his rank as major."}, {"w": "chevron", "p": "/ˈʃevrən/", "m": "V形线条", "c": "配饰标识", "dg": "badge_items", "mn": "法语chevron=屋顶V形木条->V形标志", "ex": "Chevrons on the sleeve indicate rank."}, {"w": "shoulder badge", "p": "/ˈʃoʊldər bædʒ/", "m": "肩章", "c": "配饰标识", "dg": "shoulder_items", "mn": "shoulder(肩膀)+badge(徽章)->肩上徽章", "ex": "The shoulder badge displayed the unit insignia."}, {"w": "shoulder board", "p": "/ˈʃoʊldər bɔːrd/", "m": "(硬)肩章", "c": "配饰标识", "dg": "shoulder_items", "mn": "shoulder+board(硬板)->硬质肩章", "ex": "Officers wear shoulder boards on dress uniforms."}, {"w": "name plate", "p": "/neɪm pleɪt/", "m": "姓名牌", "c": "配饰标识", "dg": "", "mn": "name(名字)+plate(牌子)->写名字的牌子", "ex": "The name plate was sewn above the pocket."}, {"w": "medal ribbon", "p": "/ˈmedəl ˈrɪbən/", "m": "勋章授带", "c": "配饰标识", "dg": "badge_items", "mn": "medal(勋章)+ribbon(丝带)->勋章丝带", "ex": "His medal ribbons showed years of service."}, {"w": "stripe", "p": "/straɪp/", "m": "条纹", "c": "配饰标识", "dg": "", "mn": "stripe=条纹->军服上的条带标识", "ex": "Each stripe represents four years of service."}, {"w": "helmet", "p": "/ˈhelmɪt/", "m": "头盔", "c": "装备护具", "dg": "armor_items", "mn": "helm(头盔)+et(小的)->小头盔", "ex": "The helmet protected him from shrapnel."}, {"w": "breastplate", "p": "/ˈbrestpleɪt/", "m": "胸甲", "c": "装备护具", "dg": "armor_items", "mn": "breast(胸部)+plate(板)->护胸板甲", "ex": "The knight wore a steel breastplate."}, {"w": "chain mail", "p": "/tʃeɪn meɪl/", "m": "锁子甲", "c": "装备护具", "dg": "armor_items", "mn": "chain(链条)+mail(铠甲)->链条编织的铠甲", "ex": "Chain mail was worn under the armor."}, {"w": "camouflage", "p": "/ˈkæməflɑːʒ/", "m": "迷彩", "c": "装备护具", "dg": "", "mn": "法语camoufler=伪装->伪装图案", "ex": "The camouflage pattern blended with the forest."}, {"w": "khaki", "p": "/ˈkɑːki/", "m": "卡其色；卡其布", "c": "材质面料", "dg": "fabric_types", "mn": "印地语khaki=尘土色->卡其色", "ex": "Khaki uniforms were first used in India."}, {"w": "nylon", "p": "/ˈnaɪlɑːn/", "m": "尼龙", "c": "材质面料", "dg": "fabric_types", "mn": "NY(纽约)+LON(伦敦)->两地同时发明", "ex": "Nylon is strong and quick-drying."}, {"w": "polyester", "p": "/ˌpɑːliˈestər/", "m": "聚酯纤维；涤纶", "c": "材质面料", "dg": "fabric_types", "mn": "poly-(多)+ester(酯)->聚酯纤维", "ex": "Polyester is commonly used in military uniforms."}, {"w": "allowance", "p": "/əˈlaʊəns/", "m": "津贴", "c": "抽象概念", "dg": "", "mn": "allow(允许)+ance->允许给的额外钱", "ex": "Soldiers receive a housing allowance."}, {"w": "authorize", "p": "/ˈɔːθəraɪz/", "m": "授权；批准", "c": "抽象概念", "dg": "", "mn": "author(权威)+ize->给予权威=授权", "ex": "The commander authorized the mission."}, {"w": "camaraderie", "p": "/ˌkɑːməˈrɑːdəri/", "m": "友情；情谊", "c": "抽象概念", "dg": "", "mn": "法语camarade=战友->战友之情", "ex": "The camaraderie among soldiers is unbreakable."}, {"w": "marksman", "p": "/ˈmɑːrksmən/", "m": "射击能手；神枪手", "c": "抽象概念", "dg": "marks_series", "mn": "mark(靶子)+man(人)->打靶的人=神枪手", "ex": "The marksman hit the target at 500 meters."}, {"w": "marksmanship", "p": "/ˈmɑːrksmənʃɪp/", "m": "枪法；射击术", "c": "抽象概念", "dg": "marks_series", "mn": "marksman+ship(技艺)->射击技艺", "ex": "He earned a badge for expert marksmanship."}, {"w": "morale", "p": "/məˈræl/", "m": "士气；民心；斗志", "c": "抽象概念", "dg": "morale_vs", "mn": "mor-=精神->精神状态", "ex": "The victory boosted the troops' morale."}, {"w": "Petty Officer (PO)", "p": "/ˈpeti ˈɔːfɪsər/", "m": "海军士官；海军军士", "c": "抽象概念", "dg": "", "mn": "petty=小的(法语petit)->小型军官=士官", "ex": "The Petty Officer trained the new recruits."}]}};
+const DGROUPS = {"military_branches": {"title": "美国六大军种对比", "type": "近义辨析", "words": ["Air Force", "Army", "Navy", "Marine Corps", "Space Force", "Coast Guard"], "note": "Army(陆)、Navy(海)、Air Force(空)、Marine Corps(海陆)、Space Force(太空)、Coast Guard(海岸警卫队)"}, "naval_vessels": {"title": "海军舰艇对比", "type": "近义辨析", "words": ["aircraft carrier", "fleet", "submarine"], "note": "aircraft carrier(航空母舰)、fleet(舰队总称)、submarine(潜艇)"}, "aircraft_types": {"title": "飞行器类型对比", "type": "近义辨析", "words": ["bomber", "drone", "helicopter"], "note": "bomber(轰炸机)、drone(无人机)、helicopter(直升机)"}, "arm_vs_armor": {"title": "arm vs armor", "type": "形近词", "words": ["arm", "armor"], "note": "arm=兵种；armor=装甲兵。armor比arm多or=多了铁壳!"}, "air_series": {"title": "air-同根词家族", "type": "同根词", "words": ["airlift", "airman", "aircraft carrier", "Air Force", "air defense"], "note": "以air(空中)为词根的军事词汇家族"}, "personnel_air": {"title": "空军vs太空军人员", "type": "近义辨析", "words": ["airman", "guardian"], "note": "airman=空军士兵；guardian=太空军士兵(2019年新设)"}, "personnel_navy": {"title": "海军人员对比", "type": "近义辨析", "words": ["sailor", "marine"], "note": "sailor=水兵(舰船上工作)；marine=海军陆战队员(登陆作战)"}, "marine_vs": {"title": "marine多义辨析", "type": "一词多义", "words": ["marine", "Marine Corps"], "note": "marine=1.海军陆战队员 2.海上的(形)；Marine Corps=海军陆战队(专有名词)"}, "recon_surv": {"title": "侦察vs监视", "type": "近义辨析", "words": ["reconnaissance", "surveillance"], "note": "reconnaissance=主动搜索情报(去看)；surveillance=持续观察(盯着看)"}, "ordnance_vs": {"title": "武器相关易混词", "type": "形近/近义", "words": ["ordnance", "arsenal", "artillery"], "note": "ordnance=军械(总称)；arsenal=武器库/兵工厂(存放地)；artillery=火炮/炮兵"}, "arsenal_vs": {"title": "arsenal辨析", "type": "概念辨析", "words": ["arsenal", "ordnance"], "note": "arsenal是存武器的地方；ordnance是武器本身。去arsenal取ordnance!"}, "corps_vs": {"title": "corps读音警示", "type": "形近词", "words": ["corps", "Marine Corps"], "note": "corps读作/kɔːr/，ps不发音!与corpse(尸体/kɔːrps/)完全不同!"}, "service_vs": {"title": "service多义辨析", "type": "一词多义", "words": ["service", "active service", "serve"], "note": "service=1.军种 2.服役；active service=现役；serve=服役(动词)"}, "officer_army": {"title": "陆/空/海陆军官衔一览", "type": "系列对比", "words": ["second lieutenant (2LT)", "lieutenant (LT)", "captain (CPT)", "major (MAJ)", "lieutenant colonel (LTC)", "colonel (COL)", "brigadier general (BG)", "major general (MG)", "lieutenant general (LG)", "general (GEN)"], "note": "少尉->中尉->上尉->少校->中校->上校->准将★->少将★★->中将★★★->上将★★★★"}, "officer_navy": {"title": "海军军官衔一览", "type": "系列对比", "words": ["ensign (ENS)", "lieutenant junior grade (LTJG)", "lieutenant (LT)", "lieutenant commander (LTCR)", "commander (CDR)", "captain (CPT)", "rear admiral lower half (RDML)", "rear admiral upper half (RADM)", "vice admiral (VADM)", "admiral (ADM)"], "note": "⚠海军captain=上校(比陆空高三级!) 少尉->中尉->上尉->少校->中校->上校->准将->少将->中将->上将"}, "lieutenant_compare": {"title": "lieutenant跨军种对比", "type": "跨军种对比", "words": ["lieutenant (LT)", "lieutenant junior grade (LTJG)"], "note": "陆空海陆LT=中尉(O-2)；海军LT=上尉(O-3)；海军LTJG=中尉(O-2)。海军lieutenant高一级!"}, "captain_compare": {"title": "captain跨军种对比⚠", "type": "跨军种对比", "words": ["captain (CPT)"], "note": "⚠最易混!陆空海陆captain=上尉(O-3)；海军captain=上校(O-6，可指挥航母!)差三个级别!"}, "general_ranks": {"title": "将官四级对比", "type": "系列对比", "words": ["brigadier general (BG)", "major general (MG)", "lieutenant general (LG)", "general (GEN)"], "note": "准将★->少将★★->中将★★★->上将★★★★"}, "admiral_ranks": {"title": "海军将官四级对比", "type": "系列对比", "words": ["rear admiral lower half (RDML)", "rear admiral upper half (RADM)", "vice admiral (VADM)", "admiral (ADM)"], "note": "准将★->少将★★->中将★★★->上将★★★★"}, "officer_vs_enlisted": {"title": "军官vs士官vs士兵", "type": "概念对比", "words": ["Commissioned Officer (CO)", "Non-Commissioned Officer (NCO)", "warrant officer", "enlisted"], "note": "CO=委任军官(总统任命)；NCO=士官(晋升而来)；Warrant Officer=准尉(技术专家)；Enlisted=士兵"}, "enlisted_ranks": {"title": "陆军士兵/士官等级一览", "type": "系列对比", "words": ["private (PVT)", "private first class (PV1)", "specialist (SPC)", "corporal (CPL)", "sergeant (SGT)", "staff sergeant (SSG)", "sergeant first class (SFC)", "master sergeant (MSG)", "first sergeant (1SG)", "sergeant major (SGM)", "sergeant major of the army (SMA)"], "note": "E-1->E-9:列兵->上等兵->专业兵->下士->中士->上士->三级军士长->二级军士长->一等军士长->一级军士长->总军士长"}, "superior_sub": {"title": "上级vs下级", "type": "反义对比", "words": ["superior", "subordinate"], "note": "superior(super-上)=上级；subordinate(sub-下)=下级。前缀即含义!"}, "address_vs": {"title": "礼节三件套", "type": "近义辨析", "words": ["address", "salute", "etiquette"], "note": "etiquette(礼节)=总体规范；address(称呼)=怎样叫人；salute(敬礼)=具体动作"}, "uniform_types": {"title": "四种军服对比", "type": "系列对比", "words": ["combat uniform", "dress uniform", "service uniform", "physical training uniform"], "note": "作训服(战场)->礼服(典礼)->常服(日常办公)->体能服(训练)"}, "sleeve_types": {"title": "长袖vs短袖", "type": "反义对比", "words": ["long-sleeve", "short-sleeve"], "note": "long-sleeve(长袖)<->short-sleeve(短袖)"}, "shoulder_items": {"title": "肩部标识对比", "type": "近义辨析", "words": ["shoulder badge", "shoulder board"], "note": "shoulder badge(软肩章布制)vs shoulder board(硬肩章礼服配)"}, "badge_items": {"title": "标识徽章家族", "type": "近义辨析", "words": ["insignia", "chevron", "medal ribbon"], "note": "insignia(总称)、chevron(V形军衔条)、medal ribbon(勋章授带)"}, "armor_items": {"title": "古代护具对比", "type": "近义辨析", "words": ["breastplate", "chain mail", "helmet"], "note": "breastplate(胸甲)、chain mail(锁子甲)、helmet(头盔)"}, "fabric_types": {"title": "军服面料对比", "type": "近义辨析", "words": ["khaki", "nylon", "polyester"], "note": "khaki(卡其布棉质经典)、nylon(尼龙强度高)、polyester(涤纶抗皱)"}, "marks_series": {"title": "marksman->marksmanship", "type": "同根词", "words": ["marksman", "marksmanship"], "note": "marksman(神枪手)+ship(技艺)=marksmanship(枪法)"}, "morale_vs": {"title": "morale警示", "type": "形近词", "words": ["morale"], "note": "⚠morale(士气/məˈræl/)≠moral(道德的/ˈmɔːrəl/)!一个字母之差!"}};
+
+// ====== STATE ======
+let currentUnit = "U1";
+let currentCat = "all";
+let currentIdx = 0;
+let filteredWords = [];
+let isFlipped = false;
+let progress = {};
+
+// ====== PROGRESS PERSISTENCE ======
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem("wordmaster_progress_v2");
+    if (saved) progress = JSON.parse(saved);
+  } catch(e) { progress = {}; }
+}
+function saveProgress() {
+  try {
+    localStorage.setItem("wordmaster_progress_v2", JSON.stringify(progress));
+  } catch(e) {}
+}
+function getProgress() {
+  if (!progress[currentUnit]) progress[currentUnit] = {};
+  return progress[currentUnit];
+}
+function getWordKey(w) { return w.w; }
+function getWordStatus(w) {
+  const p = getProgress();
+  return p[getWordKey(w)] || "new";
+}
+function setWordStatus(w, status) {
+  const p = getProgress();
+  p[getWordKey(w)] = status;
+  saveProgress();
+}
+
+// ====== UI BUILD ======
+function buildUnitTabs() {
+  const container = document.getElementById("unitTabs");
+  container.innerHTML = "";
+  for (const [key, unit] of Object.entries(UNIT_DATA)) {
+    const btn = document.createElement("button");
+    btn.className = "unit-tab" + (key === currentUnit ? " active" : "");
+    btn.textContent = unit.title;
+    btn.onclick = () => {
+      currentUnit = key; currentCat = "all"; currentIdx = 0; isFlipped = false;
+      loadProgress(); buildAll();
+    };
+    container.appendChild(btn);
+  }
+}
+
+function buildCatBar() {
+  const container = document.getElementById("catBar");
+  container.innerHTML = "";
+  const unit = UNIT_DATA[currentUnit];
+  const cats = new Set();
+  unit.words.forEach(w => cats.add(w.c));
+  const allCats = ["all", ...Array.from(cats)];
+  allCats.forEach(c => {
+    const chip = document.createElement("button");
+    chip.className = "cat-chip" + (c === currentCat ? " active" : "");
+    chip.textContent = c === "all" ? "全部" : c;
+    chip.onclick = () => { currentCat = c; currentIdx = 0; isFlipped = false; buildAll(); };
+    container.appendChild(chip);
+  });
+}
+
+function filterWords() {
+  const unit = UNIT_DATA[currentUnit];
+  filteredWords = currentCat === "all" ? [...unit.words] : unit.words.filter(w => w.c === currentCat);
+}
+
+function countProgress() {
+  const p = getProgress();
+  let known = 0;
+  filteredWords.forEach(w => { if (p[getWordKey(w)] === "known") known++; });
+  return { total: filteredWords.length, known };
+}
+
+function buildAll() {
+  filterWords();
+  buildUnitTabs();
+  buildCatBar();
+  updateStats();
+  updateProgress();
+  renderCard();
+}
+
+function updateStats() {
+  const p = getProgress();
+  const unitWords = UNIT_DATA[currentUnit].words;
+  let totalKnown = 0;
+  unitWords.forEach(w => { if (p[getWordKey(w)] === "known") totalKnown++; });
+  const rate = unitWords.length > 0 ? Math.round(totalKnown / unitWords.length * 100) : 0;
+  document.getElementById("statsRow").innerHTML =
+    '<div class="stat-box"><div class="stat-num">' + unitWords.length + '</div><div class="stat-label">本单元单词</div></div>' +
+    '<div class="stat-box"><div class="stat-num" style="color:#4caf50">' + totalKnown + '</div><div class="stat-label">已掌握</div></div>' +
+    '<div class="stat-box"><div class="stat-num" style="color:#f5a623">' + (unitWords.length - totalKnown) + '</div><div class="stat-label">待学习</div></div>' +
+    '<div class="stat-box"><div class="stat-num">' + rate + '%</div><div class="stat-label">掌握率</div></div>';
+}
+
+function updateProgress() {
+  const c = countProgress();
+  const pct = c.total > 0 ? Math.round(c.known / c.total * 100) : 0;
+  document.getElementById("progressText").textContent = '当前筛选: 已学 ' + c.known + ' / ' + c.total;
+  document.getElementById("progressPct").textContent = pct + '%';
+  document.getElementById("progressFill").style.width = pct + '%';
+}
+
+function renderCard() {
+  if (filteredWords.length === 0) {
+    document.getElementById("cardWord").textContent = '--';
+    document.getElementById("cardPhonetic").textContent = '';
+    document.getElementById("cardMeaning").textContent = '此分类下没有单词';
+    document.getElementById("cardExample").textContent = '';
+    document.getElementById("cardNum").textContent = '';
+    document.getElementById("cardCat").textContent = '';
+    document.getElementById("cardMnemonic").textContent = '';
+    document.getElementById("cardDgroup").innerHTML = '';
+    document.getElementById("card").classList.remove("flipped");
+    isFlipped = false;
+    return;
+  }
+  if (currentIdx >= filteredWords.length) currentIdx = 0;
+  if (currentIdx < 0) currentIdx = filteredWords.length - 1;
+  const w = filteredWords[currentIdx];
+  const status = getWordStatus(w);
+  document.getElementById("cardNum").textContent = (currentIdx + 1) + ' / ' + filteredWords.length;
+  document.getElementById("cardCat").textContent = w.c;
+  var CAT_EMOJI = {"军种与分支":"🏴","人员角色":"👤","武器装备":"🚁","军事编制":"🏢","作战概念":"⚔️","陆空海陆军官":"⭐","海军军官":"⚓","分类总称":"📋","士兵等级":"🎖️","军事礼仪":"🫡","军服类型":"👔","服装部件":"🧥","配饰标识":"🏅","装备护具":"🛡️","材质面料":"🧵","抽象概念":"💡"};
+  document.getElementById("cardEmoji").textContent = CAT_EMOJI[w.c] || "";
+  var swatchHtml = "";
+  if (w.w.indexOf("khaki") !== -1) {
+    swatchHtml = '<span class="card-swatch" style="background:#C3B091;"></span>';
+  } else if (w.w.indexOf("camouflage") !== -1) {
+    swatchHtml = '<span class="card-swatch" style="background:repeating-linear-gradient(45deg,#4a6d3c 0,#4a6d3c 4px,#6b8e4e 4px,#6b8e4e 8px,#8b7355 8px,#8b7355 12px,#6b8e4e 12px,#6b8e4e 16px);"></span>';
+  }
+  document.getElementById("cardSwatch").innerHTML = swatchHtml;
+  document.getElementById("cardWord").textContent = w.w;
+  document.getElementById("cardPhonetic").textContent = w.p;
+  document.getElementById("cardMeaning").innerHTML = w.m + (status === 'known' ? ' <span class="status-badge known">✓</span>' : '');
+  document.getElementById("cardExample").textContent = w.ex ? '"' + w.ex + '"' : '';
+  document.getElementById("cardMnemonic").textContent = w.mn;
+  const dgContainer = document.getElementById("cardDgroup");
+  if (w.dg && DGROUPS[w.dg]) {
+    const dg = DGROUPS[w.dg];
+    dgContainer.innerHTML = '<button class="card-dgroup-btn" onclick="event.stopPropagation();showDiscrimination(\'' + w.dg + '\')">辨析: ' + dg.title + '</button>';
+  } else {
+    dgContainer.innerHTML = '';
+  }
+  document.getElementById("card").classList.remove("flipped");
+  isFlipped = false;
+  updateProgress();
+}
+
+// ====== ACTIONS ======
+function flipCard(e) {
+  if (e) e.stopPropagation();
+  if (filteredWords.length === 0) return;
+  document.getElementById("card").classList.toggle("flipped");
+  isFlipped = !isFlipped;
+}
+
+function nextWord() {
+  if (filteredWords.length === 0) return;
+  currentIdx = (currentIdx + 1) % filteredWords.length;
+  isFlipped = false;
+  renderCard();
+}
+
+function prevWord() {
+  if (filteredWords.length === 0) return;
+  currentIdx = (currentIdx - 1 + filteredWords.length) % filteredWords.length;
+  isFlipped = false;
+  renderCard();
+}
+
+function markWord(known) {
+  if (filteredWords.length === 0) return;
+  const w = filteredWords[currentIdx];
+  setWordStatus(w, known ? "known" : "new");
+  updateStats();
+  updateProgress();
+  renderCard();
+  setTimeout(function() { nextWord(); }, 400);
+}
+
+// ====== DISCRIMINATION MODAL ======
+function showDiscrimination(dgKey) {
+  const dg = DGROUPS[dgKey];
+  if (!dg) return;
+  let tableRows = "";
+  dg.words.forEach(function(wordName) {
+    let w = null;
+    for (const [uk, ud] of Object.entries(UNIT_DATA)) {
+      const found = ud.words.find(function(x) { return x.w === wordName; });
+      if (found) { w = found; break; }
+    }
+    if (w) {
+      var rowClass = "";
+      if (w.c === "海军军官") rowClass = ' class="modal-disc-row-navy"';
+      else if (w.c === "陆空海陆军官") rowClass = ' class="modal-disc-row-army"';
+      tableRows += '<tr' + rowClass + '><td><strong>' + w.w + '</strong></td><td>' + w.p + '</td><td>' + w.m + '</td></tr>';
+    } else {
+      tableRows += '<tr><td colspan="3"><strong>' + wordName + '</strong></td></tr>';
+    }
+  });
+  document.getElementById("modalContent").innerHTML =
+    '<div class="modal-title">' + dg.title + '</div>' +
+    '<div class="modal-type">' + dg.type + '</div>' +
+    '<div class="modal-note">' + dg.note + '</div>' +
+    '<table class="modal-compare-table">' +
+    '<thead><tr><th>单词</th><th>音标</th><th>释义</th></tr></thead>' +
+    '<tbody>' + tableRows + '</tbody></table>';
+  document.getElementById("modalOverlay").classList.add("show");
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById("modalOverlay")) return;
+  document.getElementById("modalOverlay").classList.remove("show");
+}
+
+function showRankCompare() {
+  var STARS = {"O-7":"★","O-8":"★★","O-9":"★★★","O-10":"★★★★"};
+  var ranks = [
+    {pg:"O-1",  nA:"ENS",    nC:"少尉",  oA:"2LT",   oC:"少尉",   cls:""},
+    {pg:"O-2",  nA:"LTJG",   nC:"中尉",  oA:"LT",    oC:"中尉",   cls:""},
+    {pg:"O-3",  nA:"LT",     nC:"上尉",  oA:"CPT",   oC:"上尉",   cls:"rank-highlight", tag:"同名不同级！海军LT=上尉，陆空LT=中尉"},
+    {pg:"O-4",  nA:"LTCR",   nC:"少校",  oA:"MAJ",   oC:"少校",   cls:""},
+    {pg:"O-5",  nA:"CDR",    nC:"中校",  oA:"LTC",   oC:"中校",   cls:""},
+    {pg:"O-6",  nA:"CPT",    nC:"上校",  oA:"COL",   oC:"上校",   cls:"rank-critical", tag:"最大陷阱！海军CPT=上校(O-6)，陆空CPT=上尉(O-3)，差三个级别"},
+    {pg:"O-7",  nA:"RDML",   nC:"准将",  oA:"BG",    oC:"准将",   cls:""},
+    {pg:"O-8",  nA:"RADM",   nC:"少将",  oA:"MG",    oC:"少将",   cls:""},
+    {pg:"O-9",  nA:"VADM",   nC:"中将",  oA:"LG",    oC:"中将",   cls:""},
+    {pg:"O-10", nA:"ADM",    nC:"上将",  oA:"GEN",   oC:"上将",   cls:""}
+  ];
+  var rows = "";
+  ranks.forEach(function(r) {
+    var tagHtml = r.tag ? '<br><span class="rank-badge' + (r.cls === 'rank-critical' ? '' : ' warn') + '">' + r.tag + '</span>' : '';
+    rows += '<tr class="' + r.cls + '">' +
+      '<td class="pg-col">' + r.pg + '</td>' +
+      '<td><span class="rank-abbr">' + r.nA + '</span></td>' +
+      '<td><span class="rank-cn">' + r.nC + (STARS[r.pg] ? ' ' + STARS[r.pg] : '') + '</span></td>' +
+      '<td><span class="rank-abbr">' + r.oA + '</span></td>' +
+      '<td><span class="rank-cn">' + r.oC + (STARS[r.pg] ? ' ' + STARS[r.pg] : '') + '</span>' + tagHtml + '</td>' +
+      '</tr>';
+  });
+  document.getElementById("modalContent").innerHTML =
+    '<div class="modal-title">海军 vs 其他军种军官军衔对照</div>' +
+    '<div class="modal-type">O-1 ~ O-10 薪资等级对齐</div>' +
+    '<table class="rank-table"><thead><tr>' +
+    '<th>薪资</th>' +
+    '<th class="col-navy" colspan="2">海军 Navy</th>' +
+    '<th class="col-other" colspan="2">陆军 / 空军 / 海军陆战队<br>Army / Air Force / Marine Corps</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="rank-summary"><h4>记忆要点</h4><ol>' +
+    '<li><strong>LT 陷阱</strong>：海军 LT = 上尉 (O-3)，陆空海陆 LT = 中尉 (O-2)，同名军衔海军高一级。</li>' +
+    '<li><strong>CPT 最大坑</strong>：海军 CPT = 上校 (O-6，可指挥航母)，陆空海陆 CPT = 上尉 (O-3)，差距三个薪资等级！</li>' +
+    '<li><strong>少校/中校命名完全不同</strong>：海军少校叫 Lieutenant Commander (LTCR)，中校叫 Commander (CDR)；陆空叫 Major (MAJ) 和 Lieutenant Colonel (LTC)。</li>' +
+    '<li><strong>少尉不同名</strong>：海军少尉叫 Ensign (ENS)，不叫 Second Lieutenant (2LT)。</li>' +
+    '<li><strong>将官体系独立</strong>：海军将官以 Admiral 命名（RDML/RADM/VADM/ADM），陆空以 General 命名（BG/MG/LG/GEN）。</li>' +
+    '</ol></div>';
+  document.getElementById("modalOverlay").classList.add("show");
+}
+
+function resetProgress() {
+  if (confirm('确定要重置所有学习进度吗？此操作不可恢复。')) {
+    progress = {};
+    saveProgress();
+    buildAll();
+  }
+}
+
+// ====== KEYBOARD ======
+document.addEventListener("keydown", function(e) {
+  if (document.getElementById("modalOverlay").classList.contains("show")) {
+    if (e.key === "Escape") closeModal();
+    return;
+  }
+  if (e.key === "ArrowLeft") prevWord();
+  else if (e.key === "ArrowRight") nextWord();
+  else if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); flipCard(); }
+  else if (e.key === "Enter") markWord(true);
+  else if (e.key === "Backspace") markWord(false);
+});
+
+// ====== TOUCH SWIPE ======
+let touchStartX = 0;
+document.getElementById("card").addEventListener("touchstart", function(e) {
+  touchStartX = e.touches[0].clientX;
+}, {passive: true});
+document.getElementById("card").addEventListener("touchend", function(e) {
+  const diff = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) prevWord();
+    else nextWord();
+  }
+}, {passive: true});
+
+// ====== DATA PERSISTENCE ======
+function loadUnitData() {
+  try {
+    const saved = localStorage.getItem("wordmaster_unitdata_v1");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge: saved units override/add to hardcoded defaults
+      for (const [key, val] of Object.entries(parsed)) {
+        UNIT_DATA[key] = val;
+      }
+    }
+  } catch(e) {}
+}
+function saveUnitData() {
+  try {
+    localStorage.setItem("wordmaster_unitdata_v1", JSON.stringify(UNIT_DATA));
+  } catch(e) {}
+}
+
+// ====== IMPORT ======
+let importParsedWords = [];
+
+function showImportModal() {
+  loadUnitData();
+  rebuildUnitSelect();
+  document.getElementById("importOverlay").style.display = "flex";
+  document.getElementById("importStatus").className = "import-status";
+  document.getElementById("importStatus").textContent = "";
+  resetImportUI();
+}
+function closeImportModal(e) {
+  if (e && e.target !== document.getElementById("importOverlay")) return;
+  document.getElementById("importOverlay").style.display = "none";
+  resetImportUI();
+}
+function resetImportUI() {
+  importParsedWords = [];
+  document.getElementById("importPreviewArea").style.display = "none";
+  document.getElementById("importConfig").style.display = "none";
+  document.getElementById("importFileInfo").style.display = "none";
+  document.getElementById("importFileInput").value = "";
+  document.getElementById("importTextarea").value = "";
+  document.getElementById("importCatName").value = "";
+  document.getElementById("importNewUnitName").style.display = "none";
+  document.getElementById("importStatus").className = "import-status";
+}
+function rebuildUnitSelect() {
+  const sel = document.getElementById("importTargetUnit");
+  sel.innerHTML = '<option value="new">新建单元</option>';
+  for (const [key, val] of Object.entries(UNIT_DATA)) {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = val.title;
+    sel.appendChild(opt);
+  }
+  sel.onchange = function() {
+    document.getElementById("importNewUnitName").style.display =
+      this.value === "new" ? "inline-block" : "none";
+  };
+}
+
+function switchImportTab(tab) {
+  document.getElementById("importTabFile").className = tab === "file" ? "import-tab active" : "import-tab";
+  document.getElementById("importTabText").className = tab === "text" ? "import-tab active" : "import-tab";
+  document.getElementById("importPanelFile").className = tab === "file" ? "import-panel active" : "import-panel";
+  document.getElementById("importPanelText").className = tab === "text" ? "import-panel active" : "import-panel";
+}
+
+// Smart line parser
+function parseSmartLine(line) {
+  line = line.trim();
+  if (!line || line.startsWith("#") || line.startsWith("//")) return null;
+  // Try | delimiter
+  let parts;
+  if (line.includes("|")) {
+    parts = line.split("|").map(s => s.trim());
+  } else if (line.includes("\t")) {
+    parts = line.split("\t").map(s => s.trim());
+  } else {
+    parts = [line];
+  }
+  // If only one part, try "english chinese" split
+  if (parts.length === 1) {
+    const txt = parts[0];
+    // Try to split: find where Chinese starts
+    const chMatch = txt.match(/[\u4e00-\u9fff]/);
+    if (chMatch) {
+      const idx = chMatch.index;
+      const en = txt.slice(0, idx).trim();
+      const ch = txt.slice(idx).trim();
+      // remove phonetic from chinese part if it leaked
+      const pMatch = en.match(/\/[^/]+\//);
+      let w = en, p = "";
+      if (pMatch) { p = pMatch[0]; w = en.replace(pMatch[0], "").trim(); }
+      return { w, p, m: ch, ex: "" };
+    }
+    return { w: txt, p: "", m: "", ex: "" };
+  }
+  // Multi-part: w | p | m | ex
+  let w = parts[0] || "";
+  let p = parts[1] || "";
+  let m = parts[2] || "";
+  let ex = parts[3] || "";
+  // Auto-detect if p looks like phonetic
+  if (p && !p.startsWith("/") && !p.match(/^[ˈˌ]/)) {
+    // Maybe p and m got swapped
+    if (m && m.match(/^[ˈˌ\/]/)) {
+      [p, m] = [m, p];
+    } else if (p.match(/[\u4e00-\u9fff]/)) {
+      // p contains Chinese, it's actually m
+      if (!m) { m = p; p = ""; }
+    }
+  }
+  // Clean up phonetic: ensure slashes
+  if (p && !p.startsWith("/")) p = "/" + p;
+  if (p && !p.endsWith("/")) p = p + "/";
+  // detect quoted example
+  if (ex && ex.startsWith('"') && ex.endsWith('"')) ex = ex.slice(1, -1);
+  return { w, p, m, ex };
+}
+
+// Parse text input
+function parseImportText() {
+  const raw = document.getElementById("importTextarea").value.trim();
+  if (!raw) {
+    document.getElementById("importStatus").className = "import-status error";
+    document.getElementById("importStatus").textContent = "请先粘贴单词文本";
+    return;
+  }
+  const lines = raw.split(/\r?\n/);
+  importParsedWords = [];
+  let skipped = 0;
+  for (const line of lines) {
+    const parsed = parseSmartLine(line);
+    if (parsed && parsed.w) {
+      importParsedWords.push({ w: parsed.w, p: parsed.p || "", m: parsed.m || "", c: "", mn: "", ex: parsed.ex || "" });
+    } else {
+      skipped++;
+    }
+  }
+  if (importParsedWords.length === 0) {
+    document.getElementById("importStatus").className = "import-status error";
+    document.getElementById("importStatus").textContent = "未能从文本中解析出任何单词，请检查格式";
+    return;
+  }
+  buildImportPreview();
+}
+
+// Handle file upload (via mammoth.js)
+function handleImportFile(file) {
+  if (!file) return;
+  if (!file.name.endsWith(".docx")) {
+    document.getElementById("importStatus").className = "import-status error";
+    document.getElementById("importStatus").textContent = "仅支持 .docx 文件格式";
+    return;
+  }
+  document.getElementById("importFileInfo").style.display = "block";
+  document.getElementById("importFileInfo").textContent = "正在解析 " + file.name + " ...";
+
+  // Load mammoth dynamically if needed
+  function doParse() {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      mammoth.extractRawText({ arrayBuffer: e.target.result })
+        .then(function(result) {
+          const text = result.value;
+          const lines = text.split(/\r?\n/);
+          importParsedWords = [];
+          for (const line of lines) {
+            const parsed = parseSmartLine(line);
+            if (parsed && parsed.w) {
+              importParsedWords.push({ w: parsed.w, p: parsed.p || "", m: parsed.m || "", c: "", mn: "", ex: parsed.ex || "" });
+            }
+          }
+          document.getElementById("importFileInfo").textContent = "已解析 " + file.name + "，共提取 " + importParsedWords.length + " 个候选单词";
+          if (importParsedWords.length === 0) {
+            document.getElementById("importStatus").className = "import-status error";
+            document.getElementById("importStatus").textContent = "未能从文件中解析出任何单词";
+          } else {
+            buildImportPreview();
+          }
+        })
+        .catch(function(err) {
+          document.getElementById("importStatus").className = "import-status error";
+          document.getElementById("importStatus").textContent = "DOCX 解析失败：" + err.message;
+        });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  if (typeof mammoth !== "undefined") { doParse(); return; }
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js";
+  script.onload = doParse;
+  script.onerror = function() {
+    document.getElementById("importFileInfo").textContent = "";
+    document.getElementById("importStatus").className = "import-status error";
+    document.getElementById("importStatus").textContent = "加载 mammoth.js 失败，请检查网络连接";
+  };
+  document.head.appendChild(script);
+}
+
+// Build preview table
+function buildImportPreview() {
+  document.getElementById("importConfig").style.display = "flex";
+  document.getElementById("importPreviewArea").style.display = "block";
+  document.getElementById("importStats").innerHTML = "共解析 <strong>" + importParsedWords.length + "</strong> 个单词，请在下方确认或修改后导入";
+  const tbody = document.getElementById("importPreviewBody");
+  tbody.innerHTML = "";
+  for (let i = 0; i < importParsedWords.length; i++) {
+    const w = importParsedWords[i];
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><input value="' + escapeHtml(w.w) + '" data-idx="' + i + '" data-field="w"></td>' +
+      '<td><input value="' + escapeHtml(w.p) + '" data-idx="' + i + '" data-field="p"></td>' +
+      '<td><input value="' + escapeHtml(w.m) + '" data-idx="' + i + '" data-field="m"></td>' +
+      '<td><input value="' + escapeHtml(w.ex) + '" data-idx="' + i + '" data-field="ex"></td>' +
+      '</tr>';
+  }
+  // Attach input listeners
+  tbody.querySelectorAll("input").forEach(function(inp) {
+    inp.addEventListener("input", function() {
+      const idx = parseInt(this.dataset.idx);
+      const field = this.dataset.field;
+      importParsedWords[idx][field] = this.value;
+    });
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// Confirm import
+function confirmImport() {
+  if (importParsedWords.length === 0) {
+    document.getElementById("importStatus").className = "import-status error";
+    document.getElementById("importStatus").textContent = "没有可导入的单词";
+    return;
+  }
+  const targetUnit = document.getElementById("importTargetUnit").value;
+  const cat = document.getElementById("importCatName").value.trim() || "导入单词";
+  let unitKey;
+  let unitTitle;
+
+  if (targetUnit === "new") {
+    unitTitle = document.getElementById("importNewUnitName").value.trim();
+    if (!unitTitle) {
+      document.getElementById("importStatus").className = "import-status error";
+      document.getElementById("importStatus").textContent = "请输入新单元名称";
+      return;
+    }
+    // Find next available unit key
+    let maxN = 0;
+    for (const k of Object.keys(UNIT_DATA)) {
+      const m = k.match(/^U(\d+)$/);
+      if (m) maxN = Math.max(maxN, parseInt(m[1]));
+    }
+    unitKey = "U" + (maxN + 1);
+    UNIT_DATA[unitKey] = { title: unitTitle, words: [] };
+  } else {
+    unitKey = targetUnit;
+    unitTitle = UNIT_DATA[unitKey].title;
+  }
+
+  // Set category on each word
+  for (const w of importParsedWords) {
+    w.c = cat;
+    if (!w.mn) w.mn = "";
+    if (!w.dg) w.dg = "";
+    if (!w.ex) w.ex = "";
+  }
+
+  UNIT_DATA[unitKey].words.push(...importParsedWords);
+  saveUnitData();
+
+  showToast("已导入 " + importParsedWords.length + " 个单词到 " + unitTitle);
+  document.getElementById("importOverlay").style.display = "none";
+  resetImportUI();
+
+  // Refresh UI
+  currentUnit = unitKey;
+  currentCat = "all";
+  filterWords();
+  buildUnitTabs();
+  buildCatBar();
+  updateStats();
+  updateProgress();
+  renderCard();
+}
+
+// Toast
+function showToast(msg, type) {
+  type = type || "success";
+  const toast = document.createElement("div");
+  toast.className = "toast " + type;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() {
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity .3s";
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 2000);
+}
+
+// Drag & drop for docx
+(function() {
+  const dz = document.getElementById("importDropzone");
+  if (!dz) return;
+  ["dragenter", "dragover"].forEach(function(ev) {
+    dz.addEventListener(ev, function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
+  });
+  ["dragleave", "drop"].forEach(function(ev) {
+    dz.addEventListener(ev, function(e) { e.preventDefault(); dz.classList.remove("drag-over"); });
+  });
+  dz.addEventListener("drop", function(e) {
+    const file = e.dataTransfer.files[0];
+    if (file) handleImportFile(file);
+  });
+})();
+
+// ====== INIT ======
+loadUnitData();
+loadProgress();
+buildAll();
+</script>
+</body>
+</html>
