@@ -27,11 +27,16 @@
 
   function render(data) {
     var config = data.config || {};
-    var fixedPoem = config.fixed_poem || '海内存知己，天涯若比邻';
-    var poemFallback = config.poem_fallback || fixedPoem;
-    var greeting = config.greeting_template || '{time_period}好，欢迎来自{province}·{city}的同志';
-    var hintDesktop = config.switch_hint_desktop || '💡 点击右下角 ☁️ 切换天气';
-    var hintMobile = config.switch_hint_mobile || '💡 点击 ☁️ 切换天气';
+    // 注意：welcome.yml 中有意留空的字段（如 switch_hint）必须用 !== undefined 判断，
+    // 空字符串是有效值；用 || 会让 fallback 复活已下线的功能提示（2026-08 修复的活 bug）
+    function pick(value, fallback) {
+      return value !== undefined && value !== null ? value : fallback;
+    }
+    var fixedPoem = pick(config.fixed_poem, '长风破浪会有时，直挂云帆济沧海');
+    var poemFallback = pick(config.poem_fallback, fixedPoem);
+    var greeting = pick(config.greeting_template, '{time_period}好，欢迎来自{province}·{city}的朋友');
+    var hintDesktop = pick(config.switch_hint_desktop, '');
+    var hintMobile = pick(config.switch_hint_mobile, '');
 
     var province = data.province || '';
     var city = data.city || '';
@@ -72,7 +77,7 @@
         '<div class="weather-poem-location">—— ' + escapeHtml(locationStr) + '</div>' +
         '<div class="weather-divider"></div>' +
         '<div class="weather-info">' + weatherIcon + ' ' + escapeHtml(weatherLabel) + ' · ' + escapeHtml(temp) + '°C</div>' +
-        '<div class="weather-hint">' + escapeHtml(hintDesktop) + '</div>';
+        (hintDesktop ? '<div class="weather-hint">' + escapeHtml(hintDesktop) + '</div>' : '');
 
       var announcement = aside.querySelector('.card-announcement');
       var author = aside.querySelector('.card-info');
@@ -98,7 +103,7 @@
         '<span class="weather-greeting-m">' + escapeHtml(greetingText) + '</span>' +
         '<span class="weather-api-poem-m">「' + escapeHtml(poemContent) + '」 —— ' + escapeHtml(locationStr) + '</span>' +
         '<span class="weather-info-m">' + weatherIcon + ' ' + escapeHtml(weatherLabel) + ' · ' + escapeHtml(temp) + '°C</span>' +
-        '<span class="weather-hint-m">' + escapeHtml(hintMobile) + '</span>';
+        (hintMobile ? '<span class="weather-hint-m">' + escapeHtml(hintMobile) + '</span>' : '');
 
       contentInner.appendChild(bar);
     }
