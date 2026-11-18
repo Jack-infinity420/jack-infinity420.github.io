@@ -1,0 +1,834 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>加密社交 App 流量分析（三）：提炼判定规则 | INFINITY&#39;S BLOG</title><meta name="description" content="完整实现 GEAD 六步做规则蒸馏，比较三种解释器的保真度与简洁度，并对提炼出的规则做真假审计。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/2f1c2763/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="加密社交 App 流量分析（三）：提炼判定规则 | INFINITY'S BLOG"><meta property="og:description" content="完整实现 GEAD 六步做规则蒸馏，比较三种解释器的保真度与简洁度，并对提炼出的规则做真假审计。"><meta property="og:url" content="https://lvjf.space/blog/posts/2f1c2763/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">加密社交 App 流量分析（三）：提炼判定规则</h1><div class="post-meta-top">2026-11-16 · tech / 流量分析 · 约 3889 字 · 阅读约 10 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>加密社交 App 流量分析（四篇）</strong>：<a href="/blog/posts/9c167f56.html">一·分类依据</a> ｜ <a href="/blog/posts/e4854882.html">二·数据与实验</a> ｜ <strong>三·规则提炼</strong> ｜ <a href="/blog/posts/1157b43a.html">四·总结</a></p>
+</blockquote>
+<blockquote>
+<p>方法来源：CCS’24 GEAD，见 <a href="/blog/posts/9c167f56.html"><code>01_论文方法与分类依据.md</code></a>
+实现：自研 GEAD（MLP 前向/反向、CART 蒸馏、LC 增广、合并树、规则生成），源码见课程代码包。
+运行：主实验、等预算比较、GEAD 调参三个脚本均在课程代码包内。
+产物：规则集与保真度 CSV 见文末《配套下载》。</p>
+</blockquote>
+<hr>
+<h2 id="1-为什么这套方法要用在这个任务上">1. 为什么这套方法要用在这个任务上</h2>
+<p>论文的 GEAD 解决的是：<strong>黑盒 DL 异常检测器没有标签，怎么把它的判定逻辑变成人可读的规则？</strong></p>
+<p>本任务是<strong>有监督的 10 分类</strong>（不是异常检测）—— 表面上看不该用 GEAD。但有三点让它仍然适用，而且正好补上分类实验的缺口：</p>
+<ol>
+<li><strong>黑盒模型（MLP/集成树）不可解释</strong>：我们只知道它 70% 准，不知道”凭什么”。</li>
+<li><strong>本数据集标签噪声极大</strong>（39.2% 背景流），普通特征重要性会被噪声带偏；GEAD 用<strong>连续分数</strong>做蒸馏，能把”模型学到的置信度分布”保留下来。</li>
+<li>论文的核心洞察在本任务上<strong>直接可以检验</strong>：模型学到的规则是否与专家常识一致？哪些是捷径？</li>
+</ol>
+<p>因此本文采用<strong>双轨</strong>：</p>
+<ul>
+<li>轨道 1（忠于论文）：用 GEAD 蒸馏 MLP，输出<strong>概率化规则</strong>（规则集 A/B）；</li>
+<li>轨道 2（务实）：直接对真标签训练浅树，输出<strong>人类摘要规则</strong>（规则集 C）；</li>
+<li>另外单独提取<strong>背景流量规则</strong>（规则集 D），因为它是本数据集规则体系的第一层。</li>
+</ul>
+<hr>
+<h2 id="2-gead-六步在本任务上的落地">2. GEAD 六步在本任务上的落地</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>论文步骤</th><th>本文实现</th><th>代码</th><th>相对论文的改造</th></tr></thead><tbody><tr><td>① 回归树生成 (root tree)</td><td>对 10 个类别<strong>各</strong>训练一棵 <code>DecisionTreeRegressor</code>，标签 = MLP 输出的 <code>P(class)</code></td><td><code>MergedRT.fit_roots</code></td><td>二分类→<strong>多分类 OVR</strong>；异常分→类别概率</td></tr><tr><td>② 低置信叶识别 (LC leaves)</td><td>叶内 <strong>MSE ≥ α_E 分位</strong> ∪ 叶均值 <strong>P ≥ α_O 分位</strong> ∪ <strong>样本数 &#x3C; 40</strong></td><td><code>gead()</code> 的 <code>leaf_stats</code> 段</td><td>增加”小样本叶”作为第三类 LC（本数据长尾，很多叶只有几条流）</td></tr><tr><td>③ 低置信增广 (LC augmentation)</td><td>在每个 LC 叶内<strong>冻结决策路径特征</strong>，只扰动其余特征：沿 <code>∂P/∂x</code> 双向走 β=0.1、迭代 N 次、正向加上限截断；另混入<strong>分布内重采样</strong> <code>ood_frac</code></td><td><code>NNFunc.grad_logit</code> + <code>gead()</code></td><td>用<strong>解析反向传播</strong>（自己实现 MLP 前向/反向）代替论文的框架梯度</td></tr><tr><td>④ 子树生成 (subtree)</td><td>用该叶的增广样本拟合一棵 <code>sub_md=3</code> 的回归树</td><td><code>gead()</code> 的 <code>DecisionTreeRegressor</code> 段</td><td>—</td></tr><tr><td>⑤ 合并 + 离散化</td><td>子树替换 LC 叶；把连续阈值<strong>吸附到特征真实域</strong>（整数特征的 <code>>t</code> 归一为 <code>>=ceil(t)</code>；二值特征的 <code>>t</code> 归一为 <code>==1</code>）</td><td><code>_norm</code> / <code>_fmt</code></td><td>论文用”小/大”二档，本文用<strong>分位数标注</strong>（pNN）+ 整数语义</td></tr><tr><td>⑥ 可读规则生成</td><td>根→叶路径 + 子树路径合并 → 去重 → <strong>贪心条件剪枝</strong> → 输出中英文规则</td><td><code>extract_rules</code> / <code>perclass_rules</code></td><td>增加<strong>条件剪枝</strong>（去掉让置信度下降 &#x3C;0.02 的条件）与<strong>退化条件过滤</strong></td></tr></tbody></table>
+<p><strong>论文没有、本文补充的两个步骤</strong>：</p>
+<ul>
+<li><strong>条件剪枝</strong>：合并树给出的路径往往含冗余条件（同一特征被根和子树各切一次）。剪枝后平均条件数从 4.6 降到 <strong>3.4</strong>，置信度损失 &#x3C; 2%。</li>
+<li><strong>退化条件过滤</strong>：增广会把某些阈值推到 0（如 <code>bps &#x3C;= 0</code>）。这类条件在语料上只覆盖 &#x3C;0.5% 的行，会让规则不可执行 —— 直接剔除。</li>
+</ul>
+<p><strong>超参敏感性</strong>（论文附录 B.1 的对应实验，<code>rules/F_GEAD超参敏感性.csv</code>）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">ood_frac</th><th align="right">N</th><th align="right">规则数</th><th align="right">IID posC</th><th align="right">IID negR</th><th align="right">OOD posC</th><th align="right">OOD negR</th></tr></thead><tbody><tr><td align="right">0.00</td><td align="right">4</td><td align="right">283</td><td align="right">0.489</td><td align="right">0.607</td><td align="right">0.470</td><td align="right">0.547</td></tr><tr><td align="right">0.00</td><td align="right">10</td><td align="right">302</td><td align="right">0.486</td><td align="right">0.656</td><td align="right">0.461</td><td align="right">0.614</td></tr><tr><td align="right">0.25</td><td align="right">4</td><td align="right">297</td><td align="right">0.486</td><td align="right">0.609</td><td align="right">0.457</td><td align="right">0.531</td></tr><tr><td align="right">0.50</td><td align="right">4</td><td align="right">296</td><td align="right">0.492</td><td align="right">0.605</td><td align="right">0.465</td><td align="right">0.550</td></tr><tr><td align="right">0.50</td><td align="right">10</td><td align="right">307</td><td align="right">0.472</td><td align="right">0.567</td><td align="right">0.449</td><td align="right">0.522</td></tr></tbody></table>
+<p>→ 与论文结论一致：<strong>在该范围内结果不敏感</strong>（posC 波动 &#x3C; 0.02）。</p>
+<hr>
+<h2 id="3-规则蒸馏的保真度--简洁度论文-table-1-的对应实验">3. 规则蒸馏的保真度 / 简洁度（论文 Table 1 的对应实验）</h2>
+<p>语料：<code>APP_NDNS</code> 10,132 条；训练 4,755 / IID 测试 1,586 / OOD 测试 3,791（day5）。
+黑盒 = MLP(256,128,64)，IID 准确率 0.578、OOD 0.437。
+三个解释器：<strong>DT(hard)</strong> 用 MLP 的 argmax 硬标签训练分类树；<strong>RT(IID)</strong> 只有回归根树；<strong>RT(GEAD)</strong> 完整六步。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>解释器</th><th align="right">规则数</th><th align="right">IID 一致率</th><th align="right">IID 正一致性</th><th align="right">IID 负可信度</th><th align="right">OOD 一致率</th><th align="right">OOD 正一致性</th><th align="right">OOD 负可信度</th></tr></thead><tbody><tr><td>DT(hard)</td><td align="right">19</td><td align="right">0.562</td><td align="right">0.417</td><td align="right">0.562</td><td align="right">0.517</td><td align="right">0.388</td><td align="right">0.489</td></tr><tr><td>RT(IID)</td><td align="right">128</td><td align="right">0.612</td><td align="right">0.497</td><td align="right">0.553</td><td align="right">0.524</td><td align="right">0.438</td><td align="right">0.480</td></tr><tr><td><strong>RT(GEAD)</strong></td><td align="right"><strong>306</strong></td><td align="right"><strong>0.634</strong></td><td align="right"><strong>0.534</strong></td><td align="right"><strong>0.594</strong></td><td align="right"><strong>0.543</strong></td><td align="right"><strong>0.473</strong></td><td align="right"><strong>0.535</strong></td></tr></tbody></table>
+<p><strong>在相同 (Md=4, Ms=80) 超参下，RT(GEAD) 在全部 6 个指标上最优</strong>，与论文 Table 1 的排序完全一致。
+→ 论文的核心结论（<strong>回归树 > 分类树；LC 增广 > 纯 IID 抽样</strong>）在本数据集上<strong>复现成功</strong>。</p>
+<p><img src="/blog/images/traffic/traffic-fig03-fidelity-vs-rules.png" alt="保真度-规则数权衡"></p>
+<hr>
+<h2 id="4-但是等规则预算下的公平比较给出相反结论">4. 但是：等规则预算下的公平比较给出相反结论</h2>
+<p>论文的卖点是”<strong>更少规则更高保真</strong>”。所以我做了等预算实验（<code>19_equal_budget.py</code>）：
+调各解释器的容量（树深/叶大小），让三套规则落在同一预算上：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>规则预算</th><th>DT(hard) posC / negR</th><th>RT(IID) posC / negR</th><th>RT(GEAD) posC / negR</th></tr></thead><tbody><tr><td>≈100</td><td><strong>0.661 / 0.730</strong>（108 条）</td><td>0.616 / 0.673（393 条）</td><td>0.466 / 0.685（133 条）</td></tr><tr><td>≈300</td><td><strong>0.763 / 0.799</strong>（303 条）</td><td>0.616 / 0.673（393 条）</td><td>0.509 / 0.591（304 条）</td></tr><tr><td>≈600</td><td><strong>0.792 / 0.820</strong>（430 条）</td><td>0.649 / 0.698（668 条）</td><td>0.534 / 0.630（561 条）</td></tr></tbody></table>
+<p>（OOD 上同样：≈300 预算时 DT 0.659 / RT(IID) 0.520 / GEAD 0.441）</p>
+<p>给 GEAD 加大搜索空间（8 组 <code>(Md, sub_md, Ms, sub_ms, ood_frac, N)</code>，<code>20_gead_bestshot.py</code>），
+它在 390–900 条规则区间的最好成绩是 <strong>posC 0.525–0.538</strong>，仍显著低于 303 条的 DT(hard) 的 <strong>0.763</strong>。</p>
+<h3 id="结论与解释重要">结论与解释（重要）</h3>
+<p><strong>在本任务上，“硬标签决策树”反而比 GEAD 更能忠实还原黑盒。</strong> 原因有三条，且都与论文的适用边界吻合：</p>
+<ol>
+<li><strong>适用前提不同</strong>：GEAD 是为 <strong>zero-positive 异常检测</strong>设计的——那里没有异常标签，只能用连续分数做回归蒸馏。
+本任务<strong>有完整标签</strong>（训练集上 MLP 的 argmax 就是现成的”硬标签”），属于论文 §2.2 说的”有监督解释”场景。
+论文自己在 Insight 1 里承认：这类场景下树蒸馏本就容易做得好（Trustee 一类方法的强项）。</li>
+<li><strong>规则预算被子树吃掉</strong>：GEAD 把规则预算花在”LC 叶的局部细化”上，根树只能保持很浅（Md=3–5），
+全局分辨率不够；深硬标签树则能把整棵树长到 Md=12，全局划分更细。</li>
+<li><strong>LC 增广在低维特征集上破坏叶内一致性</strong>：论文的特征空间是 80+ 维，冻结 4–5 个路径特征后扰动仍局限在局部；
+本文只有 22 维，冻结后剩余 17 维可任意走，增广点容易跑出该叶的真实分布，子树学到的其实是”合成分布”。
+（这正是论文 §6 “augmented samples 不来自真实分布”这一自述局限在低维场景的放大。）</li>
+</ol>
+<blockquote>
+<p><strong>一句话</strong>：GEAD 的方法论在本数据集<strong>可以跑通、排序正确</strong>，但<strong>不构成对硬标签蒸馏的性能优势</strong>；
+它的真正价值在这里变成了两件事：
+① 提供<strong>概率化</strong>而非仅 argmax 的规则语言（每类都能给 P(class) 与 lift）；
+② 提供<strong>定位模型捷径</strong>的手段 —— 见 §5。</p>
+</blockquote>
+<hr>
+<h2 id="5-规则集-a合并树-argmax-规则rulesa_merged_tree_argmax_规则csv">5. 规则集 A：合并树 argmax 规则（<code>rules/A_merged_tree_argmax_规则.csv</code>）</h2>
+<p>conf = 该规则内合并树预测为该类的比例（对黑盒的忠实度）；prec = 该规则内<strong>真标签</strong>确实为该类的比例（现实精度）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>#</th><th>类别</th><th align="right">支持</th><th align="right">conf</th><th align="right"><strong>prec</strong></th><th>规则（中）</th></tr></thead><tbody><tr><td>A1</td><td>facebook</td><td align="right">170</td><td align="right">1.00</td><td align="right"><strong>0.97</strong></td><td>若 下行包占比 > 0.875 且 最大包长 ≤ 1291 则 facebook</td></tr><tr><td>A2</td><td>reddit</td><td align="right">286</td><td align="right">0.99</td><td align="right"><strong>0.89</strong></td><td>若 最大包长 ≥ 1510 且 下行包占比 > 0.501 且 RST数 ≥ 2 则 reddit</td></tr><tr><td>A3</td><td>whatsapp</td><td align="right">252</td><td align="right">0.94</td><td align="right"><strong>0.94</strong></td><td>若 RST数 ≥ 2 且 最大包长 ≤ 1450 且 字节数 ≥ 5613 且 下行字节占比 > 0.757 则 whatsapp</td></tr><tr><td>A4</td><td>telegram</td><td align="right">107</td><td align="right">1.00</td><td align="right"><strong>0.96</strong></td><td>若 无SNI 且 SYN占比 > 0 且 平均包长 > 121 且 PSH占比 ≤ 0.315 且 RST数 ≤ 0 则 telegram</td></tr><tr><td>A5</td><td>tiktok</td><td align="right">55</td><td align="right">1.00</td><td align="right"><strong>0.98</strong></td><td>若 SYN占比 > 0.092 且 包间隔标准差 > 4134 且 RST数 ≥ 1 且 时长 ≤ 48077 则 tiktok</td></tr><tr><td>A6</td><td>reddit</td><td align="right">33</td><td align="right">1.00</td><td align="right"><strong>1.00</strong></td><td>若 SYN占比 > 0.132 且 RST数 ≥ 2 且 字节数 ≤ 2013 且 PSH占比 > 0.293 则 reddit</td></tr><tr><td>A7</td><td>reddit</td><td align="right">199</td><td align="right">0.97</td><td align="right">0.74</td><td>若 最大包长 ≥ 1510 且 下行包占比 > 0.501 且 包间隔均值 ≤ 396 且 FIN数 ≥ 1 则 reddit</td></tr><tr><td>A8</td><td>linkedin</td><td align="right">54</td><td align="right">0.80</td><td align="right">0.67</td><td>若 最大包长 ≥ 1513 且 时长 ≤ 10704 且 包数 ≥ 31 且 下行包占比 ≤ 0.486 则 linkedin</td></tr><tr><td>A9</td><td>facebook</td><td align="right">87</td><td align="right">0.99</td><td align="right">0.87</td><td>若 下行包占比 > 0.875 且 时长 ≤ 145309 且 包长均值 ≤ 1171 则 facebook</td></tr><tr><td>A10</td><td>twitter</td><td align="right">130</td><td align="right">0.91</td><td align="right">0.50</td><td>若 SYN占比 > 0.108 且 非瞬时流 且 PSH占比 ≤ 0.272 则 twitter</td></tr><tr><td>A11</td><td>youtube</td><td align="right">76</td><td align="right">0.87</td><td align="right">0.41</td><td>若 FIN数 ≤ 0 且 PSH占比 > 0.404 且 包长标准差 > 435 且 SYN占比 ≤ 0.081 则 youtube</td></tr><tr><td>A12</td><td>facebook</td><td align="right">221</td><td align="right">0.97</td><td align="right">0.81</td><td>若 下行包占比 > 0.875 且 包数 ≤ 41743 则 facebook</td></tr><tr><td>A13</td><td>facebook</td><td align="right">190</td><td align="right">0.77</td><td align="right"><strong>0.21</strong></td><td>若 最大包长 ≤ 1480 且 PSH占比 > 0.158 且 SYN占比 ≤ 0 则 facebook</td></tr><tr><td>A14</td><td>twitter</td><td align="right">303</td><td align="right">0.82</td><td align="right">0.40</td><td>若 SYN占比 > 0.108 且 时长 ≤ 285 且 RST数 ≤ 1 则 twitter</td></tr></tbody></table>
+<p><strong>18 条规则覆盖 8/10 类</strong>（instagram / snapchat 没有任何高置信区域——它们与 facebook、reddit 的流形态重叠）。</p>
+<hr>
+<h2 id="6-规则集-b每类概率区域规则rulesb_perclass_prob_规则csv">6. 规则集 B：每类概率区域规则（<code>rules/B_perclass_prob_规则.csv</code>）</h2>
+<p>不要求 argmax，只要该类概率高就出规则，因此<strong>稀有类也能被描述</strong>。P = 规则内该类平均概率，lift = P / 先验。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>类别</th><th align="right">支持</th><th align="right">P</th><th align="right">lift</th><th>规则</th></tr></thead><tbody><tr><td>facebook</td><td align="right">169</td><td align="right">0.89</td><td align="right">4.5×</td><td>下行包占比 > 0.875 且 时长 ≤ 145309</td></tr><tr><td>facebook</td><td align="right">162</td><td align="right">0.90</td><td align="right">4.5×</td><td>下行包占比 > 0.875 且 最大包长 ≤ 1291 且 字节数 ≤ 22366796</td></tr><tr><td>reddit</td><td align="right">286</td><td align="right">0.82</td><td align="right">5.9×</td><td>最大包长 ≥ 1510 且 下行包占比 > 0.501 且 RST数 ≥ 2</td></tr><tr><td>reddit</td><td align="right">374</td><td align="right">0.49</td><td align="right">3.5×</td><td>最大包长 ≥ 1510 且 FIN数 ≥ 2 且 非瞬时流</td></tr><tr><td>whatsapp</td><td align="right">252</td><td align="right">0.73</td><td align="right">6.1×</td><td>RST数 ≥ 2 且 最大包长 ≤ 1450 且 字节数 ≥ 5613 且 下行字节占比 > 0.757</td></tr><tr><td>whatsapp</td><td align="right">483</td><td align="right">0.48</td><td align="right">3.9×</td><td>RST数 ≥ 2 且 最大包长 ≤ 1450</td></tr><tr><td>telegram</td><td align="right">112</td><td align="right">0.94</td><td align="right"><strong>14.0×</strong></td><td>无SNI 且 SYN占比 > 0 且 平均包长 > 121 且 PSH占比 ≤ 0.315</td></tr><tr><td>telegram</td><td align="right">181</td><td align="right">0.89</td><td align="right"><strong>13.2×</strong></td><td>无SNI 且 SYN占比 > 0 且 平均包长 > 121 且 RST数 ≤ 0</td></tr><tr><td>tiktok</td><td align="right">55</td><td align="right">0.96</td><td align="right"><strong>11.5×</strong></td><td>SYN占比 > 0.092 且 包间隔标准差 > 4134 且 RST数 ≥ 1 且 时长 ≤ 48077</td></tr><tr><td>tiktok</td><td align="right">17</td><td align="right">0.56</td><td align="right">6.6×</td><td>最大包长 ≥ 1308 且 PSH占比 ≤ 0.045 且 包间隔均值 > 734</td></tr><tr><td>twitter</td><td align="right">140</td><td align="right">0.52</td><td align="right">3.5×</td><td>SYN占比 > 0.108 且 非瞬时流 且 PSH占比 ≤ 0.272</td></tr><tr><td>twitter</td><td align="right">103</td><td align="right">0.53</td><td align="right">3.6×</td><td>SYN占比 > 0.108 且 时长 ≤ 285 且 瞬时流</td></tr><tr><td>linkedin</td><td align="right">54</td><td align="right">0.42</td><td align="right">7.2×</td><td>最大包长 ≥ 1513 且 时长 ≤ 10704 且 包数 ≥ 31 且 下行包占比 ≤ 0.486</td></tr><tr><td>snapchat</td><td align="right">23</td><td align="right">0.58</td><td align="right">9.5×</td><td>瞬时流 且 包数 ≥ 204 且 时长 ≥ 1271734</td></tr><tr><td>snapchat</td><td align="right">23</td><td align="right">0.41</td><td align="right">6.7×</td><td>FIN数 ≤ 0 且 下行包占比 ≤ 0.878 且 时长 ≥ 54644 且 包间隔标准差 ≤ 302</td></tr><tr><td>youtube</td><td align="right">37</td><td align="right">0.31</td><td align="right">5.5×</td><td>FIN数 ≤ 0 且 瞬时流 且 字节数 ≥ 32297838</td></tr></tbody></table>
+<p><strong>16 条规则覆盖 9/10 类</strong>（仍缺 instagram）。</p>
+<hr>
+<h2 id="7-规则集-c真标签浅树人类摘要rulesc_true_label_tree_规则csv">7. 规则集 C：真标签浅树（人类摘要，<code>rules/C_true_label_tree_规则.csv</code>）</h2>
+<p>对真标签训练 <code>depth=5, min_samples_leaf=50</code> 的决策树，20 条叶子规则，覆盖 9/10 类。
+IID 准确率 0.422、OOD 0.277 —— <strong>它只是人类可读的摘要，不是好分类器</strong>（因为真标签本身含 39% 噪声）。</p>
+<p>它揭示的<strong>全局分裂骨架</strong>（这就是”提炼出的顶层判据”）：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[L0] 最大包长 ps_max >= 1470 ?        ← 是否出现过 ≈MTU(1470/1510) 的大包：是否在传媒体</span></span>
+<span class="line"><span> ├─ 否 → 小包/控制面流</span></span>
+<span class="line"><span> │   └─ RST数 >= 3 ?</span></span>
+<span class="line"><span> │       ├─ 是 → 下行字节占比 > 0.757 ? → whatsapp : whatsapp</span></span>
+<span class="line"><span> │       └─ 否 → 下行包占比 > 0.846 ?</span></span>
+<span class="line"><span> │                ├─ 是 → 字节数 > 779 KB ? → facebook(视频/大图) : youtube</span></span>
+<span class="line"><span> │                └─ 否 → 有JA4 ?</span></span>
+<span class="line"><span> │                        ├─ 是 → 下行字节占比 > 0.143 ? → facebook : reddit</span></span>
+<span class="line"><span> │                        └─ 否 → SYN占比 > 0 ? → telegram : twitter</span></span>
+<span class="line"><span> └─ 是 → 出现大包（媒体/下载面）</span></span>
+<span class="line"><span>     └─ RST数 >= 3 ?</span></span>
+<span class="line"><span>         ├─ 是 → 包数 >= 33 ? → reddit(PSH≤0.09 / >0.09 两分支) : reddit</span></span>
+<span class="line"><span>         └─ 否 → 下行包占比 > 0.559 ? → reddit : snapchat / linkedin / twitter / tiktok(按包长标准差 429 切)</span></span></code></pre>
+<p>翻成一句人话：</p>
+<blockquote>
+<p><strong>第一判据 = “这条流有没有搬大包”（ps_max ≥ 1470，MTU 边界）</strong>；
+<strong>第二判据 = “连接是被正常关闭还是被重置”（RST 数）</strong>；
+<strong>第三判据 = “方向性”（下行字节/包占比）</strong>；
+<strong>第四判据 = “有没有走标准 TLS（JA4）/ 有没有 SNI”</strong>。
+<code>包长标准差 ≈ 429</code> 是 tiktok（短时高低起伏）与 snapchat/linkedin（平滑）之间的分界。</p>
+</blockquote>
+<hr>
+<h2 id="8-规则集-d背景流量识别规则本数据集的第一层过滤">8. 规则集 D：背景流量识别规则（本数据集的第一层过滤）</h2>
+<p>这一层不是”App 分类”，而是”这条流到底该不该参与 App 分类”。<strong>剔除后准确率提升 20 个点</strong>（0.49 → 0.70）。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>D1  目的 IP 为私有地址 / 组播 / 广播                          → 局域网背景（7.21%）</span></span>
+<span class="line"><span>D2  dst_port = 1900 (SSDP)                                    → 5,753 条，全部是 239.255.255.250 组播发现</span></span>
+<span class="line"><span>D3  dst_port = 5353 (mDNS)                                    → 1,643 条，含 _spotify-connect._tcp.local</span></span>
+<span class="line"><span>D4  dst_port ∈ {5355(LLMNR), 3702(WS-D), 137/138(NBNS), 67/68(DHCP)} → 869 条</span></span>
+<span class="line"><span>D5  dst_port = 53 且为公网 DNS 解析                            → 5,138 条（App 无关的域名解析）</span></span>
+<span class="line"><span>D6  dst_oui ∈ {01:00:5e, ff:ff:ff, 33:33:xx}                  → 组播/广播二层地址</span></span></code></pre>
+<p>合并 D1–D4 后：<strong>9,846 条（39.2%）为背景流</strong>。</p>
+<hr>
+<h2 id="9-规则审计哪些是真规则哪些是伪规则论文-insight-3-的核心">9. 规则审计：哪些是真规则，哪些是伪规则（论文 Insight 3 的核心）</h2>
+<p>把上面所有规则按”与流量语义是否一致”和”现实精度”分三档：</p>
+<h3 id="-可信规则语义自洽--prec--085">✅ 可信规则（语义自洽 + prec ≥ 0.85）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>规则</th><th align="right">prec</th><th>语义解释</th></tr></thead><tbody><tr><td>A1/A12 facebook: 下行包占比 > 0.875 且 最大包长 ≤ 1291</td><td align="right">0.97 / 0.81</td><td>典型”拉取新闻流/图片”：下行包极多但单包不大（图片分片），与 Facebook feed 的行为一致</td></tr><tr><td>A2 reddit: 最大包长 ≥ 1510 且 下行包占比 > 0.50 且 RST ≥ 2</td><td align="right">0.89</td><td><strong>Reddit 客户端大量使用短连接并主动 RST 关闭</strong>（gql-fed / w3-reporting），RST≥2 是它的强特征</td></tr><tr><td>A3 whatsapp: RST ≥ 2 且 最大包长 ≤ 1450 且 字节数 ≥ 5613 且 下行字节占比 > 0.757</td><td align="right">0.94</td><td>WhatsApp 长连接心跳 + 小包（≤1450 未到 MTU），但下行字节占比极高（收消息多于发）</td></tr><tr><td>A4 telegram: <strong>无 SNI</strong> 且 SYN占比 > 0 且 平均包长 > 121 且 PSH占比 ≤ 0.315</td><td align="right">0.96</td><td><strong>Telegram 自研 MTProto 不走标准 TLS，因此抓不到 SNI</strong>（telegram 的”无SNI”占比 78.9%，10 个 App 中最高）。这是<strong>协议层事实</strong>，不是伪影</td></tr><tr><td>A5 tiktok: SYN占比 > 0.092 且 包间隔标准差 > 4134 且 RST ≥ 1</td><td align="right">0.98</td><td>短视频 = 大量短连接突发 + 极高节奏方差</td></tr><tr><td>A6 reddit: SYN占比 > 0.132 且 RST ≥ 2 且 字节数 ≤ 2013</td><td align="right">1.00</td><td>短连接被重置的”探活/埋点”小请求</td></tr></tbody></table>
+<h3 id="️-需上下文的规则语义成立但会误判">⚠️ 需上下文的规则（语义成立但会误判）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>规则</th><th align="right">prec</th><th>问题</th></tr></thead><tbody><tr><td>A8 linkedin: 最大包长 ≥ 1513 且 包数 ≥ 31 且 下行包占比 ≤ 0.486</td><td align="right">0.67</td><td>“上行占比高”这个特征在 linkedin 上出现，是因为抓包里混入了上传/同步，不一定是 LinkedIn 特有</td></tr><tr><td>A11 youtube: PSH占比 > 0.404 且 包长标准差 > 435</td><td align="right">0.41</td><td>YouTube 的 0.41 精度说明它常被 facebook/instagram 抢走（都走 Google/Meta CDN）</td></tr><tr><td>B: 所有 facebook 规则</td><td align="right">—</td><td><strong>facebook 是”吸收池”</strong>：instagram 33%、linkedin 30%、youtube 25% 都被判成 facebook。因为 Meta SDK 的 <code>graph.facebook.com</code> 出现在所有这些 App 中（见 <code>02</code> §6.3）。<strong>判成 facebook ≠ 用户在看 Facebook</strong></td></tr></tbody></table>
+<h3 id="-伪规则模型学到了采集伪影不可用">❌ 伪规则（模型学到了采集伪影，不可用）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>规则</th><th>证据</th><th>性质</th></tr></thead><tbody><tr><td><strong>A14 twitter: <code>包数 ≤ 1</code> → twitter</strong>（conf 0.82，prec 0.40）</td><td>Twitter 抓包里有 <strong>212 个源 MAC</strong>（其余 App 只有 38–71 个），单包流占 15.3%（10 个 App 最高）。这是<strong>抓包环境里大量设备产生的半开连接/探测包</strong>，不是 Twitter 的行为</td><td>论文所说的 <strong>“mistaken label / 采集伪影”</strong>。若照抄这条规则，会把任何一次单包请求判成 Twitter</td></tr><tr><td>A13 facebook: <code>最大包长 ≤ 1480 且 PSH占比 > 0.158 且 SYN占比 ≤ 0</code></td><td>prec 仅 <strong>0.21</strong>（5 条里 4 条错）</td><td>覆盖率大而精度极低的”垃圾桶”规则，是模型对高熵区域的兜底</td></tr><tr><td>任何以 <code>src_oui</code> / <code>dst_oui</code> 为条件的规则</td><td><code>f8:e4:3b</code> 的 2,011 条流 100% 是 whatsapp；设备留出实验准确率从 0.73 掉到 0.44</td><td><strong>设备身份捷径</strong>，换一批手机立即失效</td></tr><tr><td>任何以单个 JA4 为条件的规则</td><td>主流 JA4 覆盖 10/10 个 App（纯度 0.33–0.51）</td><td><strong>OS 共享指纹</strong>，指向”用的是 Android+Chrome”，不是”用的是哪个 App”</td></tr></tbody></table>
+<blockquote>
+<p><strong>这条审计本身就是最有价值的”规则”</strong>：论文 Insight 3 说”规则常与常识冲突，需按 特征/标签/模型 三查表定位”。
+本文的伪规则全部能在三查表里找到位置：A14 = 标签+采集伪影，A13 = 模型欠拟合，OUI 规则 = 特征（设备代理）。</p>
+</blockquote>
+<hr>
+<h2 id="10-最终规则清单去重合并按可信度排序">10. 最终规则清单（去重合并，按可信度排序）</h2>
+<p>把 A/B/C/D 四套规则合并、去掉重复与伪规则后，得到可直接落地的一页纸规则集：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span># ---------- 第 0 层：先判定是否为背景流量（必须做） ----------</span></span>
+<span class="line"><span>R0.1  IF 目的IP为私有/组播/广播                     THEN 背景流量（7.2%）</span></span>
+<span class="line"><span>R0.2  IF 目的端口∈{1900,5353,5355,3702,137,138,67,68} THEN 背景流量</span></span>
+<span class="line"><span>R0.3  IF 目的端口=53 且 目的IP为公网                THEN 背景流量（DNS 解析，App 无关）</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># ---------- 第 1 层：高置信 App 判据（prec ≥ 0.85） ----------</span></span>
+<span class="line"><span>R1.1  IF 最大包长≥1510 AND 下行包占比>0.50 AND RST数≥2              THEN Reddit      (prec 0.89)</span></span>
+<span class="line"><span>R1.2  IF RST数≥2 AND 最大包长≤1450 AND 字节数≥5613 AND 下行字节占比>0.757 THEN WhatsApp (prec 0.94)</span></span>
+<span class="line"><span>R1.3  IF 无SNI AND SYN占比>0 AND 平均包长>121 AND PSH占比≤0.315      THEN Telegram    (prec 0.96)</span></span>
+<span class="line"><span>R1.4  IF SYN占比>0.092 AND 包间隔标准差>4134 AND RST数≥1 AND 时长≤48s THEN TikTok     (prec 0.98)</span></span>
+<span class="line"><span>R1.5  IF 下行包占比>0.875 AND 最大包长≤1291                          THEN Facebook    (prec 0.97)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># ---------- 第 2 层：中等置信，需引入会话上下文 ----------</span></span>
+<span class="line"><span>R2.1  IF 最大包长≥1513 AND 时长≤10.7s AND 包数≥31 AND 下行包占比≤0.486 THEN LinkedIn  (prec 0.67)</span></span>
+<span class="line"><span>R2.2  IF FIN数≤0 AND PSH占比>0.404 AND 包长标准差>435 AND SYN占比≤0.081 THEN YouTube (prec 0.41)</span></span>
+<span class="line"><span>R2.3  IF SYN占比>0.108 AND 非瞬时流 AND PSH占比≤0.272                  THEN Twitter   (prec 0.50)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># ---------- 第 3 层：不可单独使用的特征（禁用清单） ----------</span></span>
+<span class="line"><span>禁止  src_oui / dst_oui（设备身份捷径；跨设备泛化 -0.29）</span></span>
+<span class="line"><span>禁止  单个 JA4 指纹（覆盖 10/10 App，纯度 0.33–0.51）</span></span>
+<span class="line"><span>禁用  "包数≤1 → Twitter"（采集伪影：Twitter 抓包含 212 个设备的半开连接）</span></span>
+<span class="line"><span>慎用  任何指向 facebook 的规则（Meta SDK 跨 App 复用，会吸收 instagram/linkedin/youtube）</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># ---------- 第 4 层：聚合规则（单流不可判时） ----------</span></span>
+<span class="line"><span>R4.1  同一 dst_ip 上 ≥3 条流的多数投票结果为准   → 准确率 0.464 → 0.716</span></span></code></pre>
+<hr>
+<h2 id="11-规则怎么用取证流程">11. 规则怎么用（取证流程）</h2>
+<ol>
+<li><strong>过滤</strong>：先跑第 0 层，把 39.2% 的背景流摘出去（这一步不做，后面全是噪声）。</li>
+<li><strong>单流初判</strong>：跑第 1 层，得到高置信 App；命中即接受。</li>
+<li><strong>聚合再判</strong>：对未命中的流，按目的 IP 聚合投票（第 4 层），把 0.46 → 0.72。</li>
+<li><strong>人工复核</strong>：第 2 层的规则只能作为”提示”，必须结合 SNI/证书/会话上下文。</li>
+<li><strong>禁用</strong>：第 3 层的一切捷径特征不得写进结论 —— 它们在换设备/换天之后必然失效。</li>
+</ol>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/rules-A-merged-tree-argmax.csv">rules-A-merged-tree-argmax.csv</a></td><td>规则集 A：合并树 argmax 规则（18 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-B-perclass-prob.csv">rules-B-perclass-prob.csv</a></td><td>规则集 B：每类概率区域规则（16 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-C-true-label-tree.csv">rules-C-true-label-tree.csv</a></td><td>规则集 C：真标签浅树规则（20 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-D-fidelity.csv">rules-D-fidelity.csv</a></td><td>蒸馏保真度/简洁度（IID 与 Day-5 OOD）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-E-budget-sweep.csv">rules-E-budget-sweep.csv</a></td><td>规则预算扫描（8 组超参 × 3 方法）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-F-gead-tuning.csv">rules-F-gead-tuning.csv</a></td><td>GEAD 超参敏感性</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-G-equal-budget.csv">rules-G-equal-budget.csv</a></td><td>等规则预算下的保真度比较</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-H-gead-best-config.csv">rules-H-gead-best-config.csv</a></td><td>GEAD 最优配置搜索</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-I-view-ablation.csv">results-I-view-ablation.csv</a></td><td>特征视图消融全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-J-model-temporal.csv">results-J-model-temporal.csv</a></td><td>模型族与时间外推全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-K-leakage-audit.csv">results-K-leakage-audit.csv</a></td><td>泄漏/捷径审计全部结果</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>加密社交 App 流量分析（三）：提炼判定规则</b><br>
+作者：Infinity · 发布于 2026-11-16<br>
+本文链接：<a href="https://lvjf.space/blog/posts/2f1c2763.html">https://lvjf.space/blog/posts/2f1c2763.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/1157b43a.html">← 加密社交 App 流量分析（四）：总结与规则清单</a> <a class="next" href="/blog/posts/e4854882.html">加密社交 App 流量分析（二）：数据画像与分类实验 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#1-为什么这套方法要用在这个任务上">1. 为什么这套方法要用在这个任务上</a> </li><li class> <a href="#2-gead-六步在本任务上的落地">2. GEAD 六步在本任务上的落地</a> </li><li class> <a href="#3-规则蒸馏的保真度--简洁度论文-table-1-的对应实验">3. 规则蒸馏的保真度 / 简洁度（论文 Table 1 的对应实验）</a> </li><li class> <a href="#4-但是等规则预算下的公平比较给出相反结论">4. 但是：等规则预算下的公平比较给出相反结论</a> </li><li class="toc-sub"> <a href="#结论与解释重要">结论与解释（重要）</a> </li><li class> <a href="#5-规则集-a合并树-argmax-规则rulesa_merged_tree_argmax_规则csv">5. 规则集 A：合并树 argmax 规则（rules/A_merged_tree_argmax_规则.csv）</a> </li><li class> <a href="#6-规则集-b每类概率区域规则rulesb_perclass_prob_规则csv">6. 规则集 B：每类概率区域规则（rules/B_perclass_prob_规则.csv）</a> </li><li class> <a href="#7-规则集-c真标签浅树人类摘要rulesc_true_label_tree_规则csv">7. 规则集 C：真标签浅树（人类摘要，rules/C_true_label_tree_规则.csv）</a> </li><li class> <a href="#8-规则集-d背景流量识别规则本数据集的第一层过滤">8. 规则集 D：背景流量识别规则（本数据集的第一层过滤）</a> </li><li class> <a href="#9-规则审计哪些是真规则哪些是伪规则论文-insight-3-的核心">9. 规则审计：哪些是真规则，哪些是伪规则（论文 Insight 3 的核心）</a> </li><li class="toc-sub"> <a href="#-可信规则语义自洽--prec--085">✅ 可信规则（语义自洽 + prec ≥ 0.85）</a> </li><li class="toc-sub"> <a href="#️-需上下文的规则语义成立但会误判">⚠️ 需上下文的规则（语义成立但会误判）</a> </li><li class="toc-sub"> <a href="#-伪规则模型学到了采集伪影不可用">❌ 伪规则（模型学到了采集伪影，不可用）</a> </li><li class> <a href="#10-最终规则清单去重合并按可信度排序">10. 最终规则清单（去重合并，按可信度排序）</a> </li><li class> <a href="#11-规则怎么用取证流程">11. 规则怎么用（取证流程）</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

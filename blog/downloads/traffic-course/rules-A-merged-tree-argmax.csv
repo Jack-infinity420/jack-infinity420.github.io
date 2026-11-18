@@ -1,0 +1,19 @@
+﻿cls,support,confidence,precision_true,n_cond,rule_en,rule_cn
+facebook,221,0.973,0.81,2,IF dn_pkt_ratio > 0.8748 AND pkt <= 41743 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 包数 <= 41743 则判为 facebook
+facebook,190,0.774,0.211,3,IF ps_max <= 1480 AND psh_ratio > 0.1575 AND syn_ratio <= 0 THEN facebook,若 最大包长 <= 1480 且 PSH占比 > 0.1575 (p48) 且 SYN占比 <= 0 (p44) 则判为 facebook
+facebook,170,1.0,0.971,2,IF dn_pkt_ratio > 0.8748 AND ps_max <= 1291 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 最大包长 <= 1291 则判为 facebook
+facebook,87,0.989,0.874,3,IF dn_pkt_ratio > 0.8748 AND dur_ms <= 145309 AND ps_mean <= 1171 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 流持续时长(ms) <= 145309 且 包长均值 <= 1171 (p95) 则判为 facebook
+facebook,86,1.0,0.942,3,IF dn_pkt_ratio > 0.8748 AND dur_ms <= 145309 AND ps_std <= 334.1 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 流持续时长(ms) <= 145309 且 包长标准差 <= 334.1 (p32) 则判为 facebook
+linkedin,54,0.796,0.667,4,IF ps_max >= 1513 AND dur_ms <= 10704 AND pkt >= 31 AND dn_pkt_ratio <= 0.4863 THEN linkedin,若 最大包长 >= 1513 且 流持续时长(ms) <= 10704 且 包数 >= 31 且 下行包占比 <= 0.4863 (p58) 则判为 linkedin
+reddit,286,0.986,0.892,3,IF ps_max >= 1510 AND dn_pkt_ratio > 0.5012 AND rst_cnt >= 2 THEN reddit,若 最大包长 >= 1510 且 下行包占比 > 0.5012 (p67) 且 RST数 >= 2 则判为 reddit
+reddit,199,0.975,0.739,4,IF ps_max >= 1510 AND dn_pkt_ratio > 0.5012 AND piat_mean <= 395.6 AND fin_cnt >= 1 THEN reddit,若 最大包长 >= 1510 且 下行包占比 > 0.5012 (p67) 且 包间隔均值(ms) <= 395.6 (p77) 且 FIN数 >= 1 则判为 reddit
+reddit,33,1.0,1.0,4,IF syn_ratio > 0.1319 AND rst_cnt >= 2 AND byt <= 2013 AND psh_ratio > 0.2931 THEN reddit,若 SYN占比 > 0.1319 (p90) 且 RST数 >= 2 且 字节数 <= 2013 且 PSH占比 > 0.2931 (p61) 则判为 reddit
+telegram,181,0.934,0.89,4,IF has_sni == 0 AND syn_ratio > 0 AND bytes_per_pkt > 121.4 AND rst_cnt <= 0 THEN telegram,若 有SNI=0 且 SYN占比 > 0 (p44) 且 平均包长(字节) > 121.4 (p21) 且 RST数 <= 0 则判为 telegram
+telegram,107,1.0,0.963,5,IF has_sni == 0 AND syn_ratio > 0 AND bytes_per_pkt > 121.4 AND psh_ratio <= 0.315 AND rst_cnt <= 0 THEN telegram,若 有SNI=0 且 SYN占比 > 0 (p44) 且 平均包长(字节) > 121.4 (p21) 且 PSH占比 <= 0.315 (p64) 且 RST数 <= 0 则判为 telegram
+tiktok,55,1.0,0.982,4,IF syn_ratio > 0.09233 AND piat_std > 4134 AND rst_cnt >= 1 AND dur_ms <= 48077 THEN tiktok,若 SYN占比 > 0.09233 (p79) 且 包间隔标准差 > 4134 (p83) 且 RST数 >= 1 且 流持续时长(ms) <= 48077 则判为 tiktok
+twitter,303,0.822,0.396,3,IF syn_ratio > 0.1082 AND dur_ms <= 285 AND rst_cnt <= 1 THEN twitter,若 SYN占比 > 0.1082 (p86) 且 流持续时长(ms) <= 285 且 RST数 <= 1 则判为 twitter
+twitter,130,0.908,0.5,4,IF syn_ratio > 0.1082 AND bps > 0 AND psh_ratio <= 0.2722 AND pps <= 5.36e+06 THEN twitter,若 SYN占比 > 0.1082 (p86) 且 比特率(字节/秒) > 0 (p0) 且 PSH占比 <= 0.2722 (p58) 且 包速率(包/秒) <= 5.36e+06 (p92) 则判为 twitter
+twitter,32,0.625,0.656,3,IF dn_ratio > 0.65 AND dur_ms >= 299985 AND ps_max >= 1510 THEN twitter,若 下行字节占比 > 0.65 (p55) 且 流持续时长(ms) >= 299985 且 最大包长 >= 1510 则判为 twitter
+whatsapp,334,0.862,0.841,3,IF rst_cnt >= 2 AND ps_max <= 1450 AND byt >= 5613 THEN whatsapp,若 RST数 >= 2 且 最大包长 <= 1450 且 字节数 >= 5613 则判为 whatsapp
+whatsapp,252,0.937,0.94,4,IF rst_cnt >= 2 AND ps_max <= 1450 AND byt >= 5613 AND dn_ratio > 0.7572 THEN whatsapp,若 RST数 >= 2 且 最大包长 <= 1450 且 字节数 >= 5613 且 下行字节占比 > 0.7572 (p67) 则判为 whatsapp
+youtube,76,0.868,0.408,4,IF fin_cnt <= 0 AND psh_ratio > 0.4037 AND ps_std > 434.5 AND syn_ratio <= 0.08071 THEN youtube,若 FIN数 <= 0 且 PSH占比 > 0.4037 (p86) 且 包长标准差 > 434.5 (p45) 且 SYN占比 <= 0.08071 (p75) 则判为 youtube

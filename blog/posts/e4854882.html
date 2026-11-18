@@ -1,0 +1,950 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>加密社交 App 流量分析（二）：数据画像与分类实验 | INFINITY&#39;S BLOG</title><meta name="description" content="25116 条加密移动流量的画像、39.2% 标签噪声的发现、五级特征视图消融、跨天与跨设备泛化实验。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/e4854882/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="加密社交 App 流量分析（二）：数据画像与分类实验 | INFINITY'S BLOG"><meta property="og:description" content="25116 条加密移动流量的画像、39.2% 标签噪声的发现、五级特征视图消融、跨天与跨设备泛化实验。"><meta property="og:url" content="https://lvjf.space/blog/posts/e4854882/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">加密社交 App 流量分析（二）：数据画像与分类实验</h1><div class="post-meta-top">2026-11-16 · tech / 流量分析 · 约 3918 字 · 阅读约 10 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>加密社交 App 流量分析（四篇）</strong>：<a href="/blog/posts/9c167f56.html">一·分类依据</a> ｜ <strong>二·数据与实验</strong> ｜ <a href="/blog/posts/2f1c2763.html">三·规则提炼</a> ｜ <a href="/blog/posts/1157b43a.html">四·总结</a></p>
+</blockquote>
+<blockquote>
+<p>数据：<code>Encrypted_Mobile_Social_Media/</code>（10 个 App × 5 天 = 50 个 pcapng → NFStream 双向流）
+方法依据：CCS 2024 的 GEAD 论文，提炼过程见本系列第一篇。
+配套代码包与结果 CSV 见文末《配套下载》，可一键复现。</p>
+</blockquote>
+<hr>
+<h2 id="1-数据概况">1. 数据概况</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>项目</th><th>数值</th></tr></thead><tbody><tr><td>原始文件</td><td>50 个（10 App × 5 天），合并后 10 个 CSV</td></tr><tr><td>流记录</td><td><strong>25,116</strong> 条（双向流）</td></tr><tr><td>列数</td><td>92 列（NFStream 流级特征）+ 1 列 <code>Label</code></td></tr><tr><td>采集天</td><td>day1–day5（day5 流量最大，8,525 条）</td></tr><tr><td>源设备</td><td>303 个源 IP / 273 个源 MAC（38 个厂商 OUI）</td></tr><tr><td>目的地址</td><td>1,298 个目的 IP / 431 个目的端口</td></tr><tr><td>传输层</td><td>UDP 17,181 (68.4%)、TCP 7,188 (28.6%)、ICMP 369、IGMP 100</td></tr><tr><td>主端口</td><td>443 = 9,036 (36.0%)、1900 = 5,753、53 = 5,176、5353 = 1,643</td></tr></tbody></table>
+<p>各类样本量高度不均衡：whatsapp 5,311 → telegram 1,402，比例 3.8:1。</p>
+<p><strong>各 App × 采集天 流量数</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>app</th><th align="right">day1</th><th align="right">day2</th><th align="right">day3</th><th align="right">day4</th><th align="right">day5</th><th align="right">合计</th></tr></thead><tbody><tr><td>facebook</td><td align="right">214</td><td align="right">390</td><td align="right">799</td><td align="right">1007</td><td align="right">815</td><td align="right">3,225</td></tr><tr><td>instagram</td><td align="right">121</td><td align="right">91</td><td align="right">690</td><td align="right">457</td><td align="right">426</td><td align="right">1,785</td></tr><tr><td>linkedin</td><td align="right">91</td><td align="right">98</td><td align="right">407</td><td align="right">547</td><td align="right">433</td><td align="right">1,576</td></tr><tr><td>reddit</td><td align="right">192</td><td align="right">279</td><td align="right">725</td><td align="right">599</td><td align="right">709</td><td align="right">2,504</td></tr><tr><td>snapchat</td><td align="right">170</td><td align="right">150</td><td align="right">630</td><td align="right">718</td><td align="right">445</td><td align="right">2,113</td></tr><tr><td>telegram</td><td align="right">291</td><td align="right">212</td><td align="right">325</td><td align="right">425</td><td align="right">149</td><td align="right">1,402</td></tr><tr><td>tiktok</td><td align="right">152</td><td align="right">143</td><td align="right">314</td><td align="right">448</td><td align="right">550</td><td align="right">1,607</td></tr><tr><td>twitter</td><td align="right">230</td><td align="right">219</td><td align="right">745</td><td align="right">1212</td><td align="right">634</td><td align="right">3,040</td></tr><tr><td>whatsapp</td><td align="right">165</td><td align="right">244</td><td align="right">238</td><td align="right">1736</td><td align="right">2928</td><td align="right">5,311</td></tr><tr><td>youtube</td><td align="right">155</td><td align="right">155</td><td align="right">526</td><td align="right">281</td><td align="right">1436</td><td align="right">2,553</td></tr></tbody></table>
+<blockquote>
+<p>day5 的类别分布与 day1–4 <strong>严重漂移</strong>（whatsapp 占比从 ~10% 升到 34%，telegram 从 ~8% 降到 4%）。
+这正是论文 §4.3.2 “概念漂移”的场景，也是把 day5 当作 <strong>OOD 测试集</strong>的理由（论文 Fig.1 指出 IID 评估会产生假保真）。</p>
+</blockquote>
+<hr>
+<h2 id="2-数据质量本数据集最大的问题不是加密而是标签噪声">2. 数据质量：本数据集最大的问题不是加密，而是<strong>标签噪声</strong></h2>
+<h3 id="21-392-的流根本不属于被标注的-app">2.1 39.2% 的流根本不属于被标注的 App</h3>
+<p><code>Label</code> 的含义是”这条流被捕获时，手机上正在使用的是哪个 App”。但一次抓包里混入了大量<strong>设备/网络背景流量</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>背景流量类型</th><th align="right">目的端口</th><th align="right">流数</th><th>说明</th></tr></thead><tbody><tr><td>SSDP / UPnP 发现</td><td align="right">1900</td><td align="right">5,753</td><td>组播 <code>239.255.255.250</code>，与 App 无关</td></tr><tr><td>mDNS</td><td align="right">5353</td><td align="right">1,643</td><td><code>_spotify-connect._tcp.local</code> 等</td></tr><tr><td>私有/自建服务</td><td align="right">20002</td><td align="right">787</td><td>局域网内设备互访</td></tr><tr><td>LLMNR</td><td align="right">5355</td><td align="right">350</td><td>Windows 名解析</td></tr><tr><td>WS-Discovery</td><td align="right">3702</td><td align="right">290</td><td>打印机/摄像头发现</td></tr><tr><td>DHCP / NBNS</td><td align="right">67,68,137,138</td><td align="right">267</td><td>—</td></tr><tr><td>组播/链路本地目的地址</td><td align="right">—</td><td align="right">7.21%</td><td>目的 IP 非公网</td></tr><tr><td><strong>合计判定为背景</strong></td><td align="right">—</td><td align="right"><strong>9,846 (39.2%)</strong></td><td>目的 IP 非公网 <strong>或</strong> 目的端口属局域网服务</td></tr></tbody></table>
+<p>每个 App 的背景占比差异极大：facebook / reddit 只有 21.6%，而 snapchat 62%、telegram 57%、linkedin 56%。</p>
+<p>→ 这直接对应论文 <strong>Insight 3</strong>：规则与常识冲突的第一大来源是 <strong>标签错误</strong>。
+本文后续所有实验都同时报告两个子集：</p>
+<ul>
+<li><code>ALL</code>：全部 25,116 条（含背景噪声）</li>
+<li><code>APP</code>：只保留目的 IP 为公网的流（15,270 条，60.8%）</li>
+<li><code>APP_NDNS</code>：再剔除公网 DNS（目的端口 53）的流（10,132 条，40.3%）——<strong>最干净的语料</strong></li>
+</ul>
+<h3 id="22-其他数据质量事实">2.2 其他数据质量事实</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>项目</th><th>情况</th><th>影响</th></tr></thead><tbody><tr><td>常量列</td><td>11 列（<code>vlan_id</code>, <code>tunnel_id</code>, <code>*_cwr/ece/urg_packets</code>, <code>splt_direction</code>）</td><td>无信息，须剔除</td></tr><tr><td>高缺失列</td><td><code>content_type</code> 99.99%、<code>user_agent</code> 99.98%、<code>server_fingerprint</code> 77.9%、<code>client_fingerprint</code> 68.9%、<code>requested_server_name</code> 17.5%</td><td>明文元数据只覆盖部分流</td></tr><tr><td>特征重复</td><td>在 6 个核心特征上重复的记录 2,543 条（10.1%）</td><td>同一服务被多次重建流</td></tr><tr><td>数值异常</td><td><code>dst_port = 0</code> 的流 747 条；<code>src_ip</code> 存在 <code>0.0.0.0</code> 与伪造形如 <code>169.110.1.187</code> 的地址</td><td>抓包/脱敏引入的脏数据</td></tr><tr><td>设备维度</td><td>273 个源 MAC，单文件平均 23 个设备；<code>src_mac → Label</code> 加权纯度仅 <strong>0.361</strong></td><td>设备不是 App 的代理，但存在局部关联（见 §6）</td></tr></tbody></table>
+<hr>
+<h2 id="3-特征体系把-92-列映射到论文的四类分类依据">3. 特征体系：把 92 列映射到论文的四类分类依据</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>论文依据族（§2）</th><th>本数据集的对应列</th><th>列数</th></tr></thead><tbody><tr><td>① 体量与包长统计</td><td><code>*_packets</code>, <code>*_bytes</code>, <code>*_duration_ms</code>, <code>*_min/mean/stddev/max_ps</code></td><td>10 + 12 = 22</td></tr><tr><td>② 时间与到达间隔统计</td><td><code>*_min/mean/stddev/max_piat_ms</code>, <code>*_first/last_seen_ms</code></td><td>12 + 6 = 18</td></tr><tr><td>③ 传输层协议与标志位</td><td><code>protocol</code>, <code>ip_version</code>, <code>*_syn/ack/psh/rst/fin_packets</code></td><td>3 + 15 = 18</td></tr><tr><td>④ 服务/端口/主机画像</td><td><code>src/dst_port</code>, <code>src/dst_ip</code>, <code>src/dst_mac</code>, <code>*_oui</code>, <code>requested_server_name</code>(SNI), <code>client_fingerprint</code>(JA4), <code>server_fingerprint</code>, <code>application_name</code>(DPI)</td><td>24</td></tr><tr><td>会话/多流上下文</td><td><code>bidirectional_first_seen_ms</code>, <code>capture_day</code>, <code>capture_file</code></td><td>3</td></tr><tr><td>标签与 ID</td><td><code>Label</code>, <code>id</code>, <code>expiration_id</code></td><td>3</td></tr></tbody></table>
+<p>在论文四族之上，本文额外构造了 <strong>23 个可解释派生量</strong>（比值、速率、占比）：
+<code>dn_ratio</code>(下行字节占比)、<code>dn_pkt_ratio</code>、<code>bytes_per_pkt</code>、<code>pps</code>、<code>bps</code>、<code>syn_ratio</code>、<code>psh_ratio</code>、<code>has_sni</code>、<code>has_ja4</code>、<code>is_udp</code> 等 —— 这些是后续规则的语言基础。</p>
+<h3 id="31-五个由弱到强的特征视图分级泄漏设计">3.1 五个由弱到强的特征视图（<strong>分级泄漏</strong>设计）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视图</th><th>内容</th><th align="right">维数</th><th>现实含义</th></tr></thead><tbody><tr><td><strong>V1</strong> 纯流统计</td><td>①②③ 只取数值统计，<strong>不含端口、协议号、IP</strong></td><td align="right">45</td><td>载荷全加密、且五元组被隐藏时仍可用的”纯行为指纹”</td></tr><tr><td><strong>V2</strong> +L4 身份</td><td>+ <code>protocol</code>, <code>src/dst_port</code>, <code>ip_version</code></td><td align="right">55</td><td>网络中间点常规可见</td></tr><tr><td><strong>V3</strong> +TLS 元数据</td><td>+ <code>has_sni</code>, <code>sni_len</code>, <code>has_ja4</code>, <code>has_srvfp</code></td><td align="right">59</td><td>只能看到”有没有 ClientHello 扩展”，看不到内容（ECH 场景）</td></tr><tr><td><strong>V4a</strong> +SNI 明文 + OUI</td><td>+ <code>requested_server_name</code>(哈希 one-hot) + <code>src/dst_oui</code></td><td align="right">130</td><td>传统 TLS1.2 无 ECH：SNI 明文可见</td></tr><tr><td><strong>V4b</strong> +仅 OUI</td><td>V3 + <code>src/dst_oui</code></td><td align="right">81</td><td>用于隔离”设备身份”的影响</td></tr><tr><td><strong>V5</strong> +DPI oracle</td><td>+ NFStream/nDPI 的 <code>application_name</code>、<code>category</code>、<code>confidence</code></td><td align="right">257</td><td><strong>泄漏参照</strong>：模拟”如果直接用 DPI 分类器能有多准”</td></tr></tbody></table>
+<blockquote>
+<p><code>Label</code>、<code>capture_file</code>（文件名含 App 名）、<code>id</code>、时间戳一律不作为特征。</p>
+<p>⚠️ <strong>一处已知的字段语义偏差（后续教程中发现，见 <code>08_教程_3_nDPI与流量识别.md</code> §7.2）</strong>：
+本文的 <code>has_sni</code> 用 <code>requested_server_name.notna()</code> 判定，但该字段在非 TLS 流里也会被填充——
+其中 5,752 条是 SSDP 组播地址 <code>239.255.255.250</code>、1,288 条是 mDNS 服务名。
+严格的”合法域名 SNI”只有 <strong>14,470 条（57.6%）</strong>。
+这不影响本章”SNI 加权纯度 / 共享域名”类结论（那些按具体域名计算），
+但会让任何以 <code>has_sni</code> 为条件的规则偏松。</p>
+</blockquote>
+<hr>
+<h2 id="4-分类实验一特征视图消融回答凭什么分类">4. 分类实验一：特征视图消融（回答”凭什么分类”）</h2>
+<p>5 折分层交叉验证，HistGradientBoosting，三个子集：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视图</th><th align="right">ALL 准确率</th><th align="right">APP 准确率</th><th align="right">APP_NDNS 准确率</th></tr></thead><tbody><tr><td>V1 纯流统计</td><td align="right">0.4909</td><td align="right">0.6633</td><td align="right"><strong>0.7007</strong></td></tr><tr><td>V2 +L4 身份</td><td align="right">0.5055</td><td align="right">0.6642</td><td align="right">0.7256</td></tr><tr><td>V3 +TLS 元数据</td><td align="right">0.5105</td><td align="right">0.6770</td><td align="right">0.7389</td></tr><tr><td>V4a +SNI+OUI</td><td align="right">0.5579</td><td align="right">0.7236</td><td align="right"><strong>0.7651</strong></td></tr><tr><td>V5 +DPI oracle</td><td align="right">0.5692</td><td align="right">0.7415</td><td align="right">0.7754</td></tr></tbody></table>
+<p>macro-F1（APP_NDNS）：V1 0.645 → V2 0.677 → V3 0.692 → V4a 0.709 → V5 0.724</p>
+<p><img src="/blog/images/traffic/traffic-fig01-view-ablation.png" alt="特征视图消融"></p>
+<p><strong>读法</strong></p>
+<ol>
+<li><strong>只用加密流统计（V1）就有 70% 准确率</strong> —— 说明纯行为指纹确实携带 App 信息（论文”流量表示粒度”的第一层成立）。</li>
+<li>从 V1 → V2 → V3 只涨 4 个点（0.701→0.739），说明 <strong>端口/协议/Fingerprint 存在性</strong> 的边际贡献有限。</li>
+<li><strong>V4a（SNI 明文）一次涨 2.6 个点，是最大的单步增量</strong> —— SNI 才是真正的强信号。</li>
+<li><strong>V5 只比 V4a 高 1 个点</strong>（0.765→0.775）：这说明 <strong>nDPI 的判定基本就是 SNI + 证书</strong>，一旦 SNI 可见，DPI oracle 就没有额外信息量了。这条结论直接支撑”加密流量指纹 = 旁路明文元数据”的判断。</li>
+<li><strong>ALL 子集准确率只有 49%–57%</strong>：背景噪声把上限压掉了 20 个点。<strong>不去噪就没有分类可言</strong>。</li>
+</ol>
+<hr>
+<h2 id="5-分类实验二模型族对比">5. 分类实验二：模型族对比</h2>
+<p>flow 级、<code>APP_NDNS</code>、5 折 IID（表 T2）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视图</th><th align="right">LogReg</th><th align="right">DT</th><th align="right">MLP</th><th align="right">RF</th><th align="right">ET</th><th align="right">HGB</th></tr></thead><tbody><tr><td>B-V1（统计）</td><td align="right">0.369</td><td align="right">0.598</td><td align="right">0.572</td><td align="right">0.682</td><td align="right">0.683</td><td align="right">0.682</td></tr><tr><td>B-V2（+L4）</td><td align="right">0.376</td><td align="right">0.600</td><td align="right">0.575</td><td align="right">0.693</td><td align="right">0.691</td><td align="right">0.713</td></tr><tr><td>B-V3（+TLS fp）</td><td align="right">0.439</td><td align="right">0.603</td><td align="right">0.607</td><td align="right">0.708</td><td align="right">0.707</td><td align="right">0.727</td></tr><tr><td>B-V4（+OUI）</td><td align="right">0.552</td><td align="right">0.646</td><td align="right">0.658</td><td align="right">0.735</td><td align="right">0.736</td><td align="right">0.760</td></tr></tbody></table>
+<blockquote>
+<p>B-V* 是<strong>不含 SNI 字符串</strong>的那一版（与 §3 的 V3/V4b 对应）。</p>
+</blockquote>
+<p>结论：</p>
+<ul>
+<li><strong>集成树（HGB / ET / RF）> 单棵 DT > MLP > 线性模型</strong>。线性模型只有 37%，说明特征与类别边界是强非线性的。</li>
+<li>MLP（“黑盒”）并不比树模型强，这为后文”用树去蒸馏黑盒”提供了现实前提：<strong>目标模型本身就不复杂</strong>。</li>
+<li>加入 OUI 后所有模型一起涨 3–8 个点 —— 这个增益来源可疑，§6 专门审计。</li>
+</ul>
+<hr>
+<h2 id="6-分类实验三泄漏与捷径审计论文-insight-13-的实证">6. 分类实验三：泄漏与捷径审计（论文 Insight 1/3 的实证）</h2>
+<h3 id="61-设备留出groupkfold-by-src_mac">6.1 设备留出（GroupKFold by <code>src_mac</code>）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视图</th><th align="right">IID 5 折</th><th align="right">未见设备（GroupKFold）</th><th align="right">保持率</th></tr></thead><tbody><tr><td>V1</td><td align="right">0.681</td><td align="right">0.438</td><td align="right">64%</td></tr><tr><td>V2</td><td align="right">0.715</td><td align="right">0.395</td><td align="right">55%</td></tr><tr><td>V3</td><td align="right">0.729</td><td align="right">0.436</td><td align="right">60%</td></tr><tr><td>V3+src_oui</td><td align="right">0.758</td><td align="right">0.454</td><td align="right">60%</td></tr><tr><td>V3+dst_oui</td><td align="right">0.732</td><td align="right">0.433</td><td align="right">59%</td></tr><tr><td>V3+both_oui</td><td align="right">0.761</td><td align="right">0.453</td><td align="right">60%</td></tr></tbody></table>
+<p><img src="/blog/images/traffic/traffic-fig02-device-holdout.png" alt="设备留出泛化"></p>
+<p><strong>结论：一旦换成训练时没见过的手机，准确率腰斩（0.73 → 0.44）。</strong>
+也就是说，IID 场景下那 0.73 里有约 0.29 来自<strong>设备/会话身份</strong>，不是 App 行为本身。
+这与论文 <strong>Insight 2</strong>（监督模型容易出现捷径学习）在方向上一致，但本任务因为是”有监督分类”，<strong>捷径确实存在</strong>，与论文”异常检测很少捷径学习”的结论形成对照。</p>
+<h3 id="62-oui-是被哪一类设备撑起来的">6.2 OUI 是被哪一类设备撑起来的？</h3>
+<ul>
+<li><code>src_oui = f8:e4:3b</code> 的 2,011 条流 <strong>100% 是 whatsapp</strong>；</li>
+<li><code>dst_oui = 08:86:3b</code> 98 条 <strong>100% 单一 App</strong>；<code>c6:8e:71</code>/<code>c6:8e:96</code> 纯度 0.93/0.86。</li>
+</ul>
+<p>即：OUI 的增益来自<strong>极少数只出现在某一个 App 抓包里的设备</strong>，属于典型的捷径特征，不能作为判据。</p>
+<h3 id="63-sni-与-ja4-的真实纯度">6.3 SNI 与 JA4 的真实纯度</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>特征</th><th align="right">覆盖率</th><th align="right">加权纯度</th><th>是否可作判据</th></tr></thead><tbody><tr><td><code>requested_server_name</code>（SNI）</td><td align="right">75.6% of APP</td><td align="right"><strong>0.802</strong></td><td>部分可用；共享基础设施会误判</td></tr><tr><td><code>client_fingerprint</code>（JA4）</td><td align="right">50.5% of APP</td><td align="right"><strong>0.624</strong></td><td><strong>不可单独作判据</strong></td></tr></tbody></table>
+<p><strong>共享 SNI（跨全部 10 个 App 出现）</strong>：<code>graph.facebook.com</code>（Meta SDK）、<code>play-fe.googleapis.com</code> / <code>play.googleapis.com</code>（Play 服务）、<code>i.ytimg.com</code>、<code>connectivitycheck.gstatic.com</code>、<code>device-metrics-us-2.amazon.com</code>。</p>
+<p><strong>JA4 的两面性（一个有意思的发现）</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>JA4</th><th align="right">流数</th><th align="right">覆盖 App 数</th><th align="right">纯度</th></tr></thead><tbody><tr><td><code>t13d1516h2_8daaf6152771_d8a2da3f94cd</code></td><td align="right">1,481</td><td align="right"><strong>10</strong></td><td align="right">0.51</td></tr><tr><td><code>q13d0311h3_55b375c5d22e_653d80c3fe9d</code></td><td align="right">632</td><td align="right"><strong>10</strong></td><td align="right">0.33</td></tr><tr><td><code>t12d1410h1_c866b44c5a26_f88f2b2eb673</code></td><td align="right">590</td><td align="right"><strong>10</strong></td><td align="right">0.53</td></tr><tr><td><code>t12d1210h2_d34a8e72043a_f88f2b2eb673</code></td><td align="right">390</td><td align="right"><strong>1</strong></td><td align="right"><strong>1.00</strong></td></tr><tr><td><code>t13d181100_e8a523a41297_ef7df7f74e48</code></td><td align="right">177</td><td align="right"><strong>1</strong></td><td align="right"><strong>1.00</strong></td></tr></tbody></table>
+<p>→ <strong>主流的几个 JA4 是 Android/Chrome/Conscrypt 的系统级 TLS 栈指纹，被所有 App 共用</strong>（覆盖 10/10，纯度 0.33–0.51）；
+只有 App 自带 TLS 栈（自研 SDK/自研协议）的指纹才是”私有”的（纯度 1.00）。
+<strong>这条结论与”JA3/JA4 可以指纹化 App”的常见假设相反</strong>，对取证实践很重要：
+拿 JA3/JA4 单独做 App 归属，会把 10 个 App 判成同一个。</p>
+<h3 id="64-论文-insight-3-的三查表本数据集的答案">6.4 论文 Insight 3 的三查表——本数据集的答案</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>论文归因</th><th>本数据集是否命中</th><th>证据</th></tr></thead><tbody><tr><td><strong>特征提取不准</strong></td><td>部分命中</td><td><code>dst_port=0</code>、<code>0.0.0.0</code> 源地址、伪造形如 <code>x.x.1.187</code> 的地址；11 个常量列；TCP 标志位与包长统计口径需回归原始 pcap 才可信</td></tr><tr><td><strong>标签错误</strong></td><td><strong>强命中（主因）</strong></td><td>39.2% 的流是背景协议流量；同一台设备跨 9–10 个 App（<code>src_mac→Label</code> 纯度 0.361）；day5 类别分布剧变</td></tr><tr><td><strong>模型训练不当</strong></td><td>命中</td><td>用 MLP 蒸馏时，模型会把”单包流 → Twitter”学成一条高置信规则（见 <code>03_规则提炼.md</code> §5.1），实为 Twitter 抓包里 212 个设备贡献的大量异常单包流（占比 15.3%，为 10 个 App 最高）</td></tr></tbody></table>
+<hr>
+<h2 id="7-分类实验四时间外推day-5--ood">7. 分类实验四：时间外推（Day-5 = OOD）</h2>
+<p>训练 day1–4，测试 day5（表 T3，APP_NDNS 子集）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视图</th><th align="right">LogReg</th><th align="right">DT</th><th align="right">MLP</th><th align="right">RF</th><th align="right">ET</th><th align="right">HGB</th></tr></thead><tbody><tr><td>B-V1</td><td align="right">0.323</td><td align="right">0.413</td><td align="right">0.404</td><td align="right">0.469</td><td align="right"><strong>0.490</strong></td><td align="right">0.470</td></tr><tr><td>B-V2</td><td align="right">0.314</td><td align="right">0.380</td><td align="right">0.371</td><td align="right">0.468</td><td align="right">0.482</td><td align="right">0.451</td></tr><tr><td>B-V3</td><td align="right">0.343</td><td align="right">0.378</td><td align="right">0.412</td><td align="right">0.476</td><td align="right">0.491</td><td align="right">0.478</td></tr><tr><td>B-V4（+OUI）</td><td align="right">0.611</td><td align="right">0.675</td><td align="right">0.689</td><td align="right">0.738</td><td align="right">0.734</td><td align="right"><strong>0.743</strong></td></tr></tbody></table>
+<p>（ALL 子集更低：B-V1 HGB 仅 0.323）</p>
+<p><strong>结论</strong></p>
+<ol>
+<li>跨天之后，<strong>纯统计视图掉到 0.47–0.49（相对 IID 掉 22–25 个点）</strong>，说明 App 的统计分布对”哪一天/哪批设备”高度敏感。</li>
+<li><strong>唯一稳住的是 B-V4（+OUI）的 0.743</strong>，但这是 §6 已证伪的捷径 —— 跨天用同一批设备，OUI 就等于身份标签。<strong>这个 0.743 不能当作泛化能力。</strong></li>
+<li>因此本数据集上<strong>可信的跨天 App 指纹准确率约 0.47–0.49</strong>（10 分类，随机基线 0.10，macro-F1 0.44）。</li>
+</ol>
+<h3 id="混淆矩阵day-5">混淆矩阵（Day-5）</h3>
+<p><img src="/blog/images/traffic/traffic-fig04-confusion-day5.png" alt="Day5 混淆矩阵"></p>
+<p>可解释的混淆结构（与”共享基础设施”完全吻合）：</p>
+<ul>
+<li><strong>facebook 是”吸收池”</strong>：instagram 33%、linkedin 30%、youtube 25% 都被判成 facebook —— 这四个 App 都走 Meta/Google 的登录与 SDK 域名。</li>
+<li><strong>snapchat ↔ reddit 互混</strong>（0.12 / 0.25）：两者都是”小图 + 短连接 + 高 RST”的形态。</li>
+<li><strong>whatsapp ↔ linkedin 互混</strong>（0.14 / 0.13）：都是长连接心跳 + 小包。</li>
+<li><strong>telegram（0.64）、tiktok（0.65）、reddit（0.68）、twitter（0.61）</strong> 基本可分 —— 它们有专属的协议形态（MTProto / 短连接高频 / 大量 RST / 单包流）。</li>
+</ul>
+<hr>
+<h2 id="8-分类实验五多流聚合本数据集提分的唯一有效手段">8. 分类实验五：多流聚合（本数据集提分的唯一有效手段）</h2>
+<p>论文与本数据集的 README 都强调 <strong>multi-flow aggregation</strong>。两种聚合尝试：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>聚合方式</th><th align="right">单元数</th><th align="right">中位流数/单元</th><th align="right">最佳准确率</th></tr></thead><tbody><tr><td>session = (<code>capture_file</code>,<code>src_ip</code>)</td><td align="right">1,395</td><td align="right">2</td><td align="right">0.386</td></tr><tr><td>burst = 30 秒窗口</td><td align="right">8,173</td><td align="right">1</td><td align="right">0.306</td></tr><tr><td>burst（仅 APP_NDNS）</td><td align="right">2,122</td><td align="right">1</td><td align="right">0.486</td></tr><tr><td><strong>按 <code>dst_ip</code> 对同一目的服务的多条流投票（≥3 条流）</strong></td><td align="right"><strong>116</strong></td><td align="right">≥3</td><td align="right"><strong>0.716</strong></td></tr></tbody></table>
+<p>前两种聚合<strong>失败</strong>，原因是本数据集的 <code>(capture_file, src_ip)</code> 分组极度长尾（中位数只有 1–2 条流，2583 条流集中在 1 个分组里），聚合后每条样本几乎等于单流。</p>
+<p><strong>有效的聚合是”按目的服务归并”</strong>：把判定给同一 <code>dst_ip</code> 的多条流做多数投票，
+day5 测试集上 <strong>0.464 → 0.716（+25 个点，+54%）</strong>。</p>
+<blockquote>
+<p>结论：<strong>单条流的 App 归属本质上是不确定的</strong>；证据必须按”服务会话”聚合成组。
+这正好复现论文在 CDIPS/Kyoto 上的观察——单个样本的判定依据弱，需要上下文。</p>
+</blockquote>
+<hr>
+<h2 id="9-本章结论">9. 本章结论</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>问题</th><th>答案</th></tr></thead><tbody><tr><td>用什么分类？</td><td>流级统计（①②③）+ 明文元数据（④），<strong>SNI 是唯一强且可迁移的单项</strong></td></tr><tr><td>不用明文能到多少？</td><td>APP_NDNS / IID <strong>70.1%</strong>，跨天 OOD <strong>47–49%</strong></td></tr><tr><td>用上 SNI 能到多少？</td><td><strong>76.5%</strong>（IID），但它已是 DPI oracle 的 96% 水平</td></tr><tr><td>最大障碍</td><td><strong>标签噪声（39.2% 背景流）+ 设备身份捷径</strong></td></tr><tr><td>如何提分</td><td><strong>按目的服务的多流聚合</strong>（0.464 → 0.716）</td></tr><tr><td>哪些”强特征”不能用</td><td>设备 OUI（捷径）、JA4 单指纹（OS 共享，跨 10 个 App）</td></tr></tbody></table>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/rules-A-merged-tree-argmax.csv">rules-A-merged-tree-argmax.csv</a></td><td>规则集 A：合并树 argmax 规则（18 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-B-perclass-prob.csv">rules-B-perclass-prob.csv</a></td><td>规则集 B：每类概率区域规则（16 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-C-true-label-tree.csv">rules-C-true-label-tree.csv</a></td><td>规则集 C：真标签浅树规则（20 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-D-fidelity.csv">rules-D-fidelity.csv</a></td><td>蒸馏保真度/简洁度（IID 与 Day-5 OOD）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-E-budget-sweep.csv">rules-E-budget-sweep.csv</a></td><td>规则预算扫描（8 组超参 × 3 方法）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-F-gead-tuning.csv">rules-F-gead-tuning.csv</a></td><td>GEAD 超参敏感性</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-G-equal-budget.csv">rules-G-equal-budget.csv</a></td><td>等规则预算下的保真度比较</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-H-gead-best-config.csv">rules-H-gead-best-config.csv</a></td><td>GEAD 最优配置搜索</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-I-view-ablation.csv">results-I-view-ablation.csv</a></td><td>特征视图消融全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-J-model-temporal.csv">results-J-model-temporal.csv</a></td><td>模型族与时间外推全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-K-leakage-audit.csv">results-K-leakage-audit.csv</a></td><td>泄漏/捷径审计全部结果</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>加密社交 App 流量分析（二）：数据画像与分类实验</b><br>
+作者：Infinity · 发布于 2026-11-16<br>
+本文链接：<a href="https://lvjf.space/blog/posts/e4854882.html">https://lvjf.space/blog/posts/e4854882.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/2f1c2763.html">← 加密社交 App 流量分析（三）：提炼判定规则</a> <a class="next" href="/blog/posts/9c167f56.html">加密社交 App 流量分析（一）：从论文提炼分类依据 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#1-数据概况">1. 数据概况</a> </li><li class> <a href="#2-数据质量本数据集最大的问题不是加密而是标签噪声">2. 数据质量：本数据集最大的问题不是加密，而是标签噪声</a> </li><li class="toc-sub"> <a href="#21-392-的流根本不属于被标注的-app">2.1 39.2% 的流根本不属于被标注的 App</a> </li><li class="toc-sub"> <a href="#22-其他数据质量事实">2.2 其他数据质量事实</a> </li><li class> <a href="#3-特征体系把-92-列映射到论文的四类分类依据">3. 特征体系：把 92 列映射到论文的四类分类依据</a> </li><li class="toc-sub"> <a href="#31-五个由弱到强的特征视图分级泄漏设计">3.1 五个由弱到强的特征视图（分级泄漏设计）</a> </li><li class> <a href="#4-分类实验一特征视图消融回答凭什么分类">4. 分类实验一：特征视图消融（回答”凭什么分类”）</a> </li><li class> <a href="#5-分类实验二模型族对比">5. 分类实验二：模型族对比</a> </li><li class> <a href="#6-分类实验三泄漏与捷径审计论文-insight-13-的实证">6. 分类实验三：泄漏与捷径审计（论文 Insight 1/3 的实证）</a> </li><li class="toc-sub"> <a href="#61-设备留出groupkfold-by-src_mac">6.1 设备留出（GroupKFold by src_mac）</a> </li><li class="toc-sub"> <a href="#62-oui-是被哪一类设备撑起来的">6.2 OUI 是被哪一类设备撑起来的？</a> </li><li class="toc-sub"> <a href="#63-sni-与-ja4-的真实纯度">6.3 SNI 与 JA4 的真实纯度</a> </li><li class="toc-sub"> <a href="#64-论文-insight-3-的三查表本数据集的答案">6.4 论文 Insight 3 的三查表——本数据集的答案</a> </li><li class> <a href="#7-分类实验四时间外推day-5--ood">7. 分类实验四：时间外推（Day-5 = OOD）</a> </li><li class="toc-sub"> <a href="#混淆矩阵day-5">混淆矩阵（Day-5）</a> </li><li class> <a href="#8-分类实验五多流聚合本数据集提分的唯一有效手段">8. 分类实验五：多流聚合（本数据集提分的唯一有效手段）</a> </li><li class> <a href="#9-本章结论">9. 本章结论</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

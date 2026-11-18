@@ -1,0 +1,17 @@
+﻿cls,support,n_cond,rule_en,rule_cn,mean_prob,prior,lift
+facebook,169,2,IF dn_pkt_ratio > 0.8748 AND dur_ms <= 145309 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 流持续时长(ms) <= 145309 则 facebook,0.892,0.2,4.46
+facebook,162,3,IF dn_pkt_ratio > 0.8748 AND ps_max <= 1291 AND byt <= 22366796 THEN facebook,若 下行包占比 > 0.8748 (p95) 且 最大包长 <= 1291 且 字节数 <= 22366796 则 facebook,0.9,0.2,4.5
+linkedin,54,4,IF ps_max >= 1513 AND dur_ms <= 10704 AND pkt >= 31 AND dn_pkt_ratio <= 0.4863 THEN linkedin,若 最大包长 >= 1513 且 流持续时长(ms) <= 10704 且 包数 >= 31 且 下行包占比 <= 0.4863 (p58) 则 linkedin,0.423,0.059,7.18
+reddit,286,3,IF ps_max >= 1510 AND dn_pkt_ratio > 0.5012 AND rst_cnt >= 2 THEN reddit,若 最大包长 >= 1510 且 下行包占比 > 0.5012 (p67) 且 RST数 >= 2 则 reddit,0.821,0.139,5.89
+reddit,374,3,IF ps_max >= 1510 AND fin_cnt >= 2 AND bps > 0 THEN reddit,若 最大包长 >= 1510 且 FIN数 >= 2 且 比特率(字节/秒) > 0 (p0) 则 reddit,0.495,0.139,3.55
+snapchat,23,3,IF bps <= 0 AND pkt >= 204 AND dur_ms >= 1271734 THEN snapchat,若 比特率(字节/秒) <= 0 (p0) 且 包数 >= 204 且 流持续时长(ms) >= 1271734 则 snapchat,0.585,0.062,9.5
+snapchat,23,4,IF fin_cnt <= 0 AND dn_pkt_ratio <= 0.8781 AND dur_ms >= 54644 AND piat_std <= 301.8 THEN snapchat,若 FIN数 <= 0 且 下行包占比 <= 0.8781 (p95) 且 流持续时长(ms) >= 54644 且 包间隔标准差 <= 301.8 (p58) 则 snapchat,0.412,0.062,6.69
+telegram,112,4,IF has_sni == 0 AND syn_ratio > 0 AND bytes_per_pkt > 121.4 AND psh_ratio <= 0.315 THEN telegram,若 有SNI=0 且 SYN占比 > 0 (p44) 且 平均包长(字节) > 121.4 (p21) 且 PSH占比 <= 0.315 (p64) 则 telegram,0.937,0.067,13.96
+telegram,181,4,IF has_sni == 0 AND syn_ratio > 0 AND bytes_per_pkt > 121.4 AND rst_cnt <= 0 THEN telegram,若 有SNI=0 且 SYN占比 > 0 (p44) 且 平均包长(字节) > 121.4 (p21) 且 RST数 <= 0 则 telegram,0.888,0.067,13.24
+tiktok,55,4,IF syn_ratio > 0.09233 AND piat_std > 4134 AND rst_cnt >= 1 AND dur_ms <= 48077 THEN tiktok,若 SYN占比 > 0.09233 (p79) 且 包间隔标准差 > 4134 (p83) 且 RST数 >= 1 且 流持续时长(ms) <= 48077 则 tiktok,0.964,0.084,11.46
+tiktok,17,3,IF ps_max >= 1308 AND psh_ratio <= 0.04465 AND piat_mean > 734.1 THEN tiktok,若 最大包长 >= 1308 且 PSH占比 <= 0.04465 (p42) 且 包间隔均值(ms) > 734.1 (p81) 则 tiktok,0.556,0.084,6.61
+twitter,140,3,IF syn_ratio > 0.1082 AND bps > 0 AND psh_ratio <= 0.2722 THEN twitter,若 SYN占比 > 0.1082 (p86) 且 比特率(字节/秒) > 0 (p0) 且 PSH占比 <= 0.2722 (p58) 则 twitter,0.521,0.149,3.5
+twitter,103,3,IF syn_ratio > 0.1082 AND dur_ms <= 285 AND bps <= 0 THEN twitter,若 SYN占比 > 0.1082 (p86) 且 流持续时长(ms) <= 285 且 比特率(字节/秒) <= 0 (p0) 则 twitter,0.534,0.149,3.59
+whatsapp,252,4,IF rst_cnt >= 2 AND ps_max <= 1450 AND byt >= 5613 AND dn_ratio > 0.7572 THEN whatsapp,若 RST数 >= 2 且 最大包长 <= 1450 且 字节数 >= 5613 且 下行字节占比 > 0.7572 (p67) 则 whatsapp,0.733,0.121,6.08
+whatsapp,483,2,IF rst_cnt >= 2 AND ps_max <= 1450 THEN whatsapp,若 RST数 >= 2 且 最大包长 <= 1450 则 whatsapp,0.476,0.121,3.94
+youtube,37,3,IF fin_cnt <= 0 AND bps <= 0 AND byt >= 32297838 THEN youtube,若 FIN数 <= 0 且 比特率(字节/秒) <= 0 (p0) 且 字节数 >= 32297838 则 youtube,0.307,0.056,5.51

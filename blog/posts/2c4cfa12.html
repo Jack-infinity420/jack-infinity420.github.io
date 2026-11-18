@@ -1,0 +1,621 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>网络流量入门（四）：Wireshark 动手实验与自测 | INFINITY&#39;S BLOG</title><meta name="description" content="基于一个 27 包的教学抓包做 10 个实验，外加 24 道自测题与完整解析。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/2c4cfa12/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="网络流量入门（四）：Wireshark 动手实验与自测 | INFINITY'S BLOG"><meta property="og:description" content="基于一个 27 包的教学抓包做 10 个实验，外加 24 道自测题与完整解析。"><meta property="og:url" content="https://lvjf.space/blog/posts/2c4cfa12/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">网络流量入门（四）：Wireshark 动手实验与自测</h1><div class="post-meta-top">2026-11-17 · tech / 流量分析 · 约 4596 字 · 阅读约 12 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>网络流量入门（五篇）</strong>：<a href="/blog/posts/182ffe32.html">零·导览</a> ｜ <a href="/blog/posts/27dfa1e5.html">一·从比特到流</a> ｜ <a href="/blog/posts/eb6b5f66.html">二·92 个特征</a> ｜ <a href="/blog/posts/5425b364.html">三·从端口法到 nDPI</a> ｜ <strong>四·动手实验</strong></p>
+</blockquote>
+<blockquote>
+<p>前三课是”看”，这一课是”做”。所有实验都用 <a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a>（我为你专门构造的 27 个包的抓包，
+里面<strong>故意</strong>包含了：DNS、TCP 握手、TLS 1.3 ClientHello 带 SNI、加密应用数据、RST、SSDP、mDNS、ICMP、类 QUIC 的 UDP）。</p>
+<p><strong>为什么要用构造的抓包</strong>：真实抓包里有几千条流，你找不到”那个关键包”。
+这 27 个包每一个都有教学目的，你顺着 1→27 看一遍，等于把前三课复习一遍。</p>
+<p>注意：这个抓包里的 <strong>TLS 密码套件是随便写的、密钥是随机的</strong>，所以 Wireshark 会显示”无法解密”——
+这正是我们要的现象（加密流量就是这样）。但 <strong>SNI、握手结构、包长、时序全部真实可读</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="0-环境准备">0. 环境准备</h2>
+<ol>
+<li>安装 Wireshark（官网 wireshark.org，装的时候勾上 Npcap）。</li>
+<li>打开 <a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a>。</li>
+<li>记住三个快捷键：
+<ul>
+<li><code>Ctrl+F</code> 查找（可以按”字符串”搜载荷）</li>
+<li>右键包 → <strong>Follow → TCP Stream</strong>（看重排后的字节流）</li>
+<li>菜单 <strong>Statistics → Conversations</strong>（看”流”的视角）</li>
+</ul>
+</li>
+</ol>
+<p><strong>建议的窗口布局</strong>：上面包列表、中间协议树、下面十六进制。<strong>永远同时看这三块</strong>——
+只看包列表会让你以为”流量就是一串 IP”，只看十六进制会让你迷失在字节里。</p>
+<hr>
+<h2 id="实验-1验证最小帧-60-字节和三层封装">实验 1：验证”最小帧 60 字节”和”三层封装”</h2>
+<p><strong>操作</strong></p>
+<ol>
+<li>过滤器输入：<code>frame.len == 60</code> 回车。</li>
+<li>选中任意一个 60 字节的包（比如第 5 号）。</li>
+<li>在中间协议树里展开 <code>Ethernet II</code> → <code>Internet Protocol Version 4</code> → <code>Transmission Control Protocol</code>。</li>
+<li>看每一层的头长度。</li>
+</ol>
+<p><strong>你应该看到</strong></p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Frame           60 bytes                     ← 整帧（不含 FCS）</span></span>
+<span class="line"><span>  Ethernet II   14 bytes                     ← 目的MAC(6)+源MAC(6)+Type(2)</span></span>
+<span class="line"><span>    Internet Protocol Version 4  20 bytes     ← IP 头</span></span>
+<span class="line"><span>      Transmission Control Protocol 20 bytes  ← TCP 头（纯 ACK，无选项）</span></span>
+<span class="line"><span>      [TCP segment of ...] 0 bytes 载荷       ← 没有数据</span></span></code></pre>
+<p>14 + 20 + 20 = <strong>54</strong>，但帧是 <strong>60</strong> —— 差 6 字节是<strong>以太网最小帧补零</strong>（第一课 §1.1）。</p>
+<p><strong>进阶</strong>：再过滤 <code>frame.len == 74</code>，看 SYN 包的 TCP 选项（<code>Options: (20 bytes)</code>：MSS、SACK permitted、Timestamps、NOP、Window scale）。
+<strong>这就是”为什么 SYN 比 ACK 大”的答案。</strong></p>
+<p><strong>思考</strong>：如果这个抓包是在 Linux <code>any</code> 接口上抓的（SLL 头 16 字节），这些数字会变成多少？
+（答案：全部 +2，因为 SLL 16 字节比以太网 14 字节多 2 字节。）</p>
+<hr>
+<h2 id="实验-2看三次握手并测出-rtt">实验 2：看三次握手，并测出 RTT</h2>
+<p><strong>操作</strong></p>
+<ol>
+<li>过滤器：<code>tcp.flags.syn == 1 || (ip.addr == 203.0.113.10 &#x26;&#x26; tcp.port == 51423)</code></li>
+<li>选中第 3 号包（SYN），看 <code>Sequence Number (raw)</code>。</li>
+<li>选中第 4 号包（SYN-ACK），看 <code>Acknowledgment number</code>。</li>
+<li>看第 3、4 号包之间的时间差（Wireshark 的 <code>Time</code> 列）。</li>
+</ol>
+<p><strong>你应该看到</strong></p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>#3  SEQ=1000,      Flags=SYN</span></span>
+<span class="line"><span>#4  SEQ=5000, ACK=1001, Flags=SYN,ACK      ← ACK = 对方 SEQ + 1</span></span>
+<span class="line"><span>#5  SEQ=1001, ACK=5001,  Flags=ACK</span></span></code></pre>
+<p><code>ACK = SEQ + 1</code>：<strong>SYN 本身占一个序号</strong>（虽然它不携带数据），这是 TCP 的规矩（RFC 9293）。</p>
+<p>时间差：<code>#4.Time − #3.Time = 0.041 − 0.031 = 0.010 s = 10 ms</code> → <strong>这就是这一跳的 RTT</strong>。
+这是加密流量里<strong>唯一能直接测 RTT 的地方</strong>（握手之后全是密文，你只能靠 ACK 时序推测）。</p>
+<p><strong>思考</strong>：为什么 <code>syn_packets</code> 在 CSV 里通常是 <strong>2</strong> 而不是 1？
+（答案：SYN 和 SYN-ACK <strong>都置 SYN 标志位</strong>，计数的是包不是连接。）</p>
+<hr>
+<h2 id="实验-3找到-sni--加密世界里最后一句话最重要">实验 3：找到 SNI —— 加密世界里最后一句话（最重要）</h2>
+<p><strong>方法 A：用过滤器</strong></p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>tls.handshake.extensions_server_name</span></span></code></pre>
+<p><strong>方法 B：用界面</strong></p>
+<ol>
+<li>选中第 6 号包（319 字节）。</li>
+<li>展开 <code>Transport Layer Security</code> → <code>TLSv1.3 Record Layer: Handshake Protocol: Client Hello</code>
+→ <code>Handshake Protocol: Client Hello</code> → <code>Extension: server_name (len=21)</code>
+→ <strong><code>Server Name Indication extension</code></strong> → <strong><code>Server Name: mmg.whatsapp.net</code></strong></li>
+</ol>
+<p><strong>方法 C：暴力搜字节</strong></p>
+<p>菜单 <code>Ctrl+F</code> → 选 “String” → 输入 <code>whatsapp</code> → 查找。
+你会落在第 6 号包的载荷里——<strong>因为 SNI 是明文，字符串直接躺在那里</strong>。</p>
+<p><strong>你应该记住的一句话</strong></p>
+<blockquote>
+<p><strong>SNI 是 TLS 1.3 之后唯一稳定残留的”我要访问谁”。</strong>
+它不是”加密的副产品”，而是<strong>协议本身必须明文传输</strong>的（服务器要在解密之前知道该出示哪张证书）。</p>
+</blockquote>
+<p><strong>思考</strong>：如果你把这个 ClientHello 加密了会怎样？
+（答案：服务器不知道该给哪张证书 → 必须先用默认证书再进行 SNI 内层握手，这就是 <strong>ECH（Encrypted ClientHello）</strong> 要解决的问题；也是为什么 ECH 一旦普及，整个”SNI 指纹”体系会失效。）</p>
+<hr>
+<h2 id="实验-4看清加密的边界在哪一行">实验 4：看清”加密的边界”在哪一行</h2>
+<p><strong>操作</strong>：按顺序点第 6、8、10、11 号包，只看中间协议树的<strong>最后一行</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">包号</th><th>协议树最后一行</th><th>你能读到什么</th></tr></thead><tbody><tr><td align="right">6</td><td><code>Handshake Protocol: Client Hello</code> + 全部扩展</td><td><strong>几乎全部可读</strong>（SNI、密码套件、ALPN、公钥）</td></tr><tr><td align="right">8</td><td><code>Handshake Protocol: Server Hello</code></td><td>版本、选中的密码套件、服务端公钥共享</td></tr><tr><td align="right">10</td><td><code>TLSv1.3 Record Layer: Application Data Protocol: Hypertext Transfer Protocol</code></td><td><strong>只有 5 字节记录头 + 一堆密文</strong></td></tr><tr><td align="right">11</td><td>同上</td><td>同上</td></tr></tbody></table>
+<p><strong>关键观察</strong>：第 10、11 号包的 <code>Encrypted Application Data</code> 长度是 1375/1445 字节——
+<strong>Wireshark 能告诉你”有多少密文”，但完全不知道里面是什么。</strong></p>
+<p><strong>这正好解释了第三课的分层</strong>：</p>
+<ul>
+<li>你看到的<strong>元数据</strong>（长度、时序、方向）= 0.5 层以上的信息；</li>
+<li>你看不到的<strong>载荷</strong> = 只有拿到密钥（SSLKEYLOGFILE）才能解。</li>
+</ul>
+<blockquote>
+<p><strong>动手加分项</strong>：给 Wireshark 配置 <code>SSLKEYLOGFILE</code> 环境变量，再用浏览器访问一个 HTTPS 站点抓包，
+就能看到解密后的 HTTP/2。这会让”加密边界”这个概念彻底变成直觉。
+配置方法：<code>Edit → Preferences → Protocols → TLS → (Pre)-Master-Secret log filename</code>。</p>
+</blockquote>
+<hr>
+<h2 id="实验-5rst-和-fin-的区别">实验 5：RST 和 FIN 的区别</h2>
+<p><strong>操作</strong></p>
+<ul>
+<li>过滤器 <code>tcp.flags.reset == 1</code> → 你会看到第 <strong>23</strong> 号包（那个被拒绝的连接）。</li>
+<li>过滤器 <code>tcp.flags.fin == 1</code> → 你会看到第 <strong>16、17</strong> 号包（正常关闭）。</li>
+</ul>
+<p><strong>对比</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>第 16/17 号（FIN）</th><th>第 23 号（RST）</th></tr></thead><tbody><tr><td>后续</td><td>还有 ACK 收尾（四次挥手）</td><td>直接结束，没有后续</td></tr><tr><td><code>Sequence</code>/<code>Ack</code></td><td>有意义</td><td>Wireshark 标注 <code>RST</code> 后忽略</td></tr><tr><td>含义</td><td>“我说完了”</td><td>“立即断”</td></tr></tbody></table>
+<p><strong>为什么这很重要</strong>：你数据里 <strong>14.9% 的流带 RST</strong>，其中 <strong>Reddit 的中位 RST 数是 2</strong>。
+打开 <code>reddit.csv</code> 过滤 <code>bidirectional_rst_packets >= 2</code>，你会发现这些流的 <code>dst_ip</code> 高度集中在
+<code>gql-fed.reddit.com</code> / <code>w3-reporting.reddit.com</code> 这类主机上——<strong>客户端发个请求就主动放弃</strong>。
+这就是”行为指纹”诞生的地方。</p>
+<hr>
+<h2 id="实验-6背景噪声长什么样">实验 6：背景噪声长什么样</h2>
+<p><strong>操作</strong></p>
+<ol>
+<li>过滤器 <code>udp.port == 1900</code> → 第 24 号包。展开载荷，你会看到纯文本：
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>M-SEARCH * HTTP/1.1</span></span>
+<span class="line"><span>HOST: 239.255.255.250:1900</span></span>
+<span class="line"><span>MAN: "ssdp:discover"</span></span>
+<span class="line"><span>...</span></span></code></pre>
+</li>
+<li>看它的目的 IP：<code>239.255.255.250</code> → 这是一个<strong>组播地址</strong>（224.0.0.0/4），不是公网单播。</li>
+<li>过滤器 <code>udp.port == 5353</code> → 第 25 号包，mDNS 查询 <code>_spotify-connect._tcp.local</code>。</li>
+</ol>
+<p><strong>这两个包和”用户在用哪个 App”有关系吗？</strong>
+<strong>没有。</strong> 手机的 UPnP/mDNS 发现服务每隔几十秒就广播一次，<strong>跟你正在刷抖音还是发微信完全无关</strong>。</p>
+<p><strong>这就是你数据里 39.2%“背景流量”的真身</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>协议</th><th align="right">端口</th><th align="right">你数据里的流数</th><th align="right">单包占比</th></tr></thead><tbody><tr><td>SSDP</td><td align="right">1900</td><td align="right">5,753</td><td align="right">高（1,335 条单包流）</td></tr><tr><td>mDNS</td><td align="right">5353</td><td align="right">1,643</td><td align="right">高</td></tr><tr><td>私有发现</td><td align="right">20002</td><td align="right">787</td><td align="right"><strong>全部单包</strong>（330 字节）</td></tr><tr><td>公网 DNS</td><td align="right">53</td><td align="right">5,138</td><td align="right">中</td></tr></tbody></table>
+<blockquote>
+<p><strong>如果你不做这一步过滤，你的分类器有 39% 的训练样本标签是错的。</strong>
+这是本数据集上”准确率只有 0.47”的<strong>头号原因</strong>，比”加密”这个理由重要得多。</p>
+</blockquote>
+<hr>
+<h2 id="实验-7用-wireshark-的流视角统计而非逐包">实验 7：用 Wireshark 的”流”视角（统计而非逐包）</h2>
+<p><strong>操作</strong></p>
+<ol>
+<li>菜单 <strong>Statistics → Conversations</strong> → 切到 <strong>TCP</strong> 标签。</li>
+<li>你会看到 2 行（两个 TCP 连接），每行有 Packets / Bytes / Duration / Packets A→B / B→A。</li>
+</ol>
+<p><strong>对照你的 CSV</strong>：这一行就是 NFStream 输出的一行。把 Wireshark 的列名和 CSV 的列名对上：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Wireshark Conversations 列</th><th>你的 CSV 列</th></tr></thead><tbody><tr><td>Packets</td><td><code>bidirectional_packets</code></td></tr><tr><td>Bytes</td><td><code>bidirectional_bytes</code></td></tr><tr><td>Duration</td><td><code>bidirectional_duration_ms</code></td></tr><tr><td>Packets A→B</td><td><code>src2dst_packets</code></td></tr><tr><td>Packets B→A</td><td><code>dst2src_packets</code></td></tr><tr><td>Bits/s</td><td>可由 <code>bytes/duration</code> 算</td></tr></tbody></table>
+<p><strong>再试</strong>：<strong>Statistics → Flow Graph</strong>（看时序图）、<strong>Statistics → I/O Graph</strong>（看速率曲线）。
+你会直观看到”流量的时间形状”：<strong>突然一串、然后长时间静默</strong>——这就是第一课说的”突发性”。</p>
+<hr>
+<h2 id="实验-8把一条流手算成一行-csv终极大题">实验 8：把一条流手算成一行 CSV（终极大题）</h2>
+<p>不看 CSV，<strong>只看抓包</strong>，把第 3–18 号包（那条 TLS 流）的所有统计量手算出来，然后回答：</p>
+<ol>
+<li><code>bidirectional_packets</code> = ?</li>
+<li><code>bidirectional_min_ps</code> / <code>max_ps</code> = ?</li>
+<li><code>src2dst_packets</code> / <code>dst2src_packets</code> = ?</li>
+<li><code>bidirectional_syn_packets</code> = ?</li>
+<li><code>bidirectional_fin_packets</code> = ?</li>
+<li><code>bidirectional_rst_packets</code> = ?</li>
+<li><code>bidirectional_duration_ms</code> ≈ ?</li>
+<li><code>bidirectional_mean_ps</code> ≈ ?</li>
+<li><code>requested_server_name</code> = ?</li>
+<li><code>dst_port</code> = ?</li>
+<li>如果让 NFStream 输出，<code>expiration_id</code> 会是几？</li>
+</ol>
+<p><strong>参考答案</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">问</th><th>答</th><th>依据</th></tr></thead><tbody><tr><td align="right">1</td><td>16</td><td>第 3–18 号共 16 个包</td></tr><tr><td align="right">2</td><td>60 / 1514</td><td>最小是补零的 ACK，最大是满载数据帧</td></tr><tr><td align="right">3</td><td><strong>8 / 8</strong></td><td>客户端 8 个（SYN/ACK/CH/ACK/请求/ACK/FIN/ACK），服务端 8 个</td></tr><tr><td align="right">4</td><td><strong>2</strong></td><td>SYN + SYN-ACK，<strong>都置 SYN 位</strong></td></tr><tr><td align="right">5</td><td>2</td><td>两个方向各一个 FIN</td></tr><tr><td align="right">6</td><td>0</td><td>这条流是正常关闭</td></tr><tr><td align="right">7</td><td>约 700 ms</td><td>从 #3 到 #18 的时间差</td></tr><tr><td align="right">8</td><td>约 345</td><td>总帧字节 5,517 / 16</td></tr><tr><td align="right">9</td><td><code>mmg.whatsapp.net</code></td><td>ClientHello 的 SNI 扩展</td></tr><tr><td align="right">10</td><td>443</td><td>服务器端口</td></tr><tr><td align="right">11</td><td>取决于工具配置</td><td>本数据集里只有 0（idle）/ 1（active），说明 FIN <strong>没有</strong>触发提前结束</td></tr></tbody></table>
+<hr>
+<h2 id="实验-9命令行版tshark把实验变成脚本">实验 9：命令行版（tshark）——把实验变成脚本</h2>
+<p>GUI 适合理解，命令行适合批量。安装 Wireshark 后 <code>tshark</code> 在安装目录（通常 <code>C:\Program Files\Wireshark\tshark.exe</code>，需自行加入 PATH）。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="powershell"><code><span class="line"><span style="color:#E6EDF3">$pcap </span><span style="color:#FF7B72">=</span><span style="color:#A5D6FF"> "demo_handshake.pcap"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 1) 概览：每个包的编号/时间/长度/协议</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">T fields </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e frame.number </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e frame.time_relative </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e frame.len </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e _ws.col.Protocol</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 2) 只列 TLS 握手，并打印 SNI</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">Y </span><span style="color:#A5D6FF">"tls.handshake.type==1"</span><span style="color:#FF7B72"> -</span><span style="color:#E6EDF3">T fields </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e frame.number </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e tls.handshake.extensions_server_name</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 3) 列出所有 TCP 连接（类似 Conversations 面板）</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">q </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">z conv</span><span style="color:#FF7B72">,</span><span style="color:#E6EDF3">tcp</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 4) 协议分层统计</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">q </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">z io</span><span style="color:#FF7B72">,</span><span style="color:#E6EDF3">phs</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 5) 暴力搜字符串</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">Y </span><span style="color:#A5D6FF">'frame contains "whatsapp"'</span><span style="color:#FF7B72"> -</span><span style="color:#E6EDF3">T fields </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">e frame.number</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 6) 每一列的完整值（学习字段名的最好办法）</span></span>
+<span class="line"><span style="color:#E6EDF3">tshark </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">r $pcap </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3">Y </span><span style="color:#A5D6FF">"tls.handshake.type==1"</span><span style="color:#FF7B72"> -</span><span style="color:#E6EDF3">V </span><span style="color:#FF7B72">|</span><span style="color:#79C0FF"> Select-String</span><span style="color:#FF7B72"> -</span><span style="color:#E6EDF3">Pattern </span><span style="color:#A5D6FF">"Server Name|Cipher Suite|Extension"</span></span></code></pre>
+<blockquote>
+<p><strong>tshark 的 <code>-Y</code> 是显示过滤器（和 Wireshark GUI 里一样），<code>-z</code> 是统计。</strong>
+想做批量分析，<code>-T fields -e &#x3C;字段></code> 是关键——它把抓包直接变成 CSV。</p>
+</blockquote>
+<hr>
+<h2 id="实验-10用-pandas-复现第二课的所有统计对你自己的-csv">实验 10：用 pandas 复现第二课的所有统计（对<strong>你自己的</strong> CSV）</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#FF7B72">import</span><span style="color:#E6EDF3"> pandas </span><span style="color:#FF7B72">as</span><span style="color:#E6EDF3"> pd, numpy </span><span style="color:#FF7B72">as</span><span style="color:#E6EDF3"> np, glob</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E6EDF3">df </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> pd.concat([pd.read_csv(f).assign(</span><span style="color:#FFA657">app</span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3">f.split(</span><span style="color:#A5D6FF">"</span><span style="color:#FF7B72">\\</span><span style="color:#A5D6FF">"</span><span style="color:#E6EDF3">)[</span><span style="color:#FF7B72">-</span><span style="color:#79C0FF">1</span><span style="color:#E6EDF3">][:</span><span style="color:#FF7B72">-</span><span style="color:#79C0FF">4</span><span style="color:#E6EDF3">])</span></span>
+<span class="line"><span style="color:#FF7B72">                for</span><span style="color:#E6EDF3"> f </span><span style="color:#FF7B72">in</span><span style="color:#E6EDF3"> glob.glob(</span><span style="color:#A5D6FF">"*.csv"</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">if</span><span style="color:#A5D6FF"> "summary"</span><span style="color:#FF7B72"> not</span><span style="color:#FF7B72"> in</span><span style="color:#E6EDF3"> f],</span></span>
+<span class="line"><span style="color:#FFA657">               ignore_index</span><span style="color:#FF7B72">=</span><span style="color:#79C0FF">True</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 1) 流长有多重尾？</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(df.bidirectional_packets.describe(</span><span style="color:#FFA657">percentiles</span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3">[</span><span style="color:#79C0FF">.5</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">.9</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">.99</span><span style="color:#E6EDF3">]))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 2) 包长谱：最大的 10 个取值频率（你应该看到 66/212/60/167/1514…）</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(df.bidirectional_max_ps.value_counts().head(</span><span style="color:#79C0FF">10</span><span style="color:#E6EDF3">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 3) 背景流量占比（第一课 A1 的实证）</span></span>
+<span class="line"><span style="color:#E6EDF3">private_or_multicast </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> df.dst_ip.str.match(</span><span style="color:#FF7B72">r</span><span style="color:#A5D6FF">"</span><span style="color:#79C0FF">^(</span><span style="color:#A5D6FF">10</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">192</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#A5D6FF">168</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">172</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#79C0FF">(</span><span style="color:#A5D6FF">1</span><span style="color:#79C0FF">[</span><span style="color:#FF7B72">6-9</span><span style="color:#79C0FF">]</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">2</span><span style="color:#79C0FF">\d</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">3</span><span style="color:#79C0FF">[</span><span style="color:#FF7B72">01</span><span style="color:#79C0FF">])</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">22</span><span style="color:#79C0FF">[</span><span style="color:#FF7B72">4-9</span><span style="color:#79C0FF">]</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#FF7B72">|</span><span style="color:#A5D6FF">23</span><span style="color:#79C0FF">\d</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#79C0FF">)</span><span style="color:#A5D6FF">"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">lan_ports </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> df.dst_port.isin([</span><span style="color:#79C0FF">1900</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">5353</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">5355</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">3702</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">137</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">138</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">67</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">68</span><span style="color:#E6EDF3">])</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"背景流占比:"</span><span style="color:#E6EDF3">, (private_or_multicast </span><span style="color:#FF7B72">|</span><span style="color:#E6EDF3"> lan_ports).mean())</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 4) 端口能不能区分 App？（第三课 §2.3）</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(pd.crosstab(df.dst_port, df.Label).loc[[</span><span style="color:#79C0FF">443</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">1900</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">53</span><span style="color:#E6EDF3">,</span><span style="color:#79C0FF">5353</span><span style="color:#E6EDF3">]])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 5) 验证"字段名≠语义"：requested_server_name 里有几个是 IP？</span></span>
+<span class="line"><span style="color:#E6EDF3">s </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> df.requested_server_name.fillna(</span><span style="color:#A5D6FF">""</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">valid </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> s.str.match(</span><span style="color:#FF7B72">r</span><span style="color:#A5D6FF">"</span><span style="color:#79C0FF">^([</span><span style="color:#FF7B72">a-zA-Z0-9_-</span><span style="color:#79C0FF">]</span><span style="color:#FF7B72">+</span><span style="color:#7EE787;font-weight:bold">\.</span><span style="color:#79C0FF">)</span><span style="color:#FF7B72">+</span><span style="color:#79C0FF">[</span><span style="color:#FF7B72">a-zA-Z</span><span style="color:#79C0FF">]</span><span style="color:#FF7B72">{2,}</span><span style="color:#79C0FF">$</span><span style="color:#A5D6FF">"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"非空:"</span><span style="color:#E6EDF3">, (s</span><span style="color:#FF7B72">!=</span><span style="color:#A5D6FF">""</span><span style="color:#E6EDF3">).sum(), </span><span style="color:#A5D6FF">" 像域名:"</span><span style="color:#E6EDF3">, valid.sum())</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># 6) 一条流的"画像"（第二课 §5）</span></span>
+<span class="line"><span style="color:#E6EDF3">d </span><span style="color:#FF7B72">=</span><span style="color:#E6EDF3"> df[(</span><span style="color:#FF7B72">~</span><span style="color:#E6EDF3">private_or_multicast) </span><span style="color:#FF7B72">&#x26;</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">~</span><span style="color:#E6EDF3">lan_ports)]</span></span>
+<span class="line"><span style="color:#79C0FF">print</span><span style="color:#E6EDF3">(d.groupby(</span><span style="color:#A5D6FF">"Label"</span><span style="color:#E6EDF3">)[[</span><span style="color:#A5D6FF">"bidirectional_packets"</span><span style="color:#E6EDF3">,</span><span style="color:#A5D6FF">"bidirectional_bytes"</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#A5D6FF">                          "bidirectional_duration_ms"</span><span style="color:#E6EDF3">]].median().round(</span><span style="color:#79C0FF">1</span><span style="color:#E6EDF3">))</span></span></code></pre>
+<p><strong>把每一行输出和第二课的表对一遍</strong>。对不上就回去找原因——这就是”读数据”的能力。</p>
+<hr>
+<h2 id="自测题24-题答案在最后">自测题（24 题，答案在最后）</h2>
+<h3 id="a-组报文与封装第一课">A 组：报文与封装（第一课）</h3>
+<ol>
+<li>一个纯 ACK 帧最少多少字节？为什么？</li>
+<li>MSS 为什么是 1460？如果 MTU 是 9000（巨型帧），MSS 是多少？</li>
+<li>为什么 SYN 比一般 ACK 大？</li>
+<li>TCP 的 <code>ACK</code> 字段的语义是什么？<code>ACK = SEQ + len(payload)</code> 这句话对吗？</li>
+<li>一条流里 <code>syn_packets = 3</code> 最可能说明什么？</li>
+<li>FIN 和 RST 分别代表什么？为什么分析时要分开统计？</li>
+</ol>
+<h3 id="b-组流量抽象第一课--第二课">B 组：流量抽象（第一课 + 第二课）</h3>
+<ol start="7">
+<li><code>flow</code> 和 <code>connection</code> 有什么不同？举出两个”一条连接变多条流”的情形。</li>
+<li>你数据里 13.9% 的流只有 1 个包。举 3 种可能。</li>
+<li>为什么 <code>bidirectional_max_piat_ms</code> 的最大值恰好是 119,999？</li>
+<li>为什么 <code>bidirectional_duration_ms</code> 的最大值恰好是 1,799,997？</li>
+<li><code>pps</code> 在 <code>duration = 0</code> 时会怎样？怎么处理？</li>
+<li>为什么”中位数”比”均值”更适合描述流？</li>
+</ol>
+<h3 id="c-组特征语义第二课">C 组：特征语义（第二课）</h3>
+<ol start="13">
+<li><code>bytes_per_pkt</code> 为什么能区分”文本型”和”图片/视频型” App？</li>
+<li><code>syn_ratio</code> 高说明什么？哪个 App 可能最高？</li>
+<li><code>psh_ratio</code> 的中位数是 0，意味着什么？<strong>不</strong>意味着什么？</li>
+<li>为什么说 <code>src_oui</code> 是”捷径特征”？怎么检测一个特征是不是捷径？</li>
+<li><code>ps</code> 含不含以太网头？怎么用数据自己判断出来？</li>
+</ol>
+<h3 id="d-组识别方法第三课">D 组：识别方法（第三课）</h3>
+<ol start="18">
+<li>端口法在什么年代够用？为什么后来失效？举两个文献。</li>
+<li>纯 DPI 的三个死穴是什么？</li>
+<li>为什么 nDPI 能在加密时代活下来？它靠什么证据？</li>
+<li><code>TLS.WhatsApp</code> 这个标签的两部分各是什么意思？</li>
+<li><code>application_confidence</code> 的语义是什么？为什么”具体整数编码要查头文件”？</li>
+<li>JA4 能识别 App 吗？在你数据上的实测证据是什么？</li>
+<li>为什么”DPI oracle 只比 SNI 高 1 个百分点”这件事是合理的？</li>
+</ol>
+<hr>
+<h2 id="答案与解析">答案与解析</h2>
+<p><strong>1.</strong> 60 字节（不含 FCS 的 64）。原因：14（以太网）+ 20（IP）+ 20（TCP）= 54，不足以太网最小帧 60，<strong>补零</strong>到 60。早期以太网靠 CSMA/CD 检测冲突，必须保证最短帧发送时间 ≥ 往返传播时延。</p>
+<p><strong>2.</strong> MSS = MTU − IP 头 − TCP 头 = 1500 − 20 − 20 = 1460。若 MTU = 9000，则 MSS = 8960（IPv4/TCP 无选项时）。MSS 在 SYN 的选项里协商。</p>
+<p><strong>3.</strong> SYN 要在选项里协商 <strong>MSS、SACK、时间戳、窗口扩大</strong>，这些选项约 20 字节 → TCP 头 40 字节 → 帧 74 字节。</p>
+<p><strong>4.</strong> ACK 字段 = “<strong>我期望收到的下一个字节的序号</strong>”，即”前面全部收到”。<code>ACK = 对方SEQ + 对方载荷长度</code> 正确（SYN/FIN 各额外占 1 个序号）。</p>
+<p><strong>5.</strong> <strong>SYN 重传</strong>（丢包或对端无响应）。注意一次正常握手产生 2 个 SYN 位包（SYN + SYN-ACK），所以 3 个 = 2 次正常 + 1 次重传。</p>
+<p><strong>6.</strong> FIN = 有序关闭（走完四次挥手）；RST = 强制中止。分开统计因为：FIN 表示”正常结束”（业务完成），RST 表示”异常/放弃/被拒绝”（业务失败或客户端风格）。你数据里 Reddit 的中位 RST = 2 就是客户端主动放弃的风格。</p>
+<p><strong>7.</strong> flow 是<strong>观测者</strong>按”五元组 + 时间窗”切出来的统计单元；connection 是<strong>TCP 状态机</strong>意义上的连接。两个情形：① 长连接空闲超过 idle timeout（120 s）→ 被切成两条流；② active timeout（1800 s）到期强制切流；③ UDP 没有 connection 但有 flow。</p>
+<p><strong>8.</strong> ① 单包 DNS 查询；② 发出 SYN 但没有任何回应的<strong>半开连接</strong>（你数据里 24% 的流有 SYN、只有 20.4% 有 FIN，差额就是这类）；③ 单包 SSDP/mDNS 广播；④ 单包的 ICMP/IGMP。</p>
+<p><strong>9.</strong> 因为 idle timeout 被设成 <strong>120 s</strong>。工具在 120 s 没有新包时就结束这条流，所以”流内最大空档”永远不可能超过 120 s。<strong>这是工具参数，不是网络属性。</strong></p>
+<p><strong>10.</strong> 因为 active timeout 被设成 <strong>1800 s</strong>（30 分钟）。同理，这是人为上限。</p>
+<p><strong>11.</strong> <code>pps = packets / (duration_s + ε)</code>，<code>duration=0</code> 时分母趋近 ε，<code>pps</code> 会爆炸到 1e11 量级。处理：① 用 <code>log1p</code>；② 显式截断（如 clip 到 p99）；③ 改用 <code>packets</code> 原始计数让模型自己学；④ 加一个 <code>is_instant</code> 二值特征。</p>
+<p><strong>12.</strong> 因为流量是<strong>重尾分布</strong>（1 GB 的那条流会把均值拉飞）。中位数描述”典型值”，均值描述”总量分摊”，两者回答不同问题。你数据里包数中位数 4、均值远大于 4。</p>
+<p><strong>13.</strong> <code>bytes_per_pkt = bytes/packets</code> ≈ 平均包长。文本/信令是小包（200–300 字节），图片/视频是接近 MTU 的包（400–520 字节）。这个量<strong>直接由内容类型决定</strong>，不受采集环境影响，所以很稳健。</p>
+<p><strong>14.</strong> <code>syn_ratio = syn_packets / packets</code> 高说明”<strong>这条流里建连动作占比高</strong>”→ 大量短连接。TikTok（0.059）和 WhatsApp（0.061）最高，因为它们有大量”发一个请求就断”的短连接。</p>
+<p><strong>15.</strong> 意味着”<strong>超过一半的流里，PSH 计数是 0</strong>”（这些流太小，没进入数据交互阶段）。<strong>不</strong>意味着”这个 App 不用 PSH”。facebook/instagram/youtube 的 <code>psh_ratio</code> 中位为 0 就是这个原因。</p>
+<p><strong>16.</strong> 因为 OUI 是设备厂商的标识（MAC 前 3 字节），它和”App”没有因果关系；它只在”某些设备恰好只被用来测某个 App”时才和标签相关。检测方法：<strong>把设备当分组做 GroupKFold 留出</strong>。实测：IID 0.729 → 设备留出 0.436。另一个检测法：看”某个 OUI 是否只对应一个标签且样本量大”（<code>f8:e4:3b</code> 的 2,011 条流 100% 是 whatsapp）。</p>
+<p><strong>17.</strong> 含。判断方法：看 <code>max_ps</code> 的最大值。你的数据是 <strong>1514</strong>，而 IPv4 的最大包长是 1500 —— 多出来的 14 正是以太网头。如果 <code>ps</code> 只算 IP 层，最大值会是 1500（或 1497 这种扣掉选项的值）。</p>
+<p><strong>18.</strong> 2000 年前后够用（应用少、端口约定严格）。失效原因：HTTP 隧道化、P2P 随机端口、移动 App 全部走 443、CDN 复用。文献：Moore &#x26; Papagiannaki, PAM 2005；Karagiannis et al., BLINC, SIGCOMM 2005。</p>
+<p><strong>19.</strong> ① 加密（载荷是密文）；② 规避（分片/重叠/乱序让检测器与主机看到不同字节，Ptacek &#x26; Newsham 1998）；③ 状态成本（流重组 + 百万级流表）。</p>
+<p><strong>20.</strong> 因为它<strong>不是纯 DPI</strong>，而是<strong>多证据融合</strong>：端口提示 → 载荷/结构解析（ClientHello、SNI、证书）→ 主机名库匹配 → IP 缓存匹配。它承认”看不到载荷就降级用旁路证据”，而不是死磕载荷。</p>
+<p><strong>21.</strong> <code>master_protocol = TLS</code>（承载协议），<code>app_protocol = WhatsApp</code>（在 TLS 之上识别出的应用）。nDPI 的输出是两级结构。</p>
+<p><strong>22.</strong> 语义是”<strong>这个结论是怎么得出的</strong>”——枚举值对应不同的证据强度（内容解析 > 缓存 > 端口 > IP > IP+端口 > 未知）。之所以要查头文件：这个枚举的<strong>整数编码在不同版本间变过</strong>，凭记忆解释一定会错。</p>
+<p><strong>23.</strong> 不能。JA4 描述的是 TLS <strong>实现</strong>（库/版本/扩展顺序），不是应用。实测：主流 JA4 <code>t13d1516h2_...</code> 覆盖 <strong>10/10</strong> 个 App，纯度只有 0.51；只有 App 自带 TLS 栈的指纹（如 <code>t12d1210h2_...</code>）纯度才是 1.00。</p>
+<p><strong>24.</strong> 因为 nDPI 在 TLS 上能做的最强判据<strong>就是 SNI</strong>（TLS1.3 之后证书已加密）。当你已经有了 SNI，“读 SNI”和”nDPI 读 SNI”是同一件事，所以增益只有 1 个百分点。再加上你数据里 91.5% 的流共享同一个 confidence 取值，说明 nDPI 的判定几乎全部来自同一种（较弱的）证据。</p>
+<hr>
+<h2 id="学习路径接下来学什么">学习路径：接下来学什么</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>你现在的水平：理解包/流/特征/nDPI 的分工</span></span>
+<span class="line"><span>        │</span></span>
+<span class="line"><span>        ├── 想做取证（"这台手机在用什么 App"）</span></span>
+<span class="line"><span>        │     → 第 4 课实验 6（背景过滤）+ 08 课 §7.3 的分层</span></span>
+<span class="line"><span>        │     → 读：RFC 8446 §4.1.2（ClientHello），Snort/Suricata 规则语法</span></span>
+<span class="line"><span>        │</span></span>
+<span class="line"><span>        ├── 想做机器学习分类</span></span>
+<span class="line"><span>        │     → 读：Nguyen &#x26; Armitage 综述（2008）；本仓库 02 号报告的消融实验</span></span>
+<span class="line"><span>        │     → 关键：先解决标签噪声，再换模型（顺序反了永远做不好）</span></span>
+<span class="line"><span>        │</span></span>
+<span class="line"><span>        ├── 想做高速采集/生产系统</span></span>
+<span class="line"><span>        │     → 读：nDPI 源码（ntop/nDPI）、PF_RING、NFStream 文档</span></span>
+<span class="line"><span>        │     → 关键：流表内存、超时策略、多线程</span></span>
+<span class="line"><span>        │</span></span>
+<span class="line"><span>        └── 想做隐私/反指纹（红队视角）</span></span>
+<span class="line"><span>              → 读：ECH 草案、TLS 指纹随机化（curl-impersonate 反向思路）</span></span>
+<span class="line"><span>              → 关键：SNI 加密 + 包长填充 + 时序扰动</span></span></code></pre>
+<p><strong>推荐阅读顺序（由易到难）</strong></p>
+<ol>
+<li><strong>Kurose &#x26; Ross《Computer Networking: A Top-Down Approach》</strong> 第 3 章（传输层）、第 8 章（安全）——建立”为什么这样设计”的直觉。</li>
+<li><strong>Stevens《TCP/IP Illustrated》Vol.1</strong> 第 17–24 章——TCP 逐字段，当字典查。</li>
+<li><strong>RFC 8446（TLS 1.3）</strong> §4.1——ClientHello 的权威定义，比任何教程都准。</li>
+<li><strong>RFC 7011（IPFIX）</strong> §2——“流”的工业标准定义。</li>
+<li><strong>Deri et al., nDPI (ISWCS 2014)</strong> + nDPI 源码 <code>src/lib/protocols/</code>——看真实的检测器怎么写。</li>
+<li><strong>Karagiannis et al., BLINC (SIGCOMM 2005)</strong>——不看载荷怎么分类，思路最开阔的一篇。</li>
+<li><strong>Paxson &#x26; Floyd (ToN 1995)</strong>——流量的统计性质，理解”重尾”的源头。</li>
+</ol>
+<hr>
+<h2 id="最后三条可迁移的思维方式">最后：三条可迁移的思维方式</h2>
+<ol>
+<li><strong>先问”这个数字是谁算的”</strong>（工具参数 vs 网络属性）。
+你数据里 120 s / 1800 s / 1514 / 60 这四个数，前两个是工具，后两个是协议。</li>
+<li><strong>先问”这个字段合法吗”</strong>（<code>requested_server_name</code> 里躺着 5,752 个组播 IP）。
+字段名是文档的承诺，字段值是现实的回答，<strong>永远以值为准</strong>。</li>
+<li><strong>先问”这个特征能被什么解释”</strong>（设备？时间？文件名？）。
+能被非目标任务解释的特征，就是捷径，就是你在自欺欺人。</li>
+</ol>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td>27 包教学抓包（Wireshark 直接打开）</td></tr><tr><td><a href="/blog/downloads/traffic-course/traffic-course-code.zip">traffic-course-code.zip</a></td><td>课程与分析脚本：scapy 造抓包、GEAD 实现、画图、数据探查</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>网络流量入门（四）：Wireshark 动手实验与自测</b><br>
+作者：Infinity · 发布于 2026-11-17<br>
+本文链接：<a href="https://lvjf.space/blog/posts/2c4cfa12.html">https://lvjf.space/blog/posts/2c4cfa12.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li><li> <a href="/blog/posts/2f1c2763.html">加密社交 App 流量分析（三）：提炼判定规则</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/182ffe32.html">← 网络流量入门（零）：课程导览与能力阶梯</a> <a class="next" href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#0-环境准备">0. 环境准备</a> </li><li class> <a href="#实验-1验证最小帧-60-字节和三层封装">实验 1：验证”最小帧 60 字节”和”三层封装”</a> </li><li class> <a href="#实验-2看三次握手并测出-rtt">实验 2：看三次握手，并测出 RTT</a> </li><li class> <a href="#实验-3找到-sni--加密世界里最后一句话最重要">实验 3：找到 SNI —— 加密世界里最后一句话（最重要）</a> </li><li class> <a href="#实验-4看清加密的边界在哪一行">实验 4：看清”加密的边界”在哪一行</a> </li><li class> <a href="#实验-5rst-和-fin-的区别">实验 5：RST 和 FIN 的区别</a> </li><li class> <a href="#实验-6背景噪声长什么样">实验 6：背景噪声长什么样</a> </li><li class> <a href="#实验-7用-wireshark-的流视角统计而非逐包">实验 7：用 Wireshark 的”流”视角（统计而非逐包）</a> </li><li class> <a href="#实验-8把一条流手算成一行-csv终极大题">实验 8：把一条流手算成一行 CSV（终极大题）</a> </li><li class> <a href="#实验-9命令行版tshark把实验变成脚本">实验 9：命令行版（tshark）——把实验变成脚本</a> </li><li class> <a href="#实验-10用-pandas-复现第二课的所有统计对你自己的-csv">实验 10：用 pandas 复现第二课的所有统计（对你自己的 CSV）</a> </li><li class> <a href="#自测题24-题答案在最后">自测题（24 题，答案在最后）</a> </li><li class="toc-sub"> <a href="#a-组报文与封装第一课">A 组：报文与封装（第一课）</a> </li><li class="toc-sub"> <a href="#b-组流量抽象第一课--第二课">B 组：流量抽象（第一课 + 第二课）</a> </li><li class="toc-sub"> <a href="#c-组特征语义第二课">C 组：特征语义（第二课）</a> </li><li class="toc-sub"> <a href="#d-组识别方法第三课">D 组：识别方法（第三课）</a> </li><li class> <a href="#答案与解析">答案与解析</a> </li><li class> <a href="#学习路径接下来学什么">学习路径：接下来学什么</a> </li><li class> <a href="#最后三条可迁移的思维方式">最后：三条可迁移的思维方式</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

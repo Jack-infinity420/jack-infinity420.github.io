@@ -1,0 +1,873 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>网络流量入门（三）：从端口法到 nDPI | INFINITY&#39;S BLOG</title><meta name="description" content="应用识别的五级阶梯：端口法为什么失效、纯 DPI 的三个死穴、nDPI 的多证据架构、以及 JA3/JA4 为什么识别不了 App。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/5425b364/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="网络流量入门（三）：从端口法到 nDPI | INFINITY'S BLOG"><meta property="og:description" content="应用识别的五级阶梯：端口法为什么失效、纯 DPI 的三个死穴、nDPI 的多证据架构、以及 JA3/JA4 为什么识别不了 App。"><meta property="og:url" content="https://lvjf.space/blog/posts/5425b364/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">网络流量入门（三）：从端口法到 nDPI</h1><div class="post-meta-top">2026-11-17 · tech / 流量分析 · 约 4022 字 · 阅读约 11 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>网络流量入门（五篇）</strong>：<a href="/blog/posts/182ffe32.html">零·导览</a> ｜ <a href="/blog/posts/27dfa1e5.html">一·从比特到流</a> ｜ <a href="/blog/posts/eb6b5f66.html">二·92 个特征</a> ｜ <strong>三·从端口法到 nDPI</strong> ｜ <a href="/blog/posts/2c4cfa12.html">四·动手实验</a></p>
+</blockquote>
+<blockquote>
+<p>前两课解决”有什么可看”。本课解决”<strong>怎么用看到的东西下判断</strong>”。
+你完全没接触过 nDPI，所以本课从”如果没有 nDPI，你会怎么设计一个识别引擎”开始，一步步把它推导出来。</p>
+</blockquote>
+<hr>
+<h2 id="0-把问题形式化30-秒说清">0. 把问题形式化（30 秒说清）</h2>
+<p><strong>输入</strong>：一个观测（一个包、一条流、或一组流）。
+<strong>输出</strong>：一个标签（应用/协议/服务类别）+ 一个置信度。</p>
+<p><strong>形式化</strong>：找一个函数</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>f: 观测 O  →  (应用 a, 置信度 c)</span></span></code></pre>
+<p><strong>判定它好不好，只有三条</strong>（和第一课 A6 呼应）：</p>
+<ol>
+<li><strong>准确</strong>：在”没见过的流量”上也对（不是只在训练集上对）。</li>
+<li><strong>可算</strong>：在你这个观测点上算得出来（加密/ECH 之后还算得出吗）。</li>
+<li><strong>可维护</strong>：新 App 出现时，加一行规则还是重训模型？</li>
+</ol>
+<blockquote>
+<p><strong>整部”流量识别史”就是这三条之间不断妥协的历史。</strong></p>
+</blockquote>
+<hr>
+<h2 id="1-方法谱系五级阶梯">1. 方法谱系：五级阶梯</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>        信息量少 ←──────────────────────────────────────→ 信息量多</span></span>
+<span class="line"><span>        成本低   ←──────────────────────────────────────→ 成本高</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  L1 端口法     L2 载荷匹配(DPI)   L3 nDPI     L4 统计/行为     L5 指纹法</span></span>
+<span class="line"><span> ─────────     ──────────────     ───────     ───────────     ────────</span></span>
+<span class="line"><span> 看 dst_port    找 magic bytes     端口+模式   包长/时序/方向    JA3/JA4/证书</span></span>
+<span class="line"><span>                正则/自动机        +状态机     +ML                /QUIC参数</span></span>
+<span class="line"><span>     │              │               │             │                │</span></span>
+<span class="line"><span>   1 比特        几十字节          几十~几百     统计量           结构哈希</span></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>级别</th><th>判据</th><th>加密后是否可用</th><th>代表实现</th><th>主要失效点</th></tr></thead><tbody><tr><td>L1 端口</td><td>IANA 端口号</td><td>✅ 完全可用</td><td><code>/etc/services</code>、防火墙</td><td>App 用随机端口/共用 443</td></tr><tr><td>L2 DPI</td><td>载荷里的固定字节</td><td>❌ 加密后失效</td><td>Snort、L7-filter</td><td>加密、分片、规避</td></tr><tr><td><strong>L3 nDPI</strong></td><td><strong>端口 + 载荷 + 状态机 + 缓存</strong></td><td><strong>⚠️ 部分可用</strong></td><td><strong>nDPI</strong>、libprotoident</td><td>ECH、CDN 共享、TLS1.3 证书加密</td></tr><tr><td>L4 统计/ML</td><td>包长/时序/方向分布</td><td>✅ 可用</td><td>BLINC、各种论文</td><td>需要标注、跨域漂移</td></tr><tr><td>L5 指纹</td><td>握手结构哈希</td><td>✅ 可用（握手是明文）</td><td>JA3/JA4、HASSH</td><td>OS 共享、随机化</td></tr></tbody></table>
+<blockquote>
+<p><strong>注意 L3 的位置</strong>：nDPI <strong>不是</strong>纯 DPI。它是”<strong>有状态的、多证据融合的协议识别框架</strong>”，
+这是它能在加密时代活下来的根本原因。</p>
+</blockquote>
+<hr>
+<h2 id="2-l1-端口法为什么当年够用现在不行">2. L1 端口法：为什么当年够用，现在不行</h2>
+<h3 id="21-原理">2.1 原理</h3>
+<p>端口就是”服务的门牌号”：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>端口</th><th>服务</th><th>依据</th></tr></thead><tbody><tr><td>80</td><td>HTTP</td><td>RFC 9110 / IANA</td></tr><tr><td>443</td><td>HTTPS</td><td>IANA</td></tr><tr><td>53</td><td>DNS</td><td>RFC 1035</td></tr><tr><td>22</td><td>SSH</td><td>IANA</td></tr><tr><td>25/587</td><td>SMTP</td><td>RFC 5321</td></tr><tr><td>5222</td><td>XMPP</td><td>RFC 6120</td></tr><tr><td>5228/5229/5230</td><td>Google GCM/FCM 推送</td><td>Google 文档</td></tr><tr><td>1900</td><td>SSDP</td><td>UPnP 规范</td></tr><tr><td>5353</td><td>mDNS</td><td>RFC 6762</td></tr></tbody></table>
+<p><strong>优点</strong>：零成本、可解释、对加密完全免疫。
+<strong>缺点</strong>：它假设”应用 = 端口”，而这个假设在 2005 年前后就崩了。</p>
+<h3 id="22-为什么崩了">2.2 为什么崩了</h3>
+<ol>
+<li><strong>HTTP 隧道化</strong>：一切都能塞进 80/443。</li>
+<li><strong>P2P 故意随机端口</strong>：BitTorrent 早期就是随机挑端口。</li>
+<li><strong>移动 App 的服务器端口</strong>：大量业务走 443，<strong>十个 App 全用 443</strong>。</li>
+<li><strong>CDN 与云</strong>：同一个 IP:443 背后是几百个不同服务。</li>
+<li><strong>端口复用</strong>：一条 443 连接里多路复用多个域名（HTTP/2 的 connection coalescing）。</li>
+</ol>
+<p><strong>文献</strong>：Moore &#x26; Papagiannaki, <em>Toward the Accurate Identification of Network Applications</em>（PAM 2005）系统性地指出——用端口做”标准答案”会<strong>系统性高估</strong>分类精度，因为很多流量落在未注册端口上，而把端口当作真值的评估方法本身就错。
+Karagiannis et al., <em>BLINC: Multilevel Traffic Classification in the Dark</em>（SIGCOMM 2005）进一步证明：P2P 类应用会刻意使用非标准端口，端口法对它们几乎无效。</p>
+<h3 id="23-你的数据里的铁证">2.3 你的数据里的铁证</h3>
+<p><img src="/blog/images/traffic/traffic-fig08-ports-reality.png" alt="端口与现实"></p>
+<ul>
+<li>443 端口上有 <strong>10 个 App 全都在</strong>（whatsapp 23.8%、reddit 13.3%、twitter 10.7%…）。</li>
+<li>端口分布的第一名是 <strong>1900（SSDP）</strong>，占 22.9%——<strong>它根本不是任何 App</strong>。</li>
+<li>第二名 53（DNS）占 20.6%——<strong>也不是 App</strong>。</li>
+</ul>
+<blockquote>
+<p><strong>结论</strong>：端口能告诉你”这是 TLS/这是 DNS/这是局域网发现”，<strong>不能告诉你”这是哪个 App”</strong>。
+在 nDPI 里，端口的作用被降级为”<strong>初始提示（hint）</strong>“，不是最终答案。</p>
+</blockquote>
+<hr>
+<h2 id="3-l2-载荷匹配dpi原理算法死穴">3. L2 载荷匹配（DPI）：原理、算法、死穴</h2>
+<h3 id="31-什么是-dpi">3.1 什么是 DPI</h3>
+<p><strong>Deep Packet Inspection</strong> = 不只读头部，还读<strong>载荷内容</strong>，在字节流里找”特征串”。</p>
+<p>经典例子：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>协议</th><th>特征字节（偏移处）</th><th>说明</th></tr></thead><tbody><tr><td>HTTP 请求</td><td><code>GET </code> / <code>POST </code> / <code>HTTP/1.</code></td><td>明文方法名</td></tr><tr><td>DNS</td><td>头部 flags + QNAME 格式</td><td>结构化</td></tr><tr><td>TLS</td><td><code>16 03 01/03</code> + <code>01</code>（ClientHello）</td><td>记录头 + 握手类型</td></tr><tr><td>SSH</td><td><code>SSH-2.0-</code></td><td>版本串</td></tr><tr><td>BitTorrent</td><td><code>BitTorrent protocol</code></td><td>握手 magic</td></tr><tr><td>SMB</td><td><code>\xffSMB</code></td><td>magic</td></tr></tbody></table>
+<h3 id="32-工程上怎么做得快多模式匹配">3.2 工程上怎么做得快：多模式匹配</h3>
+<p>不是”每次拿几十条正则去扫”，而是：</p>
+<ol>
+<li><strong>Aho–Corasick 自动机</strong>（Aho &#x26; Corasick, <em>Efficient String Matching</em>, CACM 1975）：
+把所有特征串构造成一个有限状态机，<strong>一次扫描</strong>同时匹配全部模式，复杂度 O(n)。</li>
+<li><strong>特征码布局</strong>：按”偏移 + 长度 + 内容”三元组描述，避免全文扫描。</li>
+<li><strong>流重组</strong>：TCP 分段要把载荷按 SEQ 拼起来才能匹配（这本身很贵）。</li>
+</ol>
+<h3 id="33-dpi-的三个死穴">3.3 DPI 的三个死穴</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>死穴</th><th>原因</th><th>后果</th></tr></thead><tbody><tr><td><strong>加密</strong></td><td>载荷是密文</td><td>特征串消失</td></tr><tr><td><strong>规避（evasion）</strong></td><td>攻击者故意分片/重叠/乱序让 IDS 与主机看到不同字节</td><td>经典文献：Ptacek &#x26; Newsham, <em>Insertion, Evasion, and Denial of Service: Eluding Network Intrusion Detection</em> (1998)</td></tr><tr><td><strong>状态成本</strong></td><td>要重组流、要维持百万级流表</td><td>高带宽下内存/CPU 爆炸</td></tr></tbody></table>
+<blockquote>
+<p><strong>所以”纯 DPI”在 2015 年之后就不够用了。</strong> 这就是 nDPI 出现的背景。</p>
+</blockquote>
+<hr>
+<h2 id="4-l3-ndpi一个多证据融合的识别框架重点">4. L3 nDPI：一个”多证据融合”的识别框架（重点）</h2>
+<h3 id="41-它是什么">4.1 它是什么</h3>
+<ul>
+<li><strong>全称</strong>：nDPI（“n” 来自 ntop，Luca Deri 的公司/社区）。</li>
+<li><strong>血统</strong>：OpenDPI（2008 左右停滞）→ nDPI（2011 起由 ntop 维护）。nDPI 保留了 OpenDPI 的协议识别思路，但重写并大幅扩展。</li>
+<li><strong>形态</strong>：一个 <strong>C 库</strong>（LGPLv3），不是独立软件。它被嵌进 ntopng（流量监控）、nProbe（NetFlow 探针）、PF_RING（高速抓包）等。</li>
+<li><strong>规模</strong>：支持<strong>数百种</strong>协议（随版本增长），并可扩展自定义规则。</li>
+<li><strong>权威出处</strong>：Deri, Martinelli, Bujlow, Cardigliano, <em>nDPI: Open-Source High-Speed Deep Packet Inspection</em>, ISWCS 2014；以及 ntop 官方 GitHub <code>ntop/nDPI</code>。</li>
+</ul>
+<p><strong>一句话定位</strong>：nDPI 是一个<strong>逐包喂入、按流维护状态、多轮次缩小候选集</strong>的协议识别引擎，输出”主协议 + 应用协议 + 类别 + 置信度”。</p>
+<h3 id="42-架构数据是怎么流过去的">4.2 架构：数据是怎么流过去的</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>        抓包 (libpcap/PF_RING)</span></span>
+<span class="line"><span>              │</span></span>
+<span class="line"><span>              ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 1. 解析 L2/L3/L4     │  提取五元组、方向、时间</span></span>
+<span class="line"><span>    └──────────┬───────────┘</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 2. 查/建流表          │  ndpi_flow_struct（每流一份状态）</span></span>
+<span class="line"><span>    │    (flow hash table)  │  记录：已见包数、方向、候选协议、</span></span>
+<span class="line"><span>    └──────────┬───────────┘        主机名、证书、字节计数…</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 3. 端口提示           │  guess_protocol_id()：</span></span>
+<span class="line"><span>    │   (port hint)         │  443→TLS 可能、53→DNS 可能…</span></span>
+<span class="line"><span>    └──────────┬───────────┘  ← 只是"候选"，不是"结论"</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 4. 协议检测器链        │  对每个候选跑对应状态机：</span></span>
+<span class="line"><span>    │  (per-protocol FSM)   │  TLS 解析 ClientHello/SNI/证书</span></span>
+<span class="line"><span>    │                       │  DNS 解析 QNAME</span></span>
+<span class="line"><span>    │                       │  HTTP 解析请求行/头</span></span>
+<span class="line"><span>    │                       │  QUIC 解析版本/SNI(若有密钥)</span></span>
+<span class="line"><span>    └──────────┬───────────┘</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 5. 主机名→应用映射     │  ndpi_match_hostname_protocol()：</span></span>
+<span class="line"><span>    │  (hostname cache)     │  mmg.whatsapp.net → WhatsApp</span></span>
+<span class="line"><span>    │                       │  graph.facebook.com → Facebook</span></span>
+<span class="line"><span>    └──────────┬───────────┘  也支持 IP→应用（来自 DNS 应答缓存）</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>    ┌──────────────────────┐</span></span>
+<span class="line"><span>    │ 6. 输出 ndpi_protocol │  master_protocol / app_protocol /</span></span>
+<span class="line"><span>    │                       │  category / confidence</span></span>
+<span class="line"><span>    └──────────────────────┘</span></span>
+<span class="line"><span>               │</span></span>
+<span class="line"><span>               ▼</span></span>
+<span class="line"><span>        NFStream 把它写进 CSV</span></span></code></pre>
+<p><strong>这个架构的关键设计思想</strong>：</p>
+<blockquote>
+<p><strong>证据分级</strong>。强证据（解析出了 SNI 并命中主机名库）压过弱证据（端口像 443）。
+每一层都可以”否决”上一层：端口说是 HTTP，但内容不是 → 改判。</p>
+</blockquote>
+<h3 id="43-输出字段的命名法为什么叫-tlswhatsapp">4.3 输出字段的命名法：为什么叫 <code>TLS.WhatsApp</code></h3>
+<p>nDPI 的输出是<strong>两级</strong>的：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>ndpi_protocol {</span></span>
+<span class="line"><span>    master_protocol : 承载协议（TLS / QUIC / DNS / HTTP …）</span></span>
+<span class="line"><span>    app_protocol    : 承载之上的应用（WhatsApp / Reddit / YouTube …）</span></span>
+<span class="line"><span>    category        : 类别（SocialNetwork / Chat / Media …）</span></span>
+<span class="line"><span>    confidence      : 这个判断有多可靠</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>所以 <code>TLS.WhatsApp</code> 读作：<strong>“在 TLS 之上识别出 WhatsApp”</strong>。
+而单独一个 <code>TLS</code> 读作：<strong>“确认这是 TLS，但看不出里面是谁”</strong>。</p>
+<p><strong>你的数据里的实际例子</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th><code>application_name</code></th><th>含义</th><th align="right">流数</th></tr></thead><tbody><tr><td><code>SSDP</code></td><td>主协议就是 SSDP</td><td align="right">5,753</td></tr><tr><td><code>TLS</code></td><td>是 TLS，但应用未知</td><td align="right">2,383</td></tr><tr><td><code>TLS.Reddit</code></td><td>TLS 之上是 Reddit</td><td align="right">808</td></tr><tr><td><code>TLS.WhatsApp</code></td><td>TLS 之上是 WhatsApp</td><td align="right">730</td></tr><tr><td><code>QUIC.FbookReelStory</code></td><td>QUIC 之上是 Facebook Reel</td><td align="right">497</td></tr><tr><td><code>DNS.Instagram</code></td><td>DNS 查询的目标属于 Instagram</td><td align="right">465</td></tr><tr><td><code>Telegram</code></td><td>nDPI 有 Telegram 的<strong>专用检测器</strong>（不走标准 TLS）</td><td align="right">282</td></tr><tr><td><code>Unknown</code></td><td>认不出来</td><td align="right">1,283</td></tr></tbody></table>
+<blockquote>
+<p><strong>注意 <code>DNS.Instagram</code> 这种</strong>：nDPI 连 DNS 查询的域名都拿来归因。
+这在取证上很有用（“这台设备在解析 instagram 的域名”），但它<strong>不等于”用户在用 Instagram”</strong>。</p>
+</blockquote>
+<h3 id="44-置信度confidence与猜的is_guessed">4.4 置信度（confidence）与”猜的”（is_guessed）</h3>
+<p>nDPI 的 <code>confidence</code> 是一个<strong>枚举</strong>，语义是”<strong>这个结论是怎么得出的</strong>”，从强到弱大致是：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>强 ── 内容/结构解析命中（DPI）                        ← 最可信</span></span>
+<span class="line"><span>   ── 缓存命中（之前已解析过同一主机/同一条流）</span></span>
+<span class="line"><span>   ── 端口匹配（MATCH_BY_PORT）                       ← 弱</span></span>
+<span class="line"><span>   ── IP 匹配（MATCH_BY_IP，来自 DNS 缓存）</span></span>
+<span class="line"><span>弱 ── IP+端口匹配（MATCH_BY_IP_PORT）                  ← 最弱</span></span>
+<span class="line"><span>   ── 未知（UNKNOWN）</span></span></code></pre>
+<blockquote>
+<p>⚠️ <strong>具体整数编码随 nDPI 版本变化</strong>。要精确对照，请查你自己那份 nDPI 的
+<code>ndpi_typedefs.h</code> 里的 <code>ndpi_confidence_t</code> 枚举。<strong>这是一个必须养成的习惯：不要凭记忆解释枚举值。</strong></p>
+</blockquote>
+<p><strong>你的数据的实测</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right"><code>application_confidence</code></th><th align="right">流数</th><th align="right">占比</th></tr></thead><tbody><tr><td align="right">6</td><td align="right">22,984</td><td align="right"><strong>91.5%</strong></td></tr><tr><td align="right">0</td><td align="right">1,283</td><td align="right">5.1%</td></tr><tr><td align="right">1</td><td align="right">523</td><td align="right">2.1%</td></tr><tr><td align="right">7</td><td align="right">326</td><td align="right">1.3%</td></tr></tbody></table>
+<p><code>application_is_guessed = 1</code> 只有 <strong>535 条（2.1%）</strong>，且集中在 confidence=1（498 条）。</p>
+<p><strong>这两列合起来告诉你一件大事</strong>：</p>
+<blockquote>
+<p><strong>91.5% 的流用的是同一个置信度取值</strong>，说明这份数据里 nDPI 的判定<strong>几乎全部来自同一种证据</strong>（很可能是”IP/缓存”这一类，而不是逐字节的深度解析）。
+这正好解释了为什么我后面的实验发现：<strong>DPI 的判定能力 ≈ SNI 的判定能力</strong>（加 DPI 只比加 SNI 多 1 个百分点）。
+因为当 SNI 可见时，nDPI 能做的最强的事也就是读 SNI。</p>
+</blockquote>
+<h3 id="45-ndpi-的局限必须知道否则会误用">4.5 nDPI 的局限（必须知道，否则会误用）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>局限</th><th>具体表现</th><th>你的数据里的例子</th></tr></thead><tbody><tr><td><strong>粒度是”协议/服务”，不是”App 会话”</strong></td><td>一个 App 会同时产生几十种 DPI 标签</td><td>whatsapp 的流有 <strong>70 种</strong> <code>application_name</code>（SSDP/DNS/MDNS/TLS/TLS.WhatsApp/…）</td></tr><tr><td><strong>加密后只能靠旁路</strong></td><td>TLS1.3 证书加密，ECH 会藏 SNI</td><td><code>TLS</code>（无应用）占 2,383 条</td></tr><tr><td><strong>共享基础设施会误判</strong></td><td><code>graph.facebook.com</code> 出现在 10 个 App 里</td><td>纯度仅 0.31</td></tr><tr><td><strong>CDN 让 IP 信息失效</strong></td><td>同一 CDN IP 承载多个域名</td><td>大量 <code>amazonaws</code>/<code>cloudfront</code>/<code>googleusercontent</code></td></tr><tr><td><strong>规则需要人工维护</strong></td><td>新 App 要加主机名/IP 列表</td><td>版本更新成本</td></tr><tr><td><strong>不做”用户行为”判断</strong></td><td>它说”这条流是 WhatsApp 协议”，不说”用户在聊天”</td><td>—</td></tr></tbody></table>
+<h3 id="46-为什么它仍然是最实用的方案">4.6 为什么它仍然是最实用的方案</h3>
+<p>因为它是<strong>唯一同时满足”准确 + 可算 + 可维护”三条件</strong>的方案：</p>
+<ul>
+<li>它把”强证据优先”做成了架构（不是规则堆砌）；</li>
+<li>它对加密做了退让（承认只能靠 SNI/证书/IP 缓存），但<strong>没有放弃</strong>；</li>
+<li>它可扩展（自定义协议、自定义主机名列表）。</li>
+</ul>
+<blockquote>
+<p><strong>工程建议</strong>：如果你要做取证工具，<strong>不要自己重写 DPI</strong>，直接用 nDPI；
+但<strong>必须自己再叠一层”App 归属”逻辑</strong>，因为 nDPI 的粒度是协议不是 App。</p>
+</blockquote>
+<hr>
+<h2 id="5-l4-统计行为法不看内容看形状">5. L4 统计/行为法：不看内容，看”形状”</h2>
+<h3 id="51-核心思想">5.1 核心思想</h3>
+<p>即使载荷全加密、地址全隐藏，<strong>“形状”仍然泄露身份</strong>：</p>
+<ul>
+<li>一次请求要几个包？</li>
+<li>双向比例多少？</li>
+<li>间隔是固定周期还是突发？</li>
+<li>有没有出现满载包？</li>
+</ul>
+<p><strong>经典工作</strong>：Karagiannis et al., <em>BLINC</em>（SIGCOMM 2005）提出三个层次：**
+① 社会层（谁跟谁通信）② 功能层（这个主机扮演什么角色）③ 应用层（具体什么应用）**。
+它完全不看载荷，只用流的图结构 + 统计特征。</p>
+<p><strong>机器学习路线</strong>：Moore &#x26; Zuev（SIGMETRICS 2005）用朴素贝叶斯 + 248 个流特征；
+Nguyen &#x26; Armitage（<em>A survey of techniques for internet traffic classification using machine learning</em>, IEEE Comm. Surveys &#x26; Tutorials, 2008）是这一路的权威综述。</p>
+<h3 id="52-这条路的两个硬约束">5.2 这条路的两个硬约束</h3>
+<ol>
+<li><strong>需要标注数据</strong>，而标注本身很贵（本数据集就是用”当时前台是哪个 App”当标签，所以才有 39.2% 的噪声）。</li>
+<li><strong>会漂移</strong>：App 改版、网络变化、设备换代 → 模型失效。
+你数据里 day5 的分布与 day1–4 差异巨大，跨天准确率从 0.70 掉到 0.47，就是漂移的实证。</li>
+</ol>
+<hr>
+<h2 id="6-l5-指纹法加密时代的指纹学">6. L5 指纹法：加密时代的”指纹学”</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>指纹</th><th>从哪来</th><th>识别什么</th><th>你的数据</th></tr></thead><tbody><tr><td><strong>JA3 / JA3S</strong></td><td>ClientHello / ServerHello 字段拼接 → MD5</td><td>TLS <strong>客户端库/服务端软件</strong></td><td>论文：Althouse et al. 2017</td></tr><tr><td><strong>JA4 / JA4S / JA4H</strong></td><td>JA3 的可读化重构（含 ALPN、扩展数）</td><td>同上，但更细更可读</td><td>你的 <code>client_fingerprint</code> 就是 <strong>JA4</strong></td></tr><tr><td><strong>证书指纹</strong></td><td>证书链的 CN/SAN/签发者/公钥哈希</td><td>服务端是谁（TLS≤1.2 可见）</td><td>你的 <code>server_fingerprint</code></td></tr><tr><td><strong>HASSH</strong></td><td>SSH 的 KEX 算法列表</td><td>SSH 客户端/服务端</td><td>—</td></tr><tr><td><strong>QUIC 参数</strong></td><td>版本、传输参数、连接 ID 长度</td><td>QUIC 实现</td><td>你的 <code>is_quic</code> 相关列</td></tr></tbody></table>
+<p><strong>关键认知（第一课已讲，这里再强调）</strong>：</p>
+<blockquote>
+<p><strong>指纹识别的是”实现”，不是”应用”。</strong>
+十个 Android App 共用系统 TLS 库 → 同一个 JA4。
+所以”JA4 指纹化 App”这个流行说法，在这份数据上是<strong>错的</strong>（实测纯度 0.33–0.51，覆盖 10/10 个 App）。</p>
+</blockquote>
+<hr>
+<h2 id="7-回到你的数据三条方法论结论">7. 回到你的数据：三条方法论结论</h2>
+<h3 id="71-结论一dpi-的增益几乎全部来自-sni">7.1 结论一：DPI 的增益几乎全部来自 SNI</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>特征视图</th><th align="right">APP_NDNS 准确率（5 折 IID）</th></tr></thead><tbody><tr><td>V1 纯流统计</td><td align="right">0.701</td></tr><tr><td>V3 +TLS 元数据存在性</td><td align="right">0.739</td></tr><tr><td>V4a +SNI 明文</td><td align="right"><strong>0.765</strong></td></tr><tr><td>V5 +nDPI 判定（oracle）</td><td align="right">0.775</td></tr></tbody></table>
+<p>从 V4a 到 V5 只涨 <strong>1.0 个百分点</strong>。也就是说：<strong>一旦你能读 SNI，nDPI 几乎给不出额外信息</strong>。
+这与 4.4 节”91.5% 的流是同一个弱置信度”的观察完全自洽。</p>
+<h3 id="72-结论二字段名--字段语义一个必须现场纠正的坑">7.2 结论二：字段名 ≠ 字段语义（一个必须现场纠正的坑）</h3>
+<p>NFStream 的列 <code>requested_server_name</code> 文档里说是 SNI。但<strong>打开值看一眼</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>值</th><th align="right">数量</th><th>它其实是</th></tr></thead><tbody><tr><td><code>mmg.whatsapp.net</code></td><td align="right">733</td><td>✅ 真 SNI</td></tr><tr><td><code>239.255.255.250</code></td><td align="right"><strong>5,752</strong></td><td>❌ SSDP 组播地址（不是域名！）</td></tr><tr><td><code>_spotify-connect._tcp.local</code></td><td align="right">1,288</td><td>❌ mDNS 服务名</td></tr><tr><td><code>xboxone</code> / <code>wpad</code> / <code>desktop-h7kp9hq</code></td><td align="right">各 30–50</td><td>❌ NetBIOS/mDNS 主机名</td></tr></tbody></table>
+<p><strong>统计</strong>：非空 20,727 条（82.5%）中，</p>
+<ul>
+<li>像合法域名的只有 <strong>14,470 条（57.6%）</strong></li>
+<li>IP 字面量 <strong>5,752 条（22.9%）</strong></li>
+<li>其余是 mDNS/NetBIOS 主机名</li>
+</ul>
+<blockquote>
+<p><strong>教训</strong>：任何”明文元数据”列，第一件事是<strong>验证取值是否合法</strong>（域名长什么样？IP 长什么样？）。
+如果直接拿 <code>notna()</code> 当 <code>has_sni</code>，你会把 5,752 条 SSDP 广播当成”有 SNI 的 TLS 流”。
+<strong>我前面报告里用的 <code>has_sni</code> 就受此影响</strong>（偏大）；正确的做法是先做正则校验再判定。
+这不影响”SNI 加权纯度 0.802 / 0.708”这类结论（那些是按具体域名算的），但会影响任何以 <code>has_sni</code> 为条件的规则。</p>
+</blockquote>
+<h3 id="73-结论三识别链条应该是分层的不是单点的">7.3 结论三：识别链条应该是分层的，不是单点的</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>第 0 层：这是不是背景流量？        （SSDP/mDNS/DNS/IGMP → 直接丢弃，占 39.2%）</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>第 1 层：这条流的主协议是什么？      （nDPI 的 master_protocol：TLS/QUIC/DNS）</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>第 2 层：如果 TLS，能读到 SNI 吗？   （能 → 查"专属域名表"）</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>第 3 层：SNI 共享怎么办？           （→ 退到统计特征：包长/方向/节奏）</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>第 4 层：单流拿不准怎么办？         （→ 按目的 IP 聚合多条流投票）</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>第 5 层：给出置信度 + 可读依据       （→ 就是第四课的规则）</span></span></code></pre>
+<p><strong>这个分层就是”从第一性原理设计一个识别系统”的答案</strong>：
+每一层只解决一个信息粒度的问题，<strong>上一层的信息不足时才下探</strong>。
+nDPI 是第 1–2 层的优秀实现，但它不负责第 0/3/4/5 层——那正是你要补的。</p>
+<hr>
+<h2 id="8-术语对照表读论文文档时不再卡住">8. 术语对照表（读论文/文档时不再卡住）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>术语</th><th>中文</th><th>一句话</th></tr></thead><tbody><tr><td>DPI</td><td>深度包检测</td><td>读载荷找特征</td></tr><tr><td>nDPI</td><td>—</td><td>开源的多证据协议识别库</td></tr><tr><td>master protocol</td><td>主协议</td><td>承载层（TLS/QUIC/DNS）</td></tr><tr><td>app protocol</td><td>应用协议</td><td>承载之上的应用（WhatsApp）</td></tr><tr><td>category</td><td>类别</td><td>SocialNetwork/Chat/Media…</td></tr><tr><td>confidence</td><td>置信度</td><td>“这个结论是怎么得出的”</td></tr><tr><td>guessed</td><td>猜测的</td><td>只有弱证据（端口/IP）</td></tr><tr><td>SNI</td><td>服务器名称指示</td><td>ClientHello 里明文的”我要访问谁”</td></tr><tr><td>ECH</td><td>加密客户端问候</td><td>把 SNI 也加密（IETF 草案，逐步部署）</td></tr><tr><td>JA3/JA4</td><td>TLS 指纹</td><td>客户端 TLS 栈的结构哈希</td></tr><tr><td>flow / session</td><td>流 / 会话</td><td>观测抽象 / 应用语义</td></tr><tr><td>sessionization</td><td>会话化</td><td>把包切成流的规则（超时）</td></tr><tr><td>ground truth</td><td>真值</td><td>用来评估的”标准答案”（本数据集最弱的一环）</td></tr></tbody></table>
+<hr>
+<h2 id="9-常见误解自检">9. 常见误解（自检）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>误解</th><th>事实</th></tr></thead><tbody><tr><td>“nDPI 是防火墙”</td><td>不是，它是一个<strong>库</strong>，只做识别不做阻断</td></tr><tr><td>“有 DPI 就能看穿加密”</td><td>不能。它读的是握手明文和旁路信息</td></tr><tr><td>“端口 443 就是 HTTPS 网页”</td><td>可能是 QUIC、可能是任何 App 的 API</td></tr><tr><td>“JA3 能识别 App”</td><td>它识别 TLS <strong>实现</strong>；同 OS 同库的 App 共享指纹</td></tr><tr><td>“DPI 分类器 = App 分类器”</td><td>nDPI 给的是协议/服务，一个 App 会产生几十种标签</td></tr><tr><td>“流量分析 = 机器学习”</td><td>不是。规则 + 分层 + 聚合往往比模型更有效（本任务里聚合 +54%，换模型 +3%）</td></tr></tbody></table>
+<hr>
+<h2 id="10-本课小结">10. 本课小结</h2>
+<ol>
+<li><strong>端口法</strong>在移动 App 时代失效：443 上十个 App 全在，第一名端口是 SSDP。</li>
+<li><strong>纯 DPI</strong> 在加密时代失效：载荷是密文。</li>
+<li><strong>nDPI = 有状态的、多证据分级的协议识别框架</strong>：端口只是提示，真正靠解析握手 + 主机名库 + IP 缓存。</li>
+<li>它的输出是 <strong><code>master.app</code> + category + confidence</strong>，粒度是<strong>协议/服务</strong>，不是 App。</li>
+<li>它的能力上限被”能看到多少明文”决定；<strong>在看到 SNI 之后，nDPI 的边际贡献只有 1 个百分点</strong>。</li>
+<li>想做 App 归属，必须在 nDPI 之上自己补：<strong>背景过滤 → 专属域名 → 统计兜底 → 多流聚合 → 置信度</strong>。</li>
+</ol>
+<p><strong>下一步</strong>：第四课动手，把这个分层真的跑一遍。</p>
+<p><strong>自测</strong>：见 <code>09_教程_4_动手实验与自测.md</code> 第 15–24 题。</p>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td>27 包教学抓包（Wireshark 直接打开）</td></tr><tr><td><a href="/blog/downloads/traffic-course/traffic-course-code.zip">traffic-course-code.zip</a></td><td>课程与分析脚本：scapy 造抓包、GEAD 实现、画图、数据探查</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>网络流量入门（三）：从端口法到 nDPI</b><br>
+作者：Infinity · 发布于 2026-11-17<br>
+本文链接：<a href="https://lvjf.space/blog/posts/5425b364.html">https://lvjf.space/blog/posts/5425b364.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li><li> <a href="/blog/posts/2f1c2763.html">加密社交 App 流量分析（三）：提炼判定规则</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/2c4cfa12.html">← 网络流量入门（四）：Wireshark 动手实验与自测</a> <a class="next" href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#0-把问题形式化30-秒说清">0. 把问题形式化（30 秒说清）</a> </li><li class> <a href="#1-方法谱系五级阶梯">1. 方法谱系：五级阶梯</a> </li><li class> <a href="#2-l1-端口法为什么当年够用现在不行">2. L1 端口法：为什么当年够用，现在不行</a> </li><li class="toc-sub"> <a href="#21-原理">2.1 原理</a> </li><li class="toc-sub"> <a href="#22-为什么崩了">2.2 为什么崩了</a> </li><li class="toc-sub"> <a href="#23-你的数据里的铁证">2.3 你的数据里的铁证</a> </li><li class> <a href="#3-l2-载荷匹配dpi原理算法死穴">3. L2 载荷匹配（DPI）：原理、算法、死穴</a> </li><li class="toc-sub"> <a href="#31-什么是-dpi">3.1 什么是 DPI</a> </li><li class="toc-sub"> <a href="#32-工程上怎么做得快多模式匹配">3.2 工程上怎么做得快：多模式匹配</a> </li><li class="toc-sub"> <a href="#33-dpi-的三个死穴">3.3 DPI 的三个死穴</a> </li><li class> <a href="#4-l3-ndpi一个多证据融合的识别框架重点">4. L3 nDPI：一个”多证据融合”的识别框架（重点）</a> </li><li class="toc-sub"> <a href="#41-它是什么">4.1 它是什么</a> </li><li class="toc-sub"> <a href="#42-架构数据是怎么流过去的">4.2 架构：数据是怎么流过去的</a> </li><li class="toc-sub"> <a href="#43-输出字段的命名法为什么叫-tlswhatsapp">4.3 输出字段的命名法：为什么叫 TLS.WhatsApp</a> </li><li class="toc-sub"> <a href="#44-置信度confidence与猜的is_guessed">4.4 置信度（confidence）与”猜的”（is_guessed）</a> </li><li class="toc-sub"> <a href="#45-ndpi-的局限必须知道否则会误用">4.5 nDPI 的局限（必须知道，否则会误用）</a> </li><li class="toc-sub"> <a href="#46-为什么它仍然是最实用的方案">4.6 为什么它仍然是最实用的方案</a> </li><li class> <a href="#5-l4-统计行为法不看内容看形状">5. L4 统计/行为法：不看内容，看”形状”</a> </li><li class="toc-sub"> <a href="#51-核心思想">5.1 核心思想</a> </li><li class="toc-sub"> <a href="#52-这条路的两个硬约束">5.2 这条路的两个硬约束</a> </li><li class> <a href="#6-l5-指纹法加密时代的指纹学">6. L5 指纹法：加密时代的”指纹学”</a> </li><li class> <a href="#7-回到你的数据三条方法论结论">7. 回到你的数据：三条方法论结论</a> </li><li class="toc-sub"> <a href="#71-结论一dpi-的增益几乎全部来自-sni">7.1 结论一：DPI 的增益几乎全部来自 SNI</a> </li><li class="toc-sub"> <a href="#72-结论二字段名--字段语义一个必须现场纠正的坑">7.2 结论二：字段名 ≠ 字段语义（一个必须现场纠正的坑）</a> </li><li class="toc-sub"> <a href="#73-结论三识别链条应该是分层的不是单点的">7.3 结论三：识别链条应该是分层的，不是单点的</a> </li><li class> <a href="#8-术语对照表读论文文档时不再卡住">8. 术语对照表（读论文/文档时不再卡住）</a> </li><li class> <a href="#9-常见误解自检">9. 常见误解（自检）</a> </li><li class> <a href="#10-本课小结">10. 本课小结</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

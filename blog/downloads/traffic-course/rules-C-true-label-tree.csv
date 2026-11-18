@@ -1,0 +1,21 @@
+﻿cls,support,conf,prec,n_cond,rule_cn,rule_en
+facebook,1819,1.0,0.2770753161077515,5,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 <= 0.8461 (p94) 且 有JA4指纹=1 且 下行字节占比 > 0.1429 (p18) 则判为 facebook,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio <= 0.8461 AND has_ja4 == 1 AND dn_ratio > 0.1429 THEN facebook
+facebook,136,1.0,1.0,4,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 > 0.8461 (p94) 且 字节数 >= 779080 则判为 facebook,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio > 0.8461 AND byt >= 779080 THEN facebook
+facebook,50,1.0,0.88,4,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 > 0.8461 (p94) 且 字节数 <= 779079 则判为 facebook,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio > 0.8461 AND byt <= 779079 THEN facebook
+facebook,50,1.0,0.3,2,若 最大包长 <= 1470 且 RST数 >= 3 则判为 facebook,IF ps_max <= 1470 AND rst_cnt >= 3 THEN facebook
+linkedin,334,1.0,0.3023952095808383,3,若 最大包长 >= 1470 且 RST数 <= 2 且 字节率(B/s) > 0 (p0) 则判为 linkedin,IF ps_max >= 1470 AND rst_cnt <= 2 AND bps > 0 THEN linkedin
+reddit,125,1.0,1.0,4,若 最大包长 >= 1470 且 RST数 >= 3 且 包数 >= 33 且 PSH占比 <= 0.09242 (p45) 则判为 reddit,IF ps_max >= 1470 AND rst_cnt >= 3 AND pkt >= 33 AND psh_ratio <= 0.09242 THEN reddit
+reddit,110,1.0,0.5818181818181818,5,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 <= 0.8461 (p94) 且 有JA4指纹=1 且 下行字节占比 <= 0.1429 (p18) 则判为 reddit,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio <= 0.8461 AND has_ja4 == 1 AND dn_ratio <= 0.1429 THEN reddit
+reddit,88,1.0,0.8863636363636364,4,若 最大包长 >= 1470 且 RST数 >= 3 且 包数 >= 33 且 PSH占比 > 0.09242 (p45) 则判为 reddit,IF ps_max >= 1470 AND rst_cnt >= 3 AND pkt >= 33 AND psh_ratio > 0.09242 THEN reddit
+reddit,57,1.0,0.8596491228070176,3,若 最大包长 >= 1470 且 RST数 <= 2 且 下行包占比 > 0.559 (p78) 则判为 reddit,IF ps_max >= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio > 0.559 THEN reddit
+reddit,53,1.0,0.41509433962264153,3,若 最大包长 >= 1470 且 RST数 <= 2 且 下行包占比 <= 0.559 (p78) 则判为 reddit,IF ps_max >= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio <= 0.559 THEN reddit
+reddit,50,1.0,0.44,3,若 最大包长 >= 1470 且 RST数 >= 3 且 包数 <= 32 则判为 reddit,IF ps_max >= 1470 AND rst_cnt >= 3 AND pkt <= 32 THEN reddit
+snapchat,70,1.0,0.4857142857142857,2,若 最大包长 >= 1470 且 RST数 <= 2 则判为 snapchat,IF ps_max >= 1470 AND rst_cnt <= 2 THEN snapchat
+telegram,265,1.0,0.660377358490566,5,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 <= 0.8461 (p94) 且 有JA4指纹=0 且 SYN占比 > 0 (p44) 则判为 telegram,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio <= 0.8461 AND has_ja4 == 0 AND syn_ratio > 0 THEN telegram
+tiktok,64,1.0,1.0,3,若 最大包长 >= 1470 且 RST数 <= 2 且 包长标准差 <= 429.4 (p44) 则判为 tiktok,IF ps_max >= 1470 AND rst_cnt <= 2 AND ps_std <= 429.4 THEN tiktok
+tiktok,50,1.0,0.88,3,若 最大包长 >= 1470 且 RST数 <= 2 且 包长标准差 > 429.4 (p44) 则判为 tiktok,IF ps_max >= 1470 AND rst_cnt <= 2 AND ps_std > 429.4 THEN tiktok
+twitter,1017,1.0,0.19665683382497542,5,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 <= 0.8461 (p94) 且 有JA4指纹=0 且 SYN占比 <= 0 (p44) 则判为 twitter,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio <= 0.8461 AND has_ja4 == 0 AND syn_ratio <= 0 THEN twitter
+twitter,122,1.0,0.5409836065573771,3,若 最大包长 >= 1470 且 RST数 <= 2 且 字节率(B/s) <= 0 (p0) 则判为 twitter,IF ps_max >= 1470 AND rst_cnt <= 2 AND bps <= 0 THEN twitter
+whatsapp,156,1.0,1.0,3,若 最大包长 <= 1470 且 RST数 >= 3 且 下行字节占比 > 0.7572 (p67) 则判为 whatsapp,IF ps_max <= 1470 AND rst_cnt >= 3 AND dn_ratio > 0.7572 THEN whatsapp
+whatsapp,50,1.0,0.72,3,若 最大包长 <= 1470 且 RST数 >= 3 且 下行字节占比 <= 0.7572 (p67) 则判为 whatsapp,IF ps_max <= 1470 AND rst_cnt >= 3 AND dn_ratio <= 0.7572 THEN whatsapp
+youtube,89,1.0,0.3595505617977528,3,若 最大包长 <= 1470 且 RST数 <= 2 且 下行包占比 > 0.8461 (p94) 则判为 youtube,IF ps_max <= 1470 AND rst_cnt <= 2 AND dn_pkt_ratio > 0.8461 THEN youtube

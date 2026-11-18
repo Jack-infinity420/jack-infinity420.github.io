@@ -1,0 +1,1224 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>网络流量入门（二）：92 个特征是怎么算出来的 | INFINITY&#39;S BLOG</title><meta name="description" content="把 NFStream 的 92 列按物理来源拆成七组，逐个还原成网络行为，并指出哪些列必须扔掉。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/eb6b5f66/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="网络流量入门（二）：92 个特征是怎么算出来的 | INFINITY'S BLOG"><meta property="og:description" content="把 NFStream 的 92 列按物理来源拆成七组，逐个还原成网络行为，并指出哪些列必须扔掉。"><meta property="og:url" content="https://lvjf.space/blog/posts/eb6b5f66/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">网络流量入门（二）：92 个特征是怎么算出来的</h1><div class="post-meta-top">2026-11-17 · tech / 流量分析 · 约 4740 字 · 阅读约 12 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>网络流量入门（五篇）</strong>：<a href="/blog/posts/182ffe32.html">零·导览</a> ｜ <a href="/blog/posts/27dfa1e5.html">一·从比特到流</a> ｜ <strong>二·92 个特征</strong> ｜ <a href="/blog/posts/5425b364.html">三·从端口法到 nDPI</a> ｜ <a href="/blog/posts/2c4cfa12.html">四·动手实验</a></p>
+</blockquote>
+<blockquote>
+<p>第一课讲了”流”这个抽象。本课讲<strong>这个抽象里的每一列，物理上是被什么东西决定的</strong>。
+只要你能把一个特征”还原成一个网络行为”，你就再也不需要背特征表了。
+配套图见文中插图；统计来自 10 个 App × 5 天共 25,116 条流。</p>
+</blockquote>
+<hr>
+<h2 id="0-一条特征合格的标准三个资格">0. 一条特征合格的标准：三个资格</h2>
+<p>新手最容易犯的错是”把 CSV 所有列丢给模型”。实际上一条特征要能用，必须同时满足：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>资格</th><th>含义</th><th>反例（你数据里真实存在）</th></tr></thead><tbody><tr><td><strong>可观测</strong></td><td>在<strong>你的观测点</strong>上能算出来</td><td>你在交换机镜像口看不到 ECH 之后的 SNI</td></tr><tr><td><strong>有因果</strong></td><td>能被”某个应用/协议行为”唯一解释</td><td><code>src_port</code> 是内核随机数，没有因果</td></tr><tr><td><strong>可迁移</strong></td><td>换设备/换天/换网络后仍然成立</td><td><code>src_oui</code>（设备厂商）在新设备上立刻失效</td></tr></tbody></table>
+<blockquote>
+<p><strong>第三资格是本数据集上最致命的</strong>：<code>src_oui</code> 在 IID 测试里让准确率涨 8 个点，
+但”留出没见过的设备”后全体掉到 0.44。<strong>一个特征只要能被”设备身份”解释，它就不是 App 指纹。</strong></p>
+</blockquote>
+<p>下面按”物理来源”分七组讲。每组的结构都是：<strong>定义 → 怎么算 → 为什么有判别力 → 陷阱</strong>。</p>
+<hr>
+<h2 id="1-第一组体量packets--bytes--duration">1. 第一组：体量（<code>packets</code> / <code>bytes</code> / <code>duration</code>）</h2>
+<h3 id="11-定义与算例">1.1 定义与算例</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>列</th><th>定义</th><th>为什么是这个值</th></tr></thead><tbody><tr><td><code>bidirectional_packets</code></td><td>两方向包数之和</td><td>计数器</td></tr><tr><td><code>bidirectional_bytes</code></td><td>两方向字节数之和</td><td>计数器（通常按 IP 载荷计，不含 L2 头；不同工具口径不同！）</td></tr><tr><td><code>src2dst_*</code> / <code>dst2src_*</code></td><td>按方向拆开</td><td>同上</td></tr><tr><td><code>bidirectional_duration_ms</code></td><td>最后一个包时间 − 第一个包时间</td><td>时间差</td></tr><tr><td><code>src2dst_duration_ms</code></td><td>该方向首包到末包</td><td>只在一个方向发包时可能为 0</td></tr></tbody></table>
+<h3 id="12-为什么这三个数极度重尾">1.2 为什么这三个数”极度重尾”</h3>
+<p>你的 25,116 条流：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th align="right">中位数</th><th align="right">p90</th><th align="right">p99</th><th align="right">最大</th></tr></thead><tbody><tr><td>包数</td><td align="right"><strong>4</strong></td><td align="right">83</td><td align="right">11,609</td><td align="right">928,191</td></tr><tr><td>字节数</td><td align="right"><strong>848</strong></td><td align="right">38,201</td><td align="right">12,646,373</td><td align="right">1,158,252,748</td></tr><tr><td>时长(ms)</td><td align="right"><strong>417</strong></td><td align="right">79,376</td><td align="right">1,217,920</td><td align="right">1,799,997</td></tr></tbody></table>
+<p><img src="/blog/images/traffic/traffic-fig06-flowlen-duration.png" alt="流长与时长"></p>
+<p><strong>这是网络流量的普遍规律</strong>：不是正态分布，而是<strong>重尾（heavy-tailed / long-tailed）</strong>。
+经典文献：Paxson &#x26; Floyd, <em>Wide-Area Traffic: The Failure of Poisson Modeling</em> (IEEE/ACM ToN, 1995) 指出网络流量既不是泊松也不是自相似那么简单，而是<strong>在多个时间尺度上都呈现突发性</strong>；Thompson, Miller &#x26; Wilder, <em>Wide-area Internet traffic patterns and characteristics</em> (IEEE Network, 1997) 给出了包长双峰的实测证据。</p>
+<p><strong>这对建模的直接影响</strong>：</p>
+<ul>
+<li><strong>必须取对数</strong>：<code>log1p(bytes)</code> 之后分布才接近可建模的形状。线性缩放会被 1 GB 的那一条流主导。</li>
+<li><strong>用中位数而不是均值</strong>做”典型值”：均值会被极值拉飞。</li>
+<li><strong>树模型为什么天然占优</strong>：树只看”大小关系”，对单调变换不敏感，所以不需要你手工 log。</li>
+</ul>
+<h3 id="13-陷阱duration--0-的-3698-条流">1.3 陷阱：<code>duration = 0</code> 的 3,698 条流</h3>
+<p>14.7% 的流时长恰好是 0。原因：<strong>单个包</strong>的流，首包即末包；或者多包在同一毫秒内（本数据的 1 ms 精度不够）。
+所以 <code>duration == 0</code> 不是”瞬时传输”，而是”<strong>观测精度不够</strong>”。
+由此派生：<code>pps = packets / (duration/1000 + ε)</code> 在 <code>duration=0</code> 时会爆炸。
+我在代码里的写法是 <code>df["pps"] = df["packet"] / (df["dur_ms"]/1000 + 1e-9)</code> —— 这会让 <code>pps</code> 达到 1e11 量级，属于<strong>数值伪影</strong>，需要 <code>log1p</code> 或截断。</p>
+<blockquote>
+<p><strong>方法论</strong>：任何”比率型”特征，分母为 0 时都要问一句”这个无穷大是什么意思”。答案永远是”没有意义”。</p>
+</blockquote>
+<hr>
+<h2 id="2-第二组包长统计min_ps--mean_ps--stddev_ps--max_ps">2. 第二组：包长统计（<code>min_ps</code> / <code>mean_ps</code> / <code>stddev_ps</code> / <code>max_ps</code>）</h2>
+<h3 id="21-为什么包长有判别力第一课已埋线">2.1 为什么包长有判别力（第一课已埋线）</h3>
+<p>包长 = <strong>协议头固定开销 + 离散的载荷尺寸</strong>。所以：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>观察</th><th>反推的行为</th></tr></thead><tbody><tr><td><code>max_ps ≥ 1470</code></td><td>这条流<strong>传过满载数据</strong>（媒体/图片/文件）</td></tr><tr><td><code>max_ps ≤ 200</code></td><td>只发过小包（信令/心跳/查询）</td></tr><tr><td><code>min_ps ≈ 60</code></td><td>出现过纯 ACK（说明<strong>是双向的</strong>，对端在回 ACK）</td></tr><tr><td><code>stddev_ps</code> 大</td><td>大包小包混杂（典型：下载中夹 ACK）</td></tr><tr><td><code>stddev_ps</code> 小且 <code>max_ps</code> 小</td><td>全是同尺寸小包（典型：心跳）</td></tr></tbody></table>
+<p><strong>你的数据里的尖峰</strong>（第一课的图）：</p>
+<ul>
+<li><code>min_ps</code> 众数：<strong>66</strong>（19.0%，带时间戳的 ACK）、<strong>212</strong>（16.0%，SSDP 响应）、<strong>60</strong>（12.6%，纯 ACK 补零）</li>
+<li><code>max_ps</code> 众数：<strong>212</strong>（16.0%）、<strong>1514</strong>（6.0%）、<strong>1446</strong>、<strong>1292</strong>、<strong>167</strong>（4.6%）</li>
+</ul>
+<p>注意 212 和 167 这两个值——它们不是 App 流量，而是 <strong>SSDP/mDNS 的发现报文</strong>（第一课算过：167 = 14+20+8+125）。</p>
+<h3 id="22-各-app-的包长结构中位数">2.2 各 App 的包长结构（中位数）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>App</th><th align="right">bytes_per_pkt</th><th align="right">stddev_ps</th><th>解读</th></tr></thead><tbody><tr><td>facebook</td><td align="right">477</td><td align="right">430</td><td>图片流，单包偏大</td></tr><tr><td>reddit</td><td align="right"><strong>519</strong></td><td align="right"><strong>571</strong></td><td>图片+视频预览，混得最厉害</td></tr><tr><td>youtube</td><td align="right">432</td><td align="right">476</td><td>视频，满载包多</td></tr><tr><td>snapchat</td><td align="right">364</td><td align="right">481</td><td>小图/短视频</td></tr><tr><td>whatsapp</td><td align="right">349</td><td align="right">479</td><td>文本+缩略图</td></tr><tr><td>telegram</td><td align="right">291</td><td align="right">404</td><td>文本为主</td></tr><tr><td>tiktok</td><td align="right">300</td><td align="right">432</td><td>短视频但切片小</td></tr><tr><td>instagram</td><td align="right">282</td><td align="right">370</td><td>图片压缩得狠</td></tr><tr><td>twitter</td><td align="right"><strong>266</strong></td><td align="right">385</td><td>文字+小图</td></tr><tr><td>linkedin</td><td align="right">319</td><td align="right"><strong>455</strong></td><td>—</td></tr></tbody></table>
+<p><strong>结论</strong>：<code>bytes_per_pkt</code> ≈ 平均包长，它把”文本型 App”（~270）和”图片/视频型 App”（~480）分开了。这是最稳健的形态特征之一，因为它<strong>直接由内容类型决定</strong>，几乎不受采集环境影响。</p>
+<h3 id="23-陷阱ps-的口径">2.3 陷阱：<code>ps</code> 的口径</h3>
+<p>你的 <code>ps</code> 最大值是 <strong>1514</strong>，说明它<strong>包含 14 字节以太网头</strong>（1500 + 14）。
+如果换一个抓包点（比如 Linux <code>any</code> 接口用 SLL 头 16 字节，或者 pcap 用 <code>-s</code> 截断），所有包的尺寸会<strong>整体平移 2 字节或整体截断</strong>。</p>
+<blockquote>
+<p><strong>这是流量分析最容易翻车的地方</strong>：把 <code>max_ps > 1500</code> 写成硬规则，换个采集点就全错。
+正确写法是<strong>相对量</strong>（比如”<code>max_ps</code> 达到本数据 p90”）或者<strong>只比大小关系</strong>（“这条流的 max 比 min 大 20 倍以上”）。</p>
+</blockquote>
+<hr>
+<h2 id="3-第三组到达间隔piat--packet-inter-arrival-time">3. 第三组：到达间隔（<code>piat</code> = packet inter-arrival time）</h2>
+<h3 id="31-定义">3.1 定义</h3>
+<p>相邻两个包的时间差。<code>bidirectional_*_piat_ms</code> 是<strong>把两个方向的包混在一起</strong>排序后算间隔；<code>src2dst_*</code> 只算该方向内部。</p>
+<ul>
+<li><code>min_piat</code>：最小间隔（≈ 背靠背发包，通常 0）</li>
+<li><code>mean_piat</code>：平均间隔</li>
+<li><code>stddev_piat</code>：间隔的抖动</li>
+<li><code>max_piat</code>：最大空档（停顿时长）</li>
+</ul>
+<h3 id="32-为什么它是最行为化的一组特征">3.2 为什么它是最”行为化”的一组特征</h3>
+<p><strong>间隔反映的是”应用什么时候想说话”</strong>，这是应用逻辑的直接投影，几乎不可能被加密掩盖：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>时间结构</th><th><code>mean_piat</code></th><th><code>stddev_piat</code></th><th>典型应用形态</th></tr></thead><tbody><tr><td><strong>突发式</strong>（请求→一次拉完）</td><td>小</td><td>大</td><td>打开 App 刷首页</td></tr><tr><td><strong>流式</strong>（持续喂数据）</td><td>中（≈RTT）</td><td>中</td><td>视频播放</td></tr><tr><td><strong>心跳式</strong>（固定周期）</td><td>大（秒级）</td><td><strong>小</strong></td><td>长连接保活（WhatsApp/Telegram）</td></tr><tr><td><strong>轮询式</strong>（不规律）</td><td>中</td><td>大</td><td>消息同步、埋点上报</td></tr></tbody></table>
+<p><strong>你的数据里的证据</strong>（中位数）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>App</th><th align="right"><code>mean_piat</code></th><th>解读</th></tr></thead><tbody><tr><td>twitter</td><td align="right"><strong>11.4 ms</strong></td><td>极快 —— 大量短连接瞬间完成就断</td></tr><tr><td>linkedin</td><td align="right">14.2 ms</td><td>同样偏快</td></tr><tr><td>facebook</td><td align="right">20.6 ms</td><td>—</td></tr><tr><td>reddit</td><td align="right">24.8 ms</td><td>—</td></tr><tr><td>youtube</td><td align="right">30.9 ms</td><td>流式，≈ RTT</td></tr><tr><td>tiktok</td><td align="right">49.0 ms</td><td>分片缓冲</td></tr><tr><td><strong>telegram</strong></td><td align="right"><strong>71.8 ms</strong></td><td>明显最慢 —— 长连接心跳 + MTProto 的节流</td></tr></tbody></table>
+<p><strong>telegram 的 71.8 ms 是 10 个 App 中唯一超过 70 的</strong>，这正是后面规则里
+<code>无SNI 且 SYN占比>0 且 平均包长>121 且 PSH占比≤0.315 → Telegram</code>（prec 0.96）的物理来源：
+它的”慢 + 无 SNI”组合几乎独家。</p>
+<h3 id="33-陷阱piat-受切流参数支配">3.3 陷阱：<code>piat</code> 受切流参数支配</h3>
+<p>你数据的 <code>max_piat</code> 上限恰好是 <strong>119,999 ms</strong>（= 120 s = idle timeout）。
+也就是说：<strong>“最长空档”这个特征，量的不是应用，而是分析工具的设定</strong>。
+任何超过 120 s 的停顿，都被切成了两条流，你永远看不到。</p>
+<blockquote>
+<p><strong>方法论</strong>：看到”某个特征的极值恰好是个整数”（120000、1800000、65535、255），
+第一反应应该是”这是某个人为设定的边界”，而不是”这是自然的极值”。</p>
+</blockquote>
+<hr>
+<h2 id="4-第四组tcp-标志位计数8-个--3-个方向">4. 第四组：TCP 标志位计数（8 个 × 3 个方向）</h2>
+<h3 id="41-每个标志的物理语义rfc-9293-31">4.1 每个标志的物理语义（RFC 9293 §3.1）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>标志</th><th>全称</th><th>什么时候置位</th><th>你能反推出什么</th></tr></thead><tbody><tr><td><strong>SYN</strong></td><td>Synchronize</td><td>建连（SYN、SYN-ACK <strong>都置位</strong>）</td><td>有 SYN = 有人发起过连接</td></tr><tr><td><strong>ACK</strong></td><td>Acknowledgment</td><td>除首个 SYN 外几乎<strong>恒置位</strong></td><td>基本无信息量（几乎 100%）</td></tr><tr><td><strong>PSH</strong></td><td>Push</td><td>告诉对方”立刻把数据交给应用”</td><td>有应用层数据交互</td></tr><tr><td><strong>FIN</strong></td><td>Finish</td><td>有序关闭</td><td>连接被正常收尾</td></tr><tr><td><strong>RST</strong></td><td>Reset</td><td>强制中止</td><td>被拒绝/被放弃/异常断开</td></tr><tr><td><strong>URG</strong></td><td>Urgent</td><td>紧急指针有效</td><td>现代几乎不用，<strong>你数据里恒为 0</strong></td></tr><tr><td><strong>CWR/ECE</strong></td><td>Congestion Window Reduced / ECN-Echo</td><td>显式拥塞通知</td><td>现代很少用，<strong>你数据里恒为 0</strong></td></tr></tbody></table>
+<h3 id="42-一个必须知道的坑syn-计数是包不是连接">4.2 一个必须知道的坑：SYN 计数是”包”不是”连接”</h3>
+<p>你的数据：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>统计</th><th align="right">比例</th></tr></thead><tbody><tr><td>有 SYN 的流</td><td align="right">24.0%</td></tr><tr><td><code>syn_packets == 1</code></td><td align="right"><strong>0.1%</strong></td></tr><tr><td><code>syn_packets >= 2</code></td><td align="right">24.0%</td></tr></tbody></table>
+<p><strong>为什么 <code>==1</code> 几乎不存在？</strong> 因为一次正常握手会产生 <strong>2 个带 SYN 位的包</strong>（SYN 和 SYN-ACK）。
+所以：</p>
+<ul>
+<li><code>syn_packets == 2</code> → 一次干净握手</li>
+<li><code>syn_packets == 1</code> → 只看到一个方向（抓包点在中途、或 SYN-ACK 被丢弃）</li>
+<li><code>syn_packets >= 3</code> → <strong>SYN 重传</strong>，说明有丢包或对端没响应</li>
+</ul>
+<blockquote>
+<p>这解释了为什么”单包流”里有很多是 SYN：<strong>半开连接</strong>（SYN 发出去没有任何回应）。
+你数据里 24.0% 的流有 SYN，但只有 20.4% 有 FIN —— 差额就是”没正常关闭”的那批。</p>
+</blockquote>
+<h3 id="43-rst-是应用性格的强信号">4.3 RST 是”应用性格”的强信号</h3>
+<p><code>RST > 0</code> 的流占 <strong>14.9%</strong>。按 App 看中位数：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>App</th><th align="right">中位 RST 数</th></tr></thead><tbody><tr><td><strong>reddit</strong></td><td align="right"><strong>2</strong></td></tr><tr><td>whatsapp</td><td align="right">1</td></tr><tr><td>其余 8 个</td><td align="right">0</td></tr></tbody></table>
+<p><strong>为什么 Reddit 的 RST 特别多？</strong>
+它的客户端使用大量”发一个 GraphQL 请求就断”的短连接（<code>gql-fed.reddit.com</code>），
+并且会用 RST 主动放弃（不读完响应就关）。这是<strong>客户端实现风格</strong>，不是协议要求。</p>
+<blockquote>
+<p><strong>这就是”行为指纹”的本质</strong>：不是协议规定的，而是<strong>这个 App 的开发者怎么写的代码</strong>。
+所以它跨天稳定（同一份代码），但换 App 版本可能失效。</p>
+</blockquote>
+<h3 id="44-psh-的含义常被误解">4.4 PSH 的含义常被误解</h3>
+<p><code>PSH</code> 不是”数据包标记”，而是”<strong>发送方请接收方立刻交付</strong>”。现代 TCP 栈几乎总是对应用写入的数据置 PSH，所以：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>App</th><th align="right"><code>psh_ratio</code> 中位</th></tr></thead><tbody><tr><td>whatsapp</td><td align="right">0.345</td></tr><tr><td>tiktok</td><td align="right">0.286</td></tr><tr><td>telegram</td><td align="right">0.231</td></tr><tr><td>reddit</td><td align="right">0.227</td></tr><tr><td>linkedin</td><td align="right">0.174</td></tr><tr><td>twitter</td><td align="right">0.167</td></tr><tr><td>snapchat</td><td align="right">0.077</td></tr><tr><td>facebook / instagram / youtube</td><td align="right"><strong>0.000</strong></td></tr></tbody></table>
+<p>facebook 的 <code>psh_ratio</code> 中位为 0 是<strong>因为它的中位流只有 2–4 个包且是纯 ACK/DNS</strong>，不是”Facebook 不用 PSH”。
+<strong>这提醒你：中位数为 0 往往意味着”一半以上的流里这个事件从未发生”，而不是”这个值很小”。</strong></p>
+<hr>
+<h2 id="5-第五组方向与比率自己造的特征">5. 第五组：方向与比率（自己造的特征）</h2>
+<p>原始列都是”计数”，而<strong>比率才是形态</strong>。我在 <code>common.py</code> 里造了这些：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>派生特征</th><th>公式</th><th>物理含义</th></tr></thead><tbody><tr><td><code>dn_ratio</code></td><td><code>dst2src_bytes / bidirectional_bytes</code></td><td><strong>下行字节占比</strong>：>0.5 = 下载型；≈0.5 = 双向交互</td></tr><tr><td><code>dn_pkt_ratio</code></td><td><code>dst2src_packets / bidirectional_packets</code></td><td>下行包占比</td></tr><tr><td><code>bytes_per_pkt</code></td><td><code>bidirectional_bytes / bidirectional_packets</code></td><td>平均包长 → 内容类型</td></tr><tr><td><code>pps</code></td><td><code>packets / duration_s</code></td><td>包速率 → 活跃程度</td></tr><tr><td><code>bps</code></td><td><code>bytes / duration_s</code></td><td>字节速率 → 带宽需求</td></tr><tr><td><code>syn_ratio</code></td><td><code>syn_packets / packets</code></td><td>建连密集度（短连接多则高）</td></tr><tr><td><code>psh_ratio</code></td><td><code>psh_packets / packets</code></td><td>数据交互密集度</td></tr></tbody></table>
+<h3 id="51-各-app-的方向画像">5.1 各 App 的”方向画像”</h3>
+<p><img src="/blog/images/traffic/traffic-fig07-app-volume-direction.png" alt="各 App 体量与方向"></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>App</th><th align="right">中位包数</th><th align="right">中位字节</th><th align="right">中位时长(ms)</th><th align="right"><code>dn_ratio</code></th></tr></thead><tbody><tr><td>reddit</td><td align="right"><strong>52</strong></td><td align="right"><strong>28,281</strong></td><td align="right"><strong>9,538</strong></td><td align="right"><strong>0.77</strong></td></tr><tr><td>facebook</td><td align="right">34</td><td align="right">14,903</td><td align="right">3,878</td><td align="right">0.69</td></tr><tr><td>youtube</td><td align="right">32</td><td align="right">13,794</td><td align="right">2,441</td><td align="right">0.64</td></tr><tr><td>whatsapp</td><td align="right">26</td><td align="right">9,757</td><td align="right">1,231</td><td align="right">0.67</td></tr><tr><td>linkedin</td><td align="right">24</td><td align="right">8,732</td><td align="right">438</td><td align="right">0.62</td></tr><tr><td>telegram</td><td align="right">22</td><td align="right">6,476</td><td align="right"><strong>13,127</strong></td><td align="right"><strong>0.46</strong></td></tr><tr><td>snapchat</td><td align="right">21</td><td align="right">8,498</td><td align="right">1,044</td><td align="right">0.59</td></tr><tr><td>instagram</td><td align="right">19</td><td align="right">5,843</td><td align="right">1,295</td><td align="right"><strong>0.46</strong></td></tr><tr><td>tiktok</td><td align="right">19</td><td align="right">5,474</td><td align="right">3,928</td><td align="right">0.66</td></tr><tr><td>twitter</td><td align="right">17</td><td align="right">4,771</td><td align="right"><strong>188</strong></td><td align="right"><strong>0.48</strong></td></tr></tbody></table>
+<p><strong>读出三组画像</strong>：</p>
+<ol>
+<li><strong>下载型</strong>（reddit/facebook/youtube，<code>dn_ratio</code> 0.64–0.77）：用户在”看”，服务器在”推”。</li>
+<li><strong>双向交互型</strong>（telegram/instagram，<code>dn_ratio</code> 0.46）：上下行差不多，典型聊天/上传。</li>
+<li><strong>极短交互型</strong>（twitter：17 包、188 ms）：请求-响应就结束，没有持续会话。</li>
+</ol>
+<blockquote>
+<p><strong>这种”画像”就是人可读的规则来源</strong>。第三课的规则 <code>下行包占比>0.875 且 最大包长≤1291 → Facebook</code>
+翻成中文就是”<strong>大量小包从服务器推给客户端</strong>”——这就是刷信息流的形态。</p>
+</blockquote>
+<hr>
+<h2 id="6-第六组明文元数据最有价值也最容易造假">6. 第六组：明文元数据（最有价值，也最容易造假）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>列</th><th>来自哪里</th><th align="right">覆盖率</th><th>判别力</th><th>可迁移性</th></tr></thead><tbody><tr><td><code>requested_server_name</code></td><td>TLS ClientHello 的 <strong>SNI</strong> 扩展</td><td align="right">75.6%（APP 子集）</td><td>强</td><td><strong>中</strong>（共享基础设施会误判）</td></tr><tr><td><code>client_fingerprint</code></td><td>ClientHello 结构 → <strong>JA4</strong> 哈希</td><td align="right">50.5%</td><td>弱</td><td><strong>差</strong>（OS 共享）</td></tr><tr><td><code>server_fingerprint</code></td><td>ServerHello/Certificate 结构 → 哈希</td><td align="right">22.1%</td><td>中</td><td>中（取决于服务端软件）</td></tr><tr><td><code>user_agent</code></td><td>HTTP 明文头</td><td align="right"><strong>0.02%</strong></td><td>—</td><td>几乎不可用（全走 HTTPS）</td></tr><tr><td><code>content_type</code></td><td>HTTP 明文头</td><td align="right"><strong>0.008%</strong></td><td>—</td><td>不可用</td></tr><tr><td><code>application_name</code></td><td><strong>nDPI 的判定结果</strong></td><td align="right">100%</td><td>极强</td><td>但它是”别人的结论”，不是”你的观测”</td></tr></tbody></table>
+<h3 id="61-sni唯一的收件人姓名">6.1 SNI：唯一的”收件人姓名”</h3>
+<p><code>requested_server_name</code> 的加权纯度是 <strong>0.802</strong>（在 APP 子集里）。但注意：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>SNI</th><th align="right">出现流数</th><th align="right">覆盖 App 数</th><th align="right">纯度</th><th>说明</th></tr></thead><tbody><tr><td><code>mmg.whatsapp.net</code></td><td align="right">675</td><td align="right">1</td><td align="right">1.00</td><td>✅ WhatsApp 专属</td></tr><tr><td><code>packaged-media.redd.it</code></td><td align="right">264</td><td align="right">1</td><td align="right">1.00</td><td>✅ Reddit 专属</td></tr><tr><td><code>probe.twitter.com</code></td><td align="right">114</td><td align="right">1</td><td align="right">1.00</td><td>✅ Twitter 专属</td></tr><tr><td><code>graph.facebook.com</code></td><td align="right">334</td><td align="right"><strong>10</strong></td><td align="right">0.31</td><td>❌ Meta SDK，10 个 App 都在用</td></tr><tr><td><code>play-fe.googleapis.com</code></td><td align="right">219</td><td align="right"><strong>10</strong></td><td align="right">0.37</td><td>❌ Google Play 服务</td></tr><tr><td><code>i.ytimg.com</code></td><td align="right">210</td><td align="right"><strong>10</strong></td><td align="right">0.20</td><td>❌ Google 图片 CDN</td></tr><tr><td><code>connectivitycheck.gstatic.com</code></td><td align="right">97</td><td align="right"><strong>10</strong></td><td align="right">0.52</td><td>❌ Android 联网检测</td></tr></tbody></table>
+<blockquote>
+<p><strong>所以”SNI 是最强特征”这句话要修正为</strong>：
+<strong>专属域名是最强特征，共享域名是最大的陷阱。</strong>
+判断一个 SNI 能不能用，只需要问：“这个域名会不会被别的 App 的 SDK 调用？”</p>
+</blockquote>
+<h3 id="62-ja4信封的型号不是收件人">6.2 JA4：信封的型号，不是收件人</h3>
+<p>第一课讲过原理。这里给实测结论：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>JA4</th><th align="right">流数</th><th align="right">覆盖 App 数</th><th align="right">纯度</th></tr></thead><tbody><tr><td><code>t13d1516h2_8daaf6152771_d8a2da3f94cd</code></td><td align="right">1,481</td><td align="right"><strong>10</strong></td><td align="right">0.51</td></tr><tr><td><code>q13d0311h3_55b375c5d22e_653d80c3fe9d</code></td><td align="right">632</td><td align="right"><strong>10</strong></td><td align="right">0.33</td></tr><tr><td><code>t12d1410h1_c866b44c5a26_f88f2b2eb673</code></td><td align="right">590</td><td align="right"><strong>10</strong></td><td align="right">0.53</td></tr><tr><td><code>t12d1210h2_d34a8e72043a_f88f2b2eb673</code></td><td align="right">390</td><td align="right"><strong>1</strong></td><td align="right">1.00</td></tr><tr><td><code>t13d181100_e8a523a41297_ef7df7f74e48</code></td><td align="right">177</td><td align="right"><strong>1</strong></td><td align="right">1.00</td></tr></tbody></table>
+<p><strong>JA4 字符串本身就是可读的</strong>（JA4 格式：<code>&#x3C;协议>&#x3C;版本>&#x3C;SNI标志>&#x3C;密码套件数>&#x3C;扩展数>&#x3C;ALPN>_&#x3C;密码套件哈希>_&#x3C;扩展哈希></code>）：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>t 13 d 1516 h2 _ 8daaf6152771 _ d8a2da3f94cd</span></span>
+<span class="line"><span>│ │  │  │ │  │   └ 密码套件列表的哈希</span></span>
+<span class="line"><span>│ │  │  │ │  └─── ALPN = h2</span></span>
+<span class="line"><span>│ │  │  │ └────── 16 个扩展</span></span>
+<span class="line"><span>│ │  │  └──────── 15 个密码套件</span></span>
+<span class="line"><span>│ │  └─────────── d = 有 SNI 且有域名（域名被替换成哈希）</span></span>
+<span class="line"><span>│ └────────────── 13 = TLS 1.3</span></span>
+<span class="line"><span>└──────────────── t = TCP（q = QUIC）</span></span></code></pre>
+<p>所以 <code>t13d1516h2_...</code> 的含义是”<strong>TLS1.3 + 15 个密码套件 + 16 个扩展 + 支持 h2</strong>”——
+它描述的是<strong>一个 TLS 库的版本</strong>（BoringSSL/Conscrypt），而不是<strong>一个应用</strong>。
+10 个 Android App 大多共用系统 TLS 库，所以共享同一个 JA4 完全合理。</p>
+<h3 id="63-覆盖率本身就是信息">6.3 覆盖率本身就是信息</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>元数据</th><th align="right">缺失率</th><th>为什么缺失</th></tr></thead><tbody><tr><td><code>requested_server_name</code></td><td align="right">17.5%</td><td>非 TLS 流量（UDP/DNS/QUIC）</td></tr><tr><td><code>client_fingerprint</code></td><td align="right">68.9%</td><td>同上（只有 TCP+TLS 才有 ClientHello）</td></tr><tr><td><code>server_fingerprint</code></td><td align="right">77.9%</td><td>很多流没走完握手</td></tr><tr><td><code>user_agent</code></td><td align="right">99.98%</td><td>HTTP 明文几乎绝迹</td></tr></tbody></table>
+<blockquote>
+<p><strong>“有没有这个字段”本身就是一个二值特征</strong>：<code>has_sni</code>、<code>has_ja4</code>。
+而它恰好能区分”走标准 TLS 的 App”和”走自研协议的 App”（Telegram 的 <code>无SNI</code> 占比 78.9%，10 个 App 最高）。</p>
+</blockquote>
+<hr>
+<h2 id="7-第七组上下文与标签最容易泄漏的一组">7. 第七组：上下文与标签（最容易泄漏的一组）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>列</th><th>是什么</th><th>能不能当特征</th></tr></thead><tbody><tr><td><code>Label</code></td><td>你正在预测的东西</td><td>❌ 标签</td></tr><tr><td><code>id</code></td><td>行号</td><td>❌ 无意义</td></tr><tr><td><code>expiration_id</code></td><td>流为什么结束</td><td>❌ 是工具行为，不是网络行为</td></tr><tr><td><code>capture_file</code></td><td>文件名，含 App 名</td><td>❌ <strong>直接泄漏</strong></td></tr><tr><td><code>capture_day</code></td><td>采集日</td><td>⚠️ 只能用于划分训练/测试，不能当特征</td></tr><tr><td><code>src_ip</code> / <code>dst_ip</code></td><td>地址</td><td>⚠️ 可以派生”是否公网”，但地址本身会过拟合</td></tr><tr><td><code>src_mac</code> / <code>src_oui</code></td><td>设备</td><td>❌ <strong>设备身份捷径</strong>（实测：留出设备后 0.73→0.44）</td></tr><tr><td><code>vlan_id</code> / <code>tunnel_id</code></td><td>网络配置</td><td>❌ 你数据里是常量</td></tr></tbody></table>
+<h3 id="71-为什么-capture_file-是最危险的泄漏">7.1 为什么 <code>capture_file</code> 是最危险的泄漏</h3>
+<p><code>facebook_day3.pcapng</code> 这个文件名里就写着答案。任何包含”文件名”或”文件顺序”的特征，
+都会让模型学成”第 3 个文件 → facebook”。这类泄漏在学术论文里叫 <strong>data leakage / label leakage</strong>。</p>
+<p><strong>检测方法</strong>：把某个特征的取值和标签做交叉表，如果某个取值<strong>只对应一个类别</strong>且<strong>样本量很大</strong>，八成是泄漏。
+你的数据里：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>特征</th><th>取值</th><th>是否只对应一类</th></tr></thead><tbody><tr><td><code>src_oui</code></td><td><code>f8:e4:3b</code></td><td>✅ 2,011 条全是 whatsapp</td></tr><tr><td><code>dst_oui</code></td><td><code>08:86:3b</code></td><td>✅ 98 条全是同一类</td></tr><tr><td><code>client_fingerprint</code></td><td><code>t12d1210h2_...</code></td><td>✅ 390 条全是同一类</td></tr></tbody></table>
+<hr>
+<h2 id="8-特征质量检查清单贴墙上">8. 特征质量检查清单（贴墙上）</h2>
+<p>在把任何一列丢进模型之前，问这五句：</p>
+<ol>
+<li><strong>它在我这个观测点算得出来吗？</strong>（ECH/QUIC 之后 SNI 还能看到吗？）</li>
+<li><strong>它的极值是个整数吗？</strong>（120000、1800000、65535 → 人为边界，不是自然属性）</li>
+<li><strong>它的分母会为 0 吗？</strong>（<code>pps</code>、<code>bps</code> 在 <code>duration=0</code> 时爆炸）</li>
+<li><strong>它能被”设备/时间/文件名”解释吗？</strong>（能 → 是捷径，不是特征）</li>
+<li><strong>换个采集点它会不会整体平移？</strong>（<code>ps</code> 是否含 L2 头 → 会）</li>
+</ol>
+<hr>
+<h2 id="9-92-列全表速查">9. 92 列全表速查</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>组</th><th>列</th><th align="right">数量</th><th>一句话</th></tr></thead><tbody><tr><td><strong>标识/上下文</strong></td><td><code>Label</code> <code>id</code> <code>expiration_id</code> <code>src_ip</code> <code>src_mac</code> <code>src_oui</code> <code>src_port</code> <code>dst_ip</code> <code>dst_mac</code> <code>dst_oui</code> <code>dst_port</code> <code>protocol</code> <code>ip_version</code> <code>vlan_id</code> <code>tunnel_id</code></td><td align="right">15</td><td>多数是陷阱，只有 <code>protocol</code>/<code>dst_port</code>/<code>ip_version</code> 可谨慎使用</td></tr><tr><td><strong>时间锚点</strong></td><td><code>bidirectional_first/last_seen_ms</code>、<code>src2dst_first/last_seen_ms</code>、<code>dst2src_first/last_seen_ms</code></td><td align="right">6</td><td>绝对时间戳，只能用来排序/分窗，不能当特征</td></tr><tr><td><strong>时长</strong></td><td><code>bidirectional_duration_ms</code>、<code>src2dst_duration_ms</code>、<code>dst2src_duration_ms</code></td><td align="right">3</td><td>方向性活跃期</td></tr><tr><td><strong>体量</strong></td><td><code>*_packets</code>、<code>*_bytes</code>（3 方向 × 2）</td><td align="right">6</td><td>重尾，必须 log</td></tr><tr><td><strong>包长统计</strong></td><td><code>*_min/mean/stddev/max_ps</code>（3 方向 × 4）</td><td align="right">12</td><td>离散峰，判别力强，注意口径</td></tr><tr><td><strong>间隔统计</strong></td><td><code>*_min/mean/stddev/max_piat_ms</code>（3 方向 × 4）</td><td align="right">12</td><td>行为指纹，受切流超时支配</td></tr><tr><td><strong>标志位</strong></td><td><code>*_syn/cwr/ece/urg/ack/psh/rst/fin_packets</code>（3 方向 × 8）</td><td align="right">24</td><td>其中 <code>cwr/ece/urg</code> 全为常量（9 列废）</td></tr><tr><td><strong>SPLT</strong></td><td><code>splt_direction</code> <code>splt_ps</code> <code>splt_piat_ms</code></td><td align="right">3</td><td>NFStream 的字节序列统计，<code>splt_direction</code> 你数据里是常量</td></tr><tr><td><strong>DPI 元数据</strong></td><td><code>application_name</code> <code>application_category_name</code> <code>application_is_guessed</code> <code>application_confidence</code></td><td align="right">4</td><td><strong>别人的结论</strong>，第三课讲</td></tr><tr><td><strong>明文元数据</strong></td><td><code>requested_server_name</code> <code>client_fingerprint</code> <code>server_fingerprint</code> <code>user_agent</code> <code>content_type</code></td><td align="right">5</td><td>最强也最坑</td></tr><tr><td><strong>采集上下文</strong></td><td><code>capture_day</code> <code>capture_file</code></td><td align="right">2</td><td>只能用来划分，不能当特征</td></tr><tr><td><strong>合计</strong></td><td></td><td align="right"><strong>92</strong></td><td>实际可用约 <strong>45–60</strong>（去常量、去 ID、去泄漏）</td></tr></tbody></table>
+<hr>
+<h2 id="10-本课小结">10. 本课小结</h2>
+<p><strong>一句话</strong>：每个特征都是”某个网络行为”的投影，你的任务是把投影反推回行为。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>你想知道</th><th>该看哪组特征</th></tr></thead><tbody><tr><td>这条流在搬多少东西？</td><td>体量（log 后）</td></tr><tr><td>搬的是什么类型（文本/图片/视频）？</td><td><code>bytes_per_pkt</code>、<code>stddev_ps</code>、<code>max_ps</code></td></tr><tr><td>它多久说一次话？</td><td><code>mean_piat</code>、<code>stddev_piat</code></td></tr><tr><td>它是请求-响应还是持续传输？</td><td><code>syn_ratio</code>、<code>psh_ratio</code>、<code>duration</code></td></tr><tr><td>谁在主导（下载还是上传）？</td><td><code>dn_ratio</code>、<code>dn_pkt_ratio</code></td></tr><tr><td>它是不是被拒绝了？</td><td><code>rst_packets</code>、<code>fin_packets</code></td></tr><tr><td>它访问的是谁？</td><td><code>requested_server_name</code>（专属域名才有用）</td></tr></tbody></table>
+<p><strong>下一步</strong>：知道了”有什么可看”，第三课讲”<strong>怎么用这些信息判定它是什么应用</strong>”——
+也就是从端口法到 nDPI 的完整方法谱系。</p>
+<p><strong>自测</strong>：见 <code>09_教程_4_动手实验与自测.md</code> 第 8–14 题。</p>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td>27 包教学抓包（Wireshark 直接打开）</td></tr><tr><td><a href="/blog/downloads/traffic-course/traffic-course-code.zip">traffic-course-code.zip</a></td><td>课程与分析脚本：scapy 造抓包、GEAD 实现、画图、数据探查</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>网络流量入门（二）：92 个特征是怎么算出来的</b><br>
+作者：Infinity · 发布于 2026-11-17<br>
+本文链接：<a href="https://lvjf.space/blog/posts/eb6b5f66.html">https://lvjf.space/blog/posts/eb6b5f66.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li><li> <a href="/blog/posts/2f1c2763.html">加密社交 App 流量分析（三）：提炼判定规则</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/5425b364.html">← 网络流量入门（三）：从端口法到 nDPI</a> <a class="next" href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#0-一条特征合格的标准三个资格">0. 一条特征合格的标准：三个资格</a> </li><li class> <a href="#1-第一组体量packets--bytes--duration">1. 第一组：体量（packets / bytes / duration）</a> </li><li class="toc-sub"> <a href="#11-定义与算例">1.1 定义与算例</a> </li><li class="toc-sub"> <a href="#12-为什么这三个数极度重尾">1.2 为什么这三个数”极度重尾”</a> </li><li class="toc-sub"> <a href="#13-陷阱duration--0-的-3698-条流">1.3 陷阱：duration = 0 的 3,698 条流</a> </li><li class> <a href="#2-第二组包长统计min_ps--mean_ps--stddev_ps--max_ps">2. 第二组：包长统计（min_ps / mean_ps / stddev_ps / max_ps）</a> </li><li class="toc-sub"> <a href="#21-为什么包长有判别力第一课已埋线">2.1 为什么包长有判别力（第一课已埋线）</a> </li><li class="toc-sub"> <a href="#22-各-app-的包长结构中位数">2.2 各 App 的包长结构（中位数）</a> </li><li class="toc-sub"> <a href="#23-陷阱ps-的口径">2.3 陷阱：ps 的口径</a> </li><li class> <a href="#3-第三组到达间隔piat--packet-inter-arrival-time">3. 第三组：到达间隔（piat = packet inter-arrival time）</a> </li><li class="toc-sub"> <a href="#31-定义">3.1 定义</a> </li><li class="toc-sub"> <a href="#32-为什么它是最行为化的一组特征">3.2 为什么它是最”行为化”的一组特征</a> </li><li class="toc-sub"> <a href="#33-陷阱piat-受切流参数支配">3.3 陷阱：piat 受切流参数支配</a> </li><li class> <a href="#4-第四组tcp-标志位计数8-个--3-个方向">4. 第四组：TCP 标志位计数（8 个 × 3 个方向）</a> </li><li class="toc-sub"> <a href="#41-每个标志的物理语义rfc-9293-31">4.1 每个标志的物理语义（RFC 9293 §3.1）</a> </li><li class="toc-sub"> <a href="#42-一个必须知道的坑syn-计数是包不是连接">4.2 一个必须知道的坑：SYN 计数是”包”不是”连接”</a> </li><li class="toc-sub"> <a href="#43-rst-是应用性格的强信号">4.3 RST 是”应用性格”的强信号</a> </li><li class="toc-sub"> <a href="#44-psh-的含义常被误解">4.4 PSH 的含义常被误解</a> </li><li class> <a href="#5-第五组方向与比率自己造的特征">5. 第五组：方向与比率（自己造的特征）</a> </li><li class="toc-sub"> <a href="#51-各-app-的方向画像">5.1 各 App 的”方向画像”</a> </li><li class> <a href="#6-第六组明文元数据最有价值也最容易造假">6. 第六组：明文元数据（最有价值，也最容易造假）</a> </li><li class="toc-sub"> <a href="#61-sni唯一的收件人姓名">6.1 SNI：唯一的”收件人姓名”</a> </li><li class="toc-sub"> <a href="#62-ja4信封的型号不是收件人">6.2 JA4：信封的型号，不是收件人</a> </li><li class="toc-sub"> <a href="#63-覆盖率本身就是信息">6.3 覆盖率本身就是信息</a> </li><li class> <a href="#7-第七组上下文与标签最容易泄漏的一组">7. 第七组：上下文与标签（最容易泄漏的一组）</a> </li><li class="toc-sub"> <a href="#71-为什么-capture_file-是最危险的泄漏">7.1 为什么 capture_file 是最危险的泄漏</a> </li><li class> <a href="#8-特征质量检查清单贴墙上">8. 特征质量检查清单（贴墙上）</a> </li><li class> <a href="#9-92-列全表速查">9. 92 列全表速查</a> </li><li class> <a href="#10-本课小结">10. 本课小结</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

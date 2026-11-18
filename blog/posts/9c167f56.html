@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>加密社交 App 流量分析（一）：从论文提炼分类依据 | INFINITY&#39;S BLOG</title><meta name="description" content="从 CCS 2024 的 GEAD 论文中提炼网络流量的三种表示粒度、四族分类依据、GEAD 六步规则提炼法与评价指标。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/9c167f56/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="加密社交 App 流量分析（一）：从论文提炼分类依据 | INFINITY'S BLOG"><meta property="og:description" content="从 CCS 2024 的 GEAD 论文中提炼网络流量的三种表示粒度、四族分类依据、GEAD 六步规则提炼法与评价指标。"><meta property="og:url" content="https://lvjf.space/blog/posts/9c167f56/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">加密社交 App 流量分析（一）：从论文提炼分类依据</h1><div class="post-meta-top">2026-11-16 · tech / 流量分析 · 约 3546 字 · 阅读约 9 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>加密社交 App 流量分析（四篇）</strong>：<strong>一·分类依据</strong> ｜ <a href="/blog/posts/e4854882.html">二·数据与实验</a> ｜ <a href="/blog/posts/2f1c2763.html">三·规则提炼</a> ｜ <a href="/blog/posts/1157b43a.html">四·总结</a></p>
+</blockquote>
+<blockquote>
+<p>源文件：<code>3658644.3670375.pdf</code>
+标题：<strong>Rules Refine the Riddle: Global Explanation for Deep Learning-Based Anomaly Detection in Security Applications</strong>
+作者：Dongqi Han, Zhiliang Wang, Ruitao Feng 等（清华大学 / 中关村实验室 / SMU / NTU）
+出处：ACM CCS ‘24, Salt Lake City, UT, USA，15 页
+DOI：10.1145/3658644.3670375</p>
+</blockquote>
+<hr>
+<h2 id="0-一句话定位">0. 一句话定位</h2>
+<p>这篇论文本身<strong>不是</strong>一篇”移动社交 App 流量分类”论文，而是<strong>面向安全领域深度学习异常检测的全局解释（XAI）方法——GEAD</strong>。
+但它的两个落地场景之一是<strong>网络入侵检测（NIDS）</strong>，因此论文正文与附录里完整给出了：</p>
+<ol>
+<li>网络流量<strong>如何被表示</strong>（三种粒度）；</li>
+<li>网络流量<strong>依据哪些特征被分类</strong>（四类特征依据）；</li>
+<li>深度学习模型<strong>用什么范式判定</strong>（两类检测范式 + 阈值）；</li>
+<li><strong>如何从黑盒模型里把判定依据反向提炼成规则</strong>（GEAD 六步）；</li>
+<li>规则<strong>如何被评价</strong>（保真度 / 简洁度 / OOD 评估）。</li>
+</ol>
+<p>这正是本任务要的”分类依据 + 方法 + 规则提炼”的骨架。</p>
+<hr>
+<h2 id="1-流量的三种表示粒度论文用三个数据集对应">1. 流量的三种表示粒度（论文用三个数据集对应）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>数据集</th><th>粒度</th><th>特征来源</th><th>论文中出现的代表特征</th></tr></thead><tbody><tr><td><strong>Kitsune</strong>（Mirsky et al., NDSS’18）</td><td><strong>包级 / 包统计</strong></td><td>在 IoT 网络里打多种攻击，从流量中抽取包级统计量</td><td>包级统计特征（论文 §4.1）</td></tr><tr><td><strong>CICIDS2017</strong>（Sharafaldin et al.）</td><td><strong>流级（flow-level）</strong></td><td>模拟企业网中正常行为 + 常见攻击，切成双向流后抽特征</td><td><code>Bwd_Pkt_Len_Min</code>、<code>Bwd_Head_Len</code>、<code>Pkt_Len_Var</code>、<code>Pkt_Len_Std</code>、<code>Init_Win_Bytes_Fwd/Bwd</code>、<code>Bwd_Seg_Size_Avg</code>、<code>Bwd_IAT_Std</code>、<code>Active_std</code>、<code>#SYN/#URG/#FIN</code></td></tr><tr><td><strong>Kyoto2006+</strong>（Song et al.）</td><td><strong>会话级（session-level）</strong></td><td>京都大学网络里蜜罐 2006–2015 的日常流量</td><td><code>Service_dns</code>、<code>Srv_serror_rate</code>、<code>Dst_host_serror_rate</code>、<code>Protocol_udp</code></td></tr><tr><td><em>（附加）</em> HDFS</td><td>序列级（日志 key 序列）</td><td>Hadoop 文件系统日志序列</td><td>日志 key、事件信息分箱</td></tr></tbody></table>
+<blockquote>
+<p><strong>对本任务的直接启示</strong>：本项目数据是 NFStream 输出的<strong>双向流级</strong>特征，正好落在 CICIDS2017 这一档
+（流统计 + 包长统计 + 时延统计 + 标志位 + TLS/QUIC 元数据），并且额外提供了”按会话/按天聚合”的空间，
+可以复现论文 README 里提到的 <strong>multi-flow aggregation（多流聚合）</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="2-流量分类的特征依据论文归纳出的四类">2. 流量分类的”特征依据”：论文归纳出的四类</h2>
+<p>从论文 §4.3 给出的 DDoS 规则、以及附录 C 的规则树可以直接反推出它使用的特征依据分四族：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>依据族</th><th>含义</th><th>论文原文特征（CICIDS17 / Kyoto）</th><th>判别力来源</th></tr></thead><tbody><tr><td><strong>① 体量与包长统计</strong></td><td>一次会话搬了多少字节、包长分布形状</td><td><code>Bwd_Pkt_Len_Min</code>、<code>Pkt_Len_Var</code>、<code>Pkt_Len_Std</code>、<code>Bwd_Seg_Size_Avg</code>、<code>Bwd_Head_Len</code>、<code>Init_Win_Bytes_*</code></td><td>应用/协议的内容形态（文本小包 vs 视频大包 vs 错误页大包）</td></tr><tr><td><strong>② 时间与到达间隔统计</strong></td><td>节奏、突发、静默</td><td><code>Bwd_IAT_Std</code>、<code>Active_std</code></td><td>交互式（聊天）vs 流式（视频）vs 轮询（心跳）的时间结构</td></tr><tr><td><strong>③ 传输层协议与标志位</strong></td><td>TCP/UDP/QUIC 选择、标志位计数</td><td><code>Protocol_udp</code>、<code>#SYN,#URG,#FIN</code></td><td>协议栈与连接建立方式（长连接 / 短连接 / 无连接）</td></tr><tr><td><strong>④ 服务/端口/主机行为速率</strong></td><td>服务类型与统计速率</td><td><code>Service_dns</code>、<code>Srv_serror_rate</code>、<code>Dst_host_serror_rate</code></td><td>目标服务画像与错误率</td></tr></tbody></table>
+<p>论文对 ③ 有一个<strong>重要的方法论警告</strong>：CICIDS2017 里 TCP 标志位特征提取有 bug（只统计了每条流的第一包），导致”<code>#SYN,#URG,#FIN = 0</code>” 这种反常识特征被误当作关键依据；改正后 ROC-AUC 从 0.75 → 0.90，DDoS 召回 25.3% → >99.9%。
+→ <strong>启示：特征提取实现本身可能制造伪规则，必须回到原始流量核验。</strong></p>
+<hr>
+<h2 id="3-论文的分类方法两类检测范式--阈值判定">3. 论文的”分类方法”：两类检测范式 + 阈值判定</h2>
+<p>论文 §2.1 把 DL-based 异常检测分为两类，二者都是 <strong>zero-positive learning</strong>（只用正常样本训练）：</p>
+<h3 id="31-重构式reconstruction-based">3.1 重构式（Reconstruction-based）</h3>
+<ul>
+<li>模型：AutoEncoder（AE）、GAN</li>
+<li>训练目标：最小化正常输入与重构输出之差（MSE）</li>
+<li>判定：<code>重构误差 > 阈值</code> → 异常；误差即”异常分”</li>
+<li>代表：<strong>KitNET</strong>（两层 AE 集成，从网络包抽统计特征）</li>
+</ul>
+<h3 id="32-预测式prediction-based">3.2 预测式（Prediction-based）</h3>
+<ul>
+<li>模型：RNN / LSTM</li>
+<li>训练目标：用前 <em>n</em> 个时间点预测下一个时间点</li>
+<li>判定：下一时间点的<strong>预测概率低</strong> → 异常</li>
+<li>代表：<strong>DeepLog</strong>（把日志条目映射成 log key，再对 key 序列做 LSTM 预测）</li>
+</ul>
+<h3 id="33-关键共性">3.3 关键共性</h3>
+<p>检测器的输出是<strong>连续的异常分（anomaly score）</strong>，二值化只发生在最后一步阈值比较。
+→ 这正是 GEAD 选择”<strong>回归树拟合连续分数</strong>”而不是”分类树拟合 0/1”的原因（下一节）。</p>
+<blockquote>
+<p>论文明确说明：<strong>有监督分类不是本文主线</strong>，决策树只作为”可解释替代模型”（explainable model）出现。</p>
+</blockquote>
+<hr>
+<h2 id="4-核心方法gead-六步规则提炼的骨架">4. 核心方法：GEAD 六步（规则提炼的骨架）</h2>
+<p>GEAD = Global Explanation for DL-based Anomaly Detection。目标是：把黑盒 DL 检测器的决策逻辑，<strong>蒸馏成一棵可读的规则树</strong>。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>①回归树生成 → ②低置信叶识别 → ③低置信增广 → ④子树生成 → ⑤树合并+离散化 → ⑥可读规则生成</span></span></code></pre>
+<h3 id="-回归树生成regression-tree-generation-root-tree">① 回归树生成（Regression Tree Generation）→ root tree</h3>
+<ul>
+<li>输入：与原检测器<strong>完全相同的训练集 X</strong></li>
+<li>标签：原检测器在 X 上的<strong>输出分数</strong> F(X)（不是 0/1 标签）</li>
+<li>算法：CART 回归树，分裂准则 MSE（最小化区间内目标方差）</li>
+<li>产出：<strong>root tree</strong></li>
+<li><strong>为什么用回归不用分类</strong>：分类树只学到”正常/异常”的二元结果，丢掉”异常程度与分布”；回归树能把分数梯度带进规则，保真度更高。</li>
+</ul>
+<h3 id="-低置信叶识别lc-leaves-identification">② 低置信叶识别（LC Leaves Identification）</h3>
+<p>两类 LC 空间，用两个分位数阈值 α_O、α_E（默认 0.99）同时选：</p>
+<ul>
+<li><strong>原模型的 LC</strong>：叶内样本的<strong>异常分</strong>高于 α_O 分位 → 该区域本来就在训练分布之外，模型自己就不确定</li>
+<li><strong>解释树的 LC</strong>：叶子的<strong>不纯度</strong>高于 α_E 分位 → root tree 没拟合好
+→ 合并两类，得到需要细化的 LC 叶集合。</li>
+</ul>
+<h3 id="-低置信增广lc-augmentation">③ 低置信增广（LC Augmentation）</h3>
+<p>在每个 LC 叶的<strong>特征子空间</strong>内，用原模型梯度”逼”出不一致样本：</p>
+<ul>
+<li><strong>约束</strong>：决策路径上已出现的特征（阈值条件）<strong>固定不动</strong>，只扰动其余特征 → 保证不破坏上层规则</li>
+<li><strong>双向生成</strong>：
+<ul>
+<li>负方向 X⁻：沿降 MSE 方向走 <code>X_j = X_{j-1} − β·∂MSE/∂X</code></li>
+<li>正方向 X⁺：反向爬升，并加 <code>ReLU(σ − MSE)</code> 上限（σ 经验取 2×阈值），防止 loss 爆炸</li>
+</ul>
+</li>
+<li>迭代 N 次（默认 20），步长 β（默认 0.1）；论文附录 B.1 证明 β∈[0.01,1]、N∈[5,50] 内结果不敏感</li>
+</ul>
+<h3 id="-子树生成subtree-generation">④ 子树生成（Subtree Generation）</h3>
+<p>把该 LC 叶的所有增广样本再拟合<strong>一棵回归树</strong>（同 ① 的做法）→ 得到细粒度 subtree。</p>
+<h3 id="-树合并--离散化tree-merging--discretization">⑤ 树合并 + 离散化（Tree Merging &#x26; Discretization）</h3>
+<ul>
+<li>因为增广时没动决策路径特征，所以可以<strong>直接用子树替换对应 LC 叶</strong> → merged tree</li>
+<li>再按原检测器阈值把叶子数值<strong>二值化</strong>（正常/异常），或分成多档”异常程度”；自底向上把同档相邻叶合并，压缩规则数</li>
+</ul>
+<h3 id="-可读规则生成human-readable-rule-generation">⑥ 可读规则生成（Human-readable Rule Generation）</h3>
+<ul>
+<li>每片叶子 → 一条规则 = 从根到叶的路径</li>
+<li>规则元素是三元组：<strong>(特征, 决策阈值, 关系)</strong></li>
+<li>连续特征可再离散成 <code>small / large</code>，提升可读性</li>
+<li>规则按异常程度排序输出</li>
+<li>论文给出的真实 DDoS 规则示例（KitNET on CICIDS17，方块内自上而下 = 从根到叶）：</li>
+</ul>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Context (Common)        (1) Init_Win_Bytes_Fwd ≠ −1 ∩ ∈ (0, 50000)</span></span>
+<span class="line"><span>                        (2) # SYN, URG, FIN = 0</span></span>
+<span class="line"><span>                        (3) Init_Win_Bytes_Bwd ∈ (2, 40000)</span></span>
+<span class="line"><span>                        (4) Pkt_Len_Var > 1E7</span></span>
+<span class="line"><span>                        (5) Active_std &#x3C; 40000</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>True Positive  分支      (3) Init_Win_Bytes_Bwd = −1</span></span>
+<span class="line"><span>                        (4) Pkt_Len_Var &#x3C; 8E6</span></span>
+<span class="line"><span>                        (5) Bwd_IAT_Std &#x3C; 4E7        → False Negative</span></span></code></pre>
+<h3 id="补充机制">补充机制</h3>
+<ul>
+<li><strong>预剪枝</strong>：用最大深度 M_d + 叶最小样本数 M_s 控制规则数（不用 CCP/top-k 后剪枝，因为后剪枝对评估样本敏感且无法控制规则总数）</li>
+<li><strong>时序扩展</strong>：把窗口展平成表格维度（窗口 5 → 5 维特征），并<strong>强制所有时间点在规则里出现</strong>以保留上下文</li>
+</ul>
+<hr>
+<h2 id="5-论文的规则质量评价指标">5. 论文的”规则质量”评价指标</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>指标</th><th>定义</th><th>说明</th></tr></thead><tbody><tr><td><strong>Positive Consistency</strong></td><td>原模型判正的样本中，解释树也判正的比例</td><td>从原模型视角看”漏了多少”</td></tr><tr><td><strong>Negative Credibility</strong></td><td>解释树判负的样本中，原模型也判负的比例</td><td>从解释树视角看”谎报了多少”</td></tr><tr><td><strong>Fidelity（保真度）</strong></td><td>两模型决策一致程度</td><td>必须用 <strong>IID + OOD 混合</strong>评估，否则会得到假保真（论文 Fig.1 玩具例子：IID 下保真度 100%，OOD 下 0%）</td></tr><tr><td><strong>Conciseness（简洁度）</strong></td><td>规则（分支）条数</td><td>与保真度存在 trade-off，需设定规则预算</td></tr><tr><td>其它</td><td>stability / efficiency / robustness</td><td>论文 §6 讨论；GEAD 单次运行 3s（CICIDS17），Trustee 2407s，KITree 3170s</td></tr></tbody></table>
+<p><strong>基线</strong>：DT(IID+OOD)、DT(Trustee)、RT(IID)、RT(Trustee)、KITree。
+<strong>结论</strong>（Table 1）：RT(GEAD) 在四个数据集上一致性/可信度全面最优（如 CICIDS17：正一致性 0.923 vs RT(IID) 0.882、DT 0.509）。</p>
+<hr>
+<h2 id="6-论文的-5-条洞察对提炼规则最有价值的结论">6. 论文的 5 条洞察（对”提炼规则”最有价值的结论）</h2>
+<ol>
+<li><strong>Insight 1</strong>：DT 解释无法正确反映 DL 异常检测的决策逻辑；只用 IID 的回归树也会忽略/歪曲部分逻辑。</li>
+<li><strong>Insight 2</strong>：DL 异常检测<strong>很少”捷径学习”</strong>——不可能用少数几条规则描述完（对比监督模型 10 条规则即可 99% 保真）。原因：学习目标是回归式分数。</li>
+<li><strong>Insight 3</strong>：模型规则常与常识<strong>冲突</strong>，因此”离群 ≠ 恶意”的判断要谨慎。冲突三大来源：<strong>特征提取不准 / 标签错误 / 模型训练不当</strong>。</li>
+<li><strong>Insight 4</strong>（规则重要性方向相反）：
+<ul>
+<li>对<strong>整个模型</strong>：越靠近<strong>根</strong>的规则越重要；</li>
+<li>对<strong>某一条具体决策</strong>：越靠近<strong>叶</strong>的规则越重要（直接决定该叶划分）。</li>
+</ul>
+</li>
+<li><strong>Insight 5</strong>：不同设置下训练出的模型，<strong>规则条数常与检测性能成反比</strong> → 可用”最少规则”作为选 epoch / 选训练集大小的代理指标（论文 Table 2：命中全局最优 59%，远超早停的 1%）。</li>
+</ol>
+<p><strong>三种用法</strong>：</p>
+<ul>
+<li><strong>Model vs Expert</strong>：模型知识 vs 领域常识 → 完美模型 / 模型超越专家（有价值）/ 模型学错（查特征/标签/模型）</li>
+<li><strong>Model vs Model</strong>：不同训练数据、超参、训练技巧下对比规则 → 用于选型、验证重训/遗忘</li>
+<li><strong>Model + Expert</strong>：规则融合（论文 SCADA 落地：专家规则 FP/FN 很高，融合后 Device1 FP 19,786→94、FN 821→217）</li>
+</ul>
+<hr>
+<h2 id="7-迁移到本任务从异常检测规则到app-指纹分类规则">7. 迁移到本任务：从”异常检测规则”到”App 指纹分类规则”</h2>
+<p>本任务的数据（<code>Encrypted_Mobile_Social_Media</code>）与论文场景有<strong>三处关键差异</strong>，必须显式改造：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>维度</th><th>论文（GEAD）</th><th>本任务数据</th></tr></thead><tbody><tr><td>学习范式</td><td>零正异常检测（只喂正常流量）</td><td><strong>有监督多分类</strong>（10 个 App 全都有标签）</td></tr><tr><td>模型输出</td><td>单一异常分</td><td>10 维类别概率</td></tr><tr><td>标签可靠性</td><td>正常流量干净</td><td><strong>含大量背景噪声流</strong>（SSDP/MDNS/DNS 等），标签是”当时前台 App”，流本身未必属于该 App</td></tr></tbody></table>
+<p><strong>改造方案（本报告采用）</strong>：</p>
+<ol>
+<li><strong>保留”流量表示粒度”</strong>：流级 NFStream 特征（= CICIDS2017 档），并增加<strong>会话级聚合</strong>（按 <code>capture_file × src_ip</code> 聚合，对应 README 的 multi-flow aggregation）。</li>
+<li><strong>保留”四类特征依据”</strong>：把 92 列按 §2 的四族重新归并，形成可解释的特征视图。</li>
+<li><strong>保留”连续分数”思想</strong>：不用分类树，而是<strong>对每个 App 训练一个回归树去拟合黑盒模型输出的 P(App)</strong>，再做 LC 叶增广细化。</li>
+<li><strong>保留”LC 增广”</strong>：在 LC 叶的路径约束子空间内对特征做扰动（本任务无梯度可用时用”分布内扰动 + 边界推挤”），生成模型与原树不一致的样本。</li>
+<li><strong>保留”合并 + 离散化 + 可读规则”</strong>：输出形如
+<code>IF dst_port=443 AND bwd_bytes_ratio &#x3C; 0.15 AND bidirectional_mean_ps > 400 THEN YouTube</code>
+这样的规则，并把连续阈值离散成 small/large。</li>
+<li><strong>保留”保真度 + 简洁度 + OOD”</strong>：用**跨天（Day-5 holdout）**充当 OOD 评估，避免论文 Fig.1 指出的 IID 假保真。</li>
+<li><strong>显式处理 Insight 3 的”标签错误”</strong>：先用论文的”特征/标签/模型”三查表定位噪声流（背景流量），再决定是否过滤。</li>
+</ol>
+<hr>
+<h2 id="8-可直接复用的分类依据--方法清单本文档交付摘要">8. 可直接复用的”分类依据 + 方法”清单（本文档交付摘要）</h2>
+<p><strong>A. 分类依据（判据）</strong></p>
+<ul>
+<li>A1 体量与包长统计（bytes/packets、ps 的 min/mean/stddev/max、上下行字节比）</li>
+<li>A2 时间与到达间隔统计（duration、piat 的 min/mean/stddev/max）</li>
+<li>A3 传输层协议与标志位（protocol、SYN/ACK/PSH/RST/FIN 计数、双向比）</li>
+<li>A4 服务/端口/主机画像（dst_port、SNI、JA4/JA3 指纹、DPI 应用标签）</li>
+<li>A5 会话/多流聚合上下文（同一设备同一天的多条流联合判定）</li>
+</ul>
+<p><strong>B. 分类方法</strong></p>
+<ul>
+<li>B1 零正异常检测（重构式 AE/KitNET、预测式 LSTM/DeepLog）+ 阈值</li>
+<li>B2 有监督多分类（本任务主线）</li>
+<li>B3 规则蒸馏（GEAD：root tree → LC 识别 → LC 增广 → 子树 → 合并离散化 → 可读规则）</li>
+<li>B4 保真度评估（Positive Consistency / Negative Credibility，IID+OOD）</li>
+<li>B5 简洁度控制（预剪枝 M_d/M_s，规则预算）</li>
+</ul>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/rules-A-merged-tree-argmax.csv">rules-A-merged-tree-argmax.csv</a></td><td>规则集 A：合并树 argmax 规则（18 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-B-perclass-prob.csv">rules-B-perclass-prob.csv</a></td><td>规则集 B：每类概率区域规则（16 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-C-true-label-tree.csv">rules-C-true-label-tree.csv</a></td><td>规则集 C：真标签浅树规则（20 条）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-D-fidelity.csv">rules-D-fidelity.csv</a></td><td>蒸馏保真度/简洁度（IID 与 Day-5 OOD）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-E-budget-sweep.csv">rules-E-budget-sweep.csv</a></td><td>规则预算扫描（8 组超参 × 3 方法）</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-F-gead-tuning.csv">rules-F-gead-tuning.csv</a></td><td>GEAD 超参敏感性</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-G-equal-budget.csv">rules-G-equal-budget.csv</a></td><td>等规则预算下的保真度比较</td></tr><tr><td><a href="/blog/downloads/traffic-course/rules-H-gead-best-config.csv">rules-H-gead-best-config.csv</a></td><td>GEAD 最优配置搜索</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-I-view-ablation.csv">results-I-view-ablation.csv</a></td><td>特征视图消融全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-J-model-temporal.csv">results-J-model-temporal.csv</a></td><td>模型族与时间外推全部结果</td></tr><tr><td><a href="/blog/downloads/traffic-course/results-K-leakage-audit.csv">results-K-leakage-audit.csv</a></td><td>泄漏/捷径审计全部结果</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>加密社交 App 流量分析（一）：从论文提炼分类依据</b><br>
+作者：Infinity · 发布于 2026-11-16<br>
+本文链接：<a href="https://lvjf.space/blog/posts/9c167f56.html">https://lvjf.space/blog/posts/9c167f56.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/e4854882.html">← 加密社交 App 流量分析（二）：数据画像与分类实验</a> <a class="next" href="/blog/posts/42e99b91.html">梁文锋四小时投资人会议——16 条印象最深的语录 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#0-一句话定位">0. 一句话定位</a> </li><li class> <a href="#1-流量的三种表示粒度论文用三个数据集对应">1. 流量的三种表示粒度（论文用三个数据集对应）</a> </li><li class> <a href="#2-流量分类的特征依据论文归纳出的四类">2. 流量分类的”特征依据”：论文归纳出的四类</a> </li><li class> <a href="#3-论文的分类方法两类检测范式--阈值判定">3. 论文的”分类方法”：两类检测范式 + 阈值判定</a> </li><li class="toc-sub"> <a href="#31-重构式reconstruction-based">3.1 重构式（Reconstruction-based）</a> </li><li class="toc-sub"> <a href="#32-预测式prediction-based">3.2 预测式（Prediction-based）</a> </li><li class="toc-sub"> <a href="#33-关键共性">3.3 关键共性</a> </li><li class> <a href="#4-核心方法gead-六步规则提炼的骨架">4. 核心方法：GEAD 六步（规则提炼的骨架）</a> </li><li class="toc-sub"> <a href="#-回归树生成regression-tree-generation-root-tree">① 回归树生成（Regression Tree Generation）→ root tree</a> </li><li class="toc-sub"> <a href="#-低置信叶识别lc-leaves-identification">② 低置信叶识别（LC Leaves Identification）</a> </li><li class="toc-sub"> <a href="#-低置信增广lc-augmentation">③ 低置信增广（LC Augmentation）</a> </li><li class="toc-sub"> <a href="#-子树生成subtree-generation">④ 子树生成（Subtree Generation）</a> </li><li class="toc-sub"> <a href="#-树合并--离散化tree-merging--discretization">⑤ 树合并 + 离散化（Tree Merging &amp; Discretization）</a> </li><li class="toc-sub"> <a href="#-可读规则生成human-readable-rule-generation">⑥ 可读规则生成（Human-readable Rule Generation）</a> </li><li class="toc-sub"> <a href="#补充机制">补充机制</a> </li><li class> <a href="#5-论文的规则质量评价指标">5. 论文的”规则质量”评价指标</a> </li><li class> <a href="#6-论文的-5-条洞察对提炼规则最有价值的结论">6. 论文的 5 条洞察（对”提炼规则”最有价值的结论）</a> </li><li class> <a href="#7-迁移到本任务从异常检测规则到app-指纹分类规则">7. 迁移到本任务：从”异常检测规则”到”App 指纹分类规则”</a> </li><li class> <a href="#8-可直接复用的分类依据--方法清单本文档交付摘要">8. 可直接复用的”分类依据 + 方法”清单（本文档交付摘要）</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

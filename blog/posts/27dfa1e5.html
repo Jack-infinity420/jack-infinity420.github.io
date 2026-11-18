@@ -1,0 +1,780 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>网络流量入门（一）：从比特到流 | INFINITY&#39;S BLOG</title><meta name="description" content="一个包长什么样、为什么纯 ACK 是 60 字节、MSS 为什么是 1460、TLS 握手为什么必须明文，以及“流”这个抽象是怎么被发明出来的。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/27dfa1e5/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="网络流量入门（一）：从比特到流 | INFINITY'S BLOG"><meta property="og:description" content="一个包长什么样、为什么纯 ACK 是 60 字节、MSS 为什么是 1460、TLS 握手为什么必须明文，以及“流”这个抽象是怎么被发明出来的。"><meta property="og:url" content="https://lvjf.space/blog/posts/27dfa1e5/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">网络流量入门（一）：从比特到流</h1><div class="post-meta-top">2026-11-17 · tech / 流量分析 · 约 5257 字 · 阅读约 14 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>网络流量入门（五篇）</strong>：<a href="/blog/posts/182ffe32.html">零·导览</a> ｜ <strong>一·从比特到流</strong> ｜ <a href="/blog/posts/eb6b5f66.html">二·92 个特征</a> ｜ <a href="/blog/posts/5425b364.html">三·从端口法到 nDPI</a> ｜ <a href="/blog/posts/2c4cfa12.html">四·动手实验</a></p>
+</blockquote>
+<blockquote>
+<p>前置：你学过《计算机网络》，知道 OSI/TCP-IP 分层、TCP 三次握手、IP 地址这些名词。
+本课要补的是<strong>把名词变成画面</strong>：一个包长什么样、为什么长这样、以及”流”这个抽象是怎么冒出来的。
+配套实验：<a href="/blog/posts/2c4cfa12.html"><code>09_教程_4_动手实验与自测.md</code></a>；配套抓包：<a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></p>
+</blockquote>
+<hr>
+<h2 id="0-先立规矩六条公理">0. 先立规矩：六条公理</h2>
+<p>学网络容易陷入”背协议字段”。真正有用的做法是先想清楚<strong>这个系统必须解决什么问题</strong>，字段是答案不是题目。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>#</th><th>公理</th><th>直接推论</th></tr></thead><tbody><tr><td><strong>A0</strong></td><td>网络唯一在做的事：把一段<strong>字节</strong>从进程 A 搬到进程 B</td><td>所有协议都是”搬运 + 出错处理”的包装</td></tr><tr><td><strong>A1</strong></td><td>一条链路上有千千万万个”对话”同时交错</td><td>必须能区分”谁跟谁说” → <strong>五元组</strong></td></tr><tr><td><strong>A2</strong></td><td>链路会丢、会乱、会拥塞</td><td>必须有<strong>反馈</strong> → 序号、ACK、窗口、重传</td></tr><tr><td><strong>A3</strong></td><td>搬运需求不同（可靠/实时/省电）</td><td><strong>TCP vs UDP</strong> 分流；同一种业务会挑不同的传输层</td></tr><tr><td><strong>A4</strong></td><td>链路会被窃听</td><td><strong>TLS</strong> 加密载荷，但<strong>握手必须明文</strong> → 明文元数据成为唯一线索</td></tr><tr><td><strong>A5</strong></td><td>观测者只能拿到”包”，但分析要的是”会话”</td><td>发明 <strong>flow（流）</strong> 这个抽象，把包序列压成一行数字</td></tr><tr><td><strong>A6</strong></td><td>识别应用的实质 = 在<strong>观测者可见的信息</strong>里找<strong>与应用绑定的不变量</strong></td><td>一切分类方法（端口/DPI/指纹/统计）都是这一句话的不同实现</td></tr></tbody></table>
+<p>后面每一节，我都会标出它在回答哪条公理。</p>
+<hr>
+<h2 id="1-一个包的真实长相信封套信封">1. 一个包的真实长相：<strong>信封套信封</strong></h2>
+<h3 id="11-从字节到帧">1.1 从”字节”到”帧”</h3>
+<p>网卡发出去的<strong>不是”数据”</strong>，而是一个<strong>帧（frame）</strong>。帧就是一段连续的字节，结构如下（以太网 II / DIX，最常见）：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>┌────────────┬────────────┬──────────┬──────────────────┬─────┐</span></span>
+<span class="line"><span>│ 目的 MAC    │ 源 MAC     │ 类型/长度 │     载荷          │ FCS │</span></span>
+<span class="line"><span>│  6 字节     │  6 字节    │  2 字节   │  （IP 包）        │4字节│</span></span>
+<span class="line"><span>└────────────┴────────────┴──────────┴──────────────────┴─────┘</span></span>
+<span class="line"><span>      ↑                                                       ↑</span></span>
+<span class="line"><span>   "这一帧给谁"                                          CRC 校验（网卡算的）</span></span></code></pre>
+<ul>
+<li><strong>最小帧 64 字节（含 FCS）</strong>，即<strong>不含 FCS 是 60 字节</strong>。不足要补零。
+为什么？因为早期以太网用 <strong>CSMA/CD</strong> 冲突检测，必须保证”最短帧的发送时间 ≥ 最远两站的往返传播时延”，否则冲突了却检测不到。
+教材：Kurose &#x26; Ross《Computer Networking: A Top-Down Approach》第 6 章链路层；Stevens《TCP/IP Illustrated》Vol.1 第 3 章。</li>
+<li><strong>最大 1518 字节（不含 FCS 1514）</strong>，即 MTU 1500 + 14 字节头。这就是你数据里 <code>max_ps = 1514</code> 的来源。</li>
+</ul>
+<blockquote>
+<p><strong>实验接口</strong>：<code>demo_handshake.pcap</code> 里第 5、7、9 号包是纯 ACK，你看到它们<strong>恰好 60 字节</strong>——不是巧合，是被补零了。</p>
+</blockquote>
+<h3 id="12-三层封装叠加开销是固定的">1.2 三层封装叠加，开销是固定的</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>    ┌─────────── 14 ───────────┐┌── 20 ──┐┌───── 20 ─────┐┌── 载荷 ──┐</span></span>
+<span class="line"><span>帧 =│ 以太网头(MAC×2 + Type)    ││ IP 头  ││  TCP 头       ││ 应用数据 │</span></span>
+<span class="line"><span>    └──────────────────────────┘└────────┘└───────────────┘└──────────┘</span></span>
+<span class="line"><span>                                             ↑ 可选选项(时间戳等)</span></span></code></pre>
+<p><strong>算一遍就懂为什么会看到这些”固定尺寸”</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">观察到的尺寸</th><th>拆解</th><th>是什么</th></tr></thead><tbody><tr><td align="right"><strong>60</strong></td><td>14 + 20 + 20 = 54，补零到 60</td><td>纯 ACK，无 TCP 选项</td></tr><tr><td align="right"><strong>66</strong></td><td>14 + 20 + <strong>32</strong></td><td>纯 ACK + TCP 时间戳选项（12 字节选项）</td></tr><tr><td align="right"><strong>74</strong></td><td>14 + 20 + <strong>40</strong></td><td>SYN（MSS 4 + SACK 2 + 时间戳 10 + 窗口扩大 3 + NOP 2 ≈ 20 字节选项）</td></tr><tr><td align="right"><strong>1514</strong></td><td>14 + 20 + 20 + <strong>1460</strong></td><td>满载数据的帧（1460 = MSS）</td></tr><tr><td align="right"><strong>167</strong></td><td>14 + 20 + <strong>8</strong>(UDP) + <strong>125</strong></td><td>SSDP 的 <code>M-SEARCH</code> 发现报文</td></tr><tr><td align="right"><strong>218</strong></td><td>14 + 20 + 8 + 176</td><td>mDNS 查询/响应</td></tr></tbody></table>
+<blockquote>
+<p><strong>这就是”直观认识”的第一块砖</strong>：包长不是连续随机数，而是**“协议头固定开销 + 一个离散的载荷尺寸”**。
+你用你自己的 25,116 条流画出来就能看到这些尖峰：</p>
+</blockquote>
+<p><img src="/blog/images/traffic/traffic-fig05-pktlen-spectrum.png" alt="包长谱"></p>
+<p>左图两个峰：<strong>几十字节</strong>（纯 ACK/控制）和 <strong>1400–1514</strong>（满载数据）；右图放大可见它们<strong>精确地停在离散值上</strong>。
+这张图就是”网络流量”最朴素的样子：<strong>大量小包在说”我收到了”，少量大包在搬内容</strong>。</p>
+<h3 id="13-mss-与-mtu为什么总是-1460">1.3 MSS 与 MTU：为什么总是 1460</h3>
+<ul>
+<li><strong>MTU</strong>（Maximum Transmission Unit，最大传输单元）= 一次能在链路上发的<strong>IP 包</strong>最大长度，以太网默认 <strong>1500</strong>。
+标准来源：RFC 791 只要求”所有主机至少能收 576 字节”，1500 是链路层约定（RFC 894）。</li>
+<li><strong>MSS</strong>（Maximum Segment Size）= MTU − IP 头 − TCP 头 = 1500 − 20 − 20 = <strong>1460</strong>。
+MSS 通过 TCP 选项在 <strong>SYN</strong> 里协商（RFC 9293 §3.7.1）。</li>
+<li>超过 MTU 怎么办？IPv4 可以<strong>分片</strong>（fragmentation），但分片在防火墙/NAT 前很麻烦；IPv6 <strong>禁止中间路由器分片</strong>，只能靠 PMTUD（路径 MTU 发现，RFC 1191）。</li>
+<li>TCP 的做法是<strong>避免分片</strong>：自己按 MSS 切好，每个包恰好装 1460 字节。</li>
+</ul>
+<p>所以：<strong>一个 App 只要开始”拉数据”，它的流里就会出现 1514 字节的包</strong>；只做心跳/信令的 App，一辈子不会出现 1514。
+这就是后面规则里 <code>最大包长 ps_max ≥ 1470</code> 为什么有判别力的物理原因。</p>
+<hr>
+<h2 id="2-ip-层只负责尽力而为公理-a1">2. IP 层：只负责”尽力而为”（公理 A1）</h2>
+<h3 id="21-ip-头里有什么20-字节">2.1 IP 头里有什么（20 字节）</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span> 0                   1                   2                   3</span></span>
+<span class="line"><span> 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1</span></span>
+<span class="line"><span>┌───────┬───────┬───────────────┬───────────────────────────────┐</span></span>
+<span class="line"><span>│Version│  IHL  │   DSCP/ECN    │        Total Length           │  ← 总长度（含头）</span></span>
+<span class="line"><span>├───────┴───────┴───────────────┼───────┬───────────────────────┤</span></span>
+<span class="line"><span>│         Identification        │ Flags │   Fragment Offset     │</span></span>
+<span class="line"><span>├───────────────┬───────────────┼───────┴───────────────────────┤</span></span>
+<span class="line"><span>│   TTL         │   Protocol    │       Header Checksum         │  ← Protocol: 6=TCP 17=UDP 1=ICMP</span></span>
+<span class="line"><span>├───────────────┴───────────────┼───────────────────────────────┤</span></span>
+<span class="line"><span>│                       Source IP Address                       │</span></span>
+<span class="line"><span>├───────────────────────────────────────────────────────────────┤</span></span>
+<span class="line"><span>│                    Destination IP Address                     │</span></span>
+<span class="line"><span>└───────────────────────────────────────────────────────────────┘</span></span></code></pre>
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>IP <strong>无连接、不保证送达、不保证顺序</strong>。它只做”尽力转发”。可靠性的责任<strong>全部推给了 TCP</strong>。</li>
+<li><code>TTL</code> 每过一跳减 1，减到 0 就丢弃并发 ICMP —— 这是 <code>traceroute</code> 的原理。</li>
+<li><code>Protocol</code> 字段区分 TCP/UDP/ICMP —— 这就是你 CSV 里 <code>protocol</code> 列（6/17/1）。</li>
+<li><strong>IP 不知道自己属于哪个应用</strong>，只知道”发给哪个 IP”。这是”端口法失效”的根源（见第三课）。</li>
+</ul>
+<h3 id="22-五元组区分谁跟谁说话的钥匙公理-a1">2.2 五元组：区分”谁跟谁说话”的钥匙（公理 A1）</h3>
+<p>一条链路上所有字节都混在一起，接收方如何知道”这段字节属于哪个对话”？</p>
+<blockquote>
+<p><strong>五元组 = (源 IP, 源端口, 目的 IP, 目的端口, 传输层协议)</strong></p>
+</blockquote>
+<ul>
+<li><strong>IP 对</strong>：定位两台机器。</li>
+<li><strong>端口对</strong>：定位机器上的<strong>进程</strong>（TCP/UDP 用 16 位端口做多路分解/复用，RFC 9293 §3.1）。</li>
+<li><strong>协议号</strong>：区分 TCP 还是 UDP（否则 53/TCP 和 53/UDP 会被混淆）。</li>
+</ul>
+<p><strong>端口是怎么分配的</strong>（RFC 6335）：</p>
+<ul>
+<li>0–1023 <strong>系统端口</strong>（well-known）：80 HTTP、443 HTTPS、53 DNS、22 SSH、25 SMTP…</li>
+<li>1024–49151 <strong>用户注册端口</strong>：5222 XMPP、5228 Google GCM、1900 SSDP、5353 mDNS…</li>
+<li>49152–65535 <strong>动态/临时端口</strong>：客户端发起连接时由操作系统随机挑一个。</li>
+</ul>
+<blockquote>
+<p><strong>这条规则极其重要</strong>：客户端端口是”随机数”（<code>src_port</code> 有 15,555 个不同取值），<strong>几乎没有分类价值</strong>；
+服务器端口是”约定”（<code>dst_port</code> 只有 431 种取值，443 占 36%），<strong>有分类价值但不足以区分 App</strong>。</p>
+</blockquote>
+<h3 id="23-你以为的内网-vs-公网">2.3 你以为的”内网 vs 公网”</h3>
+<p>RFC 1918 定义了私有地址段：<code>10.0.0.0/8</code>、<code>172.16.0.0/12</code>、<code>192.168.0.0/16</code>。
+还有 <code>224.0.0.0/4</code> 组播、<code>239.255.255.250</code>（SSDP）、<code>224.0.0.251</code>（mDNS）、<code>255.255.255.255</code> 广播。</p>
+<p><strong>这对你的分析意味着</strong>：目的地址落在这些范围内的流，<strong>根本出不了这个局域网</strong>，它不可能属于某个互联网 App 的业务流量。
+你数据里 7.2% 的流属于这种情况——这就是”背景流量”的第一条判据。</p>
+<hr>
+<h2 id="3-tcp所有复杂度都来自要在不可靠的链路上提供可靠字节流公理-a2">3. TCP：所有复杂度都来自”要在不可靠的链路上提供可靠字节流”（公理 A2）</h2>
+<h3 id="31-三次握手到底在交换什么">3.1 三次握手到底在交换什么</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>客户端                                        服务器</span></span>
+<span class="line"><span>   │  ──── SEQ=x, SYN ────────────────────►   │   "我想建连，我的起始序号是 x"</span></span>
+<span class="line"><span>   │                                          │</span></span>
+<span class="line"><span>   │  ◄──── SEQ=y, ACK=x+1, SYN ──────────    │   "同意，我的起始序号是 y，我收到了你的 x"</span></span>
+<span class="line"><span>   │                                          │</span></span>
+<span class="line"><span>   │  ──── ACK=y+1 ──────────────────────►    │   "好，我知道了你的 y"</span></span></code></pre>
+<p><strong>为什么必须三次，不能两次？</strong>
+因为 TCP 是<strong>双向</strong>的：双方都要确认”<strong>我的发送能力</strong>被对方知道了”。
+两次只能确认一个方向；三次刚好让两个方向都各自”我的 SYN 被确认”（同时还有旧连接残留 SYN 的防重问题）。
+教材：Kurose &#x26; Ross §3.5.6；RFC 9293 §3.4。</p>
+<p><strong>握手留下了什么可观测痕迹？</strong></p>
+<ul>
+<li>一条流里 <strong>SYN 位包通常是 2 个</strong>（SYN 和 SYN-ACK <strong>都置 SYN 标志位</strong>）。
+<code>syn_packets > 2</code> 往往意味着<strong>重传</strong>（丢包或对端无响应）；<code>syn_packets == 1</code> 说明只看到一个方向。
+（你的数据实测：有 SYN 的流占 24.0%，其中 <code>==1</code> 只占 0.1%、<code>>=2</code> 占 24.0%——正好印证。）</li>
+<li><strong>SYN 的尺寸固定在 74 左右</strong>（带选项）。所以任何流里”出现过一个 ~74 字节的包”是”这是一次新建连接”的证据。</li>
+<li>握手耗时（SYN → SYN-ACK 的间隔）≈ <strong>RTT</strong>。这是唯一能在加密流量里直接测 RTT 的地方。</li>
+</ul>
+<h3 id="32-序号ack-与字节流幻觉">3.2 序号、ACK 与”字节流”幻觉</h3>
+<p>TCP 把应用交下来的字节流<strong>编号</strong>：第 1 个字节是 <code>SEQ+1</code>，第 2 个是 <code>SEQ+2</code>……</p>
+<ul>
+<li><code>SEQ</code> = 本报文<strong>第一个字节</strong>的编号。</li>
+<li><code>ACK</code> = “<strong>我期望收到的下一个字节</strong>的编号”，即”前面全部收到了”。</li>
+<li>所以 <code>ACK = 对方 SEQ + 载荷长度</code>。</li>
+</ul>
+<blockquote>
+<p><strong>这是理解”流”的关键</strong>：TCP 对外提供的是<strong>有序字节流</strong>，而不是”消息”。
+一个 TCP 报文里可能装了半个 TLS 记录，也可能装了 3 个 HTTP 响应——<strong>TCP 没有消息边界，边界由应用协议自己给</strong>（TLS 用 5 字节记录头，HTTP 用 <code>\r\n\r\n</code> 和 <code>Content-Length</code>）。
+抓包软件显示的行，是<strong>按 SEQ 重排后的字节流</strong>，不是原始网络上的顺序。</p>
+</blockquote>
+<h3 id="33-窗口拥塞控制为什么下载的包长得像楼梯">3.3 窗口、拥塞控制：为什么”下载”的包长得像楼梯</h3>
+<ul>
+<li><strong>接收窗口 rwnd</strong>：接收方还能收多少（接收缓冲剩余）。</li>
+<li><strong>拥塞窗口 cwnd</strong>：发送方估计网络能承受多少（慢启动 → 拥塞避免 → 快重传 → 快恢复）。</li>
+<li>实际能发 = min(rwnd, cwnd)。</li>
+</ul>
+<p><strong>对流量分析的意义</strong>：<code>bps</code>（字节速率）、<code>piat</code>（包间隔）的<strong>形状</strong>由拥塞控制算法决定：
+YouTube 起步时慢启动 → 间隔快速变小 → 稳定在 RTT 附近；WhatsApp 长连接心跳 → 间隔是几十秒的固定值。
+<strong>这不是应用协议规定的，是传输层机制留下的副产品</strong>——但它恰好能区分”流式下载”和”交互式长连接”。</p>
+<h3 id="34-fin-与-rst两种结束的含义完全不同">3.4 FIN 与 RST：两种”结束”的含义完全不同</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>FIN</th><th>RST</th></tr></thead><tbody><tr><td>语义</td><td><strong>有序关闭</strong>：“我没数据要发了”</td><td><strong>强制中止</strong>：“立即断，别废话”</td></tr><tr><td>是否走完四次挥手</td><td>是（FIN/ACK/FIN/ACK）</td><td>否，直接断</td></tr><tr><td>典型触发</td><td>应用正常关闭、<code>close()</code></td><td>端口未监听、连接被中间件拒绝、应用崩溃、<strong>半开连接探测</strong>、<strong>主动放弃</strong></td></tr></tbody></table>
+<blockquote>
+<p>你的数据里 <strong>14.9% 的流带 RST</strong>，其中 <strong>Reddit 的中位 RST 数是 2</strong>（10 个 App 里唯一）。
+这不是”Reddit 爱断线”，而是它的客户端<strong>大量使用短连接 + 主动放弃</strong>（<code>gql-fed.reddit.com</code> 这类查询请求发完就断）。
+这就是后面那条高置信规则 <code>RST≥2 且 最大包长≥1510 且 下行包占比>0.50 → Reddit</code> 的物理基础。</p>
+</blockquote>
+<hr>
+<h2 id="4-udp把简单做到极致公理-a3">4. UDP：把”简单”做到极致（公理 A3）</h2>
+<p>UDP 头只有 8 字节：<code>源端口(2) | 目的端口(2) | 长度(2) | 校验和(2)</code>。</p>
+<p><strong>它什么也不保证</strong>：不建连、不重传、不排序、不管拥塞。那为什么还要它？</p>
+<ol>
+<li><strong>实时性优先</strong>：语音/视频宁可丢一帧也不要等重传（TCP 的队头阻塞是致命的）。</li>
+<li><strong>应用层自己做可靠性</strong>：QUIC 在 UDP 上重新实现了可靠传输 + TLS1.3 + 多路复用（RFC 9000）。</li>
+<li><strong>一问一答足够简单</strong>：DNS 一次查询一个包，建连成本比请求本身还高。</li>
+<li><strong>广播/组播</strong>：TCP 不支持，SSDP/mDNS 只能用 UDP。</li>
+</ol>
+<p><strong>对你的数据</strong>：UDP 占 68.4%（17,181 条）——但其中大量是 SSDP(1900)、mDNS(5353)、DNS(53) 和 QUIC(443)。
+<strong>“UDP 多”不等于”视频多”</strong>，这里面 39% 是背景噪声。</p>
+<blockquote>
+<p><strong>一个重要的观测事实</strong>：QUIC 把 TLS 握手塞进了 UDP 载荷，所以 <strong>UDP:443 上是看不到 SNI 的明文</strong>（除非你拿到密钥）。
+这意味着随着 App 从 TCP+TLS 转向 QUIC，<strong>你能看到的明文越来越少</strong>。这是当前流量分析领域最重要的一条趋势线。
+RFC 9001 §4 明确：QUIC 的 TLS 握手除 Initial 包的部分字段外全部加密。</p>
+</blockquote>
+<hr>
+<h2 id="5-tls加密之后还剩下什么可看公理-a4">5. TLS：加密之后，还剩下什么可看（公理 A4）</h2>
+<h3 id="51-信封类比">5.1 信封类比</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>┌─────────────────────────────────────────┐</span></span>
+<span class="line"><span>│  信封表面（明文，谁都能看）              │</span></span>
+<span class="line"><span>│   · 你寄给谁(SNI)                       │</span></span>
+<span class="line"><span>│   · 邮戳时间/重量(包长/时序)             │</span></span>
+<span class="line"><span>│   · 信封型号(协议版本/密码套件)          │</span></span>
+<span class="line"><span>├─────────────────────────────────────────┤</span></span>
+<span class="line"><span>│  信纸（密文，只有双方能看）              │</span></span>
+<span class="line"><span>│   · 你说的每一句话(HTTP/JSON/媒体数据)   │</span></span>
+<span class="line"><span>└─────────────────────────────────────────┘</span></span></code></pre>
+<p><strong>TLS 只能加密”信纸”，不能加密”信封”</strong> —— 因为信封必须在双方建立密钥<strong>之前</strong>就能被读懂。</p>
+<h3 id="52-握手加密世界里最后的明文">5.2 握手：加密世界里最后的明文</h3>
+<p>TLS 1.3 完整握手（RFC 8446 §2.1，1-RTT）：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Client                                          Server</span></span>
+<span class="line"><span>  │  ClientHello ────────────────────────────►  │   ① 明文！含 SNI、ALPN、密码套件、key_share</span></span>
+<span class="line"><span>  │                                             │</span></span>
+<span class="line"><span>  │  ◄──────────── ServerHello                  │   ② 明文！选定参数</span></span>
+<span class="line"><span>  │  ◄──────────── {EncryptedExtensions}        │   ③ 以下全部加密</span></span>
+<span class="line"><span>  │  ◄──────────── {Certificate}                │      （证书在 TLS1.3 里是加密的！）</span></span>
+<span class="line"><span>  │  ◄──────────── {CertificateVerify}          │</span></span>
+<span class="line"><span>  │  ◄──────────── {Finished}                   │</span></span>
+<span class="line"><span>  │  {Finished} ─────────────────────────────►  │</span></span>
+<span class="line"><span>  │  ◄══════════ Application Data ════════════► │   ④ 全密文</span></span></code></pre>
+<p><strong>关键差别</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>TLS 1.2（RFC 5246）</th><th>TLS 1.3（RFC 8446）</th></tr></thead><tbody><tr><td>证书</td><td><strong>明文</strong>可见（含 CN/SAN、签发者）</td><td><strong>加密</strong>，看不到</td></tr><tr><td>SNI</td><td>明文</td><td>明文（直到 <strong>ECH</strong> 普及）</td></tr><tr><td>密码套件协商</td><td>明文</td><td>明文</td></tr><tr><td>握手往返</td><td>2-RTT</td><td>1-RTT（0-RTT 可选）</td></tr></tbody></table>
+<blockquote>
+<p><strong>这就是为什么 <code>requested_server_name</code>（SNI）是这份数据集里最有价值的字段</strong>：
+它是 TLS 1.3 之后<strong>唯一还稳定残留的、直接写着”我要访问谁”的明文</strong>。
+而 <code>client_fingerprint</code>（JA4）是从 ClientHello 的<strong>结构</strong>（版本/密码套件列表/扩展顺序/ALPN）算出来的哈希——那是”信封的型号”，不是”收件人”。</p>
+</blockquote>
+<h3 id="53-clienthello-逐字节解剖这是你最该会读的明文">5.3 ClientHello 逐字节解剖（这是你最该会读的明文）</h3>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>TLS record header (5 字节)</span></span>
+<span class="line"><span>  16            = content_type = handshake</span></span>
+<span class="line"><span>  03 03         = legacy_record_version = TLS1.2（历史包袱，兼容中间件）</span></span>
+<span class="line"><span>  LL LL         = 记录长度</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Handshake header (4 字节)</span></span>
+<span class="line"><span>  01            = ClientHello</span></span>
+<span class="line"><span>  LL LL LL      = 握手体长度</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>ClientHello 体</span></span>
+<span class="line"><span>  03 03                         = client_version（TLS1.2，真版本在扩展里）</span></span>
+<span class="line"><span>  &#x3C;32 字节 random>              = 客户端随机数（后面用于生成密钥）</span></span>
+<span class="line"><span>  &#x3C;session_id_len + session_id> = 会话恢复用的 ID</span></span>
+<span class="line"><span>  &#x3C;2 字节 cs_len + 密码套件列表> = 我支持这些加密算法</span></span>
+<span class="line"><span>  &#x3C;1 字节 + 压缩方法>            = 通常是 01 00（只支持 null）</span></span>
+<span class="line"><span>  &#x3C;2 字节 ext_len + 扩展列表>    = ★ 关键</span></span></code></pre>
+<p>扩展里最要紧的几个：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>扩展 (type)</th><th>内容</th><th>泄漏什么</th></tr></thead><tbody><tr><td><code>server_name</code> (0x0000)</td><td><strong>SNI</strong>：<code>mmg.whatsapp.net</code></td><td><strong>你要访问的域名</strong>（最强信号）</td></tr><tr><td><code>supported_versions</code> (0x002B)</td><td><code>0304</code> = TLS1.3</td><td>客户端新旧</td></tr><tr><td><code>supported_groups</code> (0x000A)</td><td>x25519/secp256r1…</td><td>加密库类型</td></tr><tr><td><code>signature_algorithms</code> (0x000D)</td><td>RSA-PSS/ECDSA 列表</td><td>加密库类型</td></tr><tr><td><code>alpn</code> (0x0010)</td><td><code>h2</code>, <code>http/1.1</code></td><td>应用协议（HTTP/2？）</td></tr><tr><td><code>key_share</code> (0x0033)</td><td>临时公钥</td><td>每次不同，<strong>不可用于指纹</strong></td></tr><tr><td><code>psk_key_exchange_modes</code> (0x002D)</td><td><code>psk_dhe_ke</code></td><td>会话恢复策略</td></tr></tbody></table>
+<blockquote>
+<p><strong>JA3/JA4 的原理就一句话</strong>：把上面这些<strong>列表的取值和顺序</strong>拼成一个字符串取哈希。
+因为不同 TLS 库（OpenSSL/BoringSSL/Conscrypt/Schannel）的默认列表不同，哈希就不同。
+教材/出处：Althouse et al., <em>TLS Fingerprinting with JA3 and JA3S</em> (2017)；FoxIO, <em>JA4+</em> (2023)。</p>
+</blockquote>
+<p><strong>联系到你的数据（一个反直觉的发现）</strong>：主流 JA3/JA4 覆盖了全部 10 个 App（纯度 0.33–0.51）。
+因为 10 个 App 都是 Android 应用，<strong>大多共用系统自带的 Conscrypt/BoringSSL</strong>。
+所以 JA4 = “这是一台 Android 手机在跑标准 TLS 栈”，<strong>不是</strong>”这是 WhatsApp”。
+只有自带 TLS 栈的应用（如 Telegram 的 MTProto、Snapchat 的自研通道）才有私有指纹。</p>
+<hr>
+<h2 id="6-从包到流观测者必须发明一个抽象公理-a5">6. 从”包”到”流”：观测者必须发明一个抽象（公理 A5）</h2>
+<h3 id="61-为什么不能直接用包">6.1 为什么不能直接用包</h3>
+<p>一次 1 分钟的抓包能有几十万个包。你若想回答”这台手机在用什么 App”，你需要：</p>
+<ul>
+<li><strong>降到可分析的规模</strong>（几万个包 → 几千条记录）</li>
+<li><strong>带上时间上下文</strong>（这条连接的持续时间、节奏）</li>
+<li><strong>带上双向视角</strong>（谁发得多、谁收得多）</li>
+</ul>
+<p>于是工业界与学术界各自发明了同一个东西：<strong>流（flow）</strong>。</p>
+<blockquote>
+<p><strong>定义（IPFIX / RFC 7011 §2）</strong>：一组具有相同<strong>关键字段</strong>（通常五元组 + 观测点）的包，从<strong>第一个包</strong>到达开始，到<strong>超时</strong>或<strong>看到连接结束</strong>为止。</p>
+</blockquote>
+<h3 id="62-三个必须分清的概念">6.2 三个必须分清的概念</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>概念</th><th>定义</th><th>例子</th></tr></thead><tbody><tr><td><strong>包 packet</strong></td><td>一次 L2 传输的那个帧</td><td>一个 1514 字节的帧</td></tr><tr><td><strong>流 flow</strong></td><td>五元组相同 + 时间窗内的一串包</td><td>客户端 51423 ↔ 服务器 443，一次会话</td></tr><tr><td><strong>连接 connection</strong></td><td>TCP 状态机意义上的连接（SYN→FIN/RST）</td><td>同一条流通常是一次连接，但<strong>不一定</strong></td></tr></tbody></table>
+<p><strong>为什么 flow ≠ connection</strong>（这是新手最容易踩的坑）：</p>
+<ol>
+<li><strong>UDP 也有 flow</strong>，但没有 connection。</li>
+<li>一条长连接如果<strong>空闲超时</strong>（常见 120 s / 180 s / 300 s），会被切成<strong>多条流</strong>。</li>
+<li>同一五元组在很短时间内<strong>复用</strong>（比如客户端端口重复使用），可能被并成一条流或切成两条，取决于实现。</li>
+<li><strong>流的”方向”有两种约定</strong>：单向（unidirectional，NetFlow 默认一个方向一条流）与<strong>双向</strong>（bidirectional，把 A→B 和 B→A 合成一条）。</li>
+</ol>
+<h3 id="63-你这份数据用的是哪一种">6.3 你这份数据用的是哪一种</h3>
+<p>看你的列名就知道是 <strong>NFStream 的双向（bidirectional）流</strong>：</p>
+<ul>
+<li><code>bidirectional_*</code>：把两个方向合起来统计</li>
+<li><code>src2dst_*</code>：客户端→服务器方向</li>
+<li><code>dst2src_*</code>：服务器→客户端方向</li>
+</ul>
+<p><strong>NFStream 的流的终止条件</strong>（<code>expiration_id</code> 记录的就是原因）：</p>
+<ol>
+<li><code>expiration_id=0</code> <strong>空闲超时</strong>（idle timeout，默认 120 s）</li>
+<li><code>expiration_id=1</code> <strong>活跃超时</strong>（active timeout，默认 1800 s，防止一条流无限长）</li>
+<li><code>expiration_id=2</code> 看到 <strong>FIN 或 RST</strong></li>
+<li><code>expiration_id=3</code> 检测到 <strong>TCP 状态异常</strong>（如 SYN 后无响应）</li>
+<li>抓包结束</li>
+</ol>
+<p>出处：Aouini &#x26; Pekar, <em>NFStream: A flexible network data analysis framework</em>, Computer Networks (2022)；及 nfstream 官方文档。</p>
+<blockquote>
+<p><strong>你的数据里只出现了 0 和 1</strong>（24,978 条 idle、138 条 active），说明这份数据是<strong>纯靠超时切流</strong>的：
+即使有 20.4% 的流里出现过 FIN，也没有”看到 FIN 就立刻结束”。
+更妙的是，<strong>超时参数本身能从数据里反读出来</strong>：
+<code>bidirectional_max_piat_ms</code> 的最大值恰好是 <strong>119,999 ms ≈ 120 s</strong>（idle），
+<code>bidirectional_duration_ms</code> 的最大值恰好是 <strong>1,799,997 ms ≈ 1800 s</strong>（active）。
+这两个数字是”分析工具的参数”，不是”网络的属性”——但它们会改变你看到的一切统计量。
+记住这条方法论：<strong>分析流量之前，先确认切流参数</strong>。</p>
+</blockquote>
+<blockquote>
+<p><strong>这解释了你的数据里一个反常识的事实</strong>：中位流只有 <strong>4 个包</strong>、13.9% 的流只有 <strong>1 个包</strong>。
+因为”一条流”可能只是”一次 DNS 查询”、“一次 SYN 没得到回应”、“一个 SSDP 广播”。
+<strong>流不是会话，流是”观测器视角下的一段连续活跃期”。</strong></p>
+</blockquote>
+<h3 id="64-为什么流是有损的">6.4 为什么”流”是有损的</h3>
+<p>流把一串包压成了一行数字，信息必然丢失：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>丢失了什么</th><th>后果</th><th>举例</th></tr></thead><tbody><tr><td>包的<strong>原始顺序</strong>（只留统计量）</td><td>无法还原”先握手再上传”的因果</td><td><code>syn_ratio</code> 只告诉你比例</td></tr><tr><td><strong>载荷内容</strong></td><td>无法做 DPI</td><td>所以才有”DPI 在流级失效”的问题</td></tr><tr><td><strong>包长序列</strong>（只留 min/mean/std/max）</td><td>无法做序列指纹</td><td>包长序列本身是强指纹，但被压平了</td></tr><tr><td><strong>精确时间戳</strong>（只留 first/last/间隔统计）</td><td>无法做精确时序分析</td><td>所以你看到 piat 的 mean/std/min/max</td></tr></tbody></table>
+<p><strong>这就是”特征工程”存在的理由</strong>：既然已经丢了，就尽量留下<strong>判别力最强的那几个统计量</strong>。第二课逐个讲。</p>
+<hr>
+<h2 id="7-一次完整会话的全景用-demo-pcap">7. 一次完整会话的全景（用 demo pcap）</h2>
+<p>现在把上面所有知识串起来。打开 <a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a>，按编号看：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>#1  10.20.30.40:41234 → 8.8.8.8:53      UDP  DNS 查询 mmg.whatsapp.net</span></span>
+<span class="line"><span>#2  8.8.8.8:53 → 10.20.30.40:41234      UDP  DNS 应答 203.0.113.10</span></span>
+<span class="line"><span>        </span></span>
+<span class="line"><span>#3  10.20.30.40:51423 → 203.0.113.10:443 TCP  SYN          (78B，带选项)</span></span>
+<span class="line"><span>#4                                     TCP  SYN-ACK      (78B)</span></span>
+<span class="line"><span>#5                                     TCP  ACK          (60B，纯 ACK 补齐最小帧)</span></span>
+<span class="line"><span>#6     ... ClientHello (含 SNI=mmg.whatsapp.net)  (319B)  ← 唯一还写着域名的明文</span></span>
+<span class="line"><span>#7                                     TCP  ACK          (60B)</span></span>
+<span class="line"><span>#8     ← ServerHello (181B)</span></span>
+<span class="line"><span>#9                                     TCP  ACK          (60B)</span></span>
+<span class="line"><span>#10    ← Application Data  (1434B)                        ← 加密数据开始</span></span>
+<span class="line"><span>#11    ← Application Data  (1514B)                        ← 满载 MTU</span></span>
+<span class="line"><span>#12    ← Application Data  (1114B)</span></span>
+<span class="line"><span>#13-15  双向 ACK</span></span>
+<span class="line"><span>#16-18  FIN / FIN-ACK / ACK                              ← 正常关闭，四次挥手</span></span></code></pre>
+<p><strong>如果你把这一串包交给 NFStream，它会输出一行记录</strong>（我按定义手算）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>列</th><th>值</th><th>怎么来的</th></tr></thead><tbody><tr><td><code>src_ip:port</code></td><td>10.20.30.40:51423</td><td>第一个包的发送方（决定”客户端方向”）</td></tr><tr><td><code>dst_ip:port</code></td><td>203.0.113.10:443</td><td>—</td></tr><tr><td><code>protocol</code></td><td>6</td><td>IP 头 Protocol 字段</td></tr><tr><td><code>bidirectional_packets</code></td><td>16</td><td>两方向包数之和（第 3–18 号共 16 个）</td></tr><tr><td><code>bidirectional_bytes</code></td><td>5,517</td><td>两方向字节数之和（此处按<strong>帧长</strong>计；NFStream 通常按 IP 载荷计，口径须知）</td></tr><tr><td><code>bidirectional_duration_ms</code></td><td>约 700</td><td>最后一个包时间 − 第一个包时间</td></tr><tr><td><code>src2dst_packets</code> / <code>dst2src_packets</code></td><td><strong>8 / 8</strong></td><td>按方向分（客户端 8 个、服务端 8 个）</td></tr><tr><td><code>bidirectional_min_ps</code> / <code>max_ps</code></td><td>60 / 1514</td><td>本流所有包的<strong>帧长</strong>最小值/最大值</td></tr><tr><td><code>bidirectional_mean_ps</code></td><td>约 345</td><td>帧长平均（5,517 / 16）</td></tr><tr><td><code>bidirectional_syn_packets</code></td><td><strong>2</strong></td><td>SYN + SYN-ACK，<strong>都置 SYN 位</strong></td></tr><tr><td><code>bidirectional_rst_packets</code></td><td>0</td><td>本次是正常关闭</td></tr><tr><td><code>bidirectional_fin_packets</code></td><td>2</td><td>两个方向各一个 FIN</td></tr><tr><td><code>bidirectional_mean_piat_ms</code></td><td>约 44</td><td>相邻包时间差的平均（700/16）</td></tr><tr><td><code>requested_server_name</code></td><td>mmg.whatsapp.net</td><td>从 ClientHello 的 SNI 扩展解出</td></tr><tr><td><code>client_fingerprint</code></td><td>JA4 哈希</td><td>从 ClientHello 结构算</td></tr><tr><td><code>expiration_id</code></td><td>取决于工具配置</td><td><strong>你的数据里只有 0/1 两种</strong>，说明 FIN 并没有触发提前结束，全靠超时切流</td></tr></tbody></table>
+<p><strong>这一行就是第二课的全部内容</strong>。你现在应该能回答：为什么 <code>min_ps=60</code>、<code>max_ps=1514</code>、<code>fin=2</code>。</p>
+<hr>
+<h2 id="8-本课小结">8. 本课小结</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>物理世界            封装                         观测者能看到的"不变量"</span></span>
+<span class="line"><span>─────────         ───────────────              ────────────────────────────</span></span>
+<span class="line"><span>比特/电信号   →   以太网帧(14B头, 60~1514B)  →   帧长（离散！）</span></span>
+<span class="line"><span>              →   IP包(20B头, 五元组)       →   地址/协议号（谁跟谁说话）</span></span>
+<span class="line"><span>              →   TCP/UDP(20/8B头)         →   端口、标志位、序号、窗口</span></span>
+<span class="line"><span>              →   TLS(5B记录头)            →   SNI、密码套件、证书、结构指纹</span></span>
+<span class="line"><span>              →   应用数据(密文)            →   ✗ 看不到</span></span>
+<span class="line"><span>                    </span></span>
+<span class="line"><span>再用"五元组+超时"把这些包压成"流"  →  一行带统计量的记录</span></span></code></pre>
+<p><strong>三句话记住第一课</strong>：</p>
+<ol>
+<li><strong>包长不是随机数</strong>：它是”固定头开销 + 离散载荷”，所以能凭 <code>min_ps/max_ps</code> 反推”这条流在干什么”。</li>
+<li><strong>加密只加密载荷</strong>：SNI、密码套件、握手结构、包长、时序，全都留在外面。</li>
+<li><strong>流是观测者发明的抽象</strong>，不是连接；一条流很短（中位 4 个包），所以”单流判 App”本质上不可靠。</li>
+</ol>
+<hr>
+<h2 id="9-自测答案见-09_教程_4_动手实验与自测md">9. 自测（答案见 <code>09_教程_4_动手实验与自测.md</code>）</h2>
+<ol>
+<li>一个纯 ACK 帧为什么至少 60 字节？如果抓包显示 54 字节，可能是什么原因？</li>
+<li>为什么 MSS 是 1460 而不是 1500？</li>
+<li>一条流里 <code>syn_packets = 3</code>，最可能发生了什么？</li>
+<li>TLS 1.3 里为什么看不到证书？那还能靠什么识别服务？</li>
+<li>为什么 UDP:443 的 QUIC 流看不到 SNI，而 TCP:443 的 TLS 流能看到？</li>
+<li>你的数据里 13.9% 的流只有 1 个包，列举至少 3 种可能的原因。</li>
+<li><code>expiration_id</code> 有 5 种取值，哪一种最能说明”这是一次完整对话”？</li>
+</ol>
+<p>延伸阅读（按难度）：</p>
+<ul>
+<li>Kurose &#x26; Ross《Computer Networking: A Top-Down Approach》第 3 章（传输层）——建立”可靠传输为什么长这样”的直觉。</li>
+<li>Stevens《TCP/IP Illustrated》Vol.1 第 17–24 章——TCP 逐字段。</li>
+<li>RFC 9293（TCP）、RFC 8446（TLS 1.3）——原文其实比教材好懂，因为写得像规格书。</li>
+</ul>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td>27 包教学抓包（Wireshark 直接打开）</td></tr><tr><td><a href="/blog/downloads/traffic-course/traffic-course-code.zip">traffic-course-code.zip</a></td><td>课程与分析脚本：scapy 造抓包、GEAD 实现、画图、数据探查</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>网络流量入门（一）：从比特到流</b><br>
+作者：Infinity · 发布于 2026-11-17<br>
+本文链接：<a href="https://lvjf.space/blog/posts/27dfa1e5.html">https://lvjf.space/blog/posts/27dfa1e5.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li><li> <a href="/blog/posts/2f1c2763.html">加密社交 App 流量分析（三）：提炼判定规则</a> </li> </ul> </div> <nav class="post-nav"> <a href="/blog/posts/eb6b5f66.html">← 网络流量入门（二）：92 个特征是怎么算出来的</a> <a class="next" href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#0-先立规矩六条公理">0. 先立规矩：六条公理</a> </li><li class> <a href="#1-一个包的真实长相信封套信封">1. 一个包的真实长相：信封套信封</a> </li><li class="toc-sub"> <a href="#11-从字节到帧">1.1 从”字节”到”帧”</a> </li><li class="toc-sub"> <a href="#12-三层封装叠加开销是固定的">1.2 三层封装叠加，开销是固定的</a> </li><li class="toc-sub"> <a href="#13-mss-与-mtu为什么总是-1460">1.3 MSS 与 MTU：为什么总是 1460</a> </li><li class> <a href="#2-ip-层只负责尽力而为公理-a1">2. IP 层：只负责”尽力而为”（公理 A1）</a> </li><li class="toc-sub"> <a href="#21-ip-头里有什么20-字节">2.1 IP 头里有什么（20 字节）</a> </li><li class="toc-sub"> <a href="#22-五元组区分谁跟谁说话的钥匙公理-a1">2.2 五元组：区分”谁跟谁说话”的钥匙（公理 A1）</a> </li><li class="toc-sub"> <a href="#23-你以为的内网-vs-公网">2.3 你以为的”内网 vs 公网”</a> </li><li class> <a href="#3-tcp所有复杂度都来自要在不可靠的链路上提供可靠字节流公理-a2">3. TCP：所有复杂度都来自”要在不可靠的链路上提供可靠字节流”（公理 A2）</a> </li><li class="toc-sub"> <a href="#31-三次握手到底在交换什么">3.1 三次握手到底在交换什么</a> </li><li class="toc-sub"> <a href="#32-序号ack-与字节流幻觉">3.2 序号、ACK 与”字节流”幻觉</a> </li><li class="toc-sub"> <a href="#33-窗口拥塞控制为什么下载的包长得像楼梯">3.3 窗口、拥塞控制：为什么”下载”的包长得像楼梯</a> </li><li class="toc-sub"> <a href="#34-fin-与-rst两种结束的含义完全不同">3.4 FIN 与 RST：两种”结束”的含义完全不同</a> </li><li class> <a href="#4-udp把简单做到极致公理-a3">4. UDP：把”简单”做到极致（公理 A3）</a> </li><li class> <a href="#5-tls加密之后还剩下什么可看公理-a4">5. TLS：加密之后，还剩下什么可看（公理 A4）</a> </li><li class="toc-sub"> <a href="#51-信封类比">5.1 信封类比</a> </li><li class="toc-sub"> <a href="#52-握手加密世界里最后的明文">5.2 握手：加密世界里最后的明文</a> </li><li class="toc-sub"> <a href="#53-clienthello-逐字节解剖这是你最该会读的明文">5.3 ClientHello 逐字节解剖（这是你最该会读的明文）</a> </li><li class> <a href="#6-从包到流观测者必须发明一个抽象公理-a5">6. 从”包”到”流”：观测者必须发明一个抽象（公理 A5）</a> </li><li class="toc-sub"> <a href="#61-为什么不能直接用包">6.1 为什么不能直接用包</a> </li><li class="toc-sub"> <a href="#62-三个必须分清的概念">6.2 三个必须分清的概念</a> </li><li class="toc-sub"> <a href="#63-你这份数据用的是哪一种">6.3 你这份数据用的是哪一种</a> </li><li class="toc-sub"> <a href="#64-为什么流是有损的">6.4 为什么”流”是有损的</a> </li><li class> <a href="#7-一次完整会话的全景用-demo-pcap">7. 一次完整会话的全景（用 demo pcap）</a> </li><li class> <a href="#8-本课小结">8. 本课小结</a> </li><li class> <a href="#9-自测答案见-09_教程_4_动手实验与自测md">9. 自测（答案见 09_教程_4_动手实验与自测.md）</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>

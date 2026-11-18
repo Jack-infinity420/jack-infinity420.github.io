@@ -1,0 +1,422 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>网络流量入门（零）：课程导览与能力阶梯 | INFINITY&#39;S BLOG</title><meta name="description" content="从第一性原理自底向上学网络流量：六条公理、四层能力阶梯、七个检查点，以及该用自己数据验证的八个数字。"><meta name="author" content="Infinity"><link rel="canonical" href="https://lvjf.space/blog/posts/182ffe32/"><meta property="og:site_name" content="INFINITY'S BLOG"><meta property="og:title" content="网络流量入门（零）：课程导览与能力阶梯 | INFINITY'S BLOG"><meta property="og:description" content="从第一性原理自底向上学网络流量：六条公理、四层能力阶梯、七个检查点，以及该用自己数据验证的八个数字。"><meta property="og:url" content="https://lvjf.space/blog/posts/182ffe32/"><meta property="og:type" content="article"><link rel="icon" href="/blog/images/favicon-48.png" type="image/png"><link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png"><link rel="manifest" href="/blog/manifest.json"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"><link rel="stylesheet" href="/blog/css/fonts.css"><link rel="stylesheet" href="/blog/css/reading-journal-fonts.css"><link rel="stylesheet" href="/blog/css/weather.css"><script>
+      // 暗色初始化（首绘前执行，避免闪烁）；默认 light
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t) document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script><!-- 百度统计（对齐 Hexo 站点 ID） --><script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?26d39636a0527fd616b2fe34a428cbde';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/blog/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CDGfc0hd.js"></script><link rel="stylesheet" href="/blog/_astro/index.Cfie0MZu.css"></head> <body class="post has-hero"> <nav id="nav"> <a class="blog-info" href="/blog/"> <img src="/blog/images/navlogo.png" alt="INFINITY" width="36" height="36"> <span class="site-name">INFINITY'S BLOG</span> </a> <ul class="menus"> <li> <a href="/blog/" class> 首页 </a> </li><li> <a href="/blog/archives/" class> 文章 </a> </li><li> <a href="/blog/tags/" class> 标签 </a> </li><li> <a href="/blog/categories/" class> 分类 </a> </li><li> <a href="/blog/categories/humanities/" class> 文以载道 </a> </li><li> <a href="/blog/projects/" class> 红岸基地 </a> </li><li> <a href="/blog/categories/tech/" class> 格物致知 </a> </li><li> <a href="/blog/creative-showcase/" class> 群星计划 </a> </li><li> <a href="/blog/duan-daxue/" class> 端点大学 </a> </li><li> <a href="/blog/reading-journal/" class> 星海拾燧 </a> </li><li> <a href="/cosmic-intro/?replay=1" class data-astro-reload="true"> 重返地球 </a> </li> </ul> <a href="/blog/search/" aria-label="搜索" title="搜索" style="color: inherit; font-size: 1rem; padding: 0 4px;">🔍</a> <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">🌙</button> <button class="nav-toggle" id="nav-toggle" aria-label="打开菜单">☰</button> </nav> <script>
+  // View Transitions 下 DOM 会被替换：用 astro:page-load 做幂等重绑
+  document.addEventListener('astro:page-load', function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // 滚动毛玻璃（仅在 hero 页需要；solid 类页面恒实底）
+    function onScroll() {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }
+    if (!nav.classList.contains('solid')) {
+      window.removeEventListener('scroll', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // 移动端菜单
+    var toggle = document.getElementById('nav-toggle');
+    if (toggle) {
+      toggle.onclick = function () {
+        nav.classList.toggle('menus-open');
+      };
+    }
+
+    // 暗色切换
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      var syncIcon = function () {
+        themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+      };
+      syncIcon();
+      themeBtn.onclick = function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      };
+    }
+  });
+
+  // 换页后保持主题（View Transitions 替换 <html> 属性时重挂）
+  document.addEventListener('astro:after-swap', function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  });
+</script> <header id="page-header" class="post-bg" style="background-image: url('/blog/images/default_top_image_forest.jpg')"><div class="post-info"><h1 class="post-title">网络流量入门（零）：课程导览与能力阶梯</h1><div class="post-meta-top">2026-11-17 · tech / 流量分析 · 约 1615 字 · 阅读约 5 分钟</div></div></header> <div class="layout" style> <div class="content" id="content-inner">  <article id="post" class="card">  <div id="article-container"> <blockquote>
+<p><strong>网络流量入门（五篇）</strong>：<strong>零·导览</strong> ｜ <a href="/blog/posts/27dfa1e5.html">一·从比特到流</a> ｜ <a href="/blog/posts/eb6b5f66.html">二·92 个特征</a> ｜ <a href="/blog/posts/5425b364.html">三·从端口法到 nDPI</a> ｜ <a href="/blog/posts/2c4cfa12.html">四·动手实验</a></p>
+</blockquote>
+<blockquote>
+<p><strong>给谁</strong>：学过《计算机网络》、能打开 Wireshark、但对”流量”没有画面感，且完全没接触过 nDPI 的人。
+<strong>怎么讲</strong>：<strong>从第一性原理自底向上</strong>——不问”这个协议有哪些字段”，而问”这个系统必须解决什么问题，于是长出了什么字段”。
+<strong>用什么练</strong>：用你<strong>自己的 25,116 条流</strong> + 我为你构造的 27 个包的抓包。所有结论都能当场验证。</p>
+</blockquote>
+<hr>
+<h2 id="一这门课的地基六条公理">一、这门课的地基：六条公理</h2>
+<p>整门课只建立在六句话上。<strong>每一节都会标出它在回答哪一条。</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>#</th><th>公理</th><th>长出什么</th></tr></thead><tbody><tr><td><strong>A0</strong></td><td>网络唯一在做的事：把<strong>字节</strong>从进程 A 搬到进程 B</td><td>一切协议都是”搬运 + 出错处理”</td></tr><tr><td><strong>A1</strong></td><td>一条链路上千万个对话交错</td><td><strong>五元组</strong>（谁跟谁说话）</td></tr><tr><td><strong>A2</strong></td><td>链路会丢、会乱、会拥塞</td><td>序号、ACK、窗口、重传（TCP 的全部复杂度来源）</td></tr><tr><td><strong>A3</strong></td><td>搬运需求不同（可靠/实时/省电）</td><td><strong>TCP vs UDP</strong> 分流</td></tr><tr><td><strong>A4</strong></td><td>链路会被窃听</td><td><strong>TLS</strong> 加密载荷，但<strong>握手必须明文</strong></td></tr><tr><td><strong>A5</strong></td><td>观测者只能拿到包，分析却要会话</td><td><strong>流（flow）</strong> 这个统计抽象</td></tr><tr><td><strong>A6</strong></td><td>识别应用 = 在可见信息里找<strong>与应用绑定的不变量</strong></td><td>端口法 / DPI / nDPI / 统计 / 指纹，全是这句话的不同实现</td></tr></tbody></table>
+<hr>
+<h2 id="二能力阶梯自底向上">二、能力阶梯（自底向上）</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>第 4 层  规则与决策     "怎么把证据变成可执行的判断"     ← 04/03 号报告（GEAD 规则）</span></span>
+<span class="line"><span>             ▲</span></span>
+<span class="line"><span>第 3 层  识别方法       "怎么判定这是什么应用"           ← 08 课（nDPI 专章）</span></span>
+<span class="line"><span>             ▲</span></span>
+<span class="line"><span>第 2 层  特征语义       "一行数字是怎么算出来的"          ← 07 课（92 列拆解）</span></span>
+<span class="line"><span>             ▲</span></span>
+<span class="line"><span>第 1 层  流量抽象       "包怎么变成流"                   ← 06 课（从比特到流）</span></span>
+<span class="line"><span>             ▲</span></span>
+<span class="line"><span>第 0 层  报文与封装     "一个包长什么样、为什么长这样"     ← 06 课 §1–5</span></span></code></pre>
+<p><strong>不要跳层。</strong> 绝大多数”流量分析做不好”的案例，都是因为第 0–1 层没有画面感，直接去调模型。</p>
+<hr>
+<h2 id="三四个文件与建议节奏">三、四个文件与建议节奏</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th><th>建议时长</th><th>学完你应能回答</th></tr></thead><tbody><tr><td><a href="/blog/posts/27dfa1e5.html"><code>06_教程_1_从比特到流.md</code></a></td><td>封装、MTU/MSS、TCP 握手/序号/窗口/FIN-RST、UDP、TLS 握手与 SNI、流抽象与超时</td><td>2–3 h</td><td>为什么纯 ACK 是 60 字节？为什么中位流只有 4 个包？</td></tr><tr><td><a href="/blog/posts/eb6b5f66.html"><code>07_教程_2_特征是怎么算出来的.md</code></a></td><td>92 列按七组拆解：体量/包长/间隔/标志位/方向/明文元数据/上下文陷阱</td><td>2–3 h</td><td><code>bytes_per_pkt</code> 为什么能分文本与视频？哪些列必须扔掉？</td></tr><tr><td><a href="/blog/posts/5425b364.html"><code>08_教程_3_nDPI与流量识别.md</code></a></td><td>方法五级谱系：端口 → DPI → <strong>nDPI</strong> → 统计/ML → 指纹；nDPI 架构与输出字段</td><td>3–4 h</td><td><code>TLS.WhatsApp</code> 怎么读？为什么 JA3/JA4 识别不了 App？</td></tr><tr><td><a href="/blog/posts/2c4cfa12.html"><code>09_教程_4_动手实验与自测.md</code></a></td><td>10 个 Wireshark/tshark/pandas 实验 + 24 道自测题（含答案）</td><td>3–4 h</td><td>亲手把一条流算成一行 CSV</td></tr></tbody></table>
+<p><strong>总计约 10–14 小时。</strong> 建议一天一课，每课做完实验再往下走。</p>
+<p><strong>学完再回去看</strong> <a href="/blog/posts/e4854882.html"><code>02_流量分析与分类实验.md</code></a> 与 <a href="/blog/posts/2f1c2763.html"><code>03_规则提炼.md</code></a>，
+你会发现之前那些数字（0.70 / 0.47 / 0.72 / 39.2%）全都变成了”有物理原因的结果”，而不是”跑出来的巧合”。</p>
+<hr>
+<h2 id="四配套材料">四、配套材料</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>材料</th><th>是什么</th><th>怎么用</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td><strong>我构造的 27 包教学抓包</strong></td><td>第四课全部实验都基于它，Wireshark 直接打开</td></tr><tr><td>课程代码包（见文末《配套下载》）</td><td><code>build_demo_pcap.py</code>（scapy 造抓包）、<code>make_intuition_figs.py</code>（画图）、<code>probe*.py</code>（数据探查）</td><td>想改抓包内容或复现图表</td></tr><tr><td>文中四张“直觉图”</td><td>用 25,116 条真实流画的包长谱 / 流长 / 体量 / 端口分布</td><td>对照第二课的表看</td></tr></tbody></table>
+<p><strong>教学抓包里有什么</strong>（每个包的用途）：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">包号</th><th>内容</th><th>教学目的</th></tr></thead><tbody><tr><td align="right">1–2</td><td>DNS 查询/应答</td><td>UDP 无连接、一个包一问一答</td></tr><tr><td align="right">3–5</td><td>TCP 三次握手（带真实选项）</td><td>序号/ACK 的语义、MSS 协商、为什么要三次</td></tr><tr><td align="right">6</td><td><strong>TLS 1.3 ClientHello（含 SNI）</strong></td><td>加密世界里最后的明文</td></tr><tr><td align="right">7–9</td><td>ACK + ServerHello</td><td>双向确认、加密边界在哪</td></tr><tr><td align="right">10–12</td><td>加密应用数据（1434/1514/1114 字节）</td><td>满载 MTU、密文只有长度可读</td></tr><tr><td align="right">13–18</td><td>ACK、请求、FIN 四次挥手</td><td>有序关闭</td></tr><tr><td align="right">19–23</td><td>第二次连接被 <strong>RST</strong> 中止</td><td>FIN 与 RST 的区别</td></tr><tr><td align="right">24</td><td>SSDP <code>M-SEARCH</code> 组播</td><td>背景噪声的真身</td></tr><tr><td align="right">25</td><td>mDNS 查询</td><td>同上</td></tr><tr><td align="right">26</td><td>ICMP echo</td><td>非 TCP/UDP 的流量</td></tr><tr><td align="right">27</td><td>类 QUIC 的 UDP:443</td><td>QUIC 里看不到 SNI</td></tr></tbody></table>
+<hr>
+<h2 id="五七个检查点能答上来再往下走">五、七个检查点（能答上来再往下走）</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>#</th><th>检查点</th><th>在哪一课</th></tr></thead><tbody><tr><td>1</td><td>能算出”纯 ACK = 60 字节、满载 = 1514 字节”的每一段开销</td><td>06 §1–2</td></tr><tr><td>2</td><td>能解释”为什么一次正常握手 <code>syn_packets = 2</code>”</td><td>06 §3.1 / 09 实验 2</td></tr><tr><td>3</td><td>能指出”加密的边界”在 ClientHello 之后</td><td>06 §5.2 / 09 实验 4</td></tr><tr><td>4</td><td>能解释”中位流只有 4 个包”和”120 s / 1800 s 从哪来”</td><td>06 §6 / 07 §1</td></tr><tr><td>5</td><td>能把 <code>bytes_per_pkt</code>、<code>dn_ratio</code>、<code>mean_piat</code> 各解释成一句网络行为</td><td>07 §2–5</td></tr><tr><td>6</td><td>能说清 <code>TLS.WhatsApp</code> 的两级含义，以及 nDPI 为什么不是”纯 DPI”</td><td>08 §4</td></tr><tr><td>7</td><td>能说清”为什么 JA4 识别不了 App”并给出数据证据</td><td>08 §6 / 07 §6.2</td></tr></tbody></table>
+<hr>
+<h2 id="六你的数据里最值得记住的-8-个数字">六、你的数据里最值得记住的 8 个数字</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="right">数字</th><th>含义</th><th>在哪</th></tr></thead><tbody><tr><td align="right"><strong>60 / 1514</strong></td><td>以太网最小帧 / MTU 满载帧</td><td>06 §1</td></tr><tr><td align="right"><strong>1460</strong></td><td>MSS = 1500 − 20 − 20</td><td>06 §1.3</td></tr><tr><td align="right"><strong>119,999 / 1,799,997</strong></td><td>idle 120 s / active 1800 s 两个超时（<strong>工具参数</strong>）</td><td>06 §6.3</td></tr><tr><td align="right"><strong>39.2%</strong></td><td>背景流量占比（标签噪声的主要来源）</td><td>07 §5.2 / 09 实验 6</td></tr><tr><td align="right"><strong>4</strong></td><td>流的中位包数（说明”流”极短）</td><td>07 §1.2</td></tr><tr><td align="right"><strong>0.70 → 0.47</strong></td><td>纯统计特征：同分布 70%，跨天 47%</td><td>02 §7</td></tr><tr><td align="right"><strong>0.73 → 0.44</strong></td><td>加设备 OUI：同分布 73%，<strong>换设备只有 44%</strong></td><td>02 §6.1</td></tr><tr><td align="right"><strong>0.464 → 0.716</strong></td><td>按目的 IP 多流聚合的增益（<strong>比换模型有效得多</strong>）</td><td>02 §8</td></tr></tbody></table>
+<hr>
+<h2 id="七一句话开始">七、一句话开始</h2>
+<blockquote>
+<p>打开 <a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a>，按 <code>Ctrl+F</code> 搜 <code>whatsapp</code>。
+你会落在第 6 个包里，看到 <code>mmg.whatsapp.net</code> 明晃晃地躺在那儿。</p>
+<p><strong>那一刻你就明白了整门课的核心</strong>：加密只加密了信纸，信封上的字全都在。
+剩下的四课，就是学会把这封信的”信封信息”读成一页档案。</p>
+</blockquote>
+<hr>
+<h2 id="配套下载">配套下载</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><a href="/blog/downloads/traffic-course/demo_handshake.pcap">demo_handshake.pcap</a></td><td>27 包教学抓包（Wireshark 直接打开）</td></tr><tr><td><a href="/blog/downloads/traffic-course/traffic-course-code.zip">traffic-course-code.zip</a></td><td>课程与分析脚本：scapy 造抓包、GEAD 实现、画图、数据探查</td></tr></tbody></table> </div>  </article> <div class="post-footer"> <div class="post-copyright"> <b>网络流量入门（零）：课程导览与能力阶梯</b><br>
+作者：Infinity · 发布于 2026-11-17<br>
+本文链接：<a href="https://lvjf.space/blog/posts/182ffe32.html">https://lvjf.space/blog/posts/182ffe32.html</a><br>
+版权声明：采用
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+CC BY-NC-SA 4.0
+</a>
+许可，转载请注明出处。
+</div> <div class="related-posts"> <div class="headline">相关文章</div> <ul> <li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li><li> <a href="/blog/posts/1157b43a.html">加密社交 App 流量分析（四）：总结与规则清单</a> </li><li> <a href="/blog/posts/2f1c2763.html">加密社交 App 流量分析（三）：提炼判定规则</a> </li> </ul> </div> <nav class="post-nav"> <span></span> <a class="next" href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测 →</a> </nav> </div>  </div> <aside id="aside-content"> <div class="card card-widget card-toc"> <div class="item-headline">目录</div> <ul class="card-list toc-list"> <li class> <a href="#一这门课的地基六条公理">一、这门课的地基：六条公理</a> </li><li class> <a href="#二能力阶梯自底向上">二、能力阶梯（自底向上）</a> </li><li class> <a href="#三四个文件与建议节奏">三、四个文件与建议节奏</a> </li><li class> <a href="#四配套材料">四、配套材料</a> </li><li class> <a href="#五七个检查点能答上来再往下走">五、七个检查点（能答上来再往下走）</a> </li><li class> <a href="#六你的数据里最值得记住的-8-个数字">六、你的数据里最值得记住的 8 个数字</a> </li><li class> <a href="#七一句话开始">七、一句话开始</a> </li><li class> <a href="#配套下载">配套下载</a> </li> </ul> </div> <div class="card card-widget card-info"> <div class="avatar-img"> <img src="/blog/images/icon.jpg" alt="Infinity" width="110" height="110"> </div> <div class="author-name">Infinity</div> <div class="author-info-description">格物致知，文以载道</div> <div class="site-data"> <span>文章 <b>21</b></span> <span>分类 <b>9</b></span> <span>标签 <b>47</b></span> </div> <a class="follow-btn" href="https://github.com/Jack-infinity420" target="_blank" rel="noopener">
+Follow Me
+</a> </div> <div class="card card-widget card-announcement"> <div class="item-headline">公告</div> <div class="content">格物致知，文以载道 —— 技术与人文的交汇之地</div> </div>  <div class="card card-widget"> <div class="item-headline">最新文章</div> <ul class="card-list"> <li> <a href="/blog/posts/182ffe32.html">网络流量入门（零）：课程导览与能力阶梯</a> </li><li> <a href="/blog/posts/2c4cfa12.html">网络流量入门（四）：Wireshark 动手实验与自测</a> </li><li> <a href="/blog/posts/5425b364.html">网络流量入门（三）：从端口法到 nDPI</a> </li><li> <a href="/blog/posts/eb6b5f66.html">网络流量入门（二）：92 个特征是怎么算出来的</a> </li><li> <a href="/blog/posts/27dfa1e5.html">网络流量入门（一）：从比特到流</a> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">分类</div> <ul class="card-list"> <li> <a href="/blog/categories/tech/">tech</a> <span class="count">（14）</span> </li><li> <a href="/blog/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a> <span class="count">（9）</span> </li><li> <a href="/blog/categories/AI/">AI</a> <span class="count">（3）</span> </li><li> <a href="/blog/categories/%E5%BC%80%E6%BA%90/">开源</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/humanities/">humanities</a> <span class="count">（4）</span> </li><li> <a href="/blog/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/%E9%9A%8F%E7%AC%94/">随笔</a> <span class="count">（1）</span> </li><li> <a href="/blog/categories/CTF/">CTF</a> <span class="count">（2）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">标签</div> <div class="tag-cloud"> <a href="/blog/tags/%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F/">网络流量（3）</a><a href="/blog/tags/%E6%95%99%E7%A8%8B/">教程（1）</a><a href="/blog/tags/%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/">学习方法（1）</a><a href="/blog/tags/Wireshark/">Wireshark（2）</a><a href="/blog/tags/tshark/">tshark（1）</a><a href="/blog/tags/pandas/">pandas（1）</a><a href="/blog/tags/%E5%8A%A8%E6%89%8B%E5%AE%9E%E9%AA%8C/">动手实验（1）</a><a href="/blog/tags/nDPI/">nDPI（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB/">流量识别（1）</a><a href="/blog/tags/TLS%E6%8C%87%E7%BA%B9/">TLS指纹（1）</a><a href="/blog/tags/%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B/">深度包检测（1）</a><a href="/blog/tags/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B/">特征工程（1）</a><a href="/blog/tags/NFStream/">NFStream（1）</a><a href="/blog/tags/TCP/">TCP（1）</a><a href="/blog/tags/TLS/">TLS（1）</a><a href="/blog/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析（3）</a><a href="/blog/tags/%E6%80%BB%E7%BB%93/">总结（1）</a><a href="/blog/tags/%E8%A7%84%E5%88%99%E6%8F%90%E7%82%BC/">规则提炼（1）</a><a href="/blog/tags/%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7/">可解释性（2）</a><a href="/blog/tags/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树（1）</a><a href="/blog/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习（1）</a><a href="/blog/tags/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F/">加密流量（1）</a><a href="/blog/tags/%E5%AD%A6%E6%9C%AF%E8%AE%BA%E6%96%87/">学术论文（1）</a><a href="/blog/tags/DeepSeek%2C%20%E6%A2%81%E6%96%87%E9%94%8B%2C%20AGI%2C%20%E5%88%9B%E4%B8%9A/">DeepSeek, 梁文锋, AGI, 创业（1）</a><a href="/blog/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/">边缘计算（1）</a><a href="/blog/tags/AI/">AI（1）</a><a href="/blog/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉（1）</a><a href="/blog/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机（1）</a><a href="/blog/tags/Agent/">Agent（1）</a><a href="/blog/tags/Claude%20Code/">Claude Code（1）</a><a href="/blog/tags/Cursor/">Cursor（1）</a><a href="/blog/tags/Codex%20CLI/">Codex CLI（1）</a><a href="/blog/tags/TRAE/">TRAE（1）</a><a href="/blog/tags/%E6%8F%92%E4%BB%B6/">插件（1）</a><a href="/blog/tags/%E5%B7%A5%E4%BD%9C%E5%88%B6%E5%BA%A6/">工作制度（1）</a><a href="/blog/tags/GitHub/">GitHub（1）</a><a href="/blog/tags/%E5%BB%BA%E7%AB%99%E5%BF%97/">建站志（2）</a><a href="/blog/tags/%E7%A7%91%E5%B9%BB/">科幻（1）</a><a href="/blog/tags/%E8%AF%BB%E5%90%8E%E6%9C%AD%E8%AE%B0/">读后札记（1）</a><a href="/blog/tags/%E9%9A%8F%E7%AC%94/">随笔（1）</a> </div> </div> <div class="card card-widget"> <div class="item-headline">归档</div> <ul class="card-list"> <li> <a href="/blog/archives/">2026年11月</a> <span class="count">（9）</span> </li><li> <a href="/blog/archives/">2026年07月</a> <span class="count">（1）</span> </li><li> <a href="/blog/archives/">2026年06月</a> <span class="count">（3）</span> </li><li> <a href="/blog/archives/">2026年04月</a> <span class="count">（7）</span> </li><li> <a href="/blog/archives/">2026年03月</a> <span class="count">（1）</span> </li> </ul> </div> <div class="card card-widget"> <div class="item-headline">站点信息</div> <ul class="card-list"> <li>文章总数：<b>21</b></li> <li>
+最近更新：
+2026-11-17 </li> <li>建站时间：2025</li> </ul> </div> </aside> </div> <footer id="footer"> <div>© 2025–2026 Infinity<span class="sep">|</span>格物致知，文以载道</div> <div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> <span class="sep">|</span>
+Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · Theme Infinity
+</div> <div>
+访客数 <b id="busuanzi_site_uv">--</b> <span class="sep">|</span>
+访问量 <b id="busuanzi_site_pv">--</b> </div> </footer> <!-- 天气系统（weather-config.js 由 scripts/gen-weather-config.mjs 生成） --> <script src="/blog/js/weather-config.js"></script> <script src="/blog/js/geo.js"></script> <script src="/blog/js/weather.js"></script> <script src="/blog/js/poetry.js"></script> <script src="/blog/js/weather-card.js"></script> <script src="/blog/js/weather-init.js"></script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script src="/blog/js/busuanzi-today.js"></script> <script>
+      // PJAX → View Transitions 等价挂载点
+      document.addEventListener('astro:after-swap', function () {
+        if (window.WeatherCard) window.WeatherCard.rerender();
+        // View Transitions 软导航 → 手动上报百度 PV
+        if (window._hmt) {
+          window._hmt.push(['_trackPageview', location.pathname]);
+        }
+      });
+    </script> </body> </html>
